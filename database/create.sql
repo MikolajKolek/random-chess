@@ -1,0 +1,127 @@
+-- Based on the schema exported from QuickDBD: https://www.quickdatabasediagrams.com/
+-- Link to schema: https://app.quickdatabasediagrams.com/#/d/SrPe3s
+
+CREATE OR REPLACE FUNCTION normalize_pgn(pgn varchar)
+    RETURNS varchar
+    IMMUTABLE
+    LANGUAGE plpgsql
+    AS $$
+        DECLARE
+            res varchar;
+        BEGIN
+            res := regexp_replace(pgn, '\[[^\]]*\]', '', 'g');                  -- tagi (metadane)
+            res := regexp_replace(res, '\{[^}]*\}', '', 'g');                   -- komentarze multi-line
+            res := regexp_replace(res, ';.+$', '', 'g');                        -- komentarze single-line
+            res := regexp_replace(res, E'[\\n\\r ]+', ' ', 'g');
+            res := regexp_replace(res, '\([^()]*\)', '', 'g');                  -- alternatywne ruchy
+            res := regexp_replace(res, '\d+\.(\.\.)?\s*', '', 'g');             -- numery tur
+            res := trim(res);
+            res := regexp_replace(res, '\s*(1-0|0-1|1/2-1/2|\*)\s*$', '', 'g'); -- wynik
+            RETURN res;
+        END;
+    $$;
+
+
+CREATE TABLE "openings"
+(
+    "id"                    INT        PRIMARY KEY,
+    "ECO"                   CHAR(3)    NOT NULL,
+    "name"                  VARCHAR    NOT NULL,
+    "pgn_prefix"            VARCHAR    UNIQUE NOT NULL,
+    "normalized_pgn_prefix" VARCHAR    GENERATED ALWAYS AS (normalize_pgn(pgn_prefix)) STORED
+);
+
+
+CREATE TABLE "users"
+(
+    "id"                SERIAL          PRIMARY KEY,
+    "email"             VARCHAR         UNIQUE NOT NULL,
+    "password_hash"     VARCHAR(256)    NOT NULL,
+    "elo"               NUMERIC         NOT NULL,
+    -- Regex pochodzi z https://emailregex.com/
+    CONSTRAINT proper_email CHECK (email ~* '(?:[a-z0-9!#$%&''''*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&''''*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])')
+);
+
+
+CREATE TABLE "game_services"
+(
+    "id"   int          PRIMARY KEY,
+    "name" VARCHAR(256) NOT NULL -- unknown, local, OTB, lichess.org, chess.com i inne...?
+);
+
+
+CREATE TABLE "service_accounts"
+(
+    "user_id"           INT          NULL        REFERENCES users(id),
+    "service_id"        INT             NOT NULL    REFERENCES game_services(id),
+    "service_user_id"   VARCHAR         NOT NULL,
+    "display_name"      VARCHAR(256)    NOT NULL,
+    "is_bot"            BOOL            NOT NULL, -- też dajemy informację jak to bot w zewnętrznym serwisie
+    CONSTRAINT "pk_service_accounts" PRIMARY KEY ("service_id", "service_user_id")
+);
+
+
+-- Dla każdego usera istnieje dokładnie jeden service_account z service_id naszego serwisu
+-- Nazwą użytkownika jest jego nazwa w naszym serwisie
+CREATE TABLE "games"
+(
+    -- CHECK(FALSE) uniemożliwia insertowanie bezpośrednio do tabeli games, zmuszjąc do insertowania do service_games lub pgn_games
+    "id"                SERIAL          PRIMARY KEY CHECK(FALSE) NO INHERIT,
+    "moves"             VARCHAR         NOT NULL,
+    "date"              TIMESTAMP       NULL
+);
+
+CREATE TABLE "service_games"
+(
+    -- Co będziemy tu trzymać dla naszego service?
+    "game_id_in_service" VARCHAR        NOT NULL,
+    "service_id"         INT            NOT NULL    REFERENCES "game_services" ("id"),
+    "white_player"       VARCHAR        NOT NULL,
+    "black_player"       VARCHAR        NOT NULL
+) INHERITS("games");
+
+ALTER TABLE "service_games"
+    ADD CONSTRAINT "fk_service_games_service_id_white_player" FOREIGN KEY ("service_id", "white_player")
+        REFERENCES "service_accounts" ("service_id", "service_user_id"),
+    ADD CONSTRAINT "fk_service_games_service_id_black_player" FOREIGN KEY ("service_id", "black_player")
+        REFERENCES "service_accounts" ("service_id", "service_user_id");
+
+
+CREATE TABLE "pgn_games"
+(
+    "owner_id"          INT             NOT NULL    REFERENCES "users" ("id"),
+    "black_player_name" VARCHAR         NOT NULL,
+    "white_player_name" VARCHAR         NOT NULL,
+    "metadata"          JSON            NOT NULL
+) INHERITS("games");
+
+CREATE MATERIALIZED VIEW game_openings AS (
+    SELECT g.id as game_id, o.id as opening_id
+    FROM games g
+    LEFT JOIN openings o ON(normalize_pgn(g.moves) LIKE o.normalized_pgn_prefix || '%' ESCAPE '\')
+    -- TODO: limit to give only the longest opening
+);
+-- TODO: dodać indeksy (primary key i foreign key jeśli się da) do game_openings
+
+INSERT INTO game_services(id, name) VALUES
+    (0, 'Random Chess'),
+    (1, 'chess.com'),
+    (2, 'lichess.org');
+
+-- INSERT INTO service_accounts("service_id", "service_user_id", "is_bot", "display_name") VALUES
+--      ()
+
+-- INSERT INTO service_games("moves", "date", service_id, "game_id_in_service", white_player, black_player) VALUES
+--     (
+--         '1. e4 d5 2. exd5 Qxd5 3. Nc3 Qd8 { B01 Scandinavian Defense: Valencian Variation } 4. d4 Nf6 5. Nf3 g6 6. Bc4 Bg7 7. O-O O-O 8. Re1 Nbd7 9. Bg5 Nb6 10. Bd3 c6 11. Ne2 Nbd5 12. c3 Nb6 13. h3 Re8 14. Ng3 Be6 15. Qd2 Qd7 16. Bh6 Rad8 17. Ng5 Bxh6 18. N3e4 Nxe4 19. Bxe4 Bd5 20. Bd3 f6 21. h4 fxg5 22. hxg5 Bg7 23. a4 e5 24. a5 Nc4 25. Qe2 exd4 26. Bxc4 Rxe2 27. Bxd5+ Qxd5 28. Rxe2 dxc3 { White resigns. } 0-1',
+--         '2025-04-24T16:02:54Z',
+--         2,
+--         'zGsFNtCE',
+--         'TLTLTLTLTLTLTLTLTIT',
+--         'chess-art-us'
+--     );
+
+/*INSERT INTO users(email, password_hash, elo) VALUES ('test@[1.1.1.1]', '123', 0)
+INSERT INTO pgn_games("id", "moves", "date", "owner_id", "black_player_name", "white_player_name", "metadata") VALUES
+                                             (1, '69', '2003-04-12 04:05:06', 1, 'a', 'b', '{}')
+*/
