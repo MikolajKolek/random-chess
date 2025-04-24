@@ -46,13 +46,13 @@ CREATE TABLE "users"
 CREATE TABLE "game_services"
 (
     "id"   int          PRIMARY KEY,
-    "name" VARCHAR(256) NOT NULL -- unknown, local, OTB, lichess.org, chess.com i inne...?
+    "name" VARCHAR(256) NOT NULL -- local, OTB, lichess.org, chess.com i inne...?
 );
 
 
 CREATE TABLE "service_accounts"
 (
-    "user_id"           INT          NULL        REFERENCES users(id),
+    "user_id"           INT             NULL        REFERENCES users(id),
     "service_id"        INT             NOT NULL    REFERENCES game_services(id),
     "service_user_id"   VARCHAR         NOT NULL,
     "display_name"      VARCHAR(256)    NOT NULL,
@@ -86,7 +86,6 @@ ALTER TABLE "service_games"
     ADD CONSTRAINT "fk_service_games_service_id_black_player" FOREIGN KEY ("service_id", "black_player")
         REFERENCES "service_accounts" ("service_id", "service_user_id");
 
-
 CREATE TABLE "pgn_games"
 (
     "owner_id"          INT             NOT NULL    REFERENCES "users" ("id"),
@@ -94,6 +93,7 @@ CREATE TABLE "pgn_games"
     "white_player_name" VARCHAR         NOT NULL,
     "metadata"          JSON            NOT NULL
 ) INHERITS("games");
+
 
 CREATE MATERIALIZED VIEW game_openings AS (
     SELECT g.id as game_id, o.id as opening_id
@@ -103,10 +103,86 @@ CREATE MATERIALIZED VIEW game_openings AS (
 );
 -- TODO: dodać indeksy (primary key i foreign key jeśli się da) do game_openings
 
+
 INSERT INTO game_services(id, name) VALUES
     (0, 'Random Chess'),
     (1, 'chess.com'),
     (2, 'lichess.org');
+
+
+CREATE OR REPLACE FUNCTION add_default_service_to_user()
+    RETURNS TRIGGER
+    LANGUAGE plpgsql
+AS
+$$
+BEGIN
+    INSERT INTO service_accounts(user_id, service_id, service_user_id, display_name, is_bot) VALUES (
+        NEW.id, 0, NEW.id, NEW.email, FALSE
+    );
+    RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION prevent_default_service_modification()
+    RETURNS TRIGGER
+    LANGUAGE plpgsql
+AS
+$$
+BEGIN
+    -- Sprawdzenie pg_trigger_depth() sprawia, że usunięcie może być wykonane przez users_delete_unlink_all_accounts
+    IF (OLD.service_id = 0) AND (old.user_id IS NOT NULL) AND (pg_trigger_depth() = 1)  THEN
+        RAISE EXCEPTION 'Cannot modify default service account for user %', OLD.user_id;
+    END IF;
+
+    RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION prevent_default_service_deletion()
+    RETURNS TRIGGER
+    LANGUAGE plpgsql
+AS
+$$
+BEGIN
+    IF (OLD.service_id = 0) AND (old.user_id IS NOT NULL) THEN
+        RAISE EXCEPTION 'Cannot delete default service account for user %', OLD.user_id;
+    END IF;
+
+    RETURN OLD;
+END;
+$$;
+
+CREATE OR REPLACE TRIGGER users_insert_add_default_service
+    AFTER INSERT ON users
+    FOR EACH ROW
+EXECUTE FUNCTION add_default_service_to_user();
+
+CREATE OR REPLACE TRIGGER service_accounts_update_prevent_for_default_service
+    BEFORE UPDATE ON service_accounts
+    FOR EACH ROW
+EXECUTE FUNCTION prevent_default_service_modification();
+
+CREATE OR REPLACE TRIGGER service_accounts_delete_prevent_for_default_service
+    BEFORE DELETE ON service_accounts
+    FOR EACH ROW
+EXECUTE FUNCTION prevent_default_service_deletion();
+
+
+CREATE OR REPLACE FUNCTION unlink_all_user_accounts()
+    RETURNS TRIGGER
+    LANGUAGE plpgsql
+AS
+$$
+BEGIN
+    UPDATE service_accounts SET user_id = NULL WHERE user_id = OLD.id;
+    RETURN OLD;
+END;
+$$;
+
+CREATE OR REPLACE TRIGGER users_delete_unlink_all_accounts
+    BEFORE DELETE ON users
+    FOR EACH ROW
+EXECUTE FUNCTION unlink_all_user_accounts();
 
 -- INSERT INTO service_accounts("service_id", "service_user_id", "is_bot", "display_name") VALUES
 --      ()
@@ -121,7 +197,7 @@ INSERT INTO game_services(id, name) VALUES
 --         'chess-art-us'
 --     );
 
-/*INSERT INTO users(email, password_hash, elo) VALUES ('test@[1.1.1.1]', '123', 0)
+INSERT INTO users(email, password_hash, elo) VALUES ('test@[1.1.1.1]', '123', 0)/*
 INSERT INTO pgn_games("id", "moves", "date", "owner_id", "black_player_name", "white_player_name", "metadata") VALUES
                                              (1, '69', '2003-04-12 04:05:06', 1, 'a', 'b', '{}')
 */
