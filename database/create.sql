@@ -68,7 +68,8 @@ CREATE TABLE "games"
     -- CHECK(FALSE) uniemożliwia insertowanie bezpośrednio do tabeli games, zmuszjąc do insertowania do service_games lub pgn_games
     "id"                SERIAL          PRIMARY KEY CHECK(FALSE) NO INHERIT,
     "moves"             VARCHAR         NOT NULL,
-    "date"              TIMESTAMP       NULL
+    "date"              TIMESTAMP       NULL,
+    "metadata"          JSON            NOT NULL
 );
 
 CREATE TABLE "service_games"
@@ -90,8 +91,7 @@ CREATE TABLE "pgn_games"
 (
     "owner_id"          INT             NOT NULL    REFERENCES "users" ("id"),
     "black_player_name" VARCHAR         NOT NULL,
-    "white_player_name" VARCHAR         NOT NULL,
-    "metadata"          JSON            NOT NULL
+    "white_player_name" VARCHAR         NOT NULL
 ) INHERITS("games");
 
 
