@@ -39,14 +39,14 @@ CREATE TABLE "users"
     "password_hash"     VARCHAR(256)    NOT NULL,
     "elo"               NUMERIC         NOT NULL,
     -- Regex pochodzi z https://emailregex.com/
-    CONSTRAINT proper_email CHECK (email ~* '(?:[a-z0-9!#$%&''''*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&''''*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])')
+    CONSTRAINT valid_email CHECK (email ~* '(?:[a-z0-9!#$%&''''*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&''''*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])')
 );
 
 
 CREATE TABLE "game_services"
 (
     "id"   int          PRIMARY KEY,
-    "name" VARCHAR(256) NOT NULL -- local, OTB, lichess.org, chess.com i inne...?
+    "name" VARCHAR(256) NOT NULL
 );
 
 
@@ -61,11 +61,10 @@ CREATE TABLE "service_accounts"
 );
 
 
--- Dla każdego usera istnieje dokładnie jeden service_account z service_id naszego serwisu
--- Nazwą użytkownika jest jego nazwa w naszym serwisie
 CREATE TABLE "games"
 (
-    -- CHECK(FALSE) uniemożliwia insertowanie bezpośrednio do tabeli games, zmuszjąc do insertowania do service_games lub pgn_games
+    -- CHECK(FALSE) NO INHERIT uniemożliwia insertowanie bezpośrednio do tabeli games,
+    -- zmuszając do insertowania do service_games lub pgn_games
     "id"                SERIAL          PRIMARY KEY CHECK(FALSE) NO INHERIT,
     "moves"             VARCHAR         NOT NULL,
     "date"              TIMESTAMP       NULL,
@@ -74,18 +73,15 @@ CREATE TABLE "games"
 
 CREATE TABLE "service_games"
 (
-    -- Co będziemy tu trzymać dla naszego service?
     "game_id_in_service" VARCHAR        NOT NULL,
     "service_id"         INT            NOT NULL    REFERENCES "game_services" ("id"),
     "white_player"       VARCHAR        NOT NULL,
-    "black_player"       VARCHAR        NOT NULL
-) INHERITS("games");
-
-ALTER TABLE "service_games"
-    ADD CONSTRAINT "fk_service_games_service_id_white_player" FOREIGN KEY ("service_id", "white_player")
+    "black_player"       VARCHAR        NOT NULL,
+    CONSTRAINT "fk_service_games_service_id_white_player" FOREIGN KEY ("service_id", "white_player")
         REFERENCES "service_accounts" ("service_id", "service_user_id"),
-    ADD CONSTRAINT "fk_service_games_service_id_black_player" FOREIGN KEY ("service_id", "black_player")
-        REFERENCES "service_accounts" ("service_id", "service_user_id");
+    CONSTRAINT "fk_service_games_service_id_black_player" FOREIGN KEY ("service_id", "black_player")
+        REFERENCES "service_accounts" ("service_id", "service_user_id")
+) INHERITS("games");
 
 CREATE TABLE "pgn_games"
 (
@@ -104,11 +100,10 @@ CREATE MATERIALIZED VIEW game_openings AS (
 -- TODO: dodać indeksy (primary key i foreign key jeśli się da) do game_openings
 
 
-INSERT INTO game_services(id, name) VALUES
-    (0, 'Random Chess'),
-    (1, 'chess.com'),
-    (2, 'lichess.org');
-
+-- Dla każdego użytkownika istnieje dokładnie jeden service_account z service_id naszego serwisu (0)
+-- Przechowywana tam nazwa użytkownika jest jego nazwą w naszym serwisie
+-- Poniższe triggery sprawiają, że ten service_account zawsze istnieje póki użytkownik istnieje
+INSERT INTO game_services(id, name) VALUES (0, 'Random Chess');
 
 CREATE OR REPLACE FUNCTION add_default_service_to_user()
     RETURNS TRIGGER
@@ -129,7 +124,8 @@ CREATE OR REPLACE FUNCTION prevent_default_service_modification()
 AS
 $$
 BEGIN
-    -- Sprawdzenie pg_trigger_depth() sprawia, że usunięcie może być wykonane przez users_delete_unlink_all_accounts
+    -- Sprawdzenie pg_trigger_depth() sprawia, że users_delete_unlink_all_accounts może
+    -- odłączyć service_account przed usunięciem użytkownika
     IF (OLD.service_id = 0) AND (old.user_id IS NOT NULL) AND (pg_trigger_depth() = 1)  THEN
         RAISE EXCEPTION 'Cannot modify default service account for user %', OLD.user_id;
     END IF;
@@ -168,6 +164,8 @@ CREATE OR REPLACE TRIGGER service_accounts_delete_prevent_for_default_service
 EXECUTE FUNCTION prevent_default_service_deletion();
 
 
+-- Usunięcie użytkownika pierwsze odłącza wszystkie service_accounts od jego konta, ale
+-- nie usuwa ich, aby inni użytkownicy mogli dalej je widzieć
 CREATE OR REPLACE FUNCTION unlink_all_user_accounts()
     RETURNS TRIGGER
     LANGUAGE plpgsql
@@ -184,6 +182,11 @@ CREATE OR REPLACE TRIGGER users_delete_unlink_all_accounts
     FOR EACH ROW
 EXECUTE FUNCTION unlink_all_user_accounts();
 
+
+INSERT INTO game_services(id, name) VALUES
+    (1, 'chess.com'),
+    (2, 'lichess.org');
+
 -- INSERT INTO service_accounts("service_id", "service_user_id", "is_bot", "display_name") VALUES
 --      ()
 
@@ -197,7 +200,7 @@ EXECUTE FUNCTION unlink_all_user_accounts();
 --         'chess-art-us'
 --     );
 
-INSERT INTO users(email, password_hash, elo) VALUES ('test@[1.1.1.1]', '123', 0)/*
+/*INSERT INTO users(email, password_hash, elo) VALUES ('test@[1.1.1.1]', '123', 0)
 INSERT INTO pgn_games("id", "moves", "date", "owner_id", "black_player_name", "white_player_name", "metadata") VALUES
                                              (1, '69', '2003-04-12 04:05:06', 1, 'a', 'b', '{}')
 */
