@@ -68,7 +68,7 @@ CREATE TABLE "games"
     "id"                SERIAL          PRIMARY KEY CHECK(FALSE) NO INHERIT,
     "moves"             VARCHAR         NOT NULL,
     "date"              TIMESTAMP       NULL,
-    "metadata"          JSON            NOT NULL
+    "metadata"          JSONB           NOT NULL
 );
 
 CREATE TABLE "service_games"
