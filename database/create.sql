@@ -28,7 +28,7 @@ CREATE TABLE "openings"
     "ECO"                   CHAR(3)    NOT NULL,
     "name"                  VARCHAR    NOT NULL,
     "pgn_prefix"            VARCHAR    UNIQUE NOT NULL,
-    "normalized_pgn_prefix" VARCHAR    GENERATED ALWAYS AS (normalize_pgn(pgn_prefix)) STORED
+    "normalized_pgn_prefix" VARCHAR    UNIQUE GENERATED ALWAYS AS (normalize_pgn(pgn_prefix)) STORED
 );
 
 
@@ -52,11 +52,11 @@ CREATE TABLE "game_services"
 
 CREATE TABLE "service_accounts"
 (
-    "user_id"           INT             NULL        REFERENCES users(id),
-    "service_id"        INT             NOT NULL    REFERENCES game_services(id),
-    "service_user_id"   VARCHAR         NOT NULL,
-    "display_name"      VARCHAR(256)    NOT NULL,
-    "is_bot"            BOOL            NOT NULL, -- też dajemy informację jak to bot w zewnętrznym serwisie
+    "user_id"               INT             NULL        REFERENCES users(id),
+    "service_id"            INT             NOT NULL    REFERENCES game_services(id),
+    "user_id_in_service"    VARCHAR         NOT NULL,
+    "display_name"          VARCHAR(256)    NOT NULL,
+    "is_bot"                BOOL            NOT NULL, -- też dajemy informację jak to bot w zewnętrznym serwisie
     CONSTRAINT "pk_service_accounts" PRIMARY KEY ("service_id", "service_user_id")
 );
 
