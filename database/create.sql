@@ -57,7 +57,7 @@ CREATE TABLE "service_accounts"
     "user_id_in_service"    VARCHAR         NOT NULL,
     "display_name"          VARCHAR(256)    NOT NULL,
     "is_bot"                BOOL            NOT NULL, -- też dajemy informację jak to bot w zewnętrznym serwisie
-    CONSTRAINT "pk_service_accounts" PRIMARY KEY ("service_id", "service_user_id")
+    CONSTRAINT "pk_service_accounts" PRIMARY KEY ("service_id", "user_id_in_service")
 );
 
 
@@ -78,9 +78,9 @@ CREATE TABLE "service_games"
     "white_player"       VARCHAR        NOT NULL,
     "black_player"       VARCHAR        NOT NULL,
     CONSTRAINT "fk_service_games_service_id_white_player" FOREIGN KEY ("service_id", "white_player")
-        REFERENCES "service_accounts" ("service_id", "service_user_id"),
+        REFERENCES "service_accounts" ("service_id", "user_id_in_service"),
     CONSTRAINT "fk_service_games_service_id_black_player" FOREIGN KEY ("service_id", "black_player")
-        REFERENCES "service_accounts" ("service_id", "service_user_id")
+        REFERENCES "service_accounts" ("service_id", "user_id_in_service")
 ) INHERITS("games");
 
 CREATE TABLE "pgn_games"
@@ -111,7 +111,7 @@ CREATE OR REPLACE FUNCTION add_default_service_to_user()
 AS
 $$
 BEGIN
-    INSERT INTO service_accounts(user_id, service_id, service_user_id, display_name, is_bot) VALUES (
+    INSERT INTO service_accounts(user_id, service_id, user_id_in_service, display_name, is_bot) VALUES (
         NEW.id, 0, NEW.id, NEW.email, FALSE
     );
     RETURN NEW;
@@ -187,7 +187,7 @@ INSERT INTO game_services(id, name) VALUES
     (1, 'chess.com'),
     (2, 'lichess.org');
 
--- INSERT INTO service_accounts("service_id", "service_user_id", "is_bot", "display_name") VALUES
+-- INSERT INTO service_accounts("service_id", "user_id_in_service", "is_bot", "display_name") VALUES
 --      ()
 
 -- INSERT INTO service_games("moves", "date", service_id, "game_id_in_service", white_player, black_player) VALUES
