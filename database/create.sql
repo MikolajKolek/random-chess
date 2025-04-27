@@ -124,8 +124,8 @@ CREATE OR REPLACE FUNCTION prevent_default_service_modification()
 AS
 $$
 BEGIN
-    -- Sprawdzenie pg_trigger_depth() sprawia, że users_delete_unlink_all_accounts może
-    -- odłączyć service_account przed usunięciem użytkownika
+    -- Sprawdzenie pg_trigger_depth() sprawia, że ON DELETE SET NULL
+    -- w "user_id" service_accounts może zadziałać
     IF (OLD.service_id = 0) AND (old.user_id IS NOT NULL) AND (pg_trigger_depth() = 1)  THEN
         RAISE EXCEPTION 'Cannot modify default service account for user %', OLD.user_id;
     END IF;
