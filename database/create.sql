@@ -91,13 +91,13 @@ CREATE TABLE "pgn_games"
 ) INHERITS("games");
 
 
-CREATE MATERIALIZED VIEW game_openings AS (
+CREATE VIEW game_openings AS (
     SELECT g.id as game_id, o.id as opening_id
-    FROM games g
-    LEFT JOIN openings o ON(normalize_pgn(g.moves) LIKE o.normalized_pgn_prefix || '%' ESCAPE '\')
-    -- TODO: limit to give only the longest opening
+    FROM openings o
+    INNER JOIN games g ON(normalize_pgn(g.moves) LIKE o.normalized_pgn_prefix || '%' ESCAPE '\')
 );
--- TODO: dodać indeksy (primary key i foreign key jeśli się da) do game_openings
+-- TODO: jeśli zmienimy game_openings na MATERIALIZED VIEW, to
+-- utworzyć ograniczenia/indeksy (primary key i foreign keys) do game_openings
 
 
 -- Dla każdego użytkownika istnieje dokładnie jeden service_account z service_id naszego serwisu (0)
