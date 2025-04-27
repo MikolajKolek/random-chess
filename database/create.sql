@@ -52,7 +52,7 @@ CREATE TABLE "game_services"
 
 CREATE TABLE "service_accounts"
 (
-    "user_id"               INT             NULL        REFERENCES users(id),
+    "user_id"               INT             NULL        REFERENCES users(id) ON DELETE SET NULL,
     "service_id"            INT             NOT NULL    REFERENCES game_services(id),
     "user_id_in_service"    VARCHAR         NOT NULL,
     "display_name"          VARCHAR(256)    NOT NULL,
@@ -162,25 +162,6 @@ CREATE OR REPLACE TRIGGER service_accounts_delete_prevent_for_default_service
     BEFORE DELETE ON service_accounts
     FOR EACH ROW
 EXECUTE FUNCTION prevent_default_service_deletion();
-
-
--- Usunięcie użytkownika pierwsze odłącza wszystkie service_accounts od jego konta, ale
--- nie usuwa ich, aby inni użytkownicy mogli dalej je widzieć
-CREATE OR REPLACE FUNCTION unlink_all_user_accounts()
-    RETURNS TRIGGER
-    LANGUAGE plpgsql
-AS
-$$
-BEGIN
-    UPDATE service_accounts SET user_id = NULL WHERE user_id = OLD.id;
-    RETURN OLD;
-END;
-$$;
-
-CREATE OR REPLACE TRIGGER users_delete_unlink_all_accounts
-    BEFORE DELETE ON users
-    FOR EACH ROW
-EXECUTE FUNCTION unlink_all_user_accounts();
 
 
 INSERT INTO game_services(id, name) VALUES
