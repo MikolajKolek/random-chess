@@ -1,34 +1,12 @@
--- Based on the schema exported from QuickDBD: https://www.quickdatabasediagrams.com/
--- Link to schema: https://app.quickdatabasediagrams.com/#/d/SrPe3s
-
-CREATE OR REPLACE FUNCTION normalize_pgn(pgn varchar)
-    RETURNS varchar
-    IMMUTABLE
-    LANGUAGE plpgsql
-    AS $$
-        DECLARE
-            res varchar;
-        BEGIN
-            res := regexp_replace(pgn, '\[[^\]]*\]', '', 'g');                  -- tagi (metadane)
-            res := regexp_replace(res, '\{[^}]*\}', '', 'g');                   -- komentarze multi-line
-            res := regexp_replace(res, ';.+$', '', 'g');                        -- komentarze single-line
-            res := regexp_replace(res, E'[\\n\\r ]+', ' ', 'g');
-            res := regexp_replace(res, '\([^()]*\)', '', 'g');                  -- alternatywne ruchy
-            res := regexp_replace(res, '\d+\.(\.\.)?\s*', '', 'g');             -- numery tur
-            res := trim(res);
-            res := regexp_replace(res, '\s*(1-0|0-1|1/2-1/2|\*)\s*$', '', 'g'); -- wynik
-            RETURN res;
-        END;
-    $$;
-
-
+-- Tabelę openings możemy bazować np. na https://github.com/lichess-org/chess-openings
 CREATE TABLE "openings"
 (
-    "id"                    INT        PRIMARY KEY,
-    "ECO"                   CHAR(3)    NOT NULL,
+    "id"                    SERIAL     PRIMARY KEY,
+    -- ECO: https://en.wikipedia.org/wiki/Encyclopaedia_of_Chess_Openings
+    "eco"                   CHAR(3)    NOT NULL,
     "name"                  VARCHAR    NOT NULL,
-    "pgn_prefix"            VARCHAR    UNIQUE NOT NULL,
-    "normalized_pgn_prefix" VARCHAR    UNIQUE GENERATED ALWAYS AS (normalize_pgn(pgn_prefix)) STORED
+    -- EPD: https://www.chessprogramming.org/Extended_Position_Description
+    "epd"                   VARCHAR    UNIQUE NOT NULL
 );
 
 
@@ -36,8 +14,8 @@ CREATE TABLE "users"
 (
     "id"                SERIAL          PRIMARY KEY,
     "email"             VARCHAR         UNIQUE NOT NULL,
-    "password_hash"     VARCHAR(256)    NOT NULL,
-    "elo"               NUMERIC         NOT NULL,
+    "password_hash"     VARCHAR         NOT NULL,
+    "elo"               NUMERIC         NOT NULL DEFAULT 1500,
     -- Regex pochodzi z https://emailregex.com/
     CONSTRAINT valid_email CHECK (email ~* '(?:[a-z0-9!#$%&''''*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&''''*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])')
 );
@@ -45,19 +23,31 @@ CREATE TABLE "users"
 
 CREATE TABLE "game_services"
 (
-    "id"   int          PRIMARY KEY,
-    "name" VARCHAR(256) NOT NULL
+    "id"   SERIAL       PRIMARY KEY,
+    "name" VARCHAR(256) UNIQUE NOT NULL
 );
+INSERT INTO game_services(name) VALUES ('Random Chess');
 
 
+-- Dla każdego użytkownika istnieje dokładnie jeden service_account z service_id naszego serwisu (1)
+-- Przechowywana tam nazwa użytkownika jest jego nazwą w naszym serwisie
 CREATE TABLE "service_accounts"
 (
-    "user_id"               INT             NULL        REFERENCES users(id) ON DELETE SET NULL,
-    "service_id"            INT             NOT NULL    REFERENCES game_services(id),
-    "user_id_in_service"    VARCHAR         NOT NULL,
-    "display_name"          VARCHAR(256)    NOT NULL,
-    "is_bot"                BOOL            NOT NULL, -- też dajemy informację jak to bot w zewnętrznym serwisie
-    CONSTRAINT "pk_service_accounts" PRIMARY KEY ("service_id", "user_id_in_service")
+    "user_id"            INT          NULL REFERENCES users (id) ON DELETE SET NULL,
+    "service_id"         INT          NOT NULL REFERENCES game_services (id),
+    "user_id_in_service" VARCHAR      NOT NULL,
+    "display_name"       VARCHAR(256) NOT NULL,
+    "is_bot"             BOOL         NOT NULL,
+    CONSTRAINT "pk_service_accounts" PRIMARY KEY ("service_id", "user_id_in_service"),
+    -- Dla service_accounts w naszym serwisie (z service_id = 1) zawsze zachodzi jedna z dwóch opcji:
+    -- - Konto to bot, w jakim razie is_bot = TRUE, user_id IS NULL
+    -- - Konto to użytkownik, w jakim razie albo użytkownik istnieje i user_id = user_id_in_service, albo
+    --   użytkownik został już usunięty, i user_id IS NULL
+    CONSTRAINT "valid_system_account" CHECK (
+        ("service_id" != 1) OR
+        ((is_bot = TRUE) AND (user_id IS NULL)) OR
+        ((is_bot = FALSE) AND ((user_id::varchar = user_id_in_service) OR (user_id IS NULL)))
+        )
 );
 
 
@@ -69,6 +59,8 @@ CREATE TABLE "games"
     "moves"             VARCHAR         NOT NULL,
     "date"              TIMESTAMP       NULL,
     "metadata"          JSONB           NOT NULL
+    -- TODO: napisać funkcję generującą listę pozycji w formacie EPD dla gry
+    -- "epd_positions"     VARCHAR[]       GENERATED ALWAYS AS ()
 );
 
 CREATE TABLE "service_games"
@@ -85,26 +77,20 @@ CREATE TABLE "service_games"
 
 CREATE TABLE "pgn_games"
 (
-    "owner_id"          INT             NOT NULL    REFERENCES "users" ("id"),
+    "owner_id"          INT             NOT NULL    REFERENCES "users" ("id") ON DELETE CASCADE,
     "black_player_name" VARCHAR         NOT NULL,
     "white_player_name" VARCHAR         NOT NULL
 ) INHERITS("games");
 
 
-CREATE VIEW game_openings AS (
-    SELECT g.id as game_id, o.id as opening_id
-    FROM openings o
-    INNER JOIN games g ON(normalize_pgn(g.moves) LIKE o.normalized_pgn_prefix || '%' ESCAPE '\')
-);
--- TODO: jeśli zmienimy game_openings na MATERIALIZED VIEW, to
--- utworzyć ograniczenia/indeksy (primary key i foreign keys) do game_openings
+-- TODO: stworzyć view który na podstawie tabeli openings i epd_positions w games przypisuje każdej grze opening
+/*CREATE VIEW game_openings AS (
+
+);*/
 
 
--- Dla każdego użytkownika istnieje dokładnie jeden service_account z service_id naszego serwisu (0)
--- Przechowywana tam nazwa użytkownika jest jego nazwą w naszym serwisie
--- Poniższe triggery sprawiają, że ten service_account zawsze istnieje póki użytkownik istnieje
-INSERT INTO game_services(id, name) VALUES (0, 'Random Chess');
-
+-- Poniższe triggery sprawiają, że service_account użytkownika w naszym serwisie
+-- zawsze istnieje póki użytkownik istnieje
 CREATE OR REPLACE FUNCTION add_default_service_to_user()
     RETURNS TRIGGER
     LANGUAGE plpgsql
@@ -112,7 +98,7 @@ AS
 $$
 BEGIN
     INSERT INTO service_accounts(user_id, service_id, user_id_in_service, display_name, is_bot) VALUES (
-        NEW.id, 0, NEW.id, NEW.email, FALSE
+       NEW.id, 1, NEW.id, NEW.email, FALSE
     );
     RETURN NEW;
 END;
@@ -124,9 +110,12 @@ CREATE OR REPLACE FUNCTION prevent_default_service_modification()
 AS
 $$
 BEGIN
-    -- Sprawdzenie pg_trigger_depth() sprawia, że ON DELETE SET NULL
+    -- Sprawdzenie pg_trigger_depth() = 1 sprawia, że ON DELETE SET NULL
     -- w "user_id" service_accounts może zadziałać
-    IF (OLD.service_id = 0) AND (old.user_id IS NOT NULL) AND (pg_trigger_depth() = 1)  THEN
+    IF (OLD.service_id = 1) AND (old.user_id IS NOT NULL) AND (pg_trigger_depth() = 1) AND
+       (OLD.user_id != NEW.user_id OR OLD.service_id != NEW.service_id OR
+        OLD.user_id_in_service != NEW.user_id_in_service OR OLD.is_bot != NEW.is_bot)
+    THEN
         RAISE EXCEPTION 'Cannot modify default service account for user %', OLD.user_id;
     END IF;
 
@@ -140,7 +129,7 @@ CREATE OR REPLACE FUNCTION prevent_default_service_deletion()
 AS
 $$
 BEGIN
-    IF (OLD.service_id = 0) AND (old.user_id IS NOT NULL) THEN
+    IF (OLD.service_id = 1) AND (old.user_id IS NOT NULL) THEN
         RAISE EXCEPTION 'Cannot delete default service account for user %', OLD.user_id;
     END IF;
 
