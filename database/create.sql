@@ -69,6 +69,7 @@ CREATE TABLE "service_games"
     "service_id"         INT            NOT NULL    REFERENCES "game_services" ("id"),
     "white_player"       VARCHAR        NOT NULL,
     "black_player"       VARCHAR        NOT NULL,
+    CONSTRAINT "pk_service_games" PRIMARY KEY ("id"),
     CONSTRAINT "fk_service_games_service_id_white_player" FOREIGN KEY ("service_id", "white_player")
         REFERENCES "service_accounts" ("service_id", "user_id_in_service"),
     CONSTRAINT "fk_service_games_service_id_black_player" FOREIGN KEY ("service_id", "black_player")
@@ -79,7 +80,8 @@ CREATE TABLE "pgn_games"
 (
     "owner_id"          INT             NOT NULL    REFERENCES "users" ("id") ON DELETE CASCADE,
     "black_player_name" VARCHAR         NOT NULL,
-    "white_player_name" VARCHAR         NOT NULL
+    "white_player_name" VARCHAR         NOT NULL,
+    CONSTRAINT "pk_pgn_games" PRIMARY KEY ("id")
 ) INHERITS("games");
 
 
