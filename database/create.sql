@@ -1,12 +1,12 @@
 -- Tabelę openings możemy bazować np. na https://github.com/lichess-org/chess-openings
 CREATE TABLE "openings"
 (
-    "id"                    SERIAL     PRIMARY KEY,
+    "id"                SERIAL          PRIMARY KEY,
     -- ECO: https://en.wikipedia.org/wiki/Encyclopaedia_of_Chess_Openings
-    "eco"                   CHAR(3)    NOT NULL,
-    "name"                  VARCHAR    NOT NULL,
+    "eco"               CHAR(3)         NOT NULL,
+    "name"              VARCHAR(256)    NOT NULL,
     -- EPD: https://www.chessprogramming.org/Extended_Position_Description
-    "epd"                   VARCHAR    UNIQUE NOT NULL
+    "epd"               VARCHAR         UNIQUE NOT NULL
 );
 
 
@@ -47,7 +47,7 @@ CREATE TABLE "service_accounts"
         ("service_id" != 1) OR
         ((is_bot = TRUE) AND (user_id IS NULL)) OR
         ((is_bot = FALSE) AND ((user_id::varchar = user_id_in_service) OR (user_id IS NULL)))
-        )
+    )
 );
 
 
