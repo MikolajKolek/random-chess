@@ -58,7 +58,7 @@ CREATE TABLE "games"
     "id"                SERIAL          PRIMARY KEY CHECK(FALSE) NO INHERIT,
     "moves"             VARCHAR         NOT NULL,
     "date"              TIMESTAMP       NULL,
-    "metadata"          JSONB           NOT NULL
+    "metadata"          JSONB           NULL
     -- TODO: napisać funkcję generującą listę pozycji w formacie EPD dla gry
     -- "epd_positions"     VARCHAR[]       GENERATED ALWAYS AS ()
 );
