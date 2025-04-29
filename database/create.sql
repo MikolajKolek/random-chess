@@ -68,9 +68,9 @@ CREATE TABLE "service_games"
 (
     "id"                 SERIAL         PRIMARY KEY,
     -- kolumny wspólne dla "service_games" i "pgn_games"
-    "moves"             VARCHAR         NOT NULL,
-    "date"              TIMESTAMP       NULL,
-    "metadata"          JSONB           NULL,
+    "moves"              VARCHAR         NOT NULL,
+    "date"               TIMESTAMP       NULL,
+    "metadata"           JSONB           NULL,
     -- kolumny występujące tylko w "service_games"
     "game_id_in_service" VARCHAR        NULL,
     "service_id"         INT            NOT NULL    REFERENCES "game_services" ("id"),
