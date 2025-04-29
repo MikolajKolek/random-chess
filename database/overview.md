@@ -195,21 +195,39 @@ Pola `moves`, `date` i `metadata` są w tym samym formacie co w widoku `games`.
 
 Widok `games_openings` jest planowanym widokiem łączącym gry w widoku games z ich debiutami. Planujemy zaimplementować go pisząc funkcję która porównuje kolejne elementy tabeli `epd_positions` dla danej gry z kolumną epd tabeli openings, znajdując ostatnią pozycję której może zostać przypisany debiut i zapisując go w `opening_id`. Implementacja tego widoku była zbyt skomplikowana na pierwszy etap projektu, dlatego planujemy to zrobić w etapie drugim.
 
+# Napotkane problemy
 
+## Modelowanie partii szachowych
 
-1. Jedna tabela games z kolumnami obu typów i checkami weryfikującymi, że kolumny jednego typu są ustawione na wartości inne niż NULL, a kolumny drugiego typu wypełnione są NULLami. Wady: duża ilość nulli w każdym wierszu, duża redundencja: NOT NULL w jednej sekcji znaczy że cała druga sekcja jest NULL
+W trakcie projektowania bazy natrafiliśmy na problem tego, jak modelować partie szachowe. Nasz program przechowuje jednocześnie partie zaimportowane ręcznie przez graczy, które mają jednego właściciela i są widoczne tylko dla niego, jak i partie z serwisów szachowych, które powinny być widoczne dla obu stron. Mamy więc dwa różne typy partii, które mają jednocześnie ze sobą dużo wspólnego, i chcemy móc operować na nich razem, ale mają też różne pola w zależności od typu. Rozważyliśmy wiele różnych sposobów modelowania tych danych w bazie i poniżej wymieniamy część z nich w skrócie, włącznie z wadami każdego podejścia:
 
-2. Tabela games ze wspólnymi kolumnami oraz tabele service\_games i pgn\_games. Tabela games posiada pola z kluczami obcymi do service\_games.id i pgn\_games.id. Wady: możliwość powstania sieroty w service\_games lub pgn\_games (a więc np pgn\_game która ma właściciela a nie faktyczną rozgrywkę)
+1. Jedna tabela `games` z kolumnami obu typów i checkami weryfikującymi, że kolumny jednego typu są ustawione na wartości inne niż `NULL`, a kolumny drugiego typu wypełnione są `NULL`ami.  
+Wady: Każdy wiersz ma dużą liczbę `NULL`i. Duża redundancja: `NOT NULL` w jednej sekcji znaczy, że cała druga sekcja jest `NULL`.
 
-3. Tabela games ze wspólnymi kolumnami oraz tabele service\_games i pgn\_games. Tabele service\_games i pgn\_games posiadają pola game\_id będące kluczami obcymi do games.id\
-   Wady: możliwość posiadania sieroty w games, lub gry która jest jednocześnie pgn\_games i service\_games.
+2. Tabela `games` ze wspólnymi kolumnami oraz osobne tabele `service_games` i `pgn_games`. Tabela `games` posiada pola z kluczami obcymi do `service_games.id` i `pgn_games.id` oraz check sparwdzający, czy dokładnie jeden z tych kluczy obcych jest `NOT NULL`.  
+Wady: możliwość powstania sieroty w `service_games` lub `pgn_games` (a więc np. `pgn_game` która ma właściciela, a nie ma faktycznej rozgrywki). Istnienia takiej sieroty nie da się wykryć triggerami blokującymi jej powstanie, ponieważ trigger taki zupełnie uniemożliwiałby stworzenie wiersza w `pgn_games` i `service_games` (ponieważ potrzebowałyby ono istnienia wiersza w `games`, który potrzebuje istnienia wiersza w `pgn_games` albo `service_games`). W takiej sytuacji można zawsze odnosząc się do `pgn_games` albo `service_games` pierwsze robić INNER JOINa z `games` aby upewnić się, że gra istnieje, ale nie jest to najładniejsze rozwiązanie.
 
-4. Tabela games ze wspólnymi kolumnami oraz tabele service\_games i pgn\_games dziedziczące od games. Wady: klucze obce z innych tabel nie mogą wskazywać na games. id w games nie jest jednoznaczne - może być service\_game i pgn\_game mające to samo id (możliwe do rozwiązania z dużą liczbą triggerów). Powoduje to problemy w funkcjonowaniu games\_openings i możliwe większe problemy z rozszerzaniem bazy. Rozwiązanie byłoby praktycznie idealne gdyby dziedziczenie dziedziczyło też klucze obce i inne ograniczenia.
+3. Tabela `games` ze wspólnymi kolumnami oraz tabele `service_games` i `pgn_games`. Tabele `service_games` i `pgn_games` posiadają pola `game_id` będące kluczami obcymi do `games.id`.  
+   Wady: możliwość posiadania gry w `games`, która jest podłączona do 0 gier w `pgn_games` i `service_games`, lub jednocześnie do `pgn_games` i `service_games`. Podobnie jak w pomyśle 2., problemu z możliwością posiadania 0 gier w `pgn_games` i `service_games` nie da się naprawić triggerem (choć możliwość posiadania dwóch już tak).
 
-5. Tabela games ze wspólnymi kolumnami oraz tabele service\_games i pgn\_games. Tabela games posiada pola z kluczami obcymi do service\_games.id i pgn\_games.id. Service\_games.id i pgn\_games.id są symetrycznymi kluczami obcymi wskazującymi na games. Wady: duplikacja kluczy obcych, możliwość desynchronizacji bez dużej liczby triggerów (np. dany service\_game wskazuje na jakiś game, a ten game na inny service\_game lub pgn\_game) 
+4. Tabela `games` ze wspólnymi kolumnami oraz tabele `service_games` i `pgn_games` dziedziczące od games. Tabela `games` z zablokowaną możliwością tworzenia wierszy bezpośrednio, pozwalając na wstawianie wierszy tylko do `service_games` i `pgn_games`.  
+Wady: Niestety dziedziczenie w Postgresie nie dziedziczy żadnych checków, włącznie z kluczami obcymi i głównymi. Oznacza to, że w tabelach `service_games` i `pgn_games` mógłby być wiersz posiadający to samo `id` (choć to dałoby się jeszcze naprawić triggerami). Większym problemem jest jednak, że do takich tabel wcale nie da się odnosić kluczami obcymi, ponieważ klucz obcy zwracający się do `games` nie sprawdza wcale tabel dziedziczących. Daje to wielkie ograniczenia na potencjalne przyszłe rozszerzanie bazy, dlatego nie zdecydowaliśmy się na to rozwiązanie.
 
-6. Tabela games ze wspólnymi kolumnami oraz tabele service\_games i pgn\_games. Dodatkowa tabela link, przechowująca obowiązkowy kucz obcy do id w games, i klucze obce do service\_games i pgn\_games, dokładnie jeden z których jest not null. Dodatkowo, id w games, pgn\_games i service\_games jest kluczem obcym do odpowiadających kolumn w link. Wady: rozwiązanie to usuwa możliwość desynchronizacji poprzedniego rozwiązania, ale utrzymuje duplikację kluczy obcych i dodaje całą niepotrzebną tabelę.
+5. Tabela `games` ze wspólnymi kolumnami oraz tabele `service_games` i `pgn_games`. Tabela `games` posiada pola z kluczami obcymi do `service_games.id` i `pgn_games.id` (z checkami podobnymi do 2.). `Service_games.id` i `pgn_games.id` są symetrycznymi obowiązkowymi kluczami obcymi wskazującymi na z powrotem na klucze obce w `games`.  
+Wady: rozwiązanie to duplikuje klucze obce, wskazując w obie strony na raz. 
 
-7. Tabela games ze wspólnymi kolumnami oraz tabele service\_games i pgn\_games. Dodatkowe pole game\_type we wszystkich trzech kolumnach - GENERATED ALWAYS AS(‘pgn’) w pgn, analogicznie w service, w games pokazujące typ gry. Para (id, type) będąca foreign key z service\_games i pgn\_games w games. Wady: konieczność stworzenia dodatkowych kolumn GENERATED w service\_games i pgn\_games, możliwość stworzenia sierot w games (choć sieroty w games są mniej problematyczne, bo raczej nigdy nie odwołujemy sie do games bezpośrednio).
+6. Tabela `games` ze wspólnymi kolumnami oraz tabele `service_games` i `pgn_games`. Dodatkowe pole `game_type` we wszystkich trzech tabelach - `GENERATED ALWAYS AS(‘pgn’)` w `pgn_games`, analogicznie w `service_games`, w games będące równe `'pgn'` albo `'service'`. Para `(id, type)` będąca foreign key z `service_games` i `pgn_games` w `games`.  
+Wady: konieczność stworzenia dodatkowych kolumn `GENERATED` w `service_games` i `pgn_games` (które muszą być `STORED`, ponieważ Postgres nie implementuje w tej chwili kolumn `VIRTUAL`), możliwość stworzenia sierot w `games` (choć sieroty te są mniej problematyczne niż w `pgn_games` oraz `service_games`, bo raczej przy przeglądaniu bazy nie odwołujemy się do games bezpośrednio, tylko przez `pgn_games` albo `service_games`).
 
-8. Finalne rozwiązanie: tabele games i service\_games duplikujące wspólne informacje które wcześniej były w games. W razie potrzeby możliwość robienia UNION na tabelach. Wady: dane o grach są przechowywane osobno, w dwóch różnych tabelach, przez co np. games\_openings musi odwoływać sie do UNION service, pgn, a zbiór gier danego gracza nie jest już podzbiorem jednej tabeli
+7. Finalne rozwiązanie: tabele `pgn_games` i `service_games` duplikujące wspólne informacje, które wcześniej były w games. W razie potrzeby możliwość robienia UNION na tabelach.  
+Wady: dane o grach są przechowywane osobno, w dwóch różnych tabelach, przez co np. `games_openings` musi odwoływać się do view `games` zamiast bezpośrednio do tabeli. 
+
+## Upewnienie się, że dla każdego użytkownika istnieje systemowy `service_account`
+
+Z powodu decyzji o traktowaniu gier rozegranych w naszym systemie w taki sam sposób jak tych rozegranych w innych systemach, musimy upewnić się, że każdy użytkownik posiada dokładnie jedno systemowe `service_account` o `service_id = 1` i z jego `user_id`. Tutaj też rozważyliśmy kilka możliwości:
+
+1. Przechowywanie w `users` bezpośredniego foreign key do odpowiadającego konta systemowego.  
+Wady: niepotrzebna duplikacja danych.
+2. Dziedziczenie `users` od `service_accounts`.  
+Wady: mimo tego, że wygląda to, jak dobre rozwiązanie, niestety spotykamy te same problemy, co w podejściu 4 z modelowania partii szachowych. Fakt, że inne tabele nie mogłyby zwracać się do kont systemowych poprzez foreign key, zupełnie psułby np. foreign key z `service_games` do `service_accounts`.
+3. Finalne rozwiązanie: stworzenie triggerów `add_default_service_to_user`, `prevent_default_service_modification`, `prevent_default_service_deletion` oraz checka `valid_system_account`, które weryfikują poprawność i istnienie kont systemowych.
