@@ -157,11 +157,11 @@ Dla zewnętrznych serwisów `white_player` i `black_player` oznaczają id użytk
 ### games
 
 | Pole     | Typ       | Dodatkowe informacje           |
-| -------- | --------- | ------------------------------ |
+| -------- |-----------| ------------------------------ |
 | `id`       | INT       | NOT NULL                       |
 | `kind`     | VARCHAR   | Jeden z (`'service'`, `'pgn'`) |
 | `moves`    | VARCHAR   | NOT NULL                       |
-| `date`     | timestamp |                                |
+| `date`     | TIMESTAMP |                                |
 | `metadata` | JSONB     |                                |
 
 Widok games jest UNION `service_games` i `pgn_games`. `kind` jest równy `'service'` dla gier pochodzących z `service_games` i `'pgn'` dla gier pochodzących z `'pgn_games'`. `id` nie jest unikatowe dla wszystkich jego elementów, ale para `(id, kind)` już jest. 
