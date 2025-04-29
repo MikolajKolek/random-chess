@@ -178,11 +178,6 @@ Widok `games_openings` jest planowanym widokiem łączącym gry w widoku games z
 
 ### users\_games
 
-```sql
-CREATE VIEW "users_games" AS (
-    SELECT users."id" as "user_id", sg."id" as "game_id", 'service' AS "kind", "moves", "date", "metadata"
-```
-
 | Pole       | Type      | Dodatkowe informacje           |
 | ---------- | --------- | ------------------------------ |
 | `user_id`  | INT       | NOT NULL                       |
