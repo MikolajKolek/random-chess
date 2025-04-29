@@ -33,8 +33,8 @@ INSERT INTO game_services(name) VALUES ('Random Chess');
 -- Przechowywana tam nazwa użytkownika jest jego nazwą w naszym serwisie
 CREATE TABLE "service_accounts"
 (
-    "user_id"            INT          NULL REFERENCES users (id) ON DELETE SET NULL,
-    "service_id"         INT          NOT NULL REFERENCES game_services (id),
+    "user_id"            INT          NULL REFERENCES users ("id") ON DELETE SET NULL,
+    "service_id"         INT          NOT NULL REFERENCES game_services ("id"),
     "user_id_in_service" VARCHAR      NOT NULL,
     "display_name"       VARCHAR(256) NOT NULL,
     "is_bot"             BOOL         NOT NULL,
@@ -50,14 +50,14 @@ CREATE TABLE "service_accounts"
     )
 );
 
--- Tworzymy tabele service_games i pgn_games.
--- To rozwiązanie Niektóre z ich kolumn się pokrywają.
+
+-- Tworzymy dwie tabele reprezentujące rozegrane gry: service_games i pgn_games.
+-- Niektóre z ich kolumn się pokrywają.
 -- Ze względu na ograniczenia mechanizmów polimorficzności w PostgreSQL zdecydowaliśmy,
 -- że jest to najlepsze rozwiązanie. Opis innych rozważanych rozwiązań dołączamy
 -- do zgłoszenia projektu.
 --
 -- "id" w tabelach service_games i pgn_games są unikalne tylko w obrębie danej tabeli.
--- W widoku "games" jako klucza należy używać pary ("id", "kind").
 
 -- TODO: napisać funkcję generującą listę pozycji w formacie EPD dla gry
 -- i dodać to wspólne pole do pgn_games i serial_games:
