@@ -37,81 +37,89 @@ Zakres planowanej funkcjonalności zmienił się delikatnie od początkowej dekl
 
 ## openings
 
-| Pole   | Typ          | Dodatkowe informacje |
-| ------ | ------------ | -------------------- |
-| **id** | SERIAL       | **PRIMARY KEY**      |
-| eco    | CHAR(3)      | NOT NULL             |
-| name   | VARCHAR(256) | NOT NULL             |
-| epd    | VARCHAR      | UNIQUE NOT NULL      |
+| Pole     | Typ          | Dodatkowe informacje |
+| -------- | ------------ | -------------------- |
+| **`id`** | SERIAL       | **PRIMARY KEY**      |
+| `eco`    | CHAR(3)      | NOT NULL             |
+| `name`   | VARCHAR(256) | NOT NULL             |
+| `epd`    | VARCHAR      | UNIQUE NOT NULL      |
 
-Tabela openings przechowuje debiuty które będą rozpoznawane dla gier poprzez games\_openings. Planujemy oprzeć ją na <https://github.com/lichess-org/chess-openings> lub podobnym zasobie zbierającym debiuty. Kolumna eco to kod debiutu w [Encyklopedii otwarć szachowych](https://pl.wikipedia.org/wiki/Encyklopedia_otwar%C4%87_szachowych), a [epd](https://www.chessprogramming.org/Extended_Position_Description) to format zapisu pozycji na szachownicy.
+Tabela openings przechowuje debiuty które będą rozpoznawane dla gier poprzez `games_openings`. Planujemy oprzeć ją na <https://github.com/lichess-org/chess-openings> lub podobnym zasobie zbierającym debiuty. Kolumna eco to kod debiutu w [Encyklopedii otwarć szachowych](https://pl.wikipedia.org/wiki/Encyklopedia_otwar%C4%87_szachowych), a [epd](https://www.chessprogramming.org/Extended_Position_Description) to format zapisu pozycji na szachownicy.
 
 
 ## users
 
-| Pole           | Typ     | Dodatkowe informacje  |
-| -------------- | ------- | --------------------- |
-| **id**         | SERIAL  | **PRIMARY KEY**       |
-| email          | VARCHAR | UNIQUE NOT NULL       |
-| password\_hash | VARCHAR | NOT NULL              |
-| elo            | NUMERIC | NOT NULL DEFAULT 1500 |
+| Pole            | Typ     | Dodatkowe informacje  |
+| --------------- | ------- | --------------------- |
+| **`id`**        | SERIAL  | **PRIMARY KEY**       |
+| `email`         | VARCHAR | UNIQUE NOT NULL       |
+| `password_hash` | VARCHAR | NOT NULL              |
+| `elo`           | NUMERIC | NOT NULL DEFAULT 1500 |
 
 Tabela users przechowuje informacje o użytkownikach w systemie kont naszego projektu. Jeżeli nie udałoby nam się zaimplementować systemu kont (jest to funkcjonalność rozszerzona) to działalibyśmy cały czas na jednym użytkowniku domyślnym.
 
-Wstępnie w kolumnie password\_hash planujemy przechowywać hash w formacie [PHC](https://github.com/P-H-C/phc-string-format/blob/master/phc-sf-spec.md), używając algorytmu hashowania [argon2](https://en.wikipedia.org/wiki/Argon2). Tabela ta ma też oczywiście ograniczenie na poprawność adresu e-mail (pochodzące ze strony [emailregex.com](http://emailregex.com)).
+Wstępnie w kolumnie `password_hash` planujemy przechowywać hash w formacie [PHC](https://github.com/P-H-C/phc-string-format/blob/master/phc-sf-spec.md), używając algorytmu hashowania [argon2](https://en.wikipedia.org/wiki/Argon2). Tabela ta ma też oczywiście ograniczenie na poprawność adresu e-mail (pochodzące ze strony [emailregex.com](http://emailregex.com)).
 
-Najciekawszym elementem tej tabeli jest kolumna elo. Jest to redundencja, ponieważ elo może być całkowicie wyliczone z rozgrywek gracza przechowywanych w tabeli service\_games. Obliczanie elo jest jednak bardzo czasochłonne i zdecydowaliśmy, że przeliczanie go za każdym razem gdy chcemy je odczytać byłoby zbyt kosztowne, a liczenie go za pomocą np. materialized view w SQLu byłoby bardzo skomplikowane do zaimplementowania. Planujemy więc po każdej rozgrywce w naszej aplikacji przeliczać elo i zapisywać wynik w bazie.
+Najciekawszym elementem tej tabeli jest kolumna `elo`. Jest to redundancja, ponieważ elo może być całkowicie wyliczone z rozgrywek gracza przechowywanych w tabeli `service_games`. Obliczanie elo jest jednak bardzo czasochłonne i zdecydowaliśmy, że przeliczanie go za każdym razem gdy chcemy je odczytać byłoby zbyt kosztowne, a liczenie go za pomocą np. materialized view w SQLu byłoby bardzo skomplikowane do zaimplementowania. Planujemy więc po każdej rozgrywce w naszej aplikacji przeliczać elo i zapisywać wynik w bazie.
 
 
 ## game\_services
 
-| Pole   | Typ          | Dodatkowe informacje |
-| ------ | ------------ | -------------------- |
-| **id** | SERIAL       | **PRIMARY KEY**      |
-| name   | VARCHAR(256) | UNIQUE NOT NULL      |
+| Pole     | Typ          | Dodatkowe informacje |
+| -------- | ------------ | -------------------- |
+| **`id`** | SERIAL       | **PRIMARY KEY**      |
+| `name`   | VARCHAR(256) | UNIQUE NOT NULL      |
 
-Tabela game\_services przechowuje identyfikator dla każdego serwisu szachowego z którym planujemy integrację. Dodatkowo, w tabeli, pod id 1 znajduje się serwis o nazwie ‘Random Chess’. Jest to serwis odpowiadający partiom rozegranym w naszym serwisie. Traktujemy je tak samo jak partie rozegrane w zewnętrznych serwisach, a więc będziemy je przechowywać w tej samej tabeli service\_games.
+Tabela `game_services` przechowuje identyfikator dla każdego serwisu szachowego z którym planujemy integrację. Dodatkowo, w tabeli, pod id `1` znajduje się serwis o nazwie `Random Chess`. Jest to serwis odpowiadający partiom rozegranym w naszym serwisie. Traktujemy je tak samo jak partie rozegrane w zewnętrznych serwisach, a więc będziemy je przechowywać w tej samej tabeli `service_games`.
 
 
 ## service\_accounts
 
-| Pole                      | Typ          | Dodatkowe informacje                    |
-| ------------------------- | ------------ | --------------------------------------- |
-| user\_id                  | INT          | REFERENCES users(id) ON DELETE SET NULL |
-| **service\_id**           | INT          | NOT NULL REFERENCES game\_services(id)  |
-| **user\_id\_in\_service** | VARCHAR      | NOT NULL                                |
-| display\_name             | VARCHAR(256) | NOT NULL                                |
-| is\_bot                   | BOOL         | NOT NULL                                |
+| Pole                     | Typ          | Dodatkowe informacje                    |
+| ------------------------ | ------------ | --------------------------------------- |
+| `user_id`                | INT          | REFERENCES users(id) ON DELETE SET NULL |
+| **`service_id`**         | INT          | NOT NULL REFERENCES game\_services(id)  |
+| **`user_id_in_service`** | VARCHAR      | NOT NULL                                |
+| `display_name`           | VARCHAR(256) | NOT NULL                                |
+| `is_bot`                 | BOOL         | NOT NULL                                |
 
-Para (**service\_id**, **user\_id\_in\_service**) tworzy klucz podstawowy. Każdemu użytkownikowi serwisu szachowego może odpowiadać co najwyżej jeden użytkownik w naszym systemie kont.\
-\
-Boty, zarówno w naszym serwisie, jak i serwisach zewnętrznych, posiadają service\_account, ale z user\_id IS NULL i is\_bot = TRUE. 
+Para **`(service_id, user_id_in_service)`** tworzy klucz podstawowy. Każdemu użytkownikowi serwisu szachowego może odpowiadać co najwyżej jeden użytkownik w naszym systemie kont.
 
-Service\_account istnieje dla każdego użytkownika który połączył swoje konto w naszym serwisie z dowolnym serwisem szachowym, ale też dla użytkowników którzy nie mają kont w naszym serwisie, a są dowolną ze stron gry przechowywanej w service\_games. Podjęliśmy tą decyzję, ponieważ jeśli użytkownik taki później utworzy konto w naszym serwisie, to nie chcemy musieć dodawać tej samej gry drugi raz do service\_games ani modyfikować gier w service\_games. Zamiast tego, po podłączeniu konta jego user\_id zostanie po prostu podłączone do już istniejącego service\_account i będziemy musieli wyłącznie pobrać brakujące gry z odpowiedniego API do service\_games.
+Boty, zarówno w naszym serwisie, jak i serwisach zewnętrznych, posiadają `service_account`, ale z `user_id IS NULL` i `is_bot = TRUE`. 
 
-Konsekwencją tej decyzji jest to, że nie chcemy nigdy usuwać service\_account i zamiast tego po usunięciu użytkownika odłączamy od niego wszystkie jego service\_accounts. Robi to ON DELETE SET NULL w polu user\_id.
+`service_account` istnieje dla każdego użytkownika który połączył swoje konto w naszym serwisie z dowolnym serwisem szachowym, ale też dla użytkowników którzy nie mają kont w naszym serwisie, a są dowolną ze stron gry przechowywanej w `service_games`. Podjęliśmy tą decyzję, ponieważ jeśli użytkownik taki później utworzy konto w naszym serwisie, to nie chcemy musieć dodawać tej samej gry drugi raz do `service_games` ani modyfikować gier w `service_games`. Zamiast tego, po podłączeniu konta jego `user_id` zostanie po prostu podłączone do już istniejącego `service_account` i będziemy musieli wyłącznie pobrać brakujące gry z odpowiedniego API do `service_games`.
 
-Dodatkowo, każdy użytkownik naszego swerwisu posiada dokładnie jedno odpowiadające konto w tabeli service\_accounts o service\_id = 1 (id naszego serwisu szachowego). Konto to przechowuje jego nazwę użytkownika w naszym serwisie, a jego user\_id\_in\_service = user\_id. Jest to redundencja, ale po pierwsze, ponieważ zdecydowaliśmy się na klucz podstawowy (service\_id, user\_id\_in\_service), user\_id\_in\_service musi być różne dla każdego użytkownika, a po drugie po usunięciu konta użytkownika jego odpowiadający service\_account musi dalej istnieć (aby jego gry nie zniknęły). Te różne service\_accounts w naszym serwisie pozostałe po usuniętych użytkownikach muszą być w jakiś sposób rozróżnialne i tym sposobem jest właśnie user\_id\_in\_service.\
-\
-Wyzwalacze add\_default\_service\_to\_user, prevent\_default\_service\_modification oraz prevent\_default\_service\_deletion służą upewnieniu się, że od utworzenia użytkownika po jego usunięcie jego odpowiadające konto w service\_accounts będzie zawsze istnieć. Dodatkowo, ograniczenie valid\_system\_account w service\_accounts upewnia się, że dla kont tych spełnione są powyższe założenia: dla użytkowników póki ich konto istnieje, user\_id\_in\_service = user\_id, a dla botów user\_id IS NULL.
+Konsekwencją tej decyzji jest to, że nie chcemy nigdy usuwać `service_account` i zamiast tego po usunięciu użytkownika odłączamy od niego wszystkie jego `service_accounts`.
+Jest to realizowane poprzez ustawienie `ON DELETE SET NULL` w polu `user_id`.
+
+Dodatkowo, każdy użytkownik naszego serwisu posiada dokładnie jedno odpowiadające konto w tabeli `service_accounts` o `service_id` = `1` (id naszego serwisu szachowego). Konto to przechowuje jego nazwę użytkownika w naszym serwisie, a jego `user_id_in_service` = `user_id`.
+Jest to redundancja, ale:
+1. ponieważ zdecydowaliśmy się na klucz podstawowy `(service_id, user_id_in_service)`, `user_id_in_service` musi być różne dla każdego użytkownika,
+2. po usunięciu konta użytkownika jego odpowiadający `service_account` musi dalej istnieć (aby gry rozegrane z nim nie zniknęły). Te różne `service_accounts` w naszym serwisie pozostałe po usuniętych użytkownikach muszą być w jakiś sposób rozróżnialne i tym sposobem jest właśnie `user_id_in_service`.
+
+Wyzwalacze `add_default_service_to_user`, `prevent_default_service_modification` oraz `prevent_default_service_deletion` służą upewnieniu się, że od utworzenia użytkownika po jego usunięcie jego odpowiadające konto w `service_accounts` będzie zawsze istnieć.
+
+Dodatkowo, ograniczenie `valid_system_account` w `service_accounts` upewnia się, że dla kont tych spełnione są powyższe założenia:
+- dla użytkowników póki ich konto istnieje, to `user_id_in_service = user_id`,
+- dla botów `user_id IS NULL`.
 
 
 ## Tabele service\_games i pgn\_games
 
-Te tabele przechowują partie szachowe, które będą analizowane w naszej aplikacji. Tabela service\_games przechowuje zsynchronizowane partie z zewnętrznych serwisów oraz partie rozegrane w naszym serwisie. Tabela pgn\_games przechowuje partie, które zostały zaimportowane ręcznie przez użytkownika.
+Te tabele przechowują partie szachowe, które będą analizowane w naszej aplikacji. Tabela `service_games` przechowuje zsynchronizowane partie z zewnętrznych serwisów oraz partie rozegrane w naszym serwisie. Tabela `pgn_games` przechowuje partie, które zostały zaimportowane ręcznie przez użytkownika.
 
-W późniejszej sekcji opisaliśmy dlaczego zdecydowaliśmy się zamodelować partie szachowe właśnie w ten sposób.
+W późniejszej sekcji <!-- TODO: Add heading link --> opisaliśmy dlaczego zdecydowaliśmy się zamodelować partie szachowe właśnie w ten sposób.
 
-Klucze podstawowe **id** w service\_games i pgn\_games mogą się powtarzać.
+Klucze podstawowe **`id`** w `service_games` i `pgn_games` mogą się powtarzać.
 
 
 ## Wspólne pola w tabelach service\_games i pgn\_games
 
-| Pole     | Typ       | Dodatkowe informacje |
-| -------- | --------- | -------------------- |
-| moves    | VARCHAR   | NOT NULL             |
-| date     | TIMESTAMP |                      |
-| metadata | JSONB     |                      |
+| Pole       | Typ       | Dodatkowe informacje |
+| ---------- | --------- | -------------------- |
+| `moves`    | VARCHAR   | NOT NULL             |
+| `date`     | TIMESTAMP |                      |
+| `metadata` | JSONB     |                      |
 
 Kolumna moves przechowuje ruchy graczy w partii w postaci [PGN](https://pl.wikipedia.org/wiki/Portable_Game_Notation), bez metadanych.
 
@@ -122,52 +130,47 @@ Kolumna metadata zawiera wszystkie niestandardowe pola metadanych pochodzących 
 
 | Pole                  | Typ     | Dodatkowe informacje |
 | --------------------- | ------- | -------------------- |
-| **id**                | SERIAL  | **PRIMARY KEY**      |
-| game\_id\_in\_service | VARCHAR | NULL                 |
-| service\_id           | INT     | NOT NULL             |
-| white\_player         | VARCHAR | NOT NULL             |
-| black\_player         | VARCHAR | NOT NULL             |
+| **`id`**                | SERIAL  | **PRIMARY KEY**      |
+| `game_id_in_service` | VARCHAR | NULL                 |
+| `service_id`           | INT     | NOT NULL             |
+| `white_player`         | VARCHAR | NOT NULL             |
+| `black_player`         | VARCHAR | NOT NULL             |
 
-game\_id\_in\_service to ID pochodzące z zewnętrznego API. Na pary (game\_id\_in\_service, service\_id) jest założone ograniczenie UNIQUE.
+`game_id_in_service` to ID pochodzące z zewnętrznego API. Na pary `(game_id_in_service, service_id)` jest założone ograniczenie UNIQUE.
 
-Dla zewnętrznych serwisów white\_player i black\_player oznaczają id użytkownika w API tego serwisu. Pary (white\_player, service\_id) i (black\_player, service\_id) są kluczami obcymi wskazującymi na pary (service\_id, user\_id\_in\_service), czyli klucz podstawowy, w tabeli service\_accounts.
+Dla zewnętrznych serwisów `white_player` i `black_player` oznaczają id użytkownika w API tego serwisu. Pary `(white_player, service_id)` i `(black_player, service_id)` są kluczami obcymi wskazującymi na pary `(service_id, user_id_in_service)`, czyli klucz podstawowy, w tabeli `service_accounts`.
 
 
 ## Pola występujące tylko w pgn\_games
 
-| Pole                | Typ       | Dodatkowe informacje                                 |
-| ------------------- | --------- | ---------------------------------------------------- |
-| **id**              | SERIAL    | **PRIMARY KEY**                                      |
-| owner\_id           | owner\_id | NOT NULL REFERENCES "users" ("id") ON DELETE CASCADE |
-| white\_player\_name | VARCHAR   |                                                      |
-| black\_player\_name | VARCHAR   |                                                      |
-
-
-#
-
-##
+| Pole                | Typ     | Dodatkowe informacje                                 |
+| ------------------- | ------- | ---------------------------------------------------- |
+| **`id`**            | SERIAL  | **PRIMARY KEY**                                      |
+| `owner_id`          | INT     | NOT NULL<br> REFERENCES "users" ("id")<br> ON DELETE CASCADE |
+| `white_player_name` | VARCHAR |                                                      |
+| `black_player_name` | VARCHAR |                                                      |
 
 ## games
 
-| Pole     | Typ       | Dodatkowe informacje       |
-| -------- | --------- | -------------------------- |
-| id       | INT       | NOT NULL                   |
-| kind     | VARCHAR   | Jeden z (‘service’, ‘pgn’) |
-| moves    | VARCHAR   | NOT NULL                   |
-| date     | timestamp |                            |
-| metadata | JSONB     |                            |
+| Pole     | Typ       | Dodatkowe informacje           |
+| -------- | --------- | ------------------------------ |
+| `id`       | INT       | NOT NULL                       |
+| `kind`     | VARCHAR   | Jeden z (`'service'`, `'pgn'`) |
+| `moves`    | VARCHAR   | NOT NULL                       |
+| `date`     | timestamp |                                |
+| `metadata` | JSONB     |                                |
 
-Widok games jest UNION service\_games i pgn\_games. Kind jest równy ‘service’ dla gier pochodzących z service\_games i ‘pgn’ dla gier pochodzących z pgn\_games. W związku z tym id nie jest unikatowe dla wszystkich jego elementów, ale para (id, kind) już jest. 
+Widok games jest UNION `service_games` i `pgn_games`. `kind` jest równy `'service'` dla gier pochodzących z `service_games` i `'pgn'` dla gier pochodzących z `'pgn_games'`. `id` nie jest unikatowe dla wszystkich jego elementów, ale para `(id, kind)` już jest. 
 
 ## games\_openings
 
-| Pole        | Typ     | Dodatkowe informacje       |
-| ----------- | ------- | -------------------------- |
-| game\_id    | INT     | NOT NULL                   |
-| game\_kind  | VARCHAR | Jeden z (‘service’, ‘pgn’) |
-| opening\_id | INT     |                            |
+| Pole         | Typ     | Dodatkowe informacje           |
+| ------------ | ------- | ------------------------------ |
+| `game_id`    | INT     | NOT NULL                       |
+| `game_kind`  | VARCHAR | Jeden z (`'service'`, `'pgn'`) |
+| `opening_id` | INT     |                                |
 
-Widok games\_openings jest planowanym widokiem łączącym gry w widoku games z ich debiutami. Planujemy zaimplementować go pisząc funkcję która porównuje kolejne elementy tablicy epd\_positions dla danej gry z kolumną epd tabeli openings, znajdując ostatnią pozycję której może zostać przypisany debiut i zapisując go w opening\_id. Implementacja tego widoku była zbyt skomplikowana na pierwszy etap projektu, dlatego planujemy to zrobić w etapie drugim.
+Widok `games_openings` jest planowanym widokiem łączącym gry w widoku games z ich debiutami. Planujemy zaimplementować go pisząc funkcję która porównuje kolejne elementy tabeli `epd_positions` dla danej gry z kolumną epd tabeli openings, znajdując ostatnią pozycję której może zostać przypisany debiut i zapisując go w `opening_id`. Implementacja tego widoku była zbyt skomplikowana na pierwszy etap projektu, dlatego planujemy to zrobić w etapie drugim.
 
 1. Jedna tabela games z kolumnami obu typów i checkami weryfikującymi, że kolumny jednego typu są ustawione na wartości inne niż NULL, a kolumny drugiego typu wypełnione są NULLami. Wady: duża ilość nulli w każdym wierszu, duża redundencja: NOT NULL w jednej sekcji znaczy że cała druga sekcja jest NULL
 
