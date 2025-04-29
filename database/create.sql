@@ -87,7 +87,7 @@ CREATE TABLE "games"
 );
 
 -- TODO: stworzyć view który na podstawie tabeli openings i epd_positions w games przypisuje każdej grze opening
-/*CREATE VIEW game_openings AS (
+/*CREATE VIEW games_openings AS (
 
 );*/
 
