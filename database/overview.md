@@ -166,16 +166,6 @@ Dla zewnętrznych serwisów `white_player` i `black_player` oznaczają id użytk
 
 Widok games jest UNION `service_games` i `pgn_games`. `kind` jest równy `'service'` dla gier pochodzących z `service_games` i `'pgn'` dla gier pochodzących z `'pgn_games'`. `id` nie jest unikatowe dla wszystkich jego elementów, ale para `(id, kind)` już jest. 
 
-### games\_openings
-
-| Pole         | Typ     | Dodatkowe informacje           |
-| ------------ | ------- | ------------------------------ |
-| `game_id`    | INT     | NOT NULL                       |
-| `game_kind`  | VARCHAR | Jeden z (`'service'`, `'pgn'`) |
-| `opening_id` | INT     |                                |
-
-Widok `games_openings` jest planowanym widokiem łączącym gry w widoku games z ich debiutami. Planujemy zaimplementować go pisząc funkcję która porównuje kolejne elementy tabeli `epd_positions` dla danej gry z kolumną epd tabeli openings, znajdując ostatnią pozycję której może zostać przypisany debiut i zapisując go w `opening_id`. Implementacja tego widoku była zbyt skomplikowana na pierwszy etap projektu, dlatego planujemy to zrobić w etapie drugim.
-
 ### users\_games
 
 | Pole       | Type      | Dodatkowe informacje           |
@@ -187,7 +177,19 @@ Widok `games_openings` jest planowanym widokiem łączącym gry w widoku games z
 | `date`     | TIMESTAMP |                                |
 | `metadata` | JSONB     |                                |
 
-Pola `moves`, `date` i `metadata` to wspólne pola tabel `pgn_games` i `service_games`.
+Widok `users_games` zwraca wszystkie gry dostępne dla danego `user_id` w formacie takim samym jak w `games`.
+
+### games\_openings
+
+| Pole         | Typ     | Dodatkowe informacje           |
+| ------------ | ------- | ------------------------------ |
+| `game_id`    | INT     | NOT NULL                       |
+| `game_kind`  | VARCHAR | Jeden z (`'service'`, `'pgn'`) |
+| `opening_id` | INT     |                                |
+
+Widok `games_openings` jest planowanym widokiem łączącym gry w widoku games z ich debiutami. Planujemy zaimplementować go pisząc funkcję która porównuje kolejne elementy tabeli `epd_positions` dla danej gry z kolumną epd tabeli openings, znajdując ostatnią pozycję której może zostać przypisany debiut i zapisując go w `opening_id`. Implementacja tego widoku była zbyt skomplikowana na pierwszy etap projektu, dlatego planujemy to zrobić w etapie drugim.
+
+
 
 1. Jedna tabela games z kolumnami obu typów i checkami weryfikującymi, że kolumny jednego typu są ustawione na wartości inne niż NULL, a kolumny drugiego typu wypełnione są NULLami. Wady: duża ilość nulli w każdym wierszu, duża redundencja: NOT NULL w jednej sekcji znaczy że cała druga sekcja jest NULL
 
