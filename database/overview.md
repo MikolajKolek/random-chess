@@ -177,7 +177,13 @@ Widok games jest UNION `service_games` i `pgn_games`. `kind` jest równy `'servi
 | `date`     | TIMESTAMP |                                |
 | `metadata` | JSONB     |                                |
 
-Widok `users_games` zwraca wszystkie gry dostępne dla danego `user_id` w formacie takim samym jak w `games`.
+Widok `users_games` łączy wszystkie partie z użytkownikami, którzy mają do nich dostęp:
+- Partie z `service_games` z użytkownikami, których jakieś podłączone konto z `service_accounts` jest jedną ze stron tej partii.\
+  Te wiersze mają pole `kind` ustawione na `service`.
+- Partie z `pgn_games` z ich właścicielami według pola `owner_id`.\
+  Te wiersze mają pole `kind` ustawione na `pgn`.
+
+Pola `moves`, `date` i `metadata` są w tym samym formacie co w widoku `games`.
 
 ### games\_openings
 
