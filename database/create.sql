@@ -17,7 +17,7 @@ CREATE TABLE "users"
     "password_hash"     VARCHAR         NOT NULL,
     "elo"               NUMERIC         NOT NULL DEFAULT 1500,
     -- Regex pochodzi z https://emailregex.com/
-    CONSTRAINT valid_email CHECK (email ~* '(?:[a-z0-9!#$%&''''*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&''''*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])')
+    CHECK (email ~* '(?:[a-z0-9!#$%&''''*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&''''*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])')
 );
 
 
@@ -38,12 +38,12 @@ CREATE TABLE "service_accounts"
     "user_id_in_service" VARCHAR      NOT NULL,
     "display_name"       VARCHAR(256) NOT NULL,
     "is_bot"             BOOL         NOT NULL,
-    CONSTRAINT "pk_service_accounts" PRIMARY KEY ("service_id", "user_id_in_service"),
+    PRIMARY KEY ("service_id", "user_id_in_service"),
     -- Dla service_accounts w naszym serwisie (z service_id = 1) zawsze zachodzi jedna z dwóch opcji:
     -- - Konto to bot, w jakim razie is_bot = TRUE, user_id IS NULL
     -- - Konto to użytkownik, w jakim razie albo użytkownik istnieje i user_id = user_id_in_service, albo
     --   użytkownik został już usunięty, i user_id IS NULL
-    CONSTRAINT "valid_system_account" CHECK (
+    CHECK (
         ("service_id" != 1) OR
         ((is_bot = TRUE) AND (user_id IS NULL)) OR
         ((is_bot = FALSE) AND ((user_id::varchar = user_id_in_service) OR (user_id IS NULL)))
@@ -82,10 +82,10 @@ CREATE TABLE "service_games"
         ELSE "game_id_in_service" IS NOT NULL
     END),
 
-    CONSTRAINT "service_games_game_id_in_service" UNIQUE ("game_id_in_service", "service_id"),
-    CONSTRAINT "fk_service_games_service_id_white_player" FOREIGN KEY ("service_id", "white_player")
+    UNIQUE ("game_id_in_service", "service_id"),
+    FOREIGN KEY ("service_id", "white_player")
         REFERENCES "service_accounts" ("service_id", "user_id_in_service"),
-    CONSTRAINT "fk_service_games_service_id_black_player" FOREIGN KEY ("service_id", "black_player")
+    FOREIGN KEY ("service_id", "black_player")
         REFERENCES "service_accounts" ("service_id", "user_id_in_service")
 );
 
