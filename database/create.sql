@@ -60,9 +60,9 @@ CREATE TABLE "service_accounts"
 --
 -- "id" w tabelach service_games i pgn_games są unikalne tylko w obrębie danej tabeli.
 
--- TODO: napisać funkcję generującą listę pozycji w formacie EPD dla gry
+-- TODO: napisać funkcję generującą listę pozycji w formacie FEN dla gry
 -- i dodać to wspólne pole do pgn_games i serial_games:
--- "epd_positions"     VARCHAR[]       GENERATED ALWAYS AS ()
+-- "partial_fen_positions"     VARCHAR[]       GENERATED ALWAYS AS ()
 
 CREATE TABLE "service_games"
 (
