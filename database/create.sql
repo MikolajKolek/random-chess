@@ -71,10 +71,17 @@ CREATE TABLE "service_games"
     "date"              TIMESTAMP       NULL,
     "metadata"          JSONB           NULL,
     -- kolumny występujące tylko w "service_games"
-    "game_id_in_service" VARCHAR        NOT NULL,
+    "game_id_in_service" VARCHAR        NULL,
     "service_id"         INT            NOT NULL    REFERENCES "game_services" ("id"),
     "white_player"       VARCHAR        NOT NULL,
     "black_player"       VARCHAR        NOT NULL,
+    -- Partie rozegrane w naszym serwisie mają "game_id_in_service" ustawione na NULL,
+    -- a w innych serwisach zawsze mają ustawioną wartość.
+    CHECK (CASE
+        WHEN "service_id" = 1 THEN "game_id_in_service" IS NULL
+        ELSE "game_id_in_service" IS NOT NULL
+    END),
+
     CONSTRAINT "service_games_game_id_in_service" UNIQUE ("game_id_in_service", "service_id"),
     CONSTRAINT "fk_service_games_service_id_white_player" FOREIGN KEY ("service_id", "white_player")
         REFERENCES "service_accounts" ("service_id", "user_id_in_service"),
