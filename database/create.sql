@@ -112,14 +112,12 @@ CREATE VIEW "games" AS (
 );
 
 CREATE VIEW "users_games" AS (
-    SELECT users."id" as "user_id", sg."id" as "game_id", 'service' AS "kind", "moves", "date", "metadata"
-    FROM users
-    JOIN service_accounts sa ON users.id = sa.user_id
+    SELECT sa."user_id" as "user_id", sg."id" as "game_id", 'service' AS "kind", "moves", "date", "metadata"
+    FROM service_accounts sa
     JOIN service_games sg ON (sa.user_id_in_service = sg.white_player) OR (sa.user_id_in_service = sg.black_player)
-    UNION ALL
-    SELECT users."id" AS "user_id", pg."id" AS "game_id", 'pgn' as "kind", "moves", "date", "metadata"
-    FROM users
-    JOIN pgn_games pg ON users.id = pg.owner_id
+    UNION
+    SELECT pg."owner_id" AS "user_id", pg."id" AS "game_id", 'pgn' as "kind", "moves", "date", "metadata"
+    FROM pgn_games pg
 );
 
 -- TODO: stworzyć view który na podstawie tabeli openings i epd_positions w games przypisuje każdej grze opening
