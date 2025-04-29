@@ -102,11 +102,23 @@ CREATE TABLE "pgn_games"
     "white_player_name" VARCHAR         NOT NULL
 );
 
+
 -- Wartości "id" mogą się powtarzać, ale już pary ("id", "kind") są unikatowe
 CREATE VIEW "games" AS (
-    SELECT "id", 'service' as "kind", "moves", "date", "metadata" FROM service_games
+    SELECT "id", 'service' AS "kind", "moves", "date", "metadata" FROM service_games
     UNION ALL
-    SELECT "id", 'pgn' as "kind", "moves", "date", "metadata" FROM pgn_games
+    SELECT "id", 'pgn' AS "kind", "moves", "date", "metadata" FROM pgn_games
+);
+
+CREATE VIEW "users_games" AS (
+    SELECT users."id" as "user_id", sg."id" as "game_id", 'service' AS "kind", "moves", "date", "metadata"
+    FROM users
+    JOIN service_accounts sa ON users.id = sa.user_id
+    JOIN service_games sg ON (sa.user_id_in_service = sg.white_player) OR (sa.user_id_in_service = sg.black_player)
+    UNION ALL
+    SELECT users."id" AS "user_id", pg."id" AS "game_id", 'pgn' as "kind", "moves", "date", "metadata"
+    FROM users
+    JOIN pgn_games pg ON users.id = pg.owner_id
 );
 
 -- TODO: stworzyć view który na podstawie tabeli openings i epd_positions w games przypisuje każdej grze opening
