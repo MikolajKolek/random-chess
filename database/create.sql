@@ -44,7 +44,7 @@ CREATE TABLE "service_accounts"
     -- - Konto to bot, w jakim razie is_bot = TRUE, user_id IS NULL
     -- - Konto to użytkownik, w jakim razie albo użytkownik istnieje i user_id = user_id_in_service, albo
     --   użytkownik został już usunięty, i user_id IS NULL
-    CHECK (
+    CONSTRAINT "valid_system_account" CHECK (
         ("service_id" != 1) OR
         ((is_bot = TRUE) AND (user_id IS NULL)) OR
         ((is_bot = FALSE) AND ((user_id::varchar = user_id_in_service) OR (user_id IS NULL)))
