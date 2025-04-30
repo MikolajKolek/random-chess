@@ -129,13 +129,13 @@ Kolumna `metadata` zawiera wszystkie niestandardowe pola metadanych pochodzącyc
 
 #### Pola występujące tylko w service\_games
 
-| Pole                 | Typ     | Dodatkowe informacje |
-| -------------------- | ------- | -------------------- |
-| **`id`**             | SERIAL  | **PRIMARY KEY**      |
-| `game_id_in_service` | VARCHAR | NULL                 |
-| `service_id`         | INT     | NOT NULL             |
-| `white_player`       | VARCHAR | NOT NULL             |
-| `black_player`       | VARCHAR | NOT NULL             |
+| Pole                 | Typ     | Dodatkowe informacje                   |
+| -------------------- | ------- |----------------------------------------|
+| **`id`**             | SERIAL  | **PRIMARY KEY**                        |
+| `game_id_in_service` | VARCHAR | NULL                                   |
+| `service_id`         | INT     | NOT NULL REFERENCES game\_services(id) |
+| `white_player`       | VARCHAR | NOT NULL                               |
+| `black_player`       | VARCHAR | NOT NULL                               |
 
 `game_id_in_service` to ID pochodzące z zewnętrznego API. Na pary `(game_id_in_service, service_id)` jest założone ograniczenie UNIQUE.
 
@@ -146,12 +146,12 @@ Dla zewnętrznych serwisów `white_player` i `black_player` oznaczają id użytk
 
 #### Pola występujące tylko w pgn\_games
 
-| Pole                | Typ     | Dodatkowe informacje                                 |
-| ------------------- | ------- | ---------------------------------------------------- |
-| **`id`**            | SERIAL  | **PRIMARY KEY**                                      |
-| `owner_id`          | INT     | NOT NULL REFERENCES "users" ("id") ON DELETE CASCADE |
-| `white_player_name` | VARCHAR |                                                      |
-| `black_player_name` | VARCHAR |                                                      |
+| Pole                | Typ     | Dodatkowe informacje                            |
+| ------------------- | ------- |-------------------------------------------------|
+| **`id`**            | SERIAL  | **PRIMARY KEY**                                 |
+| `owner_id`          | INT     | NOT NULL REFERENCES users(id) ON DELETE CASCADE |
+| `white_player_name` | VARCHAR | NOT NULL                                        |
+| `black_player_name` | VARCHAR | NOT NULL                                        |
 
 `owner_id` to ID użytkownika, który zaimportował daną grę. Ponieważ w przypadku `pgn_games` gry widzi tylko właściciel, pole to ma ustawione `ON DELETE CASCADE`, aby po jego usunięciu gra także została usunięta.
 
