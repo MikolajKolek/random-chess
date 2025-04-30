@@ -13,7 +13,7 @@ Zakres planowanej funkcjonalności zmienił się delikatnie od początkowej dekl
   - Partie zaimportowane w formacie [PGN – Portable Game Notation](https://pl.wikipedia.org/wiki/Portable_Game_Notation)
   - Partie automatycznie pobierane z połączonych kont w innych serwisach szachowych udostępniających API takich jak [chess.com](https://www.chess.com/news/view/published-data-api) lub [lichess.org](https://lichess.org/api)
   - Partie rozegrane w naszym serwisie
-
+- Możliwość eksportowania partii z historii w formacie PGN
 - Analiza partii
   - Rozpoznawanie debiutów
   - Wyświetlanie ruchów w [notacji algebraicznej](https://pl.wikipedia.org/wiki/Szachowa_notacja_algebraiczna)
