@@ -123,11 +123,9 @@ Klucze podstawowe **`id`** w `service_games` i `pgn_games` mogą się powtarzać
 | `date`     | TIMESTAMP |                      |
 | `metadata` | JSONB     |                      |
 
-Kolumna moves przechowuje ruchy graczy w partii w postaci [PGN](https://pl.wikipedia.org/wiki/Portable_Game_Notation), bez metadanych.
+Kolumna `moves` przechowuje ruchy graczy w partii w postaci [PGN](https://pl.wikipedia.org/wiki/Portable_Game_Notation), bez metadanych.
 
-Kolumna metadata zawiera wszystkie niestandardowe pola metadanych pochodzących z opisu partii w postaci PGN. Dane przechowujemy w formacie JSON, choć nie spełnia to reguły atomowości, bo dokładny ich format może się różnić w zależności od serwisu, a dane te służą jedynie do wyświetlenia użytkownikowi i ponownego eksportu rozgrywki do formatu PGN, nigdy nie będziemy wykonywać zapytań dotyczących metadanych w tym polu.
-
-TODO: dodać pole partial_fen_positions
+Kolumna `metadata` zawiera wszystkie niestandardowe pola metadanych pochodzących z opisu partii w postaci PGN. Dane przechowujemy w formacie JSON, choć nie spełnia to reguły atomowości, bo dokładny ich format może się różnić w zależności od serwisu, a dane te służą jedynie do wyświetlenia użytkownikowi i ponownego eksportu rozgrywki do formatu PGN, nigdy nie będziemy wykonywać zapytań dotyczących metadanych w tym polu.
 
 #### Pola występujące tylko w service\_games
 
@@ -151,11 +149,11 @@ Dla zewnętrznych serwisów `white_player` i `black_player` oznaczają id użytk
 | Pole                | Typ     | Dodatkowe informacje                                 |
 | ------------------- | ------- | ---------------------------------------------------- |
 | **`id`**            | SERIAL  | **PRIMARY KEY**                                      |
-| `owner_id`          | INT     | NOT NULL<br> REFERENCES "users" ("id")<br> ON DELETE CASCADE |
+| `owner_id`          | INT     | NOT NULL REFERENCES "users" ("id") ON DELETE CASCADE |
 | `white_player_name` | VARCHAR |                                                      |
 | `black_player_name` | VARCHAR |                                                      |
 
-TODO: dokończyć tę sekcję
+`owner_id` to ID użytkownika, który zaimportował daną grę. Ponieważ w przypadku `pgn_games` gry widzi tylko właściciel, pole to ma ustawione `ON DELETE CASCADE`, aby po jego usunięciu gra także została usunięta.
 
 ## Widoki
 
