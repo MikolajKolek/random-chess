@@ -199,7 +199,8 @@ INSERT INTO game_services(name) VALUES
 INSERT INTO users(email, password_hash) VALUES
     ('test@[1.1.1.1]', '1234'),
     ('email.test@gmail.com', '0000'),
-    ('test2.user@interia.pl', '1111');
+    ('test2.user@interia.pl', '1111'),
+    ('makaron@studiomakaron.com', '2222');
 
 UPDATE service_accounts SET display_name = 'test user' WHERE user_id = 1;
 
@@ -207,7 +208,10 @@ INSERT INTO service_accounts("user_id", "service_id", "user_id_in_service", "is_
     (2, 2, 'test_ccom_id', FALSE, 'test_chesscom'),
     (3, 2, 'test2_ccom_id', FALSE, 'test2_chesscom'),
     (3, 3, 'test2_lc_id', FALSE, 'test2_lichess'),
-    (NULL, 3, 'chess_com_user', FALSE, 'chess_com_user_not_in_service'),
+    (4, 2, 'makaron_ccom_id', FALSE, 'makaron_w_domu'),
+    (4, 3, 'makaron_lc_id', FALSE, 'Djammnick'),
+    (NULL, 2, 'chess_com_user', FALSE, 'chess_com_user_not_in_service'),
+    (NULL, 3, 'lichess_user', FALSE, 'lichess_user_not_in_service'),
     (NULL, 2, 'chess_com_bot', TRUE, 'chess_com_bot'),
     (NULL, 1, 'internal_bot', TRUE, 'bot_1');
 
@@ -219,7 +223,25 @@ INSERT INTO service_games("moves", "date", "metadata", "service_id", "game_id_in
         3,
         'zGsFNtCE',
         'test2_lc_id',
-        'chess_com_user'
+        'lichess_user'
+    ),
+    (
+        '1. e4 e5 2. d3 Nf6 3. c3 Nc6 4. Be2 Bc5 5. Bf3 d6 6. Ne2 Be6 $2 7. Ng3 $9 O-O 8. O-O Qd7 $6 9. b4 Bb6 10. a4 a5 11. b5 Ne7 12. Nh5 $2 Ng6 $9 13. Nxf6+ $1 gxf6 14. c4 Kh8 15. Ra2 $6 Rg8 16. Nc3 Nh4 17. Kh1 Bh3 18. Nd5 $4 Nxf3 $1 19. Qxf3 $6 Bxg2+ 20. Qxg2 Rxg2 21. Kxg2 $6 Qg4+ 22. Kh1 Qf3+ 23. Kg1 Rg8+ 0-1',
+        '2025-04-17T11:45:50Z',
+        '{"TimeControl": "3+0"}',
+        2,
+        'test_game_id',
+        'chess_com_user',
+        'makaron_ccom_id'
+    ),
+    (
+        '1. e4 e5 2. Nf3 d6 3. Bc4 h6 4. d3 Bg4 5. Nc3 Nc6 6. h3 Bh5 7. Nxe5 Bxd1 8. Bxf7+ Ke7 9. Nd5# 1-0',
+        '2020-02-01T15:20:56Z',
+        '{"Event": "Rated blitz game", "TimeControl": "3+2"}',
+        3,
+        'another_game_id',
+        'makaron_lc_id',
+        'lichess_user'
     );
 
 INSERT INTO pgn_games("moves", "date", "metadata", "owner_id", "black_player_name", "white_player_name") VALUES
@@ -230,6 +252,30 @@ INSERT INTO pgn_games("moves", "date", "metadata", "owner_id", "black_player_nam
         1,
         'aaa',
         'bbb'
+    ),
+    (
+        '1. d4 e6 2. e4 d5 3. Nc3 c5 4. Nf3 Nc6 5. exd5 exd5 6. Be2 Nf6 7. O-O Be7 8. Bg5 O-O 9. dxc5 Be6 10. Nd4 Bxc5 11. Nxe6 fxe6 12. Bg4 Qd6 13. Bh3 Rae8 14. Qd2 Bb4 15. Bxf6 Rxf6 16. Rad1 Qc5 17. Qe2 Bxc3 18. bxc3 Qxc3 19. Rxd5 Nd4 20. Qh5 Ref8 21. Re5 Rh6 22. Qg5 Rxh3 23. Rc5 Qg3 0-1',
+        NULL,
+        '{"Event": "DSB Congress XVIII 1912"}',
+        4,
+        'Stepan Levitzky',
+        'Frank Marshall'
+    ),
+    (
+        '1. e4 e5 2. Nf3 d6 3. d4 Bg4 4. dxe5 Bxf3 5. Qxf3 dxe5 6. Bc4 Nf6 7. Qb3 Qe7 8. Nc3 c6 9. Bg5 9... b5 10. Nxb5 cxb5 {This is a comment} 11. Bxb5+ Nbd7 12. O-O-O Rd8 13. Rxd7 Rxd7 14. Rd1 Qe6 15. Bxd7+ Nxd7 16. Qb8+ $3 Nxb8 17. Rd8# 1-0',
+        NULL,
+        NULL,
+        4,
+        'Paul Morphy',
+        'Duke Karl / Count Isouard'
+    ),
+    (
+        '1. e4 d6 2. d4 Nf6 3. Nc3 g6 4. Be3 Bg7 5. Qd2 c6 6. f3 b5 7. Nge2 Nbd7 8. Bh6 Bxh6 9. Qxh6 Bb7 10. a3 e5 11. O-O-O Qe7 12. Kb1 a6 13. Nc1 O-O-O 14. Nb3 exd4 15. Rxd4 c5 16. Rd1 Nb6 17. g3 Kb8 18. Na5 Ba8 19. Bh3 d5 20. Qf4+ Ka7 21. Rhe1 d4 22. Nd5 Nbxd5 23. exd5 Qd6 24. Rxd4 cxd4 25. Re7+ Kb6 26. Qxd4+ Kxa5 27. b4+ Ka4 28. Qc3 Qxd5 29. Ra7 Bb7 30. Rxb7 Qc4 31. Qxf6 Kxa3 32. Qxa6+ Kxb4 33. c3+ Kxc3 34. Qa1+ Kd2 35. Qb2+ Kd1 36. Bf1 Rd2 37. Rd7 Rxd7 38. Bxc4 bxc4 39. Qxh8 Rd3 40. Qa8 c3 41. Qa4+ Ke1 42. f4 f5 43. Kc1 Rd2 44. Qa7 1-0',
+        NULL,
+        '{"Event": "Hoogovens Wijk aan Zee Chess Tournament 1999"}',
+        4,
+        'Garry Kasparov',
+        'Veselin Topalov'
     );
 
 INSERT INTO openings("eco", "name", "partial_fen") VALUES
