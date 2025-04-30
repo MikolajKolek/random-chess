@@ -120,7 +120,7 @@ CREATE VIEW "users_games" AS (
     FROM pgn_games pg
 );
 
--- TODO: stworzyć view który na podstawie tabeli openings i epd_positions w games przypisuje każdej grze opening
+-- TODO: stworzyć view który na podstawie tabeli openings i parial_fen_positions w games przypisuje każdej grze opening
 /*CREATE VIEW games_openings AS (
 
 );*/
