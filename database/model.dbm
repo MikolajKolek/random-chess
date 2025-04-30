@@ -1,0 +1,629 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+CAUTION: Do not modify this file unless you know what you are doing.
+ Unexpected results may occur if the code is changed deliberately.
+-->
+<dbmodel pgmodeler-ver="1.2.0-beta1" use-changelog="false" max-obj-count="15"
+	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
+	 last-position="-190,20" last-zoom="0.75" scene-rect="-440.5,-120.5,2225.27,1490"
+	 default-schema="​" default-owner="postgres"
+	 layers="Default layer"
+	 active-layers="0"
+	 layer-name-colors="#000000"
+	 layer-rect-colors="#b4b4b4"
+	 show-layer-names="false" show-layer-rects="false">
+<role name="mikolaj"
+ inherit="true"
+ login="true"
+ password="********">
+</role>
+
+<role name="root"
+ inherit="true"
+ login="true"
+ password="********">
+</role>
+
+<role name="git"
+ inherit="true"
+ login="true"
+ password="********">
+</role>
+
+<database name="mikolaj" encoding="UTF8" lc-collate="C.UTF-8" lc-ctype="C.UTF-8" is-template="false" allow-conns="true">
+	<role name="mikolaj"/>
+	<tablespace name="pg_default"/>
+</database>
+
+<schema name="public" layers="0" rect-visible="true" fill-color="#21262a" name-color="#21262a" sql-disabled="true">
+</schema>
+
+<schema name="​" layers="0" rect-visible="true" fill-color="#21262a" name-color="#31363b">
+	<role name="postgres"/>
+</schema>
+
+<sequence name="openings_id_seq" cycle="false" start="1" increment="1" min-value="1" max-value="2147483647" cache="1">
+	<schema name="public"/>
+	<role name="postgres"/>
+</sequence>
+
+<table name="openings" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
+	<schema name="​"/>
+	<role name="postgres"/>
+	<position x="1260" y="620"/>
+	<column name="id" not-null="true" sequence="public.openings_id_seq">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="eco" not-null="true">
+		<type name="character" length="3"/>
+	</column>
+	<column name="name" not-null="true">
+		<type name="character varying" length="256"/>
+	</column>
+	<column name="partial_fen" not-null="true">
+		<type name="character varying" length="0"/>
+	</column>
+	<constraint name="openings_pkey" type="pk-constr" table="​.openings">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+	<constraint name="openings_partial_fen_key" type="uq-constr" table="​.openings">
+		<columns names="partial_fen" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<sequence name="users_id_seq" cycle="false" start="1" increment="1" min-value="1" max-value="2147483647" cache="1">
+	<schema name="public"/>
+	<role name="postgres"/>
+</sequence>
+
+<table name="users" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
+	<schema name="​"/>
+	<role name="postgres"/>
+	<position x="-100" y="760"/>
+	<column name="id" not-null="true" sequence="public.users_id_seq">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="email" not-null="true">
+		<type name="character varying" length="0"/>
+	</column>
+	<column name="password_hash" not-null="true">
+		<type name="character varying" length="0"/>
+	</column>
+	<column name="elo" not-null="true" default-value="1500">
+		<type name="numeric" length="0"/>
+	</column>
+	<constraint name="users_email_check" type="ck-constr" table="​.users">
+			<expression> <![CDATA[((email)::text ~* '(?:[a-z0-9!#$%&''''*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&''''*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])'::text)]]> </expression>
+	</constraint>
+	<constraint name="users_pkey" type="pk-constr" table="​.users">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+	<constraint name="users_email_key" type="uq-constr" table="​.users">
+		<columns names="email" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<sequence name="game_services_id_seq" cycle="false" start="1" increment="1" min-value="1" max-value="2147483647" cache="1">
+	<schema name="public"/>
+	<role name="postgres"/>
+</sequence>
+
+<table name="game_services" layers="0" collapse-mode="2" max-obj-count="2" z-value="0">
+	<schema name="​"/>
+	<role name="postgres"/>
+	<position x="-100" y="160"/>
+	<column name="id" not-null="true" sequence="public.game_services_id_seq">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="name" not-null="true">
+		<type name="character varying" length="256"/>
+	</column>
+	<constraint name="game_services_pkey" type="pk-constr" table="​.game_services">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+	<constraint name="game_services_name_key" type="uq-constr" table="​.game_services">
+		<columns names="name" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="service_accounts" layers="0" collapse-mode="2" max-obj-count="6" z-value="0">
+	<schema name="​"/>
+	<role name="postgres"/>
+	<position x="-100" y="440"/>
+	<column name="user_id">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="service_id" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="user_id_in_service" not-null="true">
+		<type name="character varying" length="0"/>
+	</column>
+	<column name="display_name" not-null="true">
+		<type name="character varying" length="256"/>
+	</column>
+	<column name="is_bot" not-null="true">
+		<type name="boolean" length="0"/>
+	</column>
+	<constraint name="valid_system_account" type="ck-constr" table="​.service_accounts">
+			<expression> <![CDATA[((service_id <> 1) OR ((is_bot = true) AND (user_id IS NULL)) OR ((is_bot = false) AND ((((user_id)::character varying)::text = (user_id_in_service)::text) OR (user_id IS NULL))))]]> </expression>
+	</constraint>
+	<constraint name="service_accounts_pkey" type="pk-constr" table="​.service_accounts">
+		<columns names="service_id,user_id_in_service" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<sequence name="service_games_id_seq" cycle="false" start="1" increment="1" min-value="1" max-value="2147483647" cache="1">
+	<schema name="public"/>
+	<role name="postgres"/>
+</sequence>
+
+<table name="service_games" layers="0" collapse-mode="2" max-obj-count="9" z-value="0">
+	<schema name="​"/>
+	<role name="postgres"/>
+	<position x="440" y="160"/>
+	<column name="id" not-null="true" sequence="public.service_games_id_seq">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="moves" not-null="true">
+		<type name="character varying" length="0"/>
+	</column>
+	<column name="date">
+		<type name="timestamp" length="0"/>
+	</column>
+	<column name="metadata">
+		<type name="jsonb" length="0"/>
+	</column>
+	<column name="game_id_in_service">
+		<type name="character varying" length="0"/>
+	</column>
+	<column name="service_id" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="white_player" not-null="true">
+		<type name="character varying" length="0"/>
+	</column>
+	<column name="black_player" not-null="true">
+		<type name="character varying" length="0"/>
+	</column>
+	<constraint name="service_games_check" type="ck-constr" table="​.service_games">
+			<expression> <![CDATA[
+CASE
+    WHEN (service_id = 1) THEN (game_id_in_service IS NULL)
+    ELSE (game_id_in_service IS NOT NULL)
+END]]> </expression>
+	</constraint>
+	<constraint name="service_games_pkey" type="pk-constr" table="​.service_games">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+	<constraint name="service_games_game_id_in_service_service_id_key" type="uq-constr" table="​.service_games">
+		<columns names="game_id_in_service,service_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<sequence name="pgn_games_id_seq" cycle="false" start="1" increment="1" min-value="1" max-value="2147483647" cache="1">
+	<schema name="public"/>
+	<role name="postgres"/>
+</sequence>
+
+<table name="pgn_games" layers="0" collapse-mode="2" max-obj-count="8" z-value="0">
+	<schema name="​"/>
+	<role name="postgres"/>
+	<position x="440" y="760"/>
+	<column name="id" not-null="true" sequence="public.pgn_games_id_seq">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="moves" not-null="true">
+		<type name="character varying" length="0"/>
+	</column>
+	<column name="date">
+		<type name="timestamp" length="0"/>
+	</column>
+	<column name="metadata">
+		<type name="jsonb" length="0"/>
+	</column>
+	<column name="owner_id" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="black_player_name" not-null="true">
+		<type name="character varying" length="0"/>
+	</column>
+	<column name="white_player_name" not-null="true">
+		<type name="character varying" length="0"/>
+	</column>
+	<constraint name="pgn_games_pkey" type="pk-constr" table="​.pgn_games">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<view name="games" layers="0" collapse-mode="2" max-obj-count="2" z-value="0">
+	<schema name="​"/>
+	<role name="postgres"/>
+	<position x="900" y="380"/>
+	<reference object="​.service_games" type="table" ref-name="service_games" use-signature="true"/>
+	<reference object="​.pgn_games" type="table" ref-name="pgn_games" use-signature="true"/>
+	<simplecol name="id" type="integer"/>
+	<simplecol name="kind" type="text"/>
+	<simplecol name="moves" type="character varying"/>
+	<simplecol name="date" type="timestamp"/>
+	<simplecol name="metadata" type="jsonb"/>
+	<definition> <![CDATA[ SELECT service_games.id,
+    'service'::text AS kind,
+    service_games.moves,
+    service_games.date,
+    service_games.metadata
+   FROM service_games
+UNION ALL
+ SELECT pgn_games.id,
+    'pgn'::text AS kind,
+    pgn_games.moves,
+    pgn_games.date,
+    pgn_games.metadata
+   FROM pgn_games;]]> </definition>
+</view>
+
+<relationship name="rel_games_pgn_games" type="reltv" layers="0"
+	 custom-color="#5479e2"
+	 src-table="​.games"
+	 dst-table="​.pgn_games"
+	 src-required="false" dst-required="false">
+	<label ref-type="name-label">
+		<position x="1077.57" y="151.862"/>
+	</label>
+</relationship>
+
+<relationship name="rel_games_service_games" type="reltv" layers="0"
+	 custom-color="#117369"
+	 src-table="​.games"
+	 dst-table="​.service_games"
+	 src-required="false" dst-required="false">
+	<label ref-type="name-label">
+		<position x="-397.896" y="1076.21"/>
+	</label>
+</relationship>
+
+<view name="users_games" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
+	<schema name="​"/>
+	<role name="postgres"/>
+	<position x="900" y="620"/>
+	<reference object="​.service_accounts" type="table" ref-name="service_accounts" use-signature="true"/>
+	<reference object="​.service_games" type="table" ref-name="service_games" use-signature="true"/>
+	<reference object="​.pgn_games" type="table" ref-name="pgn_games" use-signature="true"/>
+	<simplecol name="user_id" type="integer"/>
+	<simplecol name="game_id" type="integer"/>
+	<simplecol name="kind" type="text"/>
+	<simplecol name="moves" type="character varying"/>
+	<simplecol name="date" type="timestamp"/>
+	<simplecol name="metadata" type="jsonb"/>
+	<definition> <![CDATA[ SELECT sa.user_id,
+    sg.id AS game_id,
+    'service'::text AS kind,
+    sg.moves,
+    sg.date,
+    sg.metadata
+   FROM (service_accounts sa
+     JOIN service_games sg ON ((((sa.user_id_in_service)::text = (sg.white_player)::text) OR ((sa.user_id_in_service)::text = (sg.black_player)::text))))
+UNION
+ SELECT pg.owner_id AS user_id,
+    pg.id AS game_id,
+    'pgn'::text AS kind,
+    pg.moves,
+    pg.date,
+    pg.metadata
+   FROM pgn_games pg;]]> </definition>
+</view>
+
+<relationship name="rel_users_games_pgn_games" type="reltv" layers="0"
+	 custom-color="#8c1eeb"
+	 src-table="​.users_games"
+	 dst-table="​.pgn_games"
+	 src-required="false" dst-required="false">
+	<label ref-type="name-label">
+		<position x="-164.426" y="566.212"/>
+	</label>
+</relationship>
+
+<relationship name="rel_users_games_service_games" type="reltv" layers="0"
+	 custom-color="#77cc79"
+	 src-table="​.users_games"
+	 dst-table="​.service_games"
+	 src-required="false" dst-required="false">
+	<label ref-type="name-label">
+		<position x="1669.6" y="140.562"/>
+	</label>
+</relationship>
+
+<relationship name="rel_users_games_service_accounts" type="reltv" layers="0"
+	 custom-color="#bc6431"
+	 src-table="​.users_games"
+	 dst-table="​.service_accounts"
+	 src-required="false" dst-required="false">
+	<label ref-type="name-label">
+		<position x="-78.7077" y="-622.488"/>
+	</label>
+</relationship>
+
+<view name="games_openings" layers="0" collapse-mode="2" max-obj-count="2" z-value="0">
+	<schema name="​"/>
+	<role name="postgres"/>
+	<position x="1300" y="400"/>
+	<reference object="​.openings" type="table" ref-name="openings" use-signature="true"/>
+	<reference object="​.games" type="view" ref-name="games" use-signature="true"/>
+	<simplecol name="game_id" type="integer"/>
+	<simplecol name="game_kind" type="character varying"/>
+	<simplecol name="opening_id" type="integer"/>
+	<definition> <![CDATA[ SELECT g.id AS game_id, g.kind AS game_kind,
+    o.id AS opening_id
+   FROM (openings o
+     JOIN games g ON (((g.moves)::text ~~ like_escape(((o.partial_fen)::text || '%'::text), '\'::text))))]]> </definition>
+</view>
+
+<relationship name="rel_game_openings_openings" type="reltv" layers="0"
+	 custom-color="#de39e9"
+	 src-table="​.games_openings"
+	 dst-table="​.openings"
+	 src-required="false" dst-required="false">
+	<label ref-type="name-label">
+		<position x="557.363" y="165.762"/>
+	</label>
+</relationship>
+
+<relationship name="rel_game_openings_games" type="reltv" layers="0"
+	 custom-color="#add416"
+	 src-table="​.games_openings"
+	 dst-table="​.games"
+	 src-required="false" dst-required="false">
+	<label ref-type="name-label">
+		<position x="911.892" y="-99.888"/>
+	</label>
+</relationship>
+
+<function name="add_default_service_to_user"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="trigger" length="0"/>
+	</return-type>
+	<definition> <![CDATA[BEGIN
+    INSERT INTO service_accounts(user_id, service_id, user_id_in_service, display_name, is_bot) VALUES (
+       NEW.id, 1, NEW.id, NEW.email, FALSE
+    );
+    RETURN NEW;
+END;]]> </definition>
+</function>
+
+<function name="prevent_default_service_modification"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="trigger" length="0"/>
+	</return-type>
+	<definition> <![CDATA[BEGIN
+    -- Sprawdzenie pg_trigger_depth() = 1 sprawia, że ON DELETE SET NULL
+    -- w "user_id" service_accounts może zadziałać
+    IF (OLD.service_id = 1) AND (old.user_id IS NOT NULL) AND (pg_trigger_depth() = 1) AND
+       (OLD.user_id != NEW.user_id OR OLD.service_id != NEW.service_id OR
+        OLD.user_id_in_service != NEW.user_id_in_service OR OLD.is_bot != NEW.is_bot)
+    THEN
+        RAISE EXCEPTION 'Cannot modify default service account for user %', OLD.user_id;
+    END IF;
+
+    RETURN NEW;
+END;]]> </definition>
+</function>
+
+<function name="prevent_default_service_deletion"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="trigger" length="0"/>
+	</return-type>
+	<definition> <![CDATA[BEGIN
+    IF (OLD.service_id = 1) AND (old.user_id IS NOT NULL) THEN
+        RAISE EXCEPTION 'Cannot delete default service account for user %', OLD.user_id;
+    END IF;
+
+    RETURN OLD;
+END;]]> </definition>
+</function>
+
+<trigger name="users_insert_add_default_service" firing-type="AFTER" per-line="true" constraint="false"
+	 ins-event="true" del-event="false" upd-event="false" trunc-event="false"
+	 table="​.users">
+		<function signature="public.add_default_service_to_user()"/>
+</trigger>
+
+<trigger name="service_accounts_update_prevent_for_default_service" firing-type="BEFORE" per-line="true" constraint="false"
+	 ins-event="false" del-event="false" upd-event="true" trunc-event="false"
+	 table="​.service_accounts">
+		<function signature="public.prevent_default_service_modification()"/>
+</trigger>
+
+<trigger name="service_accounts_delete_prevent_for_default_service" firing-type="BEFORE" per-line="true" constraint="false"
+	 ins-event="false" del-event="true" upd-event="false" trunc-event="false"
+	 table="​.service_accounts">
+		<function signature="public.prevent_default_service_deletion()"/>
+</trigger>
+
+<view name="test" layers="0" collapse-mode="2" max-obj-count="0" z-value="0">
+	<schema name="​"/>
+	<role name="postgres"/>
+	<position x="1680" y="1100"/>
+	<definition> <![CDATA[CREATE VIEW test AS (
+    SELECT g.id as game_id, o.id as opening_id
+    FROM openings o
+    INNER JOIN games g ON(g.moves LIKE o.partial_fen || '%' ESCAPE '\')
+ );]]> </definition>
+</view>
+
+<view name="test2" layers="0" collapse-mode="2" max-obj-count="0" z-value="0">
+	<schema name="​"/>
+	<role name="postgres"/>
+	<position x="-300" y="-20"/>
+	<definition> <![CDATA[CREATE VIEW test2 AS (
+    SELECT g.id as game_id, o.id as opening_id
+    FROM openings o
+    INNER JOIN games g ON(g.moves LIKE o.partial_fen || '%' ESCAPE '\')
+ );]]> </definition>
+</view>
+
+<constraint name="service_accounts_user_id_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="SET NULL" ref-table="​.users" table="​.service_accounts">
+	<columns names="user_id" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="service_accounts_service_id_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="​.game_services" table="​.service_accounts">
+	<columns names="service_id" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="service_games_service_id_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="​.game_services" table="​.service_games">
+	<columns names="service_id" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="service_games_service_id_white_player_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="​.service_accounts" table="​.service_games">
+	<columns names="service_id,white_player" ref-type="src-columns"/>
+	<columns names="service_id,user_id_in_service" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="service_games_service_id_black_player_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="​.service_accounts" table="​.service_games">
+	<columns names="service_id,black_player" ref-type="src-columns"/>
+	<columns names="service_id,user_id_in_service" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="pgn_games_owner_id_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="CASCADE" ref-table="​.users" table="​.pgn_games">
+	<columns names="owner_id" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
+<relationship name="rel_service_accounts_users" type="relfk" layers="0"
+	 custom-color="#3739cc"
+	 src-table="​.service_accounts"
+	 dst-table="​.users" reference-fk="service_accounts_user_id_fkey"
+	 src-required="false" dst-required="false">
+	<label ref-type="src-label">
+		<position x="-207" y="-3.3"/>
+	</label>
+	<label ref-type="dst-label">
+		<position x="-287" y="-163.3"/>
+	</label>
+	<label ref-type="name-label">
+		<position x="-219.795" y="-116.191"/>
+	</label>
+</relationship>
+
+<relationship name="rel_service_accounts_game_services" type="relfk" layers="0"
+	 custom-color="#38d1ac"
+	 src-table="​.service_accounts"
+	 dst-table="​.game_services" reference-fk="service_accounts_service_id_fkey"
+	 src-required="false" dst-required="true">
+	<label ref-type="src-label">
+		<position x="-207" y="94.1"/>
+	</label>
+	<label ref-type="dst-label">
+		<position x="-87" y="-243.3"/>
+	</label>
+	<label ref-type="name-label">
+		<position x="-273.795" y="-47.491"/>
+	</label>
+</relationship>
+
+<relationship name="rel_service_games_game_services" type="relfk" layers="0"
+	 custom-color="#0d878a"
+	 src-table="​.service_games"
+	 dst-table="​.game_services" reference-fk="service_games_service_id_fkey"
+	 src-required="false" dst-required="true">
+	<label ref-type="src-label">
+		<position x="-167" y="223.7"/>
+	</label>
+	<label ref-type="dst-label">
+		<position x="-190.871" y="-263.3"/>
+	</label>
+	<label ref-type="name-label">
+		<position x="196.269" y="-672.691"/>
+	</label>
+</relationship>
+
+<relationship name="rel_service_games_service_accounts" type="relfk" layers="0"
+	 custom-color="#f17591"
+	 src-table="​.service_games"
+	 dst-table="​.service_accounts" reference-fk="service_games_service_id_white_player_fkey"
+	 src-required="false" dst-required="true">
+	<label ref-type="src-label">
+		<position x="-187" y="226.75"/>
+	</label>
+	<label ref-type="dst-label">
+		<position x="63.8477" y="-597.2"/>
+	</label>
+	<label ref-type="name-label">
+		<position x="-9.87167" y="821.884"/>
+	</label>
+</relationship>
+
+<relationship name="rel_service_games_service_accounts1" type="relfk" layers="0"
+	 custom-color="#58df66"
+	 src-table="​.service_games"
+	 dst-table="​.service_accounts" reference-fk="service_games_service_id_black_player_fkey"
+	 src-required="false" dst-required="true">
+	<label ref-type="src-label">
+		<position x="-227" y="206.75"/>
+	</label>
+	<label ref-type="dst-label">
+		<position x="103.848" y="-557.2"/>
+	</label>
+	<label ref-type="name-label">
+		<position x="73.6283" y="861.884"/>
+	</label>
+</relationship>
+
+<relationship name="rel_pgn_games_users" type="relfk" layers="0"
+	 custom-color="#0df3ce"
+	 src-table="​.pgn_games"
+	 dst-table="​.users" reference-fk="pgn_games_owner_id_fkey"
+	 src-required="false" dst-required="true">
+	<label ref-type="src-label">
+		<position x="-47" y="406.3"/>
+	</label>
+	<label ref-type="dst-label">
+		<position x="-16.2898" y="536.7"/>
+	</label>
+	<label ref-type="name-label">
+		<position x="1029.06" y="678.609"/>
+	</label>
+</relationship>
+
+</dbmodel>
