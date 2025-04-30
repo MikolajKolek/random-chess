@@ -196,7 +196,7 @@ Pola `moves`, `date` i `metadata` są w tym samym formacie co w widoku `games`.
 | `game_kind`  | VARCHAR | Jeden z (`'service'`, `'pgn'`) |
 | `opening_id` | INT     |                                |
 
-Widok `games_openings` jest planowanym widokiem łączącym gry w widoku games z ich debiutami. Planujemy zaimplementować go, pisząc funkcję, która porównuje kolejne elementy tabeli `partial_fen_positions` dla danej gry z kolumną partial_fen tabeli openings, znajdując ostatnią pozycję, której może zostać przypisany debiut i zapisując go w `opening_id`. Implementacja tego widoku była zbyt skomplikowana na pierwszy etap projektu, dlatego planujemy to zrobić w etapie drugim.
+Widok `games_openings` jest planowanym widokiem łączącym gry w widoku `games` z ich debiutami. Mamy zamiar zaimplementować go, pisząc funkcję, która pierwsze w oparciu na `moves` w tabeli `games` liczy partial_fen wszystkich pozycji, które wystąpiły w danej grze w kolejności. Następnie, trzeba tylko porównać kolejne elementy tej tabeli z kolumną `partial_fen` tabeli `openings`, znajdując ostatnią pozycję, której może zostać przypisany debiut i zapisując go w `opening_id`. Implementacja tego widoku była zbyt skomplikowana na pierwszy etap projektu, dlatego planujemy to zrobić w etapie drugim.
 
 # Napotkane problemy
 
