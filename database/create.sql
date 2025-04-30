@@ -60,10 +60,6 @@ CREATE TABLE "service_accounts"
 --
 -- "id" w tabelach service_games i pgn_games są unikalne tylko w obrębie danej tabeli.
 
--- TODO: napisać funkcję generującą listę pozycji w formacie FEN dla gry
--- i dodać to wspólne pole do pgn_games i serial_games:
--- "partial_fen_positions"     VARCHAR[]       GENERATED ALWAYS AS ()
-
 CREATE TABLE "service_games"
 (
     "id"                 SERIAL         PRIMARY KEY,
@@ -120,14 +116,14 @@ CREATE VIEW "users_games" AS (
     FROM pgn_games pg
 );
 
--- TODO: stworzyć view który na podstawie tabeli openings i parial_fen_positions w games przypisuje każdej grze opening
+-- TODO: stworzyć view, który na podstawie tabeli openings i kolumny moves w tabeli games przypisuje każdej grze opening
 /*CREATE VIEW games_openings AS (
 
 );*/
 
 
 -- Poniższe triggery sprawiają, że service_account użytkownika w naszym serwisie
--- zawsze istnieje póki użytkownik istnieje
+-- zawsze istnieje, póki użytkownik istnieje
 CREATE OR REPLACE FUNCTION add_default_service_to_user()
     RETURNS TRIGGER
     LANGUAGE plpgsql
