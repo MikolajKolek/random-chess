@@ -39,14 +39,14 @@ Zakres planowanej funkcjonalności zmienił się delikatnie od początkowej dekl
 
 ### openings
 
-| Pole     | Typ          | Dodatkowe informacje |
-| -------- | ------------ | -------------------- |
-| **`id`** | SERIAL       | **PRIMARY KEY**      |
-| `eco`    | CHAR(3)      | NOT NULL             |
-| `name`   | VARCHAR(256) | NOT NULL             |
-| `epd`    | VARCHAR      | UNIQUE NOT NULL      |
+| Pole          | Typ          | Dodatkowe informacje |
+| ------------- | ------------ | -------------------- |
+| **`id`**      | SERIAL       | **PRIMARY KEY**      |
+| `eco`         | CHAR(3)      | NOT NULL             |
+| `name`        | VARCHAR(256) | NOT NULL             |
+| `partial_fen` | VARCHAR      | UNIQUE NOT NULL      |
 
-Tabela openings przechowuje debiuty, które będą rozpoznawane dla gier poprzez `games_openings`. Planujemy oprzeć ją na <https://github.com/lichess-org/chess-openings> lub podobnym zasobie zbierającym debiuty. Kolumna eco to kod debiutu w [Encyklopedii otwarć szachowych](https://pl.wikipedia.org/wiki/Encyklopedia_otwar%C4%87_szachowych), a [epd](https://www.chessprogramming.org/Extended_Position_Description) to format zapisu pozycji na szachownicy.
+Tabela openings przechowuje debiuty, które będą rozpoznawane dla gier poprzez `games_openings`. Planujemy oprzeć ją na <https://github.com/lichess-org/chess-openings> lub podobnym zasobie zbierającym debiuty. Kolumna eco to kod debiutu w [Encyklopedii otwarć szachowych](https://pl.wikipedia.org/wiki/Encyklopedia_otwar%C4%87_szachowych), a [FEN](https://pl.wikipedia.org/wiki/Notacja_Forsytha-Edwardsa) to format zapisu pozycji na szachownicy. Klasyczny FEN skracamy do 4 pierwszych wartości - zapisujemy informacje o pozycji na szachownicy, możliwości roszady obu stron, kolorze przy ruchu oraz możliwości wykonania *en passant*.
 
 
 ### users
@@ -198,7 +198,7 @@ Pola `moves`, `date` i `metadata` są w tym samym formacie co w widoku `games`.
 | `game_kind`  | VARCHAR | Jeden z (`'service'`, `'pgn'`) |
 | `opening_id` | INT     |                                |
 
-Widok `games_openings` jest planowanym widokiem łączącym gry w widoku games z ich debiutami. Planujemy zaimplementować go, pisząc funkcję, która porównuje kolejne elementy tabeli `epd_positions` dla danej gry z kolumną epd tabeli openings, znajdując ostatnią pozycję, której może zostać przypisany debiut i zapisując go w `opening_id`. Implementacja tego widoku była zbyt skomplikowana na pierwszy etap projektu, dlatego planujemy to zrobić w etapie drugim.
+Widok `games_openings` jest planowanym widokiem łączącym gry w widoku games z ich debiutami. Planujemy zaimplementować go, pisząc funkcję, która porównuje kolejne elementy tabeli `partial_fen_positions` dla danej gry z kolumną partial_fen tabeli openings, znajdując ostatnią pozycję, której może zostać przypisany debiut i zapisując go w `opening_id`. Implementacja tego widoku była zbyt skomplikowana na pierwszy etap projektu, dlatego planujemy to zrobić w etapie drugim.
 
 # Napotkane problemy
 
