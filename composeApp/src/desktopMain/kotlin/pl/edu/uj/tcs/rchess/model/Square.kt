@@ -5,7 +5,7 @@ package pl.edu.uj.tcs.rchess.model
  * @param row The row of the square. (0-7 - A-H)
  * @param col The column of the square.
  */
-class Square(var row: Int, var col: Int, var Piece: Piece? = null) {
+class Square(var row: Int, var col: Int, var piece: Piece? = null) {
 
     init {
         require(!(row < 0 || row > 7)) { "Row out of range." }
