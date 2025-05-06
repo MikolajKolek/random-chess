@@ -8,13 +8,19 @@ package pl.edu.uj.tcs.rchess.model
 abstract class Piece(private var square: Square, private var owner: PlayerColor) {
 
     /**
-     * @param board The board that this piece is on.
-     * @return List of all possible and legal moves that this piece can currently perform.
+     * @return The color of the piece.
      */
     fun getColor(): PlayerColor = owner
 
+    /**
+     * @return The square that the piece is on.
+     */
     fun getSquare() : Square = square
 
+    /**
+     * @param board The board that this piece is on.
+     * @return List of all possible and legal moves that this piece can currently perform.
+     */
     fun getLegalMoves(board: BoardState): List<Move> {
         return listOf();
         // Gets the sum of CaptureVision and MoveVision, and excludes the illegal moves.
