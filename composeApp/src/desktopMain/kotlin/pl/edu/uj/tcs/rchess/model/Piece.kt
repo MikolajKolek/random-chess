@@ -11,6 +11,10 @@ abstract class Piece(private var square: Square, private var owner: PlayerColor)
      * @param board The board that this piece is on.
      * @return List of all possible and legal moves that this piece can currently perform.
      */
+    fun getColor(): PlayerColor = owner
+
+    fun getSquare() : Square = square
+
     fun getLegalMoves(board: BoardState): List<Move> {
         return listOf();
         // Gets the sum of CaptureVision and MoveVision, and excludes the illegal moves.
