@@ -10,9 +10,16 @@ class SquarePositionTest {
     val rule = createComposeRule()
 
     @Test
-    fun squareArgsInRange(){
-        Assert.assertThrows(IllegalArgumentException::class.java) {
-            SquarePosition(7, 8)
+    fun squareArgsInRange() {
+        for ((row, col) in listOf(
+            0 to 8,
+            8 to 0,
+            -1 to 0,
+            0 to -1
+        )) {
+            Assert.assertThrows(IllegalArgumentException::class.java) {
+                SquarePosition(row, col)
+            }
         }
     }
 }
