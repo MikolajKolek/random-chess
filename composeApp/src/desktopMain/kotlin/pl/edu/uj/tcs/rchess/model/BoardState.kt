@@ -30,7 +30,11 @@ class BoardState(
         }
     }
 
-    fun getPieceAt(position: Square) = board[position.row * 8 + position.col]
+    /**
+     * @param square The square to check
+     * @return The piece on the given square (or null if there is none).
+     */
+    fun getPieceAt(square: Square) = board[square.row * 8 + square.col]
 
     /**
      * @param move The move to apply.
@@ -62,10 +66,22 @@ class BoardState(
      * If there is no piece at the position, return an empty list.
      */
     fun getLegalMovesFor(square: Square): List<Move> {
-        return getPieceAt(square)?.getLegalMoves(this) ?: emptyList()
+        return getPieceAt(square)?.getLegalMoves(this, square) ?: emptyList()
     }
 
+    /**
+     * @return The FEN representation of this GameState.
+     * @see FEN
+     */
     fun toFen(): String {
+        TODO()
+    }
+
+    /**
+     * @return The internal reason of game over (or null, if there is none)
+     * @see GameOverReason
+     */
+    fun isOver() : GameOverReason? {
         TODO()
     }
 }
