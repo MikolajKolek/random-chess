@@ -12,6 +12,8 @@ class BoardState(
     val currentTurn: PlayerColor,
     val enPassantTarget: SquarePosition?,
     val castlingRights: CastlingRights,
+    val halfmoveCounter: Int,
+    val fullmoveNumber: Int
 ) {
     companion object {
         fun empty() = BoardState(
@@ -19,9 +21,11 @@ class BoardState(
             currentTurn = PlayerColor.WHITE,
             enPassantTarget = null,
             castlingRights = CastlingRights.full(),
+            halfmoveCounter = 0,
+            fullmoveNumber = 1
         )
 
-        fun fromFen(fen: String): BoardState {
+        fun fromFen(fen: FEN): BoardState {
             TODO()
         }
     }
@@ -37,16 +41,6 @@ class BoardState(
     fun applyMove(move: Move) : BoardState {
         TODO()
     }
-
-    /**
-     * @param move The move to apply.
-     * @throws IllegalStateException when the current position is not legal.
-     * @throws IllegalArgumentException when the given move is not a valid move in this GameState.
-     * @return A copy of the current BoardState after having applied the given move.
-     */
-    /*fun forceMoveAndCopy(move : Move) : BoardState {
-        return BoardState(this)
-    }*/
 
     /**
      * @return Returns true if the current position is legal
@@ -67,9 +61,8 @@ class BoardState(
      * @return List of legal moves for the piece at the given position.
      * If there is no piece at the position, return an empty list.
      */
-    // TODO: Is this function necessary? Shouldn't it be a responsibility of the Piece class?
-    fun getPossibleMovesFor(position: SquarePosition): List<Move> {
-        TODO()
+    fun getLegalMovesFor(position: SquarePosition): List<Move> {
+        return getPieceAt(position)?.getLegalMoves(this) ?: emptyList()
     }
 
     fun toFen(): String {
