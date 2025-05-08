@@ -10,7 +10,7 @@ import pl.edu.uj.tcs.rchess.model.pieces.Piece
 class BoardState(
     private val board: List<Piece?>,
     val currentTurn: PlayerColor,
-    val enPassantTarget: SquarePosition?,
+    val enPassantTarget: Square?,
     val castlingRights: CastlingRights,
     val halfmoveCounter: Int,
     val fullmoveNumber: Int
@@ -30,7 +30,7 @@ class BoardState(
         }
     }
 
-    fun getPieceAt(position: SquarePosition) = board[position.row * 8 + position.col]
+    fun getPieceAt(position: Square) = board[position.row * 8 + position.col]
 
     /**
      * @param move The move to apply.
@@ -61,8 +61,8 @@ class BoardState(
      * @return List of legal moves for the piece at the given position.
      * If there is no piece at the position, return an empty list.
      */
-    fun getLegalMovesFor(position: SquarePosition): List<Move> {
-        return getPieceAt(position)?.getLegalMoves(this) ?: emptyList()
+    fun getLegalMovesFor(square: Square): List<Move> {
+        return getPieceAt(square)?.getLegalMoves(this) ?: emptyList()
     }
 
     fun toFen(): String {

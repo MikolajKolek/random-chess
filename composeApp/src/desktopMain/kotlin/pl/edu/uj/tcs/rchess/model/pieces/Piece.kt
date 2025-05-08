@@ -3,7 +3,7 @@ package pl.edu.uj.tcs.rchess.model.pieces
 import pl.edu.uj.tcs.rchess.model.BoardState
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
-import pl.edu.uj.tcs.rchess.model.SquarePosition
+import pl.edu.uj.tcs.rchess.model.Square
 
 /**
  * Sealed class describing all chess pieces.
@@ -14,7 +14,7 @@ sealed class Piece(
     /**
      * The square that the piece is on.
      */
-    val square: SquarePosition,
+    val square: Square,
 
     /**
      * The color of the piece.
@@ -34,11 +34,11 @@ sealed class Piece(
      * @param board The board that this piece is on.
      * @return List of all squares we can capture on - or check, if the King is within the capture vision.
      */
-    abstract fun getCaptureVision(board: BoardState): List<SquarePosition>
+    abstract fun getCaptureVision(board: BoardState): List<Square>
 
     /**
      * @param board The board that this piece is on.
      * @return List of all squares we can move to without capturing.
      */
-    abstract fun getMoveVision(board: BoardState): List<SquarePosition>
+    abstract fun getMoveVision(board: BoardState): List<Square>
 }

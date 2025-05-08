@@ -5,7 +5,7 @@ import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 
-class SquarePositionTest {
+class SquareTest {
     @get:Rule
     val rule = createComposeRule()
 
@@ -18,7 +18,7 @@ class SquarePositionTest {
             0 to -1
         )) {
             Assert.assertThrows(IllegalArgumentException::class.java) {
-                SquarePosition(row, col)
+                Square(row, col)
             }
         }
     }

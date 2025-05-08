@@ -7,7 +7,7 @@ package pl.edu.uj.tcs.rchess.model
  * @param to Destination square.
  * @param promoteTo Piece the pawn promotes to (null if inapplicable).
  */
-data class Move(val from: SquarePosition, val to: SquarePosition, val promoteTo: Promotion?) {
+data class Move(val from: Square, val to: Square, val promoteTo: Promotion?) {
     enum class Promotion {
         QUEEN,
         ROOK,

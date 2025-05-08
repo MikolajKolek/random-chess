@@ -4,7 +4,7 @@ package pl.edu.uj.tcs.rchess.model
  * @param row The row of the square. (0-7 - A-H)
  * @param col The column of the square.
  */
-data class SquarePosition(
+data class Square(
     val row: Int,
     val col: Int,
 ) {
