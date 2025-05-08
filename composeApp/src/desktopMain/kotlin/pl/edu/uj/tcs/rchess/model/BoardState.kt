@@ -1,20 +1,16 @@
 package pl.edu.uj.tcs.rchess.model
 
 class BoardState {
-    var Board: Array<Array<Square>> = Array(8, { Array(8, { Square(1, 1) })})
+    val board: Array<Array<Square>> = Array(8) { i ->
+        Array(8) { j ->
+            Square(SquarePosition(i, j))
+        }
+    }
     var currentTurn: PlayerColor = PlayerColor.WHITE
     private var enPassantTarget : Square? = null
         // The only square one may capture via en passant this turn.
-    private var castlingRights : Array<Boolean> = Array(4, {true})
-        // Order: White-Kingside, White-Queenside, Black-Kingside, Black-Queenside
 
-    init {
-        for(i in 1..8) {
-            for(j in 1..8) {
-                Board[i][j] = Square(i, j)
-            }
-        }
-    }
+    private var castlingRights: CastlingRights = CastlingRights.full()
 
     /**
      * @param move The move to apply.
