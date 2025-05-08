@@ -18,13 +18,23 @@ class BoardState {
 
     /**
      * @param move The move to apply.
-     * @throws IllegalStateException when the current position is not legal
+     * @throws IllegalStateException when the current position is not legal.
+     * @throws IllegalArgumentException when the given move is not legal.
      * @return The current BoardState.
-     * @see isLegal (for legality check)
      */
     fun applyMove(move: Move) : BoardState {
         return this
     }
+
+    /**
+     * @param move The move to apply.
+     * @throws IllegalStateException when the current position is not legal.
+     * @throws IllegalArgumentException when the given move is not a valid move in this GameState.
+     * @return A copy of the current BoardState after having applied the given move.
+     */
+    /*fun forceMoveAndCopy(move : Move) : BoardState {
+        return BoardState(this)
+    }*/
 
     /**
      * @return Returns true if the current position is legal
