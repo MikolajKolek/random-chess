@@ -25,7 +25,7 @@ sealed class Piece(
      * @param board The board that this piece is on.
      * @return List of all possible and legal moves that this piece can currently perform.
      */
-    fun getLegalMoves(board: BoardState): List<Move> {
+    fun getLegalMoves(board: BoardState, square: Square): List<Move> {
         TODO()
         // Gets the sum of CaptureVision and MoveVision, and excludes the illegal moves.
     }
@@ -34,11 +34,11 @@ sealed class Piece(
      * @param board The board that this piece is on.
      * @return List of all squares we can capture on - or check, if the King is within the capture vision.
      */
-    abstract fun getCaptureVision(board: BoardState): List<Square>
+    abstract fun getCaptureVision(board: BoardState, square: Square): List<Square>
 
     /**
      * @param board The board that this piece is on.
      * @return List of all squares we can move to without capturing.
      */
-    abstract fun getMoveVision(board: BoardState): List<Square>
+    abstract fun getMoveVision(board: BoardState, square: Square): List<Square>
 }
