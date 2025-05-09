@@ -6,11 +6,11 @@ import pl.edu.uj.tcs.rchess.model.Square
 
 class Rook(owner: PlayerColor): Piece(owner = owner) {
     override fun getMoveVision(board: BoardState, square: Square): List<Move> {
-        TODO("Implement bishop's move vision.")
+        TODO("Implement rook's move vision.")
     }
 
     override fun getCaptureVision(board: BoardState, square: Square): List<Move> {
-        TODO("Implement bishop's capture vision.")
+        TODO("Implement rook's capture vision.")
     }
 
     override val fenLetterLowercase = 'r'
