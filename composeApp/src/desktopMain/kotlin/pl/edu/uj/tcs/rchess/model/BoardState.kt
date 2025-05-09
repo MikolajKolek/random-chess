@@ -126,8 +126,48 @@ class BoardState(
     fun isLegal() : Boolean {
         // Both kings must be on the board
         // King of player not on move must not be in check
+        isInCheck(currentTurn)
+        if(isInCheck(currentTurn.getOpponent())) return false
+
         // Pawns must not be on ranks 1 and 8
-        TODO()
+        for(f in 0..7) {
+            if(getPieceAt(Square(0, f)) is Pawn) return false
+            if(getPieceAt(Square(7, f)) is Pawn) return false
+        }
+
+        return true
+    }
+
+    fun isInCheck(player: PlayerColor) : Boolean {
+        var kingSquare : Square? = null
+        for(r in 0..7) {
+            for(f in 0..7) {
+                if(getPieceAt(Square(r, f)) is King) {
+                    if(getPieceAt(Square(r, f))!!.owner == player) {
+                        require(kingSquare == null) { "There must not be more than one king of each color." }
+                        kingSquare = Square(r, f)
+                    }
+                }
+            }
+        }
+        require(kingSquare != null) { "There must be a king of each color." }
+        for(r in 0..7) {
+            for(f in 0..7) {
+                if(getPieceAt(Square(r, f)) is King && getPieceAt(Square(r, f)) != null) {
+                    if(getPieceAt(Square(r, f)) == null) continue
+                    if(kingSquare == Square(r, f)) continue
+                    if(getPieceAt(Square(r, f))!!.owner != getPieceAt(kingSquare)!!.owner) {
+                        val captureList = getPieceAt(Square(r, f))!!.getCaptureVision(this, Square(r, f))
+                        for(move in captureList) {
+                            if(move.to == kingSquare) {
+                                return true
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false
     }
 
     /**
