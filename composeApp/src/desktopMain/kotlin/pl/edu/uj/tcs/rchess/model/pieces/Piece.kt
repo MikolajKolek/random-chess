@@ -27,21 +27,28 @@ sealed class Piece(
      * @return List of all possible and legal moves that this piece can currently perform.
      */
     fun getLegalMoves(board: BoardState, square: Square): List<Move> {
-        TODO()
-        // Gets the sum of CaptureVision and MoveVision, and excludes the illegal moves.
+        require(board.getPieceAt(square) != null) {}
+        var moves = getMoveVision(board, square).plus(getCaptureVision(board, square))
+        var legalMoves : List<Move> = listOf()
+        for(move in moves) {
+            if(board.applyMove(move).isLegal()) {
+                legalMoves.plus(move)
+            }
+        }
+        return legalMoves
     }
 
     /**
      * @param board The board that this piece is on.
      * @param square The square that this piece is on.
-     * @return List of all squares we can capture on - or check, if the King is within the capture vision.
+     * @return List of all capturing moves.
      */
-    abstract fun getCaptureVision(board: BoardState, square: Square): List<Square>
+    abstract fun getCaptureVision(board: BoardState, square: Square): List<Move>
 
     /**
      * @param board The board that this piece is on.
      * @param square The square that this piece is on.
-     * @return List of all squares we can move to without capturing.
+     * @return List of all moves without captures.
      */
-    abstract fun getMoveVision(board: BoardState, square: Square): List<Square>
+    abstract fun getMoveVision(board: BoardState, square: Square): List<Move>
 }
