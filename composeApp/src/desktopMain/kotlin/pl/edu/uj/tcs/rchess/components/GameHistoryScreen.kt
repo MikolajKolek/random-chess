@@ -1,5 +1,6 @@
 package pl.edu.uj.tcs.rchess.components
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,7 +21,15 @@ fun GameHistoryScreen(clientApi: ClientApi) {
         }
         is DataState.Loading -> CircularProgressIndicator()
         is DataState.Success -> {
-            Text(gameHistoryNow.data.toString())
+            if (gameHistoryNow.data.isEmpty()) {
+                Text("No games found")
+            } else {
+                Column {
+                    gameHistoryNow.data.forEach {
+                        GameHistoryItem(game = it)
+                    }
+                }
+            }
         }
     }
 }
