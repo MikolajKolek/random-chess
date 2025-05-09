@@ -108,6 +108,7 @@ class BoardState(
             if(currentTurn == PlayerColor.BLACK) {fullmoveNumber+1} else {fullmoveNumber}
         )
     }
+    //TODO: Implement castling and en passant properly.
 
     /**
      * @param move The move to check.
