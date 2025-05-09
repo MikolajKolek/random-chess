@@ -7,15 +7,9 @@ import pl.edu.uj.tcs.rchess.model.Square
 
 /**
  * Sealed class describing all chess pieces.
- * @param square Square that initially contains the piece.
  * @param owner The color of the piece.
  */
 sealed class Piece(
-    /**
-     * The square that the piece is on.
-     */
-    val square: Square,
-
     /**
      * The color of the piece.
      */
