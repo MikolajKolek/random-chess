@@ -17,9 +17,6 @@ data class Move(val from: Square, val to: Square, val promoteTo: Promotion?) {
 
     init {
         require(from != to) { "From and to positions are the same." }
-
-        // change: These changes should be verified when applying, since we don't know what piece is at the from position
-        // TODO: Prevent promotion of any piece other than a pawn.
-        // TODO: Prevent moving a pawn to the last rank without promoting.
+        // Move verification is managed by BoardState - is can only be done in context of the board.
     }
 }

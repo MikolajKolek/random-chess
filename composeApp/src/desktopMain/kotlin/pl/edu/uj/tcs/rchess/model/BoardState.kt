@@ -110,13 +110,21 @@ class BoardState(
      * @return True if the given move is valid in this context, otherwise false.
      */
     private fun isValidMove(move: Move): Boolean {
-        TODO()
+        if(getPieceAt(move.from) == null) return false //There must be a piece to move.
+        if(getPieceAt(move.to) != null) {
+            if(getPieceAt(move.to)?.owner == getPieceAt(move.from)?.owner) return false //Cannot capture your own pieces.
+        }
+        if(!getPieceAt(move.from)!!.getPieceVision(this, move.from).contains(move)) return false //Move must be valid for that piece.
+        return true
     }
 
     /**
      * @return Returns true if the current position is legal
      */
     fun isLegal() : Boolean {
+        // Both kings must be on the board
+        // King of player not on move must not be in check
+        // Pawns must not be on ranks 1 and 8
         TODO()
     }
 
