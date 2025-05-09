@@ -1,9 +1,6 @@
 package pl.edu.uj.tcs.rchess.model
 
-import pl.edu.uj.tcs.rchess.model.pieces.King
-import pl.edu.uj.tcs.rchess.model.pieces.Pawn
-import pl.edu.uj.tcs.rchess.model.pieces.Piece
-import pl.edu.uj.tcs.rchess.model.pieces.Rook
+import pl.edu.uj.tcs.rchess.model.pieces.*
 
 /**
  * Immutable class describing the state of the chessboard.
