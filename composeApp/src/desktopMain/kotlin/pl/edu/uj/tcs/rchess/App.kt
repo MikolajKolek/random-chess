@@ -1,7 +1,13 @@
 package pl.edu.uj.tcs.rchess
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import pl.edu.uj.tcs.rchess.components.PlaceholderScreen
 import pl.edu.uj.tcs.rchess.components.Sidebar
@@ -9,7 +15,9 @@ import pl.edu.uj.tcs.rchess.navigation.Route
 
 // TODO: This is temporary
 @Composable
-fun Content(route: Route) {
+fun RouteScreen(
+    route: Route,
+) {
     when (route) {
         is Route.NewGame -> PlaceholderScreen("New game")
         is Route.GameHistory -> PlaceholderScreen("Game history")
@@ -27,13 +35,21 @@ fun App() {
     MaterialTheme {
         var route by remember { mutableStateOf<Route>(Route.NewGame) }
 
-        Sidebar(
-            route,
-            onNavigate = { newRoute ->
-                route = newRoute
-            },
-        )
+        Row(
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            Sidebar(
+                route,
+                onNavigate = { newRoute ->
+                    route = newRoute
+                },
+            )
 
-        Content(route)
+            Box(
+                modifier = Modifier.fillMaxSize().widthIn(max = 600.dp),
+            ) {
+                RouteScreen(route)
+            }
+        }
     }
 }
