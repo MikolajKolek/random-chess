@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.jooqCodegen)
 }
 
 kotlin {
@@ -11,7 +13,7 @@ kotlin {
     
     sourceSets {
         val desktopMain by getting
-        
+
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
@@ -21,6 +23,16 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
+
+            implementation(libs.kotlinx.serialization.json)
+
+            implementation(libs.hoplite)
+            implementation(libs.hoplite.yaml)
+
+            implementation(libs.jooq)
+            implementation(libs.jooq.meta)
+            implementation(libs.jooq.codegen)
+            implementation(libs.postgresql)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -35,6 +47,37 @@ kotlin {
     }
 }
 
+dependencies {
+    jooqCodegen(libs.postgresql)
+}
+
+jooq {
+    configuration {
+        jdbc {
+            driver = "org.postgresql.Driver"
+            url = "jdbc:postgresql://localhost:5432/random_chess"
+            user = "random_chess"
+            password = "random_chess"
+        }
+        generator {
+            name = "org.jooq.codegen.KotlinGenerator"
+            database {
+                name = "org.jooq.meta.postgres.PostgresDatabase"
+                inputSchema = "public"
+                includes = ".*"
+            }
+            target {
+                packageName = "pl.edu.uj.tcs.rchess.db"
+                directory = "src/desktopMain/kotlin"
+            }
+            generate {
+                isKotlinNotNullPojoAttributes = true
+                isKotlinNotNullRecordAttributes = true
+                isKotlinNotNullInterfaceAttributes = true
+            }
+        }
+    }
+}
 
 compose.desktop {
     application {
@@ -47,3 +90,5 @@ compose.desktop {
         }
     }
 }
+
+tasks["compileKotlinDesktop"].dependsOn("jooqCodegen")

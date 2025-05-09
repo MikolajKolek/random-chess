@@ -1,0 +1,46 @@
+defaultUser: 4
+
+database:
+  host: localhost
+  port: 5432
+  database: random_chess
+  user: random_chess
+  password: random_chess
+
+bots:
+  # Stockfish: Easy
+  - executable: "./stockfish"
+    options:
+      "Skill Level": -9
+      "EvalFile": "./nn-1c0000000000.nnue"
+    maxDepth: 5
+    moveTimeMs: 50
+    serviceAccountId: "stockfish-easy"
+    elo: 800
+  # Stockfish: Medium
+  - executable: "./stockfish"
+    options:
+      "Skill Level": -1
+      "EvalFile": "./nn-1c0000000000.nnue"
+    maxDepth: 5
+    moveTimeMs: 150
+    serviceAccountId: "stockfish-medium"
+    elo: 1400
+  # Stockfish: Hard
+  - executable: "./stockfish"
+    options:
+      "Skill Level": 7
+      "EvalFile": "./nn-1c0000000000.nnue"
+    maxDepth: 5
+    moveTimeMs: 300
+    serviceAccountId: "stockfish-hard"
+    elo: 2000
+  # Stockfish: Impossible
+  - executable: "./stockfish"
+    options:
+      "Skill Level": 20
+      "EvalFile": "./nn-1c0000000000.nnue"
+    maxDepth: 22
+    moveTimeMs: 1000
+    serviceAccountId: "stockfish-impossible"
+    elo: 3000
