@@ -12,4 +12,6 @@ data class Square(
         require(!(row < 0 || row > 7)) { "Row out of range." }
         require(!(col < 0 || col > 7)) { "Column out of range." }
     }
+
+    val isDark = (row + col) % 2 == 0
 }
