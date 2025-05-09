@@ -1,6 +1,9 @@
 package pl.edu.uj.tcs.rchess.model
 
-import pl.edu.uj.tcs.rchess.model.pieces.*
+import pl.edu.uj.tcs.rchess.model.pieces.King
+import pl.edu.uj.tcs.rchess.model.pieces.Pawn
+import pl.edu.uj.tcs.rchess.model.pieces.Piece
+import pl.edu.uj.tcs.rchess.model.pieces.Rook
 
 /**
  * Immutable class describing the state of the chessboard.
@@ -15,6 +18,10 @@ class BoardState(
     val halfmoveCounter: Int,
     val fullmoveNumber: Int
 ) {
+    init {
+        require(board.size == 64) { "Board must have 64 squares." }
+    }
+
     companion object {
         fun empty() = BoardState(
             board = List(64) { null },
