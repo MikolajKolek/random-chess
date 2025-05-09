@@ -1,9 +1,9 @@
-package pl.edu.uj.tcs.rchess.model.view
+package pl.edu.uj.tcs.rchess.model.observer
 
 import pl.edu.uj.tcs.rchess.model.BoardState
 import pl.edu.uj.tcs.rchess.model.Move
 
-interface GameView {
+interface GameObserver {
     val boardStates: List<BoardState>
 
     /**

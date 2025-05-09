@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.model.view
+package pl.edu.uj.tcs.rchess.model.observer
 
 import pl.edu.uj.tcs.rchess.model.BoardState
 import pl.edu.uj.tcs.rchess.model.GameOverReason
@@ -41,7 +41,7 @@ abstract class Change {
     ) : Change()
 
     /**
-     * Emitted when the game state changes, but [GameView.boardStates] did not change
+     * Emitted when the game state changes, but [GameObserver.boardStates] did not change
      * and the event is not a [GameOverChange].
      *
      * For example, this event is emitted when the game is paused or resumed.

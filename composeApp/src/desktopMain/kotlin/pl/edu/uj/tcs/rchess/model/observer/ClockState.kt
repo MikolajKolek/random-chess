@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.model.view
+package pl.edu.uj.tcs.rchess.model.observer
 
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
