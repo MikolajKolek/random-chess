@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
@@ -35,7 +34,7 @@ fun Sidebar() {
             NavigationRailItem(
                 icon = {
                     Icon(
-                        imageVector = Icons.Default.History,
+                        imageVector = Icons.Default.Star,
                         contentDescription = "Games",
                     )
                 },
