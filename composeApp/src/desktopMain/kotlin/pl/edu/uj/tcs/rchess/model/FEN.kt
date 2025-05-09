@@ -70,14 +70,15 @@ class FEN(private val FENData: String = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQ
                     i++;
                 }
             }
-            if(i != 8) {
-                throw IllegalArgumentException("Each row must describe 8 squares.")
-            }
+            require(i == 8) { throw IllegalArgumentException("Each row must describe 8 squares.") }
         }
 
-        if(castling.isEmpty()) throw IllegalArgumentException("Castling descriptor must not be empty.")
+        require(castling.isNotEmpty()) { throw IllegalArgumentException("Castling descriptor must not be empty.") }
         if(castling[0] != '-' && !"KQkq".contains(castling[0])) {
             throw IllegalArgumentException("Castling descriptor invalid.")
         }
+
+        //TODO: Uncomment after implementing fromFen in BoardState.
+        //require(BoardState.fromFen(this).isLegal()) { throw IllegalArgumentException("Board describes invalid position.") }
     }
 }
