@@ -62,7 +62,8 @@ class Server(databaseConfig: DatabaseConfig) : ClientApi {
                     Service.RANDOM_CHESS,
                     it.userIdInService,
                     it.displayName,
-                    it.isBot
+                    it.isBot,
+                    true
                 )
             }!!
     }
@@ -80,7 +81,7 @@ class Server(databaseConfig: DatabaseConfig) : ClientApi {
                 .or(whiteAccount.USER_ID.eq(config.defaultUser)))
 
         if(id.isPresent)
-            query = query.and(SERVICE_GAMES.ID.eq(id.get()));
+            query = query.and(SERVICE_GAMES.ID.eq(id.get()))
 
         return query.fetch { (sg, white, black) ->
             ServiceGame(
@@ -94,13 +95,15 @@ class Server(databaseConfig: DatabaseConfig) : ClientApi {
                     Service.fromId(black.serviceId),
                     black.userIdInService,
                     black.displayName,
-                    black.isBot
+                    black.isBot,
+                    black.userId == config.defaultUser
                 ),
                 whitePlayer = ServiceAccount(
                     Service.fromId(white.serviceId),
                     white.userIdInService,
                     white.displayName,
-                    white.isBot
+                    white.isBot,
+                    white.userId == config.defaultUser
                 )
             )
         }
@@ -111,7 +114,7 @@ class Server(databaseConfig: DatabaseConfig) : ClientApi {
             .where(PGN_GAMES.OWNER_ID.eq(config.defaultUser))
 
         if(id.isPresent)
-            query = query.and(PGN_GAMES.ID.eq(id.get()));
+            query = query.and(PGN_GAMES.ID.eq(id.get()))
 
         return query.fetch().map { PgnGame(it) }
     }
