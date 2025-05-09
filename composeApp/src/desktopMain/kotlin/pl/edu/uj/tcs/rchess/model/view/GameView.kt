@@ -18,6 +18,16 @@ interface GameView {
     fun getMove(i: Int): Move
 
     /**
+     * Getter for the white player clock state
+     */
+    val whiteClockState: ClockState
+
+    /**
+     * Getter for the black player clock state
+     */
+    val blackClockState: ClockState
+
+    /**
      * Add a listener which will be called after the game state changes
      */
     fun addChangeListener(listener: (Change) -> Unit)

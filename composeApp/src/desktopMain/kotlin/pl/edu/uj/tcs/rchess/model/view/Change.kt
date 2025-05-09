@@ -31,9 +31,20 @@ abstract class Change {
 
     /**
      * Emitted when the game ends, but not as a result of a move.
+     *
+     * For example, this event is emitted when the game ends due to a timeout or resignation.
+     *
      * If the game ends as a result of a move, a [MoveChange] even is emitted instead.
      */
     class GameOverChange(
         val gameOverReason: GameOverReason,
     ) : Change()
+
+    /**
+     * Emitted when the game state changes, but [GameView.boardStates] did not change
+     * and the event is not a [GameOverChange].
+     *
+     * For example, this event is emitted when the game is paused or resumed.
+     */
+    class OtherChange() : Change()
 }
