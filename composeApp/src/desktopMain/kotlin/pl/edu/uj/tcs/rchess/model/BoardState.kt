@@ -224,7 +224,7 @@ class BoardState(
      */
     fun isOver() : GameOverReason? {
         // This method only checks game over reasons within the single BoardState
-        // That is checkmate, stalemate and insufficient material
+        // That is checkmate, stalemate, insufficient material and 50 move rule
         val kingSquare = locateKing(currentTurn)
         if(getLegalMovesFor(kingSquare).isEmpty()) {
             return if(isInCheck(currentTurn)) {
@@ -255,6 +255,7 @@ class BoardState(
 
         if(whiteLight == 0 && blackLight <= 1) return GameOverReason.INSUFFICIENT_MATERIAL
         if(whiteLight <= 1 && blackLight == 0) return GameOverReason.INSUFFICIENT_MATERIAL
+        if(halfmoveCounter >= 100) return GameOverReason.FIFTY_MOVE_RULE
 
         TODO()
     }
