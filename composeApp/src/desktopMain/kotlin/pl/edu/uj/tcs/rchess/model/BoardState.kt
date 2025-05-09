@@ -34,6 +34,8 @@ class BoardState(
         fun fromFen(fen: FEN): BoardState {
             TODO()
         }
+
+        fun initial() = fromFen(FEN())
     }
 
     /**
