@@ -65,6 +65,13 @@ class BoardState(
             if(Math.abs(move.from.rank - move.to.rank) == 2) {
                 newEnPassant = Square((move.from.rank + move.to.rank)/2, move.from.file)
             }
+            if(move.to == enPassantTarget) {
+                if(enPassantTarget.rank == 3) {
+                    newBoard[4 * 8 + move.to.file] = null
+                } else {
+                    newBoard[5 * 8 + move.to.file] = null
+                }
+            }
         }
 
         // Set proper castling rights in new board
@@ -73,6 +80,21 @@ class BoardState(
                 newCastlingRights = castlingRights.copy(whiteKingSide = false, whiteQueenSide = false)
             } else {
                 newCastlingRights = castlingRights.copy(blackKingSide = false, blackQueenSide = false)
+            }
+            if(Math.abs(move.from.file - move.to.file) == 2) {
+                if(move.to == Square(0, 2)) {
+                    newBoard[3] = Rook(PlayerColor.WHITE)
+                    newBoard[0] = null
+                } else if(move.to == Square(0, 6)) {
+                    newBoard[5] = Rook(PlayerColor.WHITE)
+                    newBoard[7] = null
+                } else if(move.to == Square(7, 2)) {
+                    newBoard[7 * 8 + 3] = Rook(PlayerColor.BLACK)
+                    newBoard[7 * 8 + 0] = null
+                } else {
+                    newBoard[7 * 8 + 5] = Rook(PlayerColor.BLACK)
+                    newBoard[7 * 8 + 7] = null
+                }
             }
         } else if(getPieceAt(move.from) is Rook) {
             if(move.from.file == 1) {
@@ -108,7 +130,6 @@ class BoardState(
             if(currentTurn == PlayerColor.BLACK) {fullmoveNumber+1} else {fullmoveNumber}
         )
     }
-    //TODO: Implement castling and en passant properly.
 
     /**
      * @param move The move to check.
