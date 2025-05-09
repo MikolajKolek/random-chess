@@ -45,4 +45,18 @@ sealed class Piece(
      * @return List of all moves without captures.
      */
     abstract fun getMoveVision(board: BoardState, square: Square): List<Move>
+
+    /**
+     * Lowercase letter representing the piece
+     */
+    abstract val fenLetterLowercase: Char
+
+    /**
+     * Case-sensitive letter representing the piece as it appears in FEN notation
+     */
+    val fenLetter: Char
+        get() = when (owner) {
+            PlayerColor.WHITE -> fenLetterLowercase.uppercaseChar()
+            PlayerColor.BLACK -> fenLetterLowercase
+        }
 }
