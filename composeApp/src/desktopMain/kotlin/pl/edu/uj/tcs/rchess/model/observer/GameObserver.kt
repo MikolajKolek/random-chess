@@ -1,10 +1,18 @@
+@file:Suppress("KDocUnresolvedReference")
+
 package pl.edu.uj.tcs.rchess.model.observer
 
+import kotlinx.coroutines.channels.SendChannel
 import pl.edu.uj.tcs.rchess.model.BoardState
 import pl.edu.uj.tcs.rchess.model.Move
 
 interface GameObserver {
     val boardStates: List<BoardState>
+
+    /**
+     * `moves[i]` represents the move from `boardStates[i]` to `boardStates[i + 1]`
+     */
+    val moves: List<Move>
 
     /**
      * @return State of the board before the first move
@@ -13,9 +21,10 @@ interface GameObserver {
         get() = boardStates.first()
 
     /**
-     * @return The move to go from position i to i+1
+     * @return The current board state
      */
-    fun getMove(i: Int): Move
+    val currentState: BoardState
+        get() = boardStates.last()
 
     /**
      * Getter for the white player clock state
@@ -28,12 +37,12 @@ interface GameObserver {
     val blackClockState: ClockState
 
     /**
-     * Add a listener which will be called after the game state changes
+     * Add a channel which will be sent a [Change] object after the game state changes
      */
-    fun addChangeListener(listener: (Change) -> Unit)
+    fun addChangeChannel(channel: SendChannel<Change>)
 
     /**
-     * Remove a game state change listener which was added before
+     * Remove a game state change channel which was added before
      */
-    fun removeChangeListener(listener: (Change) -> Unit)
+    fun removeChangeChanel(channel: SendChannel<Change>)
 }

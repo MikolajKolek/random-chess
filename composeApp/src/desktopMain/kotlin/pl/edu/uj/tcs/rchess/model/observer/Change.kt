@@ -47,4 +47,6 @@ abstract class Change {
      * For example, this event is emitted when the game is paused or resumed.
      */
     class OtherChange() : Change()
+
+    fun isGameOver() : Boolean = this is GameOverChange || this is MoveChange && gameOverReason != null
 }

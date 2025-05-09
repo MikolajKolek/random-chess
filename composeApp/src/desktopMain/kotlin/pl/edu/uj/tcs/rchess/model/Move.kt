@@ -19,4 +19,14 @@ data class Move(val from: Square, val to: Square, val promoteTo: Promotion? = nu
         require(from != to) { "From and to positions are the same." }
         // Move verification is managed by BoardState - is can only be done in context of the board.
     }
+
+    fun toLongAlgebraicNotation() : String {
+        TODO()
+    }
+
+    companion object {
+        fun fromLongAlgebraicNotation(move: String) : Move {
+            TODO()
+        }
+    }
 }

@@ -1,11 +1,15 @@
 package pl.edu.uj.tcs.rchess.model.observer
 
+import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
+//TODO: implement time increase on move?
 abstract class ClockState {
     abstract val totalTime: Duration
+
+    abstract fun remainingTime() : Duration
 
     // TODO: A time synchronization mechanism should be implemented,
     //  Instant might not be the best choice, as we cannot trust the the client's system clock to
@@ -14,10 +18,18 @@ abstract class ClockState {
     /**
      * Clock is counting down for this player, the remaining duration can be calculated using [endsAt]
      */
-    data class Running(override val totalTime: Duration, val endsAt: Instant) : ClockState()
+    data class Running(override val totalTime: Duration, val endsAt: Instant) : ClockState() {
+        override fun remainingTime(): Duration {
+            return endsAt - Clock.System.now()
+        }
+    }
 
     /**
      * Clock is not running for this player
      */
-    data class Paused(override val totalTime: Duration, val remainingTime: Duration) : ClockState()
+    data class Paused(override val totalTime: Duration, val remainingTime: Duration) : ClockState() {
+        override fun remainingTime(): Duration {
+            return remainingTime
+        }
+    }
 }

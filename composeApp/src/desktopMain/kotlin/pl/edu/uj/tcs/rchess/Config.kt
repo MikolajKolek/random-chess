@@ -1,5 +1,7 @@
 package pl.edu.uj.tcs.rchess
 
+import pl.edu.uj.tcs.rchess.model.Bot
+
 data class Config(
     val defaultUser: Int,
     val database: DatabaseConfig,
@@ -22,10 +24,11 @@ data class BotType(
     val serviceAccountId: String,
     val elo: Int
 ) {
-    /*fun spawnBot(): Bot {
+    fun spawnBot(): Bot {
         return Bot(ProcessBuilder(executable).start(), options, maxDepth, moveTimeMs)
-    }*/
+    }
 
+    //TODO: implement getServiceAccount for bot
     /*fun getServiceAccount(): ServiceAccount {
 
     }*/
