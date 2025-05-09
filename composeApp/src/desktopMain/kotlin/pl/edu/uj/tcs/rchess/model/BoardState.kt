@@ -40,7 +40,7 @@ class BoardState(
      * @param square The square to check
      * @return The piece on the given square (or null if there is none).
      */
-    fun getPieceAt(square: Square) = board[square.row * 8 + square.col]
+    fun getPieceAt(square: Square) = board[square.rank * 8 + square.file]
 
     /**
      * @param move The move to apply.
@@ -60,8 +60,8 @@ class BoardState(
         // Set en passant in new board
         if(getPieceAt(move.from) is Pawn) {
             newHalfMoveCounter = 0
-            if(Math.abs(move.from.row - move.to.row) == 2) {
-                newEnPassant = Square((move.from.row + move.to.row)/2, move.from.col)
+            if(Math.abs(move.from.rank - move.to.rank) == 2) {
+                newEnPassant = Square((move.from.rank + move.to.rank)/2, move.from.file)
             }
         }
 
@@ -73,16 +73,16 @@ class BoardState(
                 newCastlingRights = castlingRights.copy(blackKingSide = false, blackQueenSide = false)
             }
         } else if(getPieceAt(move.from) is Rook) {
-            if(move.from.col == 1) {
-                if(move.from.row == 1) {
+            if(move.from.file == 1) {
+                if(move.from.rank == 1) {
                     newCastlingRights = castlingRights.copy(whiteQueenSide = false)
-                } else if(move.from.row == 8) {
+                } else if(move.from.rank == 8) {
                     newCastlingRights = castlingRights.copy(blackQueenSide = false)
                 }
-            } else if(move.from.col == 8) {
-                if(move.from.row == 1) {
+            } else if(move.from.file == 8) {
+                if(move.from.rank == 1) {
                     newCastlingRights = castlingRights.copy(whiteKingSide = false)
-                } else if(move.from.row == 8) {
+                } else if(move.from.rank == 8) {
                     newCastlingRights = castlingRights.copy(whiteKingSide = false)
                 }
             }
@@ -90,12 +90,12 @@ class BoardState(
 
         // Perform the move on new board
         if(getPieceAt(move.to) != null) newHalfMoveCounter = 0
-        newBoard[move.to.row * 8 + move.to.col] = newBoard[move.from.row * 8 + move.from.col]
-        newBoard[move.from.row * 8 + move.from.col] = null
-        if(move.promoteTo == Move.Promotion.KNIGHT) newBoard[move.to.row * 8 + move.to.col] = Knight(newBoard[move.to.row * 8 + move.to.col]?.owner ?: PlayerColor.WHITE)
-        if(move.promoteTo == Move.Promotion.BISHOP) newBoard[move.to.row * 8 + move.to.col] = Bishop(newBoard[move.to.row * 8 + move.to.col]?.owner ?: PlayerColor.WHITE)
-        if(move.promoteTo == Move.Promotion.ROOK) newBoard[move.to.row * 8 + move.to.col] = Rook(newBoard[move.to.row * 8 + move.to.col]?.owner ?: PlayerColor.WHITE)
-        if(move.promoteTo == Move.Promotion.QUEEN) newBoard[move.to.row * 8 + move.to.col] = Queen(newBoard[move.to.row * 8 + move.to.col]?.owner ?: PlayerColor.WHITE)
+        newBoard[move.to.rank * 8 + move.to.file] = newBoard[move.from.rank * 8 + move.from.file]
+        newBoard[move.from.rank * 8 + move.from.file] = null
+        if(move.promoteTo == Move.Promotion.KNIGHT) newBoard[move.to.rank * 8 + move.to.file] = Knight(newBoard[move.to.rank * 8 + move.to.file]?.owner ?: PlayerColor.WHITE)
+        if(move.promoteTo == Move.Promotion.BISHOP) newBoard[move.to.rank * 8 + move.to.file] = Bishop(newBoard[move.to.rank * 8 + move.to.file]?.owner ?: PlayerColor.WHITE)
+        if(move.promoteTo == Move.Promotion.ROOK) newBoard[move.to.rank * 8 + move.to.file] = Rook(newBoard[move.to.rank * 8 + move.to.file]?.owner ?: PlayerColor.WHITE)
+        if(move.promoteTo == Move.Promotion.QUEEN) newBoard[move.to.rank * 8 + move.to.file] = Queen(newBoard[move.to.rank * 8 + move.to.file]?.owner ?: PlayerColor.WHITE)
 
         return BoardState(
             newBoard.toList(),

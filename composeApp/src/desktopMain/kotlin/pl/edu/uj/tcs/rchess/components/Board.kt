@@ -35,7 +35,7 @@ fun Board(state: BoardState, playerColor: PlayerColor) {
                 horizontalArrangement = Arrangement.SpaceEvenly,
             ) {
                 for (col in columns) {
-                    val square = Square(row = row, col = col)
+                    val square = Square(rank = row, file = col)
                     val piece = state.getPieceAt(square)
 
                     // TODO: Also replace with enum

@@ -1,17 +1,17 @@
 package pl.edu.uj.tcs.rchess.model
 
 /**
- * @param row The row of the square. (0-7 - A-H)
- * @param col The column of the square.
+ * @param rank The row of the square. (0-7 - A-H)
+ * @param file The column of the square.
  */
 data class Square(
-    val row: Int,
-    val col: Int,
+    val rank: Int,
+    val file: Int,
 ) {
     init {
-        require(!(row < 0 || row > 7)) { "Row out of range." }
-        require(!(col < 0 || col > 7)) { "Column out of range." }
+        require(!(rank < 0 || rank > 7)) { "Row out of range." }
+        require(!(file < 0 || file > 7)) { "Column out of range." }
     }
 
-    val isDark = (row + col) % 2 == 0
+    val isDark = (rank + file) % 2 == 0
 }
