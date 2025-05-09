@@ -11,8 +11,10 @@ import pl.edu.uj.tcs.rchess.db.keys.SERVICE_GAMES__SERVICE_GAMES_SERVICE_ID_WHIT
 import pl.edu.uj.tcs.rchess.db.tables.references.PGN_GAMES
 import pl.edu.uj.tcs.rchess.db.tables.references.SERVICE_ACCOUNTS
 import pl.edu.uj.tcs.rchess.db.tables.references.SERVICE_GAMES
+import pl.edu.uj.tcs.rchess.model.pgnDateToLocalDateTime
+import pl.edu.uj.tcs.rchess.model.pgnTagStringToTags
 import java.sql.DriverManager
-import java.util.Optional
+import java.util.*
 
 class Server(databaseConfig: DatabaseConfig) : ClientApi {
     private val connection = DriverManager.getConnection(
@@ -39,18 +41,33 @@ class Server(databaseConfig: DatabaseConfig) : ClientApi {
         )
     }
 
-    override suspend fun addPGNGame(fullPGN: String): Int {
-        //TODO: DO PGN PARSING
-        return dsl.insertInto(PGN_GAMES)
-            .set(PGN_GAMES.MOVES, fullPGN)
-            .set(PGN_GAMES.DATE, java.time.LocalDateTime.now())
-            .set(PGN_GAMES.METADATA, JSONB.jsonb("{}"))
-            .set(PGN_GAMES.OWNER_ID, config.defaultUser)
-            .set(PGN_GAMES.BLACK_PLAYER_NAME, "one")
-            .set(PGN_GAMES.WHITE_PLAYER_NAME, "two")
-            .returningResult(PGN_GAMES.ID)
-            .fetchOne()?.getValue(PGN_GAMES.ID) ?:
-                throw IllegalStateException("Failed to insert PGN into database")
+    override suspend fun addPGNGames(fullPGN: String): List<Int> {
+        val pgnGameRegex = Regex("((\\[.*]\\n)*)\\n(.*(1-0|0-1|1/2-1/2|\\*))")
+
+        val result = mutableListOf<Int>()
+        dsl.transaction { transaction ->
+            for(match in pgnGameRegex.findAll(fullPGN)) {
+                val tagString = match.groupValues[1]
+                val movetext = match.groupValues[3]
+
+                val tags = pgnTagStringToTags(tagString)
+                val strippedTags = tags.toMap().filter { it.key != "White" && it.key != "Black" && it.key != "Date" }
+
+                result.add(transaction.dsl().insertInto(PGN_GAMES)
+                    .set(PGN_GAMES.MOVES, movetext)
+                    .set(PGN_GAMES.DATE, pgnDateToLocalDateTime(tags["Date"]!!))
+                    .set(PGN_GAMES.METADATA, JSONB.jsonb(Json.encodeToString(strippedTags)))
+                    .set(PGN_GAMES.OWNER_ID, config.defaultUser)
+                    .set(PGN_GAMES.BLACK_PLAYER_NAME, tags["Black"])
+                    .set(PGN_GAMES.WHITE_PLAYER_NAME, tags["White"])
+                    .returningResult(PGN_GAMES.ID)
+                    .fetchOne()?.getValue(PGN_GAMES.ID) ?:
+                        throw IllegalStateException("Failed to insert PGN into database")
+                )
+            }
+        }
+
+        return result
     }
 
     override suspend fun getSystemAccount(): ServiceAccount {
