@@ -21,7 +21,7 @@ fun main() = application {
         onCloseRequest = ::exitApplication,
         title = "Random Chess",
     ) {
-        App()
+        App(clientApi)
     }
 
     Window(

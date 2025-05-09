@@ -9,18 +9,21 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import pl.edu.uj.tcs.rchess.components.GameHistoryScreen
 import pl.edu.uj.tcs.rchess.components.PlaceholderScreen
 import pl.edu.uj.tcs.rchess.components.Sidebar
 import pl.edu.uj.tcs.rchess.navigation.Route
+import pl.edu.uj.tcs.rchess.server.ClientApi
 
 // TODO: This is temporary
 @Composable
 fun RouteScreen(
     route: Route,
+    clientApi: ClientApi,
 ) {
     when (route) {
         is Route.NewGame -> PlaceholderScreen("New game")
-        is Route.GameHistory -> PlaceholderScreen("Game history")
+        is Route.GameHistory -> GameHistoryScreen(clientApi)
         is Route.RankingList -> PlaceholderScreen("Ranking list")
         is Route.TournamentList -> PlaceholderScreen("Tournament list")
         is Route.Account -> PlaceholderScreen("Account")
@@ -31,7 +34,7 @@ fun RouteScreen(
 
 @Composable
 @Preview
-fun App() {
+fun App(clientApi: ClientApi) {
     MaterialTheme {
         var route by remember { mutableStateOf<Route>(Route.NewGame) }
 
@@ -48,7 +51,7 @@ fun App() {
             Box(
                 modifier = Modifier.fillMaxSize().widthIn(max = 600.dp),
             ) {
-                RouteScreen(route)
+                RouteScreen(route, clientApi)
             }
         }
     }
