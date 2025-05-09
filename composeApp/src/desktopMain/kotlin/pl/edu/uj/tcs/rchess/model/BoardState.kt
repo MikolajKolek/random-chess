@@ -138,7 +138,7 @@ class BoardState(
         return true
     }
 
-    fun isInCheck(player: PlayerColor) : Boolean {
+    fun locateKing(player: PlayerColor) : Square {
         var kingSquare : Square? = null
         for(r in 0..7) {
             for(f in 0..7) {
@@ -151,6 +151,15 @@ class BoardState(
             }
         }
         require(kingSquare != null) { "There must be a king of each color." }
+        return kingSquare
+    }
+
+    /**
+     * @param player The player to verify
+     * @return Returns true if the given player is in check, false otherwise
+     */
+    fun isInCheck(player: PlayerColor) : Boolean {
+        val kingSquare = locateKing(player)
         for(r in 0..7) {
             for(f in 0..7) {
                 if(getPieceAt(Square(r, f)) is King && getPieceAt(Square(r, f)) != null) {
@@ -172,7 +181,7 @@ class BoardState(
 
     /**
      * @param move The move to verify.
-     * @return Returns true if the given move is legal in this position.
+     * @return True if the given move is legal in this position.
      */
     fun isLegalMove(move : Move) = applyMove(move).isLegal()
 
@@ -181,6 +190,25 @@ class BoardState(
      * If there is no piece at the position, return an empty list.
      */
     fun getLegalMovesFor(square: Square) = getPieceAt(square)?.getLegalMoves(this, square) ?: emptyList()
+
+    /**
+     * @param player The player to check.
+     * @return True if the given player has any piece other than their king.
+     */
+    fun hasAnyNonKingMaterial(player: PlayerColor) : Boolean {
+        for(r in 0..7) {
+            for(f in 0..7) {
+                if(getPieceAt(Square(r, f)) != null) {
+                    if(!(getPieceAt(Square(r, f)) is King)) {
+                        if(getPieceAt(Square(r, f))!!.owner == player) {
+                            return true
+                        }
+                    }
+                }
+            }
+        }
+        return false
+    }
 
     /**
      * @return The FEN representation of this GameState.
@@ -195,6 +223,39 @@ class BoardState(
      * @see GameOverReason
      */
     fun isOver() : GameOverReason? {
+        // This method only checks game over reasons within the single BoardState
+        // That is checkmate, stalemate and insufficient material
+        val kingSquare = locateKing(currentTurn)
+        if(getLegalMovesFor(kingSquare).isEmpty()) {
+            return if(isInCheck(currentTurn)) {
+                GameOverReason.CHECKMATE
+            } else {
+                GameOverReason.STALEMATE
+            }
+        }
+
+        var whiteLight = 0
+        var blackLight = 0
+        for(r in 0..7) {
+            for(f in 0..7) {
+                if(getPieceAt(Square(r, f)) != null) {
+                    if(getPieceAt(Square(r, f)) is King) continue
+                    if(getPieceAt(Square(r, f)) is Bishop || getPieceAt(Square(r, f)) is Knight) {
+                        if(getPieceAt(Square(r, f))!!.owner == PlayerColor.WHITE) {
+                            whiteLight++;
+                        } else {
+                            blackLight++;
+                        }
+                    } else {
+                        return null
+                    }
+                }
+            }
+        }
+
+        if(whiteLight == 0 && blackLight <= 1) return GameOverReason.INSUFFICIENT_MATERIAL
+        if(whiteLight <= 1 && blackLight == 0) return GameOverReason.INSUFFICIENT_MATERIAL
+
         TODO()
     }
 }
