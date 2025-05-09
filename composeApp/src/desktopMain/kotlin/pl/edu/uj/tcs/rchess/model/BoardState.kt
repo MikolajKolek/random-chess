@@ -56,6 +56,7 @@ class BoardState(
         val newBoard : Array<Piece?> = board.toTypedArray()
         var newEnPassant : Square? = null
         var newHalfMoveCounter = halfmoveCounter+1
+        var newCastlingRights: CastlingRights = castlingRights.copy()
 
         // Set en passant in new board
         if(getPieceAt(move.from) is Pawn) {
@@ -66,48 +67,42 @@ class BoardState(
         }
 
         // Set proper castling rights in new board
-        val castlingArray = arrayOf(
-            castlingRights.whiteKingSide,
-            castlingRights.whiteQueenSide,
-            castlingRights.blackKingSide,
-            castlingRights.blackQueenSide,
-        )
         if(getPieceAt(move.from) is King) {
             if(getPieceAt(move.from)?.owner == PlayerColor.WHITE) {
-                castlingArray[0] = false
-                castlingArray[1] = false
+                newCastlingRights = castlingRights.copy(whiteKingSide = false, whiteQueenSide = false)
             } else {
-                castlingArray[2] = false
-                castlingArray[3] = false
+                newCastlingRights = castlingRights.copy(blackKingSide = false, blackQueenSide = false)
             }
         } else if(getPieceAt(move.from) is Rook) {
             if(move.from.col == 1) {
                 if(move.from.row == 1) {
-                    castlingArray[1] = false //A1
+                    newCastlingRights = castlingRights.copy(whiteQueenSide = false)
                 } else if(move.from.row == 8) {
-                    castlingArray[3] = false //A8
+                    newCastlingRights = castlingRights.copy(blackQueenSide = false)
                 }
             } else if(move.from.col == 8) {
                 if(move.from.row == 1) {
-                    castlingArray[0] = false //H1
+                    newCastlingRights = castlingRights.copy(whiteKingSide = false)
                 } else if(move.from.row == 8) {
-                    castlingArray[2] = false //H8
+                    newCastlingRights = castlingRights.copy(whiteKingSide = false)
                 }
             }
         }
-
-
 
         // Perform the move on new board
         if(getPieceAt(move.to) != null) newHalfMoveCounter = 0
         newBoard[move.to.row * 8 + move.to.col] = newBoard[move.from.row * 8 + move.from.col]
         newBoard[move.from.row * 8 + move.from.col] = null
+        if(move.promoteTo == Move.Promotion.KNIGHT) newBoard[move.to.row * 8 + move.to.col] = Knight(newBoard[move.to.row * 8 + move.to.col]?.owner ?: PlayerColor.WHITE)
+        if(move.promoteTo == Move.Promotion.BISHOP) newBoard[move.to.row * 8 + move.to.col] = Bishop(newBoard[move.to.row * 8 + move.to.col]?.owner ?: PlayerColor.WHITE)
+        if(move.promoteTo == Move.Promotion.ROOK) newBoard[move.to.row * 8 + move.to.col] = Rook(newBoard[move.to.row * 8 + move.to.col]?.owner ?: PlayerColor.WHITE)
+        if(move.promoteTo == Move.Promotion.QUEEN) newBoard[move.to.row * 8 + move.to.col] = Queen(newBoard[move.to.row * 8 + move.to.col]?.owner ?: PlayerColor.WHITE)
 
         return BoardState(
             newBoard.toList(),
             currentTurn.getOpponent(),
             newEnPassant,
-            CastlingRights.fromArray(castlingArray),
+            newCastlingRights,
             newHalfMoveCounter,
             fullmoveNumber+1
         )
