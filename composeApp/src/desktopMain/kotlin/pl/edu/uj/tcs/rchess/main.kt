@@ -4,6 +4,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.addFileSource
+import pl.edu.uj.tcs.rchess.components.Board
 import pl.edu.uj.tcs.rchess.server.ClientApi
 import pl.edu.uj.tcs.rchess.server.Server
 import java.io.File
@@ -17,5 +18,12 @@ fun main() = application {
         title = "Random Chess",
     ) {
         App()
+    }
+
+    Window(
+        onCloseRequest = ::exitApplication,
+        title = "Random Chess",
+    ) {
+        Board()
     }
 }
