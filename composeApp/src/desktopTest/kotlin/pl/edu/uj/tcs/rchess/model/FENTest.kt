@@ -40,4 +40,17 @@ class FENTest {
         Assert.assertThrows(IllegalArgumentException::class.java) { FEN("b KQkq e3 0 1") }
         Assert.assertThrows(IllegalArgumentException::class.java) { FEN("KQkq") }
     }
+
+    @Test
+    fun enPassantSquareTest() {
+        FEN("rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2")
+        Assert.assertThrows(IllegalArgumentException::class.java) { FEN("rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c9 0 2") }
+        Assert.assertThrows(IllegalArgumentException::class.java) { FEN("rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c4 0 2") }
+    }
+
+    // TODO: Uncomment after implementing position validity check in FEN.
+    /*@Test
+    fun invalidPositionTest() {
+        Assert.assertThrows(IllegalArgumentException::class.java) { FEN("Kk6/8/8/8/8/8/8/8 w - - 0 1") }
+    }*/
 }

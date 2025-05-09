@@ -28,34 +28,34 @@ class FEN(private val FENData: String = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQ
         enPassantSquare = segments[3]
 
         for(x in segments[4]) {
-            if(!x.isDigit()) { throw IllegalArgumentException("Halfmove number must contain only digits.") }
+            require(x.isDigit()) { "Halfmove number must contain only digits." }
         }
-        require(segments[4].length <= 3) { throw IllegalArgumentException("Halfmove number too large.") }
+        require(segments[4].length <= 3) { "Halfmove number too large." }
         halfmoveCounter = segments[4].toInt()
 
         for(x in segments[5]) {
-            require(x.isDigit()) { throw IllegalArgumentException("Halfmove number must contain only digits.") }
+            require(x.isDigit()) { "Halfmove number must contain only digits." }
         }
-        require(segments[5].length <= 8) { throw IllegalArgumentException("Fullmove number too large.") }
+        require(segments[5].length <= 8) { "Fullmove number too large." }
         fullmoveNumber = segments[5].toInt()
 
-        require(segments[1][0] == 'b' || segments[1][0] == 'w') { throw IllegalArgumentException("FEN must describe a proper color.") }
+        require(segments[1][0] == 'b' || segments[1][0] == 'w') { "FEN must describe a proper color." }
 
         advancedValidityCheck()
     }
 
     private fun advancedValidityCheck() {
-        if(halfmoveCounter < 0) throw IllegalArgumentException("Halfmove counter must not be negative.")
-        if(fullmoveNumber < 0) throw IllegalArgumentException("Fullmove number must not be negative.")
+        require(halfmoveCounter >= 0) { "Halfmove counter must not be negative." }
+        require(fullmoveNumber >= 0) { "Fullmove number must not be negative." }
 
         if(enPassantSquare != "-") {
-            if(enPassantSquare.length != 2) throw IllegalArgumentException("En passant square is invalid.")
-            if(enPassantSquare[0] < 'a' || enPassantSquare[0] > 'h') throw IllegalArgumentException("En passant square is invalid.")
-            if(!enPassantSquare[1].isDigit()) throw IllegalArgumentException("En passant square is invalid.")
-            if(enPassantSquare[1].digitToInt() == 0 || enPassantSquare[1].digitToInt() == 9) throw IllegalArgumentException("En passant square is invalid.")
+            require(enPassantSquare.length == 2) { "En passant square is invalid." }
+            require(enPassantSquare[0] in 'a'..'h') { "En passant square is invalid." }
+            require(enPassantSquare[1].isDigit()) { "En passant square is invalid." }
+            require(enPassantSquare[1].digitToInt() == 3 || enPassantSquare[1].digitToInt() == 6) { "En passant square is invalid." }
         }
 
-        if(color != 'w' && color != 'b') throw IllegalArgumentException("FEN must describe the color to move.")
+        require(color == 'w' || color == 'b') { "FEN must describe the color to move." }
 
         for(row in boardState) {
             var i = 0
@@ -70,13 +70,11 @@ class FEN(private val FENData: String = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQ
                     i++;
                 }
             }
-            require(i == 8) { throw IllegalArgumentException("Each row must describe 8 squares.") }
+            require(i == 8) { "Each row must describe 8 squares." }
         }
 
-        require(castling.isNotEmpty()) { throw IllegalArgumentException("Castling descriptor must not be empty.") }
-        if(castling[0] != '-' && !"KQkq".contains(castling[0])) {
-            throw IllegalArgumentException("Castling descriptor invalid.")
-        }
+        require(castling.isNotEmpty()) { "Castling descriptor must not be empty." }
+        require(castling[0] == '-' || "KQkq".contains(castling[0])) { "Castling descriptor invalid." }
 
         //TODO: Uncomment after implementing fromFen in BoardState.
         //require(BoardState.fromFen(this).isLegal()) { throw IllegalArgumentException("Board describes invalid position.") }
