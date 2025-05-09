@@ -1,8 +1,3 @@
-CREATE USER random_chess WITH PASSWORD 'random_chess';
-CREATE DATABASE random_chess OWNER random_chess;
-
-\connect random_chess random_chess
-
 -- Tabelę openings możemy bazować np. na https://github.com/lichess-org/chess-openings
 CREATE TABLE "openings"
 (
