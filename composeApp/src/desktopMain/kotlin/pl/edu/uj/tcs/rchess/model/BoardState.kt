@@ -17,6 +17,8 @@ class BoardState(
 ) {
     init {
         require(board.size == 64) { "Board must have 64 squares." }
+        require(halfmoveCounter >= 0) { "Halfmove counter must not be negative." }
+        require(fullmoveNumber >= 1) { "Fullmove number must be positive." }
     }
 
     companion object {
@@ -101,7 +103,7 @@ class BoardState(
             newEnPassant,
             newCastlingRights,
             newHalfMoveCounter,
-            fullmoveNumber+1
+            if(currentTurn == PlayerColor.BLACK) {fullmoveNumber+1} else {fullmoveNumber}
         )
     }
 
@@ -112,7 +114,7 @@ class BoardState(
     private fun isValidMove(move: Move): Boolean {
         if(getPieceAt(move.from) == null) return false //There must be a piece to move.
         if(getPieceAt(move.to) != null) {
-            if(getPieceAt(move.to)?.owner == getPieceAt(move.from)?.owner) return false //Cannot capture your own pieces.
+            if(getPieceAt(move.to)!!.owner == getPieceAt(move.from)!!.owner) return false //Cannot capture your own pieces.
         }
         if(!getPieceAt(move.from)!!.getPieceVision(this, move.from).contains(move)) return false //Move must be valid for that piece.
         return true
