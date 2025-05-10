@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.model.observer
+package pl.edu.uj.tcs.rchess.model.state
 
 import kotlin.time.Clock
 import kotlin.time.Duration

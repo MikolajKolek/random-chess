@@ -1,6 +1,6 @@
 package pl.edu.uj.tcs.rchess
 
-import pl.edu.uj.tcs.rchess.model.Bot
+import pl.edu.uj.tcs.rchess.bot.Bot
 
 data class Config(
     val defaultUser: Int,
