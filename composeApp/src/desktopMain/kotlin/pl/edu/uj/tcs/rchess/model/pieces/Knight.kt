@@ -19,7 +19,7 @@ class Knight(owner: PlayerColor): Piece(owner = owner) {
     }
 
     override fun getMoveVision(board: BoardState, square: Square): List<Move> {
-        var listSquares = getVision(square)
+        val listSquares = getVision(square)
         var listOfMoves : Array<Move> = arrayOf()
         for(sqr in listSquares) {
             if(board.getPieceAt(sqr) == null) {
@@ -30,7 +30,7 @@ class Knight(owner: PlayerColor): Piece(owner = owner) {
     }
 
     override fun getCaptureVision(board: BoardState, square: Square): List<Move> {
-        var listSquares = getVision(square)
+        val listSquares = getVision(square)
         var listOfMoves : Array<Move> = arrayOf()
         for(sqr in listSquares) {
             if(board.getPieceAt(sqr) != null) {
