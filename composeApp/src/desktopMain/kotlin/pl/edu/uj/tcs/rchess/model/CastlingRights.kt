@@ -13,14 +13,5 @@ data class CastlingRights(
             blackKingSide = true,
             blackQueenSide = true
         )
-        fun fromArray(values: Array<Boolean>): CastlingRights {
-            require(values.size == 4) {"Need to initialize all four values."}
-            return CastlingRights(
-                whiteKingSide = values[0],
-                whiteQueenSide = values[1],
-                blackKingSide = values[2],
-                blackQueenSide = values[3]
-            )
-        }
     }
 }
