@@ -27,9 +27,4 @@ data class BotType(
     fun spawnBot(): Bot {
         return Bot(ProcessBuilder(executable).start(), options, maxDepth, moveTimeMs)
     }
-
-    //TODO: implement getServiceAccount for bot
-    /*fun getServiceAccount(): ServiceAccount {
-
-    }*/
 }

@@ -3,9 +3,6 @@ package pl.edu.uj.tcs.rchess.server
 interface ClientApi {
     /**
      * @return A list of all [HistoryGame]s the user has access to
-     *
-     * TODO: ewentualnie można to zmodyfikować: w sytuacjach w których chcemy mieć listę HistoryGame, wystarczyłoby nam
-     *  może samo entry z VIEW "games" poszerzone o display names obu stron?
      */
     suspend fun getUserGames(): List<HistoryGame>
 

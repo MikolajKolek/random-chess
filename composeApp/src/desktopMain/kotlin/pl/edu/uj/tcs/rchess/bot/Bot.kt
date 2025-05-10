@@ -32,7 +32,7 @@ class Bot(private val process: Process,
     // FIXME: Do we want to be able to use this function from multiple threads?
     //  Multiple calls to playGame will cause chaos
     suspend fun playGame(gameObserver: GameObserver, gameInput: GameInput) {
-        // TODO: This will act
+        // TODO: potential problem if multiple bots are called with the same gameInput
         gameObserver.messageFlow
             .takeWhile { update ->
                 update.state.progress is GameProgress.Running
@@ -41,7 +41,6 @@ class Bot(private val process: Process,
                 update.state.currentState.currentTurn == gameInput.getColor()
             }
             .collect { update ->
-                // TODO: IMPLEMENT winc and binc when/if they are implemented in ClockState
                 // TODO: If it's possible to never get a bestmove, the bot should send a resign command
                 val bestMove = writeAndParse("position startpos moves "
                         + update.state.moves.joinToString(" ") { it.toLongAlgebraicNotation() }

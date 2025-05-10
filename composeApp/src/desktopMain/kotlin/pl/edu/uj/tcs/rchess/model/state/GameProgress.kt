@@ -1,6 +1,7 @@
 package pl.edu.uj.tcs.rchess.model.state
 
 import pl.edu.uj.tcs.rchess.model.GameOverReason
+import pl.edu.uj.tcs.rchess.model.GameResult
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import kotlin.time.ExperimentalTime
 
@@ -15,7 +16,7 @@ sealed class GameProgress {
         val whitePlayerClock: ClockState.Paused,
         val blackPlayerClock: ClockState.Paused,
         val reason: GameOverReason,
-        // TODO: Add winner
+        val result: GameResult
     ) : GameProgress() {
         fun playerClock(color: PlayerColor) =
             when (color) {

@@ -6,12 +6,13 @@ import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
 //TODO: implement time increase on move?
+// if it is implemented also implement winc and binc in BotClockState
 abstract class ClockState {
     abstract val totalTime: Duration
 
     abstract fun remainingTime() : Duration
 
-    // TODO: A time synchronization mechanism should be implemented,
+    // TODO: In a client-server scenario, a time synchronization mechanism should be implemented,
     //  Instant might not be the best choice, as we cannot trust the the client's system clock to
     //  be the same as the server's.
     @OptIn(ExperimentalTime::class)
