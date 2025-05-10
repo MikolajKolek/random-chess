@@ -79,80 +79,94 @@ class BoardState(
         if(!isLegal()) throw IllegalStateException( "Cannot apply move to illegal position." )
         require(isValidMove(move)) { "Invalid move given." }
 
-        val newBoard : Array<Piece?> = board.toTypedArray()
+        val pieceFrom = getPieceAt(move.from)!!
+        val pieceTo = getPieceAt(move.to)
+
+        val newBoard = board.toMutableList()
         var newEnPassant : Square? = null
-        var newHalfMoveCounter = halfmoveCounter+1
+        var newHalfMoveCounter = halfmoveCounter + 1
         var newCastlingRights: CastlingRights = castlingRights.copy()
 
         // Set en passant in the new board
-        if(getPieceAt(move.from) is Pawn) {
+        if(pieceFrom is Pawn) {
             newHalfMoveCounter = 0
-            if(abs(move.from.rank - move.to.rank) == 2) {
-                newEnPassant = Square((move.from.rank + move.to.rank)/2, move.from.file)
-            }
+
+            if(abs(move.from.rank - move.to.rank) == 2)
+                newEnPassant = Square((move.from.rank + move.to.rank) / 2, move.from.file)
+
             if(move.to == enPassantTarget) {
-                if(enPassantTarget.rank == 3) {
-                    newBoard[4 * 8 + move.to.file] = null
-                } else {
-                    newBoard[5 * 8 + move.to.file] = null
-                }
+                if(enPassantTarget.rank == 3)
+                    newBoard[move.to.copy(rank = 4).positionInBoard()] = null
+                else
+                    newBoard[move.to.copy(rank = 5).positionInBoard()] = null
             }
         }
 
         // Set proper castling rights in the new board
-        if(getPieceAt(move.from) is King) {
-            if(getPieceAt(move.from)?.owner == PlayerColor.WHITE) {
-                newCastlingRights = castlingRights.copy(whiteKingSide = false, whiteQueenSide = false)
+        if(pieceFrom is King) {
+            newCastlingRights = if(pieceFrom.owner == PlayerColor.WHITE) {
+                castlingRights.copy(whiteKingSide = false, whiteQueenSide = false)
             } else {
-                newCastlingRights = castlingRights.copy(blackKingSide = false, blackQueenSide = false)
+                castlingRights.copy(blackKingSide = false, blackQueenSide = false)
             }
-            if(Math.abs(move.from.file - move.to.file) == 2) {
-                if(move.to == Square(0, 2)) {
-                    newBoard[3] = Rook(PlayerColor.WHITE)
-                    newBoard[0] = null
-                } else if(move.to == Square(0, 6)) {
-                    newBoard[5] = Rook(PlayerColor.WHITE)
-                    newBoard[7] = null
-                } else if(move.to == Square(7, 2)) {
-                    newBoard[7 * 8 + 3] = Rook(PlayerColor.BLACK)
-                    newBoard[7 * 8 + 0] = null
-                } else {
-                    newBoard[7 * 8 + 5] = Rook(PlayerColor.BLACK)
-                    newBoard[7 * 8 + 7] = null
+
+            if(abs(move.from.file - move.to.file) == 2) {
+                when(move.to) {
+                    Square(0, 2) -> {
+                        newBoard[Square(0, 3).positionInBoard()] = Rook(PlayerColor.WHITE)
+                        newBoard[Square(0, 0).positionInBoard()] = null
+                    }
+                    Square(0, 6) -> {
+                        newBoard[Square(0, 5).positionInBoard()] = Rook(PlayerColor.WHITE)
+                        newBoard[Square(0, 7).positionInBoard()] = null
+                    }
+                    Square(7, 2) -> {
+                        newBoard[Square(7, 3).positionInBoard()] = Rook(PlayerColor.BLACK)
+                        newBoard[Square(7, 0).positionInBoard()] = null
+                    }
+                    Square(7, 6) -> {
+                        newBoard[Square(7, 5).positionInBoard()] = Rook(PlayerColor.BLACK)
+                        newBoard[Square(7, 7).positionInBoard()] = null
+                    }
+                    else -> throw IllegalArgumentException("Invalid castling move.")
                 }
             }
-        } else if(getPieceAt(move.from) is Rook) {
-            if(move.from.file == 1) {
-                if(move.from.rank == 1) {
+        } else if(pieceFrom is Rook) {
+            if(move.from.file == 0) {
+                if(move.from.rank == 0) {
                     newCastlingRights = castlingRights.copy(whiteQueenSide = false)
-                } else if(move.from.rank == 8) {
+                } else if(move.from.rank == 7) {
                     newCastlingRights = castlingRights.copy(blackQueenSide = false)
                 }
-            } else if(move.from.file == 8) {
-                if(move.from.rank == 1) {
+            } else if(move.from.file == 7) {
+                if(move.from.rank == 0) {
                     newCastlingRights = castlingRights.copy(whiteKingSide = false)
-                } else if(move.from.rank == 8) {
-                    newCastlingRights = castlingRights.copy(whiteKingSide = false)
+                } else if(move.from.rank == 7) {
+                    newCastlingRights = castlingRights.copy(blackKingSide = false)
                 }
             }
         }
 
-        // Perform the move on new board
-        if(getPieceAt(move.to) != null) newHalfMoveCounter = 0
-        newBoard[move.to.rank * 8 + move.to.file] = newBoard[move.from.rank * 8 + move.from.file]
-        newBoard[move.from.rank * 8 + move.from.file] = null
-        if(move.promoteTo == Move.Promotion.KNIGHT) newBoard[move.to.rank * 8 + move.to.file] = Knight(newBoard[move.to.rank * 8 + move.to.file]?.owner ?: PlayerColor.WHITE)
-        if(move.promoteTo == Move.Promotion.BISHOP) newBoard[move.to.rank * 8 + move.to.file] = Bishop(newBoard[move.to.rank * 8 + move.to.file]?.owner ?: PlayerColor.WHITE)
-        if(move.promoteTo == Move.Promotion.ROOK) newBoard[move.to.rank * 8 + move.to.file] = Rook(newBoard[move.to.rank * 8 + move.to.file]?.owner ?: PlayerColor.WHITE)
-        if(move.promoteTo == Move.Promotion.QUEEN) newBoard[move.to.rank * 8 + move.to.file] = Queen(newBoard[move.to.rank * 8 + move.to.file]?.owner ?: PlayerColor.WHITE)
+        if(pieceTo != null)
+            newHalfMoveCounter = 0
+
+        // Perform the move on the new board
+        newBoard[move.from.positionInBoard()] = null
+        newBoard[move.to.positionInBoard()] = when (move.promoteTo) {
+            null -> board[move.from.positionInBoard()]
+            Move.Promotion.KNIGHT -> Knight(pieceFrom.owner)
+            Move.Promotion.BISHOP -> Bishop(pieceFrom.owner)
+            Move.Promotion.ROOK -> Rook(pieceFrom.owner)
+            Move.Promotion.QUEEN -> Queen(pieceFrom.owner)
+        }
 
         return BoardState(
-            newBoard.toList(),
+            newBoard,
             currentTurn.getOpponent(),
             newEnPassant,
             newCastlingRights,
             newHalfMoveCounter,
-            if(currentTurn == PlayerColor.BLACK) {fullmoveNumber+1} else {fullmoveNumber}
+            if(currentTurn == PlayerColor.BLACK) fullmoveNumber + 1 else fullmoveNumber
         )
     }
 
@@ -161,12 +175,10 @@ class BoardState(
      * @return True if the given move is valid in this context, otherwise false.
      */
     private fun isValidMove(move: Move): Boolean {
-        if(getPieceAt(move.from) == null) return false //There must be a piece to move.
-        if(getPieceAt(move.to) != null) {
-            if(getPieceAt(move.to)!!.owner == getPieceAt(move.from)!!.owner) return false //Cannot capture your own pieces.
-        }
-        if(!getPieceAt(move.from)!!.getPieceVision(this, move.from).contains(move)) return false //Move must be valid for that piece.
-        return true
+        val movedPiece = getPieceAt(move.from) ?: return false // There must be a piece to move.
+
+        // Move must be valid for the piece. This also checks if the piece isn't capturing the same color.
+        return movedPiece.getPieceVision(this, move.from).contains(move)
     }
 
     /**
@@ -180,8 +192,10 @@ class BoardState(
 
         // Pawns must not be on ranks 1 and 8
         for(f in 0..7) {
-            if(getPieceAt(Square(0, f)) is Pawn) return false
-            if(getPieceAt(Square(7, f)) is Pawn) return false
+            if(getPieceAt(Square(0, f)) is Pawn)
+                return false
+            if(getPieceAt(Square(7, f)) is Pawn)
+                return false
         }
 
         return true
@@ -189,16 +203,13 @@ class BoardState(
 
     fun locateKing(player: PlayerColor) : Square {
         var kingSquare : Square? = null
-        for(r in 0..7) {
-            for(f in 0..7) {
-                if(getPieceAt(Square(r, f)) is King) {
-                    if(getPieceAt(Square(r, f))!!.owner == player) {
-                        require(kingSquare == null) { "There must not be more than one king of each color." }
-                        kingSquare = Square(r, f)
-                    }
-                }
+        for((square, piece) in squaresToNotNullPieces()) {
+            if(piece is King && piece.owner == player) {
+                require(kingSquare == null) { "There must not be more than one king of each color." }
+                kingSquare = square
             }
         }
+
         require(kingSquare != null) { "There must be a king of each color." }
         return kingSquare
     }
@@ -210,18 +221,13 @@ class BoardState(
     fun isInCheck(player: PlayerColor) : Boolean {
         val kingSquare = locateKing(player)
 
-        for(r in 0..7) {
-            for(f in 0..7) {
-                val square = Square(r, f)
-                val piece = getPieceAt(square)
+        for((square, piece) in squaresToNotNullPieces()) {
+            if(piece.owner == player)
+                continue
 
-                if(piece == null || kingSquare == square || piece.owner == player)
-                    continue
-
-                for(move in piece.getCaptureVision(this, square))
-                    if(move.to == kingSquare)
-                        return true
-            }
+            for(move in piece.getPieceVision(this, square))
+                if(move.to == kingSquare)
+                    return true
         }
 
         return false
@@ -244,17 +250,10 @@ class BoardState(
      * @return True if the given player has any piece other than their king.
      */
     fun hasAnyNonKingMaterial(player: PlayerColor) : Boolean {
-        for(r in 0..7) {
-            for(f in 0..7) {
-                if(getPieceAt(Square(r, f)) != null) {
-                    if(!(getPieceAt(Square(r, f)) is King)) {
-                        if(getPieceAt(Square(r, f))!!.owner == player) {
-                            return true
-                        }
-                    }
-                }
-            }
-        }
+        for(piece in board.filterNotNull())
+            if(piece !is King && piece.owner == player)
+                return true
+
         return false
     }
 
@@ -263,29 +262,35 @@ class BoardState(
      * @see FEN
      */
     fun toFen(): FEN {
-        var FENData = ""
+        var fenData = ""
         for(r in 7 downTo 0) {
             var emptyCount = 0
+
             for(f in 0..7) {
                 if(getPieceAt(Square(r, f)) != null) {
                     if(emptyCount != 0) {
-                        FENData += emptyCount.toChar()
+                        fenData += emptyCount.toChar()
                         emptyCount = 0
                     }
-                    FENData += getPieceAt(Square(r, f))!!.fenLetter
+                    fenData += getPieceAt(Square(r, f))!!.fenLetter
                 } else {
                     emptyCount += 1
                 }
             }
-            if(emptyCount != 0) FENData += emptyCount.toChar()
-            if(r != 0) FENData += '/'
+
+            if(emptyCount != 0)
+                fenData += emptyCount.toChar()
+            if(r != 0)
+                fenData += '/'
         }
-        FENData += if(currentTurn==PlayerColor.WHITE) { " w" } else { " b" }
-        FENData += " $castlingRights"
-        FENData += " ${(enPassantTarget ?: "-")}"
-        FENData += " $halfmoveCounter"
-        FENData += " $fullmoveNumber"
-        return FEN(FENData)
+
+        fenData += (if(currentTurn==PlayerColor.WHITE) { " w " } else { " b " }) +
+            "$castlingRights " +
+            "${(enPassantTarget ?: "-")} " +
+            "$halfmoveCounter " +
+            "$fullmoveNumber"
+
+        return FEN(fenData)
     }
 
     /**
@@ -297,35 +302,41 @@ class BoardState(
         // That is checkmate, stalemate, insufficient material and 50 move rule
         val kingSquare = locateKing(currentTurn)
         if(getLegalMovesFor(kingSquare).isEmpty()) {
-            return if(isInCheck(currentTurn)) {
+            return if(isInCheck(currentTurn))
                 GameOverReason.CHECKMATE
-            } else {
+            else
                 GameOverReason.STALEMATE
-            }
         }
+
+        if(halfmoveCounter >= 100)
+            return GameOverReason.FIFTY_MOVE_RULE
 
         var whiteLight = 0
         var blackLight = 0
-        for(r in 0..7) {
-            for(f in 0..7) {
-                if(getPieceAt(Square(r, f)) != null) {
-                    if(getPieceAt(Square(r, f)) is King) continue
-                    if(getPieceAt(Square(r, f)) is Bishop || getPieceAt(Square(r, f)) is Knight) {
-                        if(getPieceAt(Square(r, f))!!.owner == PlayerColor.WHITE) {
-                            whiteLight++
-                        } else {
-                            blackLight++
-                        }
-                    } else {
-                        return null
-                    }
-                }
+        for(piece in board.filterNotNull()) {
+            if(piece is King)
+                continue
+
+            if(piece is Bishop || piece is Knight) {
+                if(piece.owner == PlayerColor.WHITE)
+                    whiteLight++
+                else
+                    blackLight++
             }
+            else
+                return null
         }
 
-        if(whiteLight == 0 && blackLight <= 1) return GameOverReason.INSUFFICIENT_MATERIAL
-        if(whiteLight <= 1 && blackLight == 0) return GameOverReason.INSUFFICIENT_MATERIAL
-        if(halfmoveCounter >= 100) return GameOverReason.FIFTY_MOVE_RULE
+        if((whiteLight == 0 && blackLight <= 1) || (whiteLight <= 1 && blackLight == 0))
+            return GameOverReason.INSUFFICIENT_MATERIAL
+
         return null
     }
+
+    private fun squaresToNotNullPieces() =
+        (0..7).map { rank ->
+            (0..7).associate { file ->
+                Square(rank, file) to getPieceAt(Square(rank, file))
+            }
+        }.flatMap { it.entries }.associate { it.toPair() }.filterValues { it != null }.mapValues { it.value!! }
 }
