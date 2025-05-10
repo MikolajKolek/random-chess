@@ -239,7 +239,28 @@ class BoardState(
      * @see FEN
      */
     fun toFen(): String {
-        TODO()
+        var FENData : String = ""
+        for(r in 0..7) {
+            var emptyCount = 0
+            for(f in 0..7) {
+                if(getPieceAt(Square(r, f)) != null) {
+                    if(emptyCount != 0) {
+                        FENData += emptyCount.toChar()
+                        emptyCount = 0
+                    }
+                    FENData += getPieceAt(Square(r, f))!!.fenLetter
+                } else {
+                    emptyCount += 1
+                }
+            }
+            if(r != 0) FENData += '/'
+        }
+        FENData += if(currentTurn==PlayerColor.WHITE) { " w" } else { " b" }
+        FENData += " "+castlingRights
+        FENData += " "+enPassantTarget
+        FENData += " "+halfmoveCounter
+        FENData += " "+fullmoveNumber
+        return FENData
     }
 
     /**

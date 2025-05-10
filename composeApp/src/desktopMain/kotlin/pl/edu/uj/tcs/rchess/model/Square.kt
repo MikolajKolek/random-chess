@@ -14,4 +14,8 @@ data class Square(
     }
 
     val isDark = (rank + file) % 2 == 0
+
+    override fun toString(): String {
+        return (rank + 'a'.digitToInt()).toChar() + file.toString()
+    }
 }

@@ -14,4 +14,16 @@ data class CastlingRights(
             blackQueenSide = true
         )
     }
+
+    override fun toString(): String {
+        if(!whiteKingSide && !blackKingSide && whiteQueenSide && !blackQueenSide) {
+            return "-"
+        }
+        var res = ""
+        if(whiteKingSide) res += "K"
+        if(whiteQueenSide) res += "Q"
+        if(blackKingSide) res += "k"
+        if(blackQueenSide) res += "q"
+        return res
+    }
 }
