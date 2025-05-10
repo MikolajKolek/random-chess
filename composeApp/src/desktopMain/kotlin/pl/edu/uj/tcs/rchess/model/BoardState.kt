@@ -32,7 +32,38 @@ class BoardState(
         )
 
         fun fromFen(fen: FEN): BoardState {
-            TODO()
+            val fromFenBoard : Array<Piece?> = Array(64) { null }
+            for(r in 7 downTo 0) {
+                val row = fen.boardState[7-r]
+                var ind = 0
+                for(v in row) {
+                    if(v.isDigit()) {
+                        ind += v.digitToInt()
+                    } else {
+                        if(v.equals('k', true))
+                            fromFenBoard[8*r+ind] = King(if(v.isUpperCase()) {PlayerColor.WHITE} else {PlayerColor.BLACK})
+                        if(v.equals('q', true))
+                            fromFenBoard[8*r+ind] = Queen(if(v.isUpperCase()) {PlayerColor.WHITE} else {PlayerColor.BLACK})
+                        if(v.equals('r', true))
+                            fromFenBoard[8*r+ind] = Rook(if(v.isUpperCase()) {PlayerColor.WHITE} else {PlayerColor.BLACK})
+                        if(v.equals('b', true))
+                            fromFenBoard[8*r+ind] = Bishop(if(v.isUpperCase()) {PlayerColor.WHITE} else {PlayerColor.BLACK})
+                        if(v.equals('k', true))
+                            fromFenBoard[8*r+ind] = Knight(if(v.isUpperCase()) {PlayerColor.WHITE} else {PlayerColor.BLACK})
+                        if(v.equals('p', true))
+                            fromFenBoard[8*r+ind] = Pawn(if(v.isUpperCase()) {PlayerColor.WHITE} else {PlayerColor.BLACK})
+                        ind++
+                    }
+                }
+            }
+            return BoardState(
+                board = fromFenBoard.toList(),
+                currentTurn = if(fen.color == 'w') {PlayerColor.WHITE} else {PlayerColor.BLACK},
+                castlingRights = CastlingRights.fromString(fen.castling),
+                enPassantTarget = if(fen.enPassantSquare == "-") { null } else { Square.fromString(fen.enPassantSquare) },
+                halfmoveCounter = fen.halfmoveCounter,
+                fullmoveNumber = fen.fullmoveNumber
+            )
         }
 
         fun initial() = fromFen(FEN())
@@ -240,7 +271,7 @@ class BoardState(
      */
     fun toFen(): String {
         var FENData : String = ""
-        for(r in 0..7) {
+        for(r in 7 downTo 0) {
             var emptyCount = 0
             for(f in 0..7) {
                 if(getPieceAt(Square(r, f)) != null) {

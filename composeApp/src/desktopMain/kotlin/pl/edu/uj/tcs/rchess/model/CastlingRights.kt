@@ -13,6 +13,14 @@ data class CastlingRights(
             blackKingSide = true,
             blackQueenSide = true
         )
+        fun fromString(value : String) : CastlingRights {
+            var ret = CastlingRights.full()
+            if(!value.contains("K")) ret = ret.copy(whiteKingSide = false)
+            if(!value.contains("Q")) ret = ret.copy(whiteQueenSide = false)
+            if(!value.contains("k")) ret = ret.copy(blackKingSide = false)
+            if(!value.contains("q")) ret = ret.copy(blackQueenSide = false)
+            return ret
+        }
     }
 
     override fun toString(): String {
