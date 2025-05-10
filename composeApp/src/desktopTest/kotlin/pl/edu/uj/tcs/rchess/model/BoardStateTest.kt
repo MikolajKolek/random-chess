@@ -35,17 +35,4 @@ class BoardStateTest {
             .contains(Move(Square(3, 2), Square(2, 1)))
         )
     }
-
-    @Test
-    fun enPassantTest() {
-        //https://www.chessprogramming.org/En_passant#En_passant_bugs
-        val board = BoardState.fromFen(FEN("2r3k1/1q1nbppp/r3p3/3pP3/pPpP4/P1Q2N2/2RN1PPP/2R4K b - b3 0 23"))
-
-        Assert.assertTrue(board.getLegalMovesFor(Square(3, 0))
-            .contains(Move(Square(3, 0), Square(2, 1)))
-        )
-        Assert.assertTrue(board.getLegalMovesFor(Square(3, 2))
-            .contains(Move(Square(3, 2), Square(2, 1)))
-        )
-    }
 }
