@@ -1,4 +1,5 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jooq.meta.jaxb.MatcherTransformType
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -38,6 +39,7 @@ kotlin {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
         }
+        @Suppress("unused")
         val desktopTest by getting {
             dependencies {
                 implementation(compose.desktop.uiTestJUnit4)
@@ -74,6 +76,18 @@ jooq {
                 isKotlinNotNullPojoAttributes = true
                 isKotlinNotNullRecordAttributes = true
                 isKotlinNotNullInterfaceAttributes = true
+            }
+            strategy {
+                matchers {
+                    enums {
+                        enum_ {
+                            enumClass {
+                                transform = MatcherTransformType.PASCAL
+                                expression = "db_$0"
+                            }
+                        }
+                    }
+                }
             }
         }
     }

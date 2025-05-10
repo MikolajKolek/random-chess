@@ -3,12 +3,14 @@ package pl.edu.uj.tcs.rchess.server
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import pl.edu.uj.tcs.rchess.db.tables.records.PgnGamesRecord
+import pl.edu.uj.tcs.rchess.model.GameResult
 import java.time.LocalDateTime
 
 data class PgnGame(
     override val id: Int,
     override val moves: String,
-    override val date: LocalDateTime?,
+    override val creationDate: LocalDateTime,
+    override val result: GameResult,
     override val metadata: JsonObject?,
     val blackPlayerName: String,
     val whitePlayerName: String
@@ -16,7 +18,8 @@ data class PgnGame(
     constructor(resultRow: PgnGamesRecord) : this(
         id = resultRow.id!!,
         moves = resultRow.moves,
-        date = resultRow.date,
+        creationDate = resultRow.creationDate,
+        result = GameResult.fromDbResult(resultRow.result),
         metadata = resultRow.metadata?.data()?.let { Json.decodeFromString(it) },
         blackPlayerName = resultRow.blackPlayerName,
         whitePlayerName = resultRow.whitePlayerName

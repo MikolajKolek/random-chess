@@ -11,9 +11,10 @@ import pl.edu.uj.tcs.rchess.db.keys.SERVICE_GAMES__SERVICE_GAMES_SERVICE_ID_WHIT
 import pl.edu.uj.tcs.rchess.db.tables.references.PGN_GAMES
 import pl.edu.uj.tcs.rchess.db.tables.references.SERVICE_ACCOUNTS
 import pl.edu.uj.tcs.rchess.db.tables.references.SERVICE_GAMES
-import pl.edu.uj.tcs.rchess.model.pgnDateToLocalDateTime
+import pl.edu.uj.tcs.rchess.model.GameResult
 import pl.edu.uj.tcs.rchess.model.pgnTagStringToTags
 import java.sql.DriverManager
+import java.time.LocalDateTime
 import java.util.*
 
 class Server(databaseConfig: DatabaseConfig) : ClientApi {
@@ -53,9 +54,12 @@ class Server(databaseConfig: DatabaseConfig) : ClientApi {
                 val tags = pgnTagStringToTags(tagString)
                 val strippedTags = tags.toMap().filter { it.key != "White" && it.key != "Black" && it.key != "Date" }
 
+                //TODO: do movetext correctness verification and conversion to move[] here!
+
                 result.add(transaction.dsl().insertInto(PGN_GAMES)
                     .set(PGN_GAMES.MOVES, movetext)
-                    .set(PGN_GAMES.DATE, pgnDateToLocalDateTime(tags["Date"]!!))
+                    .set(PGN_GAMES.CREATION_DATE, LocalDateTime.now())
+                    .set(PGN_GAMES.RESULT, GameResult.fromPgnString(tags["Result"]!!).toDbResult())
                     .set(PGN_GAMES.METADATA, JSONB.jsonb(Json.encodeToString(strippedTags)))
                     .set(PGN_GAMES.OWNER_ID, config.defaultUser)
                     .set(PGN_GAMES.BLACK_PLAYER_NAME, tags["Black"])
@@ -104,7 +108,8 @@ class Server(databaseConfig: DatabaseConfig) : ClientApi {
             ServiceGame(
                 id = sg.id!!,
                 moves = sg.moves,
-                date = sg.date,
+                creationDate = sg.creationDate,
+                result = GameResult.fromDbResult(sg.result),
                 metadata = sg.metadata?.data()?.let { json -> Json.decodeFromString(json) },
                 gameIdInService = sg.gameIdInService,
                 service = Service.fromId(sg.serviceId),

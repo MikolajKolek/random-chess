@@ -8,6 +8,11 @@ interface GameInput {
     fun makeMove(move: Move)
 
     /**
+     * Resigns the game
+     */
+    fun resign()
+
+    /**
      * The color of the player associated with the GameInput instance
      */
     fun getColor() : PlayerColor

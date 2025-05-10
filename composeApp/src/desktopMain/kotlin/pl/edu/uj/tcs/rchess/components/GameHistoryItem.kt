@@ -23,7 +23,7 @@ fun GameHistoryItem(game: HistoryGame) {
             }
         },
         supportingContent = {
-            Text("Date: ${game.date}")
+            Text("Date: ${game.creationDate}")
             Text("Game ID: ${game.id}")
         },
     )
