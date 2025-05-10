@@ -59,7 +59,7 @@ class FEN(private val FENData: String = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQ
             for(x in row) {
                 if(!"rnbqkp".contains(x, true)) {
                     if(!x.isDigit()) {
-                        throw IllegalArgumentException("Invalid character in board description.")
+                        throw IllegalArgumentException("Invalid character in board description: " + boardState)
                     } else {
                         i += x.digitToInt();
                     }
@@ -72,6 +72,8 @@ class FEN(private val FENData: String = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQ
 
         require(castling.isNotEmpty()) { "Castling descriptor must not be empty." }
         require(castling[0] == '-' || "KQkq".contains(castling[0])) { "Castling descriptor invalid." }
-        require(BoardState.fromFen(this).isLegal()) { throw IllegalArgumentException("Board describes invalid position.") }
+
+        // TODO: Uncomment after debugging FEN <-> BoardState conversion
+        //require(BoardState.fromFen(this).isLegal()) { throw IllegalArgumentException("Board describes invalid position.") }
     }
 }

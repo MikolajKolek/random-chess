@@ -49,7 +49,7 @@ sealed class Piece(
     /**
      * @param board The board that this piece is on.
      * @param square The square that this piece is on.
-     * @return Lsit of all valid moves this piece can make.
+     * @return List of all valid moves this piece can make.
      * @see getCaptureVision
      * @see getMoveVision
      */

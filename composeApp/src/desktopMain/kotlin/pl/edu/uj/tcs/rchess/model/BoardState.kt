@@ -48,7 +48,7 @@ class BoardState(
                             fromFenBoard[8*r+ind] = Rook(if(v.isUpperCase()) {PlayerColor.WHITE} else {PlayerColor.BLACK})
                         if(v.equals('b', true))
                             fromFenBoard[8*r+ind] = Bishop(if(v.isUpperCase()) {PlayerColor.WHITE} else {PlayerColor.BLACK})
-                        if(v.equals('k', true))
+                        if(v.equals('n', true))
                             fromFenBoard[8*r+ind] = Knight(if(v.isUpperCase()) {PlayerColor.WHITE} else {PlayerColor.BLACK})
                         if(v.equals('p', true))
                             fromFenBoard[8*r+ind] = Pawn(if(v.isUpperCase()) {PlayerColor.WHITE} else {PlayerColor.BLACK})
@@ -269,8 +269,8 @@ class BoardState(
      * @return The FEN representation of this GameState.
      * @see FEN
      */
-    fun toFen(): String {
-        var FENData : String = ""
+    fun toFen(): FEN {
+        var FENData = ""
         for(r in 7 downTo 0) {
             var emptyCount = 0
             for(f in 0..7) {
@@ -284,14 +284,15 @@ class BoardState(
                     emptyCount += 1
                 }
             }
+            if(emptyCount != 0) FENData += emptyCount.toChar()
             if(r != 0) FENData += '/'
         }
         FENData += if(currentTurn==PlayerColor.WHITE) { " w" } else { " b" }
         FENData += " "+castlingRights
-        FENData += " "+enPassantTarget
+        FENData += " "+if(enPassantTarget != null) {enPassantTarget} else {"-"}
         FENData += " "+halfmoveCounter
         FENData += " "+fullmoveNumber
-        return FENData
+        return FEN(FENData)
     }
 
     /**
@@ -332,8 +333,6 @@ class BoardState(
         if(whiteLight == 0 && blackLight <= 1) return GameOverReason.INSUFFICIENT_MATERIAL
         if(whiteLight <= 1 && blackLight == 0) return GameOverReason.INSUFFICIENT_MATERIAL
         if(halfmoveCounter >= 100) return GameOverReason.FIFTY_MOVE_RULE
-
-        TODO()
+        return null
     }
 }
-// TODO: Implement the logic managing BoardState

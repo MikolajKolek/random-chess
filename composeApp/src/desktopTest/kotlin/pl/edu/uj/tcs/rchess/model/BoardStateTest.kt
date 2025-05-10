@@ -14,4 +14,12 @@ class BoardStateTest {
         BoardState.empty()
         Assert.assertThrows(IllegalArgumentException::class.java) { BoardState.empty().isLegal() }
     }
+
+    @Test
+    fun initialPositionTest() {
+        val BoardStateInitial = BoardState.fromFen(FEN())
+
+        val FENInitial = BoardState.initial().toFen()
+
+    }
 }
