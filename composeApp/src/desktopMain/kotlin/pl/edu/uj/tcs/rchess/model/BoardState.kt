@@ -2,6 +2,7 @@ package pl.edu.uj.tcs.rchess.model
 
 import pl.edu.uj.tcs.rchess.model.pieces.*
 import kotlin.math.abs
+import kotlin.reflect.KClass
 
 /**
  * Immutable class describing the state of the chessboard.
@@ -339,4 +340,127 @@ class BoardState(
                 Square(rank, file) to getPieceAt(Square(rank, file))
             }
         }.flatMap { it.entries }.associate { it.toPair() }.filterValues { it != null }.mapValues { it.value!! }
+
+    fun SAtoMove(sa : String) : Move {
+        var _sa = sa
+        var requiresCheckmate = false
+        var requiresCheck = false
+        var requiresCapture = false
+        var fileDisambiguation : Int? = null
+        var rankDisambiguation : Int? = null
+        val move : Move
+
+        if(_sa.last() == '#') {
+            _sa = _sa.dropLast(1)
+            requiresCheckmate = true
+        }
+        if(_sa.last() == '+') {
+            require(!requiresCheckmate) { "A move cannot be check and checkmate at the same time." }
+            _sa = _sa.dropLast(1)
+            requiresCheck = true
+        }
+
+        // Castling
+        if(_sa.contains("O-O")) {
+            require(_sa == "O-O") { "Invalid move pattern." }
+            require(if(currentTurn==PlayerColor.WHITE) {castlingRights.whiteKingSide} else {castlingRights.blackKingSide}) { "Castling rights invalid." }
+            if(currentTurn==PlayerColor.WHITE) {move = Move(Square.fromString("e1"),Square.fromString("g1"))}
+            else {move = Move(Square.fromString("e8"), Square.fromString("g8"))}
+            verifyCheckmate(move)
+            verifyCheck(move)
+            require(isValidMove(move)) { "Move invalid." }
+            return move
+        }
+
+        if(_sa.contains("O-O-O")) {
+            require(_sa == "O-O") { "Invalid move pattern." }
+            require(if(currentTurn==PlayerColor.WHITE) {castlingRights.whiteQueenSide} else {castlingRights.blackQueenSide}) { "Castling rights invalid." }
+            if(currentTurn==PlayerColor.WHITE) {move = Move(Square.fromString("e1"),Square.fromString("c1"))}
+            else {move = Move(Square.fromString("e8"), Square.fromString("c8"))}
+            verifyCheckmate(move)
+            verifyCheck(move)
+            require(isValidMove(move)) { "Move invalid." }
+            return move
+        }
+
+        // Promotion
+        require(_sa.length >= 2) { "Missing target square information." }
+        var promotionPiece : Move.Promotion? = null
+        if(_sa[_sa.length-2] == '=') {
+            promotionPiece = Move.Promotion.fromIdentifier(sa.last().lowercaseChar())
+            _sa = _sa.dropLast(2)
+        }
+
+        // Target square
+        require(_sa.length >= 2) { "Missing target square information." }
+        val destinationSquare = Square.fromString(_sa.takeLast(2))
+        _sa = _sa.dropLast(2)
+
+        // Capture
+        if(_sa.isNotEmpty()) {
+            if(_sa.last() == 'x') {
+                requiresCapture = true
+                require(getPieceAt(destinationSquare) != null) { "Capture declared, but no piece to capture." }
+                _sa = _sa.dropLast(1)
+            }
+        }
+        require(requiresCapture || getPieceAt(destinationSquare) == null) { "No capture declared, but target square occupied." }
+
+        // File and rank disambiguation
+        // Redundant disambiguation is allowed here
+        if(_sa.isNotEmpty()) {
+            if(_sa.last().isDigit()) {
+                fileDisambiguation = _sa.last().digitToInt()-1
+                _sa = _sa.dropLast(1)
+                require(fileDisambiguation in 0..7) { "Invalid file." }
+            }
+        }
+        if(_sa.isNotEmpty()) {
+            if(_sa.last().isLowerCase()) {
+                rankDisambiguation = _sa.last()-'a'
+                _sa = _sa.dropLast(1)
+                require(rankDisambiguation in 0..7) { "Invalid rank." }
+            }
+        }
+
+        // Piece performing the move
+        val requiredPiece : KClass<out Piece>
+        if(_sa.isNotEmpty()) {
+            requiredPiece = Piece.fromFenLetter(_sa.last())::class
+        } else {
+            requiredPiece = Pawn(currentTurn)::class
+        }
+
+        // Finding the correct move
+        var returnMove : Move? = null
+        for(r in 0..7) {
+            for(f in 0..7) {
+                val piece = getPieceAt(Square(rank = r, file = f)) ?: continue
+                if(piece.owner != currentTurn) continue
+                if(piece::class != requiredPiece) continue
+                if(rankDisambiguation != null) if(rankDisambiguation != r) continue
+                if(fileDisambiguation != null) if(fileDisambiguation != f) continue
+                val myMove = Move(Square(rank = r, file = f), destinationSquare, promotionPiece)
+                if(!piece.getPieceVision(this, Square(rank = r, file = f)).contains(myMove)) continue
+                require(returnMove == null) { "Move definition ambiguous." }
+                returnMove = myMove
+            }
+        }
+        require(returnMove != null) { "No such move found to $destinationSquare" }
+        if(requiresCheckmate) require(verifyCheckmate(returnMove)) { "Checkmate declared and not delivered." }
+        if(requiresCheck) require(verifyCheck(returnMove)) { "Check declared and not delivered." }
+        return returnMove
+    }
+
+    /**
+     * @param move Move to verify.
+     * @return True if the given move is checkmate, false otherwise.
+     */
+    private fun verifyCheckmate(move: Move) = (applyMove(move).isOver() == GameOverReason.CHECKMATE)
+
+    /**
+     * @param move Move to verify.
+     * @return True if the given move is check, false otherwise.
+     */
+    private fun verifyCheck(move: Move) = applyMove(move).isInCheck(currentTurn.getOpponent())
 }
