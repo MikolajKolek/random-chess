@@ -7,10 +7,6 @@ enum class GameResult(val dbResult: DbGameResult, val pgnString: String) {
     BLACK_WON(DbGameResult.black_won, "0-1"),
     DRAW(DbGameResult.draw, "1/2-1/2");
 
-    fun toDbResult(): DbGameResult = dbResult
-
-    fun toPgnString(): String = pgnString
-
     companion object {
         fun fromDbResult(result: DbGameResult): GameResult = entries.find { it.dbResult == result }
             ?: throw IllegalArgumentException("Invalid db game result : $result")

@@ -59,7 +59,7 @@ class Server(databaseConfig: DatabaseConfig) : ClientApi {
                 result.add(transaction.dsl().insertInto(PGN_GAMES)
                     .set(PGN_GAMES.MOVES, movetext)
                     .set(PGN_GAMES.CREATION_DATE, LocalDateTime.now())
-                    .set(PGN_GAMES.RESULT, GameResult.fromPgnString(tags["Result"]!!).toDbResult())
+                    .set(PGN_GAMES.RESULT, GameResult.fromPgnString(tags["Result"]!!).dbResult)
                     .set(PGN_GAMES.METADATA, JSONB.jsonb(Json.encodeToString(strippedTags)))
                     .set(PGN_GAMES.OWNER_ID, config.defaultUser)
                     .set(PGN_GAMES.BLACK_PLAYER_NAME, tags["Black"])
