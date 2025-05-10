@@ -14,7 +14,7 @@ class GameHistoryViewModel(private val clientApi: ClientApi) : ViewModel() {
     private val _dataState = MutableStateFlow<DataState<List<HistoryGame>>>(DataState.Loading())
     val gameHistory: StateFlow<DataState<List<HistoryGame>>> = _dataState
 
-    fun refresh() {
+    private fun load() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 try {
@@ -26,7 +26,13 @@ class GameHistoryViewModel(private val clientApi: ClientApi) : ViewModel() {
         }
     }
 
+    fun refresh() {
+        if (_dataState.value is DataState.Loading) return
+
+        load()
+    }
+
     init {
-        refresh()
+        load()
     }
 }

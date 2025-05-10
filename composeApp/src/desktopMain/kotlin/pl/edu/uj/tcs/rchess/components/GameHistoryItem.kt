@@ -58,11 +58,13 @@ fun GameHistoryItem(
                 when (game) {
                     is PgnGame -> {
                         Text("White player: ${game.whitePlayerName}")
+                        Text(" vs ")
                         Text("Black player: ${game.blackPlayerName}")
                     }
 
                     is ServiceGame -> {
                         Text("White player: ${game.whitePlayer.displayName}")
+                        Text(" vs ")
                         Text("Black player: ${game.blackPlayer.displayName}")
                     }
                 }
