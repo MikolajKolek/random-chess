@@ -36,7 +36,7 @@ fun RouteScreen(
 @Preview
 fun App(clientApi: ClientApi) {
     MaterialTheme {
-        var route by remember { mutableStateOf<Route>(Route.NewGame) }
+        var route by remember { mutableStateOf<Route>(Route.GameHistory) }
 
         Row(
             modifier = Modifier.fillMaxSize(),
