@@ -4,9 +4,6 @@ package pl.edu.uj.tcs.rchess.model
  * A class handling Forsyth-Edwards notation.
  */
 class FEN(private val FENData: String = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {
-
-    // TODO: Requires extensive testing
-
     val boardState : List<String>
     val color : Char
     val castling : String
@@ -75,8 +72,6 @@ class FEN(private val FENData: String = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQ
 
         require(castling.isNotEmpty()) { "Castling descriptor must not be empty." }
         require(castling[0] == '-' || "KQkq".contains(castling[0])) { "Castling descriptor invalid." }
-
-        //TODO: Uncomment after implementing fromFen in BoardState.
-        //require(BoardState.fromFen(this).isLegal()) { throw IllegalArgumentException("Board describes invalid position.") }
+        require(BoardState.fromFen(this).isLegal()) { throw IllegalArgumentException("Board describes invalid position.") }
     }
 }
