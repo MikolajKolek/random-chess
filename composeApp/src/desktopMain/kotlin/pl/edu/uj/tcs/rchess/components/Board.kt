@@ -1,6 +1,7 @@
 package pl.edu.uj.tcs.rchess.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -15,12 +16,20 @@ import pl.edu.uj.tcs.rchess.model.Square
 
 @Composable
 @Preview
-fun Board(state: BoardState, playerColor: PlayerColor) {
-    val ranks = when (playerColor) {
+fun Board(
+    state: BoardState,
+    orientation: PlayerColor,
+    moveEnabledForColor: PlayerColor? = null,
+) {
+    val moveAvailableForColor = moveEnabledForColor?.takeIf {
+        it == state.currentTurn
+    }
+
+    val ranks = when (orientation) {
         PlayerColor.WHITE -> 7 downTo 0
         PlayerColor.BLACK -> 0..7
     }
-    val files = when (playerColor) {
+    val files = when (orientation) {
         PlayerColor.WHITE -> 0..7
         PlayerColor.BLACK -> 7 downTo 0
     }
@@ -69,6 +78,13 @@ fun Board(state: BoardState, playerColor: PlayerColor) {
                                 .let {
                                     if (square.isDark) {
                                         it.background(Color.LightGray)
+                                    } else {
+                                        it
+                                    }
+                                }
+                                .let {
+                                    if (moveAvailableForColor != null) {
+                                        it.clickable(onClick = {})
                                     } else {
                                         it
                                     }

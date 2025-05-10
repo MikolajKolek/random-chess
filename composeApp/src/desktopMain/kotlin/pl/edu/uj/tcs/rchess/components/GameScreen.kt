@@ -25,12 +25,12 @@ fun GameScreen(
     }
     val boardState = gameState.boardStates[boardStateIndex.value]
 
-    val canGoToPrev = boardStateIndex.value > 0
-    val canGoToNext = boardStateIndex.value < gameState.boardStates.size - 1
+    val isInitial = boardStateIndex.value == 0
+    val isCurrent = boardStateIndex.value == gameState.boardStates.size - 1
 
     Column {
         Button(
-            enabled = canGoToPrev,
+            enabled = !isInitial,
             onClick = {
                 boardStateIndex.value--
             }
@@ -39,7 +39,7 @@ fun GameScreen(
         }
 
         Button(
-            enabled = canGoToNext,
+            enabled = !isCurrent,
             onClick = {
                 boardStateIndex.value++
             }
@@ -49,7 +49,9 @@ fun GameScreen(
 
         Board(
             state = boardState,
-            playerColor = playerColor.value,
+            orientation = playerColor.value,
+            // TODO: Remove WHITE default, it's only for testing
+            moveEnabledForColor = input?.takeIf { isCurrent }?.getColor() ?: PlayerColor.WHITE,
         )
     }
 }
