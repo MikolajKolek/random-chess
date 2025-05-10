@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.components
+package pl.edu.uj.tcs.rchess.components.datastate
 
 sealed class DataState<T>() {
     class Success<T>(val data: T) : DataState<T>()
