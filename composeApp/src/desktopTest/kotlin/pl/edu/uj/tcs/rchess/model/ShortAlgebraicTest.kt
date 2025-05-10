@@ -12,5 +12,6 @@ class ShortAlgebraicTest {
     @Test
     fun simpleTest() {
         Assert.assertEquals(Move(Square.fromString("b1"), Square.fromString("c3")), BoardState.initial().SAtoMove("Nc3"))
+        Assert.assertEquals(Move(Square.fromString("a2"), Square.fromString("a4")), BoardState.initial().SAtoMove("a4"))
     }
 }

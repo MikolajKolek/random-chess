@@ -22,4 +22,9 @@ class SquareTest {
             }
         }
     }
+
+    @Test
+    fun fromStringTest() {
+        Assert.assertEquals(Square(0, 4), Square.fromString("e1"))
+    }
 }

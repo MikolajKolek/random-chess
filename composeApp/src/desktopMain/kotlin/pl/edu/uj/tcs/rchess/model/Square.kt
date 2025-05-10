@@ -19,14 +19,14 @@ data class Square(
             require(s[0] in 'a'..'h') {"Rank value invalid"}
             require(s[1] in '1'..'8') {"File value invalid"}
 
-            return Square((s[0].code - 'a'.code), (s[1].digitToInt() - 1))
+            return Square(file = (s[0].code - 'a'.code), rank = (s[1].digitToInt() - 1))
         }
 
         fun fromStringOrNull(s : String) : Square? {
             if(s.length != 2 || s[0] !in 'a'..'h' || s[1] !in '1'..'8')
                 return null
 
-            return Square((s[0].code - 'a'.code), (s[1].digitToInt() - 1))
+            return Square(file = (s[0].code - 'a'.code), rank = (s[1].digitToInt() - 1))
         }
 
         fun squareOrNull(rank : Int, file : Int) : Square? {
