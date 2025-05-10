@@ -5,13 +5,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import pl.edu.uj.tcs.rchess.components.GameHistoryScreen
 import pl.edu.uj.tcs.rchess.components.PlaceholderScreen
 import pl.edu.uj.tcs.rchess.components.Sidebar
+import pl.edu.uj.tcs.rchess.navigation.NavigationViewModel
 import pl.edu.uj.tcs.rchess.navigation.Route
 import pl.edu.uj.tcs.rchess.server.ClientApi
 
@@ -34,24 +36,20 @@ fun RouteScreen(
 
 @Composable
 @Preview
-fun App(clientApi: ClientApi) {
+fun App(
+    clientApi: ClientApi,
+    navigationViewModel: NavigationViewModel = viewModel(),
+) {
     MaterialTheme {
-        var route by remember { mutableStateOf<Route>(Route.GameHistory) }
-
         Row(
             modifier = Modifier.fillMaxSize(),
         ) {
-            Sidebar(
-                route,
-                onNavigate = { newRoute ->
-                    route = newRoute
-                },
-            )
+            Sidebar()
 
             Box(
                 modifier = Modifier.fillMaxSize().widthIn(max = 600.dp),
             ) {
-                RouteScreen(route, clientApi)
+                RouteScreen(navigationViewModel.route, clientApi)
             }
         }
     }
