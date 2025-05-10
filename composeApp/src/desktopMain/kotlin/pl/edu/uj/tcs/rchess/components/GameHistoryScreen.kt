@@ -9,13 +9,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import pl.edu.uj.tcs.rchess.AppContext
 import pl.edu.uj.tcs.rchess.components.datastate.DataStateScreen
-import pl.edu.uj.tcs.rchess.server.ClientApi
 
 @Composable
-fun GameHistoryScreen(clientApi: ClientApi) {
+fun GameHistoryScreen(context: AppContext) {
     DataStateScreen(
-        { clientApi.getUserGames() }
+        { context.clientApi.getUserGames() }
     ) { games, refresh ->
         if (games.isEmpty()) {
             Text("No games found")

@@ -4,8 +4,7 @@ import kotlinx.serialization.json.Json
 import org.jooq.JSONB
 import org.jooq.SQLDialect
 import org.jooq.impl.DSL
-import pl.edu.uj.tcs.rchess.DatabaseConfig
-import pl.edu.uj.tcs.rchess.config
+import pl.edu.uj.tcs.rchess.Config
 import pl.edu.uj.tcs.rchess.db.keys.SERVICE_GAMES__SERVICE_GAMES_SERVICE_ID_BLACK_PLAYER_FKEY
 import pl.edu.uj.tcs.rchess.db.keys.SERVICE_GAMES__SERVICE_GAMES_SERVICE_ID_WHITE_PLAYER_FKEY
 import pl.edu.uj.tcs.rchess.db.tables.references.PGN_GAMES
@@ -17,11 +16,11 @@ import java.sql.DriverManager
 import java.time.LocalDateTime
 import java.util.*
 
-class Server(databaseConfig: DatabaseConfig) : ClientApi {
+class Server(private val config: Config) : ClientApi {
     private val connection = DriverManager.getConnection(
-        "jdbc:postgresql://${databaseConfig.host}:${databaseConfig.port}/${databaseConfig.database}",
-        databaseConfig.user,
-        databaseConfig.password
+        "jdbc:postgresql://${config.database.host}:${config.database.port}/${config.database.database}",
+        config.database.user,
+        config.database.password
     )
     private val dsl = DSL.using(connection, SQLDialect.POSTGRES)
     private val botOpponents: List<BotOpponent>

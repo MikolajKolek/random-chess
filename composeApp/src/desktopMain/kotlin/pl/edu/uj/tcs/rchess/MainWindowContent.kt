@@ -22,7 +22,7 @@ fun RouteScreen(
     context.navigation.route.let { route ->
         when (route) {
             is Route.NewGame -> PlaceholderScreen("New game")
-            is Route.GameHistory -> GameHistoryScreen(clientApi)
+            is Route.GameHistory -> GameHistoryScreen(context)
             is Route.RankingList -> PlaceholderScreen("Ranking list")
             is Route.TournamentList -> PlaceholderScreen("Tournament list")
             is Route.Account -> PlaceholderScreen("Account")

@@ -9,8 +9,8 @@ import pl.edu.uj.tcs.rchess.server.ClientApi
 import pl.edu.uj.tcs.rchess.server.Server
 import java.io.File
 
-val config: Config = ConfigLoaderBuilder.default().addFileSource(File("config.yml")).build().loadConfigOrThrow()
-val clientApi: ClientApi = Server(config.database)
+private val config: Config = ConfigLoaderBuilder.default().addFileSource(File("config.yml")).build().loadConfigOrThrow()
+private val clientApi: ClientApi = Server(config)
 
 fun main() = application {
     val context = remember { AppContext(clientApi) }
