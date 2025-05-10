@@ -3,14 +3,14 @@ package pl.edu.uj.tcs.rchess.components.datastate
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun <T> DataStateScreen(
     loadData: suspend () -> T,
-    content: @Composable (data: T, refresh: () -> Unit) -> Unit
+    viewModel: DataStateViewModel<T> = viewModel { DataStateViewModel(loadData) },
+    content: @Composable (data: T, refresh: () -> Unit) -> Unit,
 ) {
-    val viewModel = remember { DataStateViewModel(loadData) }
     val state by viewModel.state.collectAsState()
 
     val stateCopy = state
