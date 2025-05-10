@@ -17,6 +17,7 @@ data class DatabaseConfig(
 )
 
 data class BotType(
+    val description: String?,
     val executable: String,
     val options: Map<String, String>,
     val maxDepth: Int?,

@@ -24,6 +24,28 @@ class Server(databaseConfig: DatabaseConfig) : ClientApi {
         databaseConfig.password
     )
     private val dsl = DSL.using(connection, SQLDialect.POSTGRES)
+    private val botOpponents: List<BotOpponent>
+
+    init {
+        val botServiceAccounts = dsl.selectFrom(SERVICE_ACCOUNTS)
+            .where(SERVICE_ACCOUNTS.IS_BOT.eq(true))
+            .and(SERVICE_ACCOUNTS.SERVICE_ID.eq(Service.RANDOM_CHESS.id))
+            .fetch()
+
+        botOpponents = config.bots
+            .associateWith {
+                botType -> botServiceAccounts.firstOrNull { sa -> sa.userIdInService == botType.serviceAccountId }
+                    ?: throw IllegalStateException(
+                        "Bot with id ${botType.serviceAccountId} does not exist in the database"
+                    )
+            }
+            .map { (botType, serviceAccountRecord) -> BotOpponent(
+                serviceAccountRecord.displayName,
+                botType.description,
+                botType.elo,
+                serviceAccountRecord.userIdInService,
+            ) }
+    }
 
 
     override suspend fun getUserGames(): List<HistoryGame> {
@@ -87,6 +109,10 @@ class Server(databaseConfig: DatabaseConfig) : ClientApi {
                     true
                 )
             }!!
+    }
+
+    override suspend fun getBotOpponents(): List<BotOpponent> {
+        return botOpponents
     }
 
 

@@ -296,3 +296,9 @@ INSERT INTO openings("eco", "name", "partial_fen") VALUES
     ('C44','Scotch Game: Scotch Gambit, Dubois Réti Defense','r1bqkb1r/pppp1ppp/2n2n2/8/2BpP3/5N2/PPP2PPP/RNBQK2R w KQkq -'), -- np. 1. e4 e5 2. Nf3 Nc6 3. d4 exd4 4. Bc4 Nf6
     ('E68','King''s Indian Defense: Fianchetto Variation, Classical Variation','r1bq1rk1/pppn1pbp/3p1np1/4p3/2PPP3/2N2NP1/PP3PBP/R1BQ1RK1 b - -'); -- np. 1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. Nf3 d6 5. g3 O-O 6. Bg2 Nbd7 7. O-O e5 8. e4
 -- Dodanie 20 wariantów pierwszego ruchu do bazy zapewni, że każda niepusta partia będzie mieć jakiś przypisany debiut
+
+INSERT INTO service_accounts("user_id", "service_id", "user_id_in_service", "is_bot", "display_name") VALUES
+    (NULL, 1, 'stockfish-easy', TRUE, 'Stockfish (Easy)'),
+    (NULL, 1, 'stockfish-medium', TRUE, 'Stockfish (Medium)'),
+    (NULL, 1, 'stockfish-hard', TRUE, 'Stockfish (Hard)'),
+    (NULL, 1, 'stockfish-impossible', TRUE, 'Stockfish (Impossible)');

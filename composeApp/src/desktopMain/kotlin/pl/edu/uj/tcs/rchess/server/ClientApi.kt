@@ -31,4 +31,9 @@ interface ClientApi {
      * @return The system [ServiceAccount] of the user
      */
     suspend fun getSystemAccount(): ServiceAccount
+
+    /**
+     * @return A list of [BotOpponent]s the user can start a game with
+     */
+    suspend fun getBotOpponents(): List<BotOpponent>
 }
