@@ -31,7 +31,13 @@ fun GameHistoryScreen(context: AppContext) {
                 }
 
                 items(games) { game ->
-                    GameHistoryItem(game = game, modifier = Modifier.fillMaxWidth())
+                    GameHistoryItem(
+                        modifier = Modifier.fillMaxWidth(),
+                        game = game,
+                        onClick = {
+                            context.navigation.openGameWindow(game)
+                        }
+                    )
                 }
             }
         }

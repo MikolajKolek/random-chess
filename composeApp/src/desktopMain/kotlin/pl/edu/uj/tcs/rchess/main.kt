@@ -22,9 +22,11 @@ fun main() = application {
         MainWindowContent(context)
     }
 
-    context.navigation.gameWindows.forEach { game ->
+    context.navigation.gameWindows.forEachIndexed { index, game ->
         Window(
-            onCloseRequest = ::exitApplication,
+            onCloseRequest = {
+                context.navigation.closeGameWindow(index)
+            },
             title = "Random Chess",
         ) {
             GameWindowContent(game)

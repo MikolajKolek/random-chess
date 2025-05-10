@@ -16,4 +16,12 @@ class NavigationManager {
     private val _gameWindows = mutableStateListOf<HistoryGame>()
     val gameWindows
         get() = _gameWindows.toList()
+
+    fun openGameWindow(game: HistoryGame) {
+        _gameWindows.add(game)
+    }
+
+    fun closeGameWindow(index: Int) {
+        _gameWindows.removeAt(index)
+    }
 }

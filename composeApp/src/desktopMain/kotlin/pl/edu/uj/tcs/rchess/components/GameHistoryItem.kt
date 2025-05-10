@@ -1,14 +1,10 @@
 package pl.edu.uj.tcs.rchess.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
-import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,20 +16,14 @@ import pl.edu.uj.tcs.rchess.server.ServiceGame
 @Composable
 fun GameHistoryItem(
     modifier: Modifier = Modifier,
+    onClick: () -> Unit,
     game: HistoryGame,
 ) {
-    val interactionSource = remember { MutableInteractionSource() }
-
-    Card {
+    Card(
+        onClick = onClick,
+    ) {
         Row(
-            modifier =
-                modifier
-                    .clickable(
-                        onClick = {},
-                        interactionSource = interactionSource,
-                        indication = ripple(),
-                    )
-                    .height(IntrinsicSize.Min),
+            modifier = modifier.height(IntrinsicSize.Min),
         ) {
             Box(
                 modifier = Modifier
