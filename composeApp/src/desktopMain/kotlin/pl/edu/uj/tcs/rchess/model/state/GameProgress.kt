@@ -8,8 +8,8 @@ import kotlin.time.ExperimentalTime
 @OptIn(ExperimentalTime::class)
 sealed class GameProgress {
     data class Running(
-        val currentPlayerTimeout: ClockState.Running,
-        val otherPlayerRemainingTime: ClockState.Paused,
+        val currentPlayerClock: ClockState.Running,
+        val otherPlayerClock: ClockState.Paused,
     ) : GameProgress()
 
     data class Finished(

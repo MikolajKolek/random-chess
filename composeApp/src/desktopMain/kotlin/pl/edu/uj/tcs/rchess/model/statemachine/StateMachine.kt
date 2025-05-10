@@ -2,7 +2,9 @@ package pl.edu.uj.tcs.rchess.model.statemachine
 
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -15,7 +17,7 @@ import kotlinx.coroutines.sync.withLock
 class StateMachine<T, C: Change<T>>(
     initialState: T
 ) {
-    private var state = initialState
+    private var _stateFlow = MutableStateFlow(initialState)
     private val stateMutex = Mutex()
 
     private val _updateFlow = MutableSharedFlow<Update<T, C>>(
@@ -30,15 +32,23 @@ class StateMachine<T, C: Change<T>>(
      */
     val updateFlow = _updateFlow.asSharedFlow()
 
+    val stateFlow = _stateFlow.asStateFlow()
+
     /**
      * Access the state and optionally apply a change to it
      */
-    suspend fun withState(block: suspend (state: T) -> C?) {
-        stateMutex.withLock {
-            block(state)?.let { change ->
-                state = change.applyTo(state)
-                _updateFlow.emit(Update(state, change))
+    suspend fun withState(block: suspend (state: T) -> C?): T {
+        return stateMutex.withLock {
+            block(_stateFlow.value)?.let { change ->
+                _stateFlow.value = change.applyTo(_stateFlow.value)
+                _updateFlow.emit(Update(_stateFlow.value, change))
             }
+            _stateFlow.value
         }
     }
+
+    /**
+     * Access the state
+     */
+    suspend fun getState() = withState { null }
 }

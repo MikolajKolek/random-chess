@@ -37,8 +37,8 @@ data class ImmutableGameState(
         when (progress) {
             is GameProgress.Finished -> progress.playerClock(color)
             is GameProgress.Running -> {
-                if (color == currentState.currentTurn) progress.currentPlayerTimeout
-                else progress.otherPlayerRemainingTime
+                if (color == currentState.currentTurn) progress.currentPlayerClock
+                else progress.otherPlayerClock
             }
         }
 }
