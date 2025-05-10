@@ -8,11 +8,16 @@ package pl.edu.uj.tcs.rchess.model
  * @param promoteTo Piece the pawn promotes to (null if inapplicable).
  */
 data class Move(val from: Square, val to: Square, val promoteTo: Promotion? = null) {
-    enum class Promotion {
-        QUEEN,
-        ROOK,
-        BISHOP,
-        KNIGHT
+    enum class Promotion(val identifier: Char) {
+        QUEEN('q'),
+        ROOK('r'),
+        BISHOP('b'),
+        KNIGHT('n');
+
+        companion object {
+            fun fromIdentifier(identifier: Char) : Promotion? = entries.find { it.identifier == identifier }
+                ?: throw IllegalArgumentException("Invalid piece identifier : $identifier")
+        }
     }
 
     init {
@@ -20,13 +25,20 @@ data class Move(val from: Square, val to: Square, val promoteTo: Promotion? = nu
         // Move verification is managed by BoardState - is can only be done in context of the board.
     }
 
-    fun toLongAlgebraicNotation() : String {
-        TODO()
-    }
+    fun toLongAlgebraicNotation() =
+        "$from${to}" + (promoteTo?.identifier ?: "")
 
     companion object {
         fun fromLongAlgebraicNotation(move: String) : Move {
-            TODO()
+            require(move.length == 4 || move.length == 5) {
+                "Long algebraic notation must have 4 or 5 characters."
+            }
+
+            return Move(
+                Square.fromString(move.substring(0, 2)),
+                Square.fromString(move.substring(2, 4)),
+                move.getOrNull(4)?.let { Promotion.fromIdentifier(it) }
+            )
         }
     }
 }

@@ -19,13 +19,13 @@ data class Square(
             require(s[0] in 'a'..'h') {"Rank value invalid"}
             require(s[1] in '1'..'8') {"File value invalid"}
 
-            return Square((s[0].digitToInt() - 'a'.digitToInt()), (s[1].digitToInt()-1))
+            return Square((s[0].code - 'a'.code), (s[1].digitToInt()-1))
         }
     }
 
     val isDark = (rank + file) % 2 == 0
 
     override fun toString(): String {
-        return (rank + 'a'.digitToInt()).toChar() + file.toString()
+        return (rank + 'a'.code).toChar() + (file + 1).toString()
     }
 }
