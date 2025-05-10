@@ -17,9 +17,7 @@ class BoardStateTest {
 
     @Test
     fun initialPositionTest() {
-        val BoardStateInitial = BoardState.fromFen(FEN())
-
-        val FENInitial = BoardState.initial().toFen()
-
+        BoardState.fromFen(FEN())
+        BoardState.initial().toFenString()
     }
 }

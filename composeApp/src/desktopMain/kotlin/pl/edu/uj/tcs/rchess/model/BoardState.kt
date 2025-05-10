@@ -261,7 +261,7 @@ class BoardState(
      * @return The FEN representation of this GameState.
      * @see FEN
      */
-    fun toFen(): FEN {
+    fun toFenString(): String {
         var fenData = ""
         for(r in 7 downTo 0) {
             var emptyCount = 0
@@ -269,7 +269,7 @@ class BoardState(
             for(f in 0..7) {
                 if(getPieceAt(Square(r, f)) != null) {
                     if(emptyCount != 0) {
-                        fenData += emptyCount.toChar()
+                        fenData += emptyCount.digitToChar()
                         emptyCount = 0
                     }
                     fenData += getPieceAt(Square(r, f))!!.fenLetter
@@ -279,7 +279,7 @@ class BoardState(
             }
 
             if(emptyCount != 0)
-                fenData += emptyCount.toChar()
+                fenData += emptyCount.digitToChar()
             if(r != 0)
                 fenData += '/'
         }
@@ -290,7 +290,7 @@ class BoardState(
             "$halfmoveCounter " +
             "$fullmoveNumber"
 
-        return FEN(fenData)
+        return fenData
     }
 
     /**

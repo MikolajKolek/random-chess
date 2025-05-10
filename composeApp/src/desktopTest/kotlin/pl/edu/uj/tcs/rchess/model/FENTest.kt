@@ -16,11 +16,16 @@ class FENTest {
 
     @Test
     fun variousValidFENTest() {
-        FEN("r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1 b - - 1 23")
-        FEN("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1")
-        FEN("rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2")
-        FEN("3q3k/p1p3Q1/1p5p/8/4p3/1PP3RP/P4PPK/3r4 b - - 2 32")
-        FEN("r2qk2r/pp3ppp/2nbpn2/2pp3b/8/1P1P1NPP/PBPNPPB1/R2Q1RK1 b kq - 2 9")
+        val fens = listOf(
+            "r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1 b - - 1 23",
+            "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+            "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2",
+            "3q3k/p1p3Q1/1p5p/8/4p3/1PP3RP/P4PPK/3r4 b - - 2 32",
+            "r2qk2r/pp3ppp/2nbpn2/2pp3b/8/1P1P1NPP/PBPNPPB1/R2Q1RK1 b kq - 2 9"
+        )
+
+        for(fen in fens)
+            Assert.assertEquals(fen, BoardState.fromFen(FEN(fen)).toFenString())
     }
 
     @Test
