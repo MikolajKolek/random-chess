@@ -6,44 +6,36 @@ import pl.edu.uj.tcs.rchess.model.Square
 
 class Pawn(owner: PlayerColor): Piece(owner = owner) {
     override fun getMoveVision(board: BoardState, square: Square): List<Move> {
-        var listOfMoves : Array<Move> = arrayOf()
+        var validSquares : Array<Square> = arrayOf()
+
         if(owner == PlayerColor.WHITE) {
-            try {
-                if(board.getPieceAt(square.copy(rank = square.rank+1)) == null) {
-                    if(square.rank == 6){
-                        listOfMoves += Move(square, square.copy(rank = 7), Move.Promotion.QUEEN)
-                        listOfMoves += Move(square, square.copy(rank = 7), Move.Promotion.ROOK)
-                        listOfMoves += Move(square, square.copy(rank = 7), Move.Promotion.BISHOP)
-                        listOfMoves += Move(square, square.copy(rank = 7), Move.Promotion.KNIGHT)
-                    } else {
-                        listOfMoves += Move(square, square.copy(rank = square.rank+1))
-                    }
-                    if(square.rank == 1) {
-                        if(board.getPieceAt(square.copy(rank = 3)) == null) {
-                            listOfMoves += Move(square, square.copy(rank = square.rank+2))
-                        }
-                    }
+            if(board.getPieceAt(square.copy(rank = square.rank + 1)) != null) {
+                validSquares += square.copy(rank = square.rank + 1)
+                if (board.getPieceAt(square.copy(rank = square.rank + 1)) == null && square.rank == 1) {
+                    validSquares += square.copy(rank = 3)
                 }
-            } catch(_: Exception) {}
+            }
         } else {
-            try {
-                if(board.getPieceAt(square.copy(rank = square.rank-1)) == null) {
-                    if(square.rank == 1){
-                        listOfMoves += Move(square, square.copy(rank = 0), Move.Promotion.QUEEN)
-                        listOfMoves += Move(square, square.copy(rank = 0), Move.Promotion.ROOK)
-                        listOfMoves += Move(square, square.copy(rank = 0), Move.Promotion.BISHOP)
-                        listOfMoves += Move(square, square.copy(rank = 0), Move.Promotion.KNIGHT)
-                    } else {
-                        listOfMoves += Move(square, square.copy(rank = square.rank-1))
-                    }
-                    if(square.rank == 6) {
-                        if(board.getPieceAt(square.copy(rank = 4)) == null) {
-                            listOfMoves += Move(square, square.copy(rank = square.rank-2))
-                        }
-                    }
+            if(board.getPieceAt(square.copy(rank = square.rank - 1)) != null) {
+                validSquares += square.copy(rank = square.rank - 1)
+                if (board.getPieceAt(square.copy(rank = square.rank - 1)) == null && square.rank == 6) {
+                    validSquares += square.copy(rank = 4)
                 }
-            } catch(_: Exception) {}
+            }
         }
+
+        var listOfMoves: Array<Move> = arrayOf()
+        for(sqr in validSquares) {
+            if((sqr.rank == 7 && owner == PlayerColor.WHITE) || (sqr.rank == 1 && owner == PlayerColor.BLACK)) {
+                listOfMoves += Move(square, sqr, Move.Promotion.KNIGHT)
+                listOfMoves += Move(square, sqr, Move.Promotion.BISHOP)
+                listOfMoves += Move(square, sqr, Move.Promotion.ROOK)
+                listOfMoves += Move(square, sqr, Move.Promotion.QUEEN)
+            } else {
+                listOfMoves += Move(square, sqr)
+            }
+        }
+
         return listOfMoves.toList()
     }
 
