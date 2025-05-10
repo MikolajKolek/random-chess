@@ -6,82 +6,66 @@ import pl.edu.uj.tcs.rchess.model.Square
 
 class Pawn(owner: PlayerColor): Piece(owner = owner) {
     override fun getMoveVision(board: BoardState, square: Square): List<Move> {
-        var validSquares : Array<Square> = arrayOf()
+        val validSquares = mutableListOf<Square>()
 
         if(owner == PlayerColor.WHITE) {
-            if(board.getPieceAt(square.copy(rank = square.rank + 1)) != null) {
-                validSquares += square.copy(rank = square.rank + 1)
-                if (board.getPieceAt(square.copy(rank = square.rank + 1)) == null && square.rank == 1) {
-                    validSquares += square.copy(rank = 3)
-                }
+            if(board.getPieceAt(square + Square.Vector(1, 0)) == null) {
+                validSquares += (square + Square.Vector(1, 0))!!
+
+                if(square.rank == 1 && board.getPieceAt(square + Square.Vector(2, 0)) == null)
+                    validSquares += (square + Square.Vector(2, 0))!!
             }
-        } else {
-            if(board.getPieceAt(square.copy(rank = square.rank - 1)) != null) {
-                validSquares += square.copy(rank = square.rank - 1)
-                if (board.getPieceAt(square.copy(rank = square.rank - 1)) == null && square.rank == 6) {
-                    validSquares += square.copy(rank = 4)
-                }
+        }
+        else {
+            if(board.getPieceAt(square + Square.Vector(-1, 0)) == null) {
+                validSquares += (square + Square.Vector(-1, 0))!!
+
+                if(square.rank == 6 && board.getPieceAt(square + Square.Vector(-2, 0)) == null)
+                    validSquares += (square + Square.Vector(-2, 0))!!
             }
         }
 
-        var listOfMoves: Array<Move> = arrayOf()
-        for(sqr in validSquares) {
-            if((sqr.rank == 7 && owner == PlayerColor.WHITE) || (sqr.rank == 1 && owner == PlayerColor.BLACK)) {
-                listOfMoves += Move(square, sqr, Move.Promotion.KNIGHT)
-                listOfMoves += Move(square, sqr, Move.Promotion.BISHOP)
-                listOfMoves += Move(square, sqr, Move.Promotion.ROOK)
-                listOfMoves += Move(square, sqr, Move.Promotion.QUEEN)
-            } else {
-                listOfMoves += Move(square, sqr)
-            }
-        }
-
-        return listOfMoves.toList()
+        return validSquaresToMoves(validSquares, square)
     }
 
     override fun getCaptureVision(board: BoardState, square: Square): List<Move> {
-        var listSquares : Array<Square> = arrayOf()
-        var validSquares : Array<Square> = arrayOf()
-        if(owner == PlayerColor.WHITE) {
-            listSquares += square.copy(rank = square.rank+1, file = square.file+1)
-            listSquares += square.copy(rank = square.rank+1, file = square.file-1)
-        } else {
-            listSquares += square.copy(rank = square.rank-1, file = square.file+1)
-            listSquares += square.copy(rank = square.rank-1, file = square.file-1)
+        val possibleSquares = if(owner == PlayerColor.WHITE) listOf(
+            square + Square.Vector(1, 1),
+            square + Square.Vector(1, -1),
+        ) else listOf(
+            square + Square.Vector(-1, 1),
+            square + Square.Vector(-1, 1),
+        )
+
+        val validSquares = mutableListOf<Square>()
+        for(sqr in possibleSquares.filterNotNull()) {
+            if(sqr == board.enPassantTarget) {
+                if(owner == PlayerColor.WHITE && sqr.rank == 5)
+                    validSquares += sqr
+                else if(owner == PlayerColor.BLACK && sqr.rank == 2)
+                    validSquares += sqr
+            }
+
+            if(board.getPieceAt(sqr)?.owner != owner)
+                validSquares += sqr
         }
 
-        for(sqr in listSquares) {
-            if(board.enPassantTarget != null) {
-                if(sqr == board.enPassantTarget) {
-                    if(owner == PlayerColor.WHITE && sqr.rank == 5) {
-                        validSquares = validSquares.plus(sqr)
-                    } else if(owner == PlayerColor.BLACK && sqr.rank == 2) {
-                        validSquares = validSquares.plus(sqr)
-                    }
-                    continue
-                }
-            }
-            if(board.getPieceAt(sqr) != null) {
-                if(board.getPieceAt(sqr)!!.owner != owner) {
-                    validSquares = validSquares.plus(sqr)
-                }
-            }
-        }
-
-        var validMoves : Array<Move> = arrayOf()
-        for(sqr in validSquares) {
-            if(sqr.rank == 0 || sqr.rank == 7) {
-                validMoves += Move(square, sqr, Move.Promotion.KNIGHT)
-                validMoves += Move(square, sqr, Move.Promotion.BISHOP)
-                validMoves += Move(square, sqr, Move.Promotion.ROOK)
-                validMoves += Move(square, sqr, Move.Promotion.QUEEN)
-            } else {
-                validMoves += Move(square, sqr)
-            }
-        }
-
-        return validMoves.toList()
+        return validSquaresToMoves(validSquares.toList(), square)
     }
+
+    fun validSquaresToMoves(squares: List<Square>, startingSquare: Square) =
+        squares.map {
+            if((it.rank == 7 && owner == PlayerColor.WHITE) || (it.rank == 0 && owner == PlayerColor.BLACK)) {
+                setOf(
+                    Move(startingSquare, it, Move.Promotion.KNIGHT),
+                    Move(startingSquare, it, Move.Promotion.BISHOP),
+                    Move(startingSquare, it, Move.Promotion.ROOK),
+                    Move(startingSquare, it, Move.Promotion.QUEEN)
+                )
+            }
+            else
+                setOf(Move(startingSquare, it))
+        }.flatten()
 
     override val fenLetterLowercase = 'p'
 }

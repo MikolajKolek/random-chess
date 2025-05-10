@@ -1,6 +1,7 @@
 package pl.edu.uj.tcs.rchess.model
 
 import pl.edu.uj.tcs.rchess.model.pieces.*
+import kotlin.math.abs
 
 /**
  * Immutable class describing the state of the chessboard.
@@ -32,35 +33,26 @@ class BoardState(
         )
 
         fun fromFen(fen: FEN): BoardState {
-            val fromFenBoard : Array<Piece?> = Array(64) { null }
-            for(r in 7 downTo 0) {
-                val row = fen.boardState[7-r]
-                var ind = 0
-                for(v in row) {
-                    if(v.isDigit()) {
-                        ind += v.digitToInt()
-                    } else {
-                        if(v.equals('k', true))
-                            fromFenBoard[8*r+ind] = King(if(v.isUpperCase()) {PlayerColor.WHITE} else {PlayerColor.BLACK})
-                        if(v.equals('q', true))
-                            fromFenBoard[8*r+ind] = Queen(if(v.isUpperCase()) {PlayerColor.WHITE} else {PlayerColor.BLACK})
-                        if(v.equals('r', true))
-                            fromFenBoard[8*r+ind] = Rook(if(v.isUpperCase()) {PlayerColor.WHITE} else {PlayerColor.BLACK})
-                        if(v.equals('b', true))
-                            fromFenBoard[8*r+ind] = Bishop(if(v.isUpperCase()) {PlayerColor.WHITE} else {PlayerColor.BLACK})
-                        if(v.equals('n', true))
-                            fromFenBoard[8*r+ind] = Knight(if(v.isUpperCase()) {PlayerColor.WHITE} else {PlayerColor.BLACK})
-                        if(v.equals('p', true))
-                            fromFenBoard[8*r+ind] = Pawn(if(v.isUpperCase()) {PlayerColor.WHITE} else {PlayerColor.BLACK})
-                        ind++
+            val newBoard = MutableList<Piece?>(size = 64) { null }
+            for(row in 7 downTo 0) {
+                val fenRow = fen.boardState[7 - row]
+                var column = 0
+
+                for(v in fenRow) {
+                    if(v.isDigit())
+                        column += v.digitToInt()
+                    else {
+                        newBoard[(8 * row) + column] = Piece.fromFenLetter(v)
+                        column++
                     }
                 }
             }
+
             return BoardState(
-                board = fromFenBoard.toList(),
-                currentTurn = if(fen.color == 'w') {PlayerColor.WHITE} else {PlayerColor.BLACK},
+                board = newBoard,
+                currentTurn = if(fen.color == 'w') { PlayerColor.WHITE } else { PlayerColor.BLACK },
                 castlingRights = CastlingRights.fromString(fen.castling),
-                enPassantTarget = if(fen.enPassantSquare == "-") { null } else { Square.fromString(fen.enPassantSquare) },
+                enPassantTarget = Square.fromStringOrNull(fen.enPassantSquare),
                 halfmoveCounter = fen.halfmoveCounter,
                 fullmoveNumber = fen.fullmoveNumber
             )
@@ -73,13 +65,15 @@ class BoardState(
      * @param square The square to check
      * @return The piece on the given square (or null if there is none).
      */
-    fun getPieceAt(square: Square) = board[square.rank * 8 + square.file]
+    fun getPieceAt(square: Square?) =
+        if(square == null) null
+        else board[(square.rank * 8) + square.file]
 
     /**
      * @param move The move to apply.
      * @throws IllegalStateException when the current position is not legal.
      * @throws IllegalArgumentException when the given move is not valid.
-     * @return The current BoardState.
+     * @return The new BoardState.
      */
     fun applyMove(move: Move) : BoardState {
         if(!isLegal()) throw IllegalStateException( "Cannot apply move to illegal position." )
@@ -90,10 +84,10 @@ class BoardState(
         var newHalfMoveCounter = halfmoveCounter+1
         var newCastlingRights: CastlingRights = castlingRights.copy()
 
-        // Set en passant in new board
+        // Set en passant in the new board
         if(getPieceAt(move.from) is Pawn) {
             newHalfMoveCounter = 0
-            if(Math.abs(move.from.rank - move.to.rank) == 2) {
+            if(abs(move.from.rank - move.to.rank) == 2) {
                 newEnPassant = Square((move.from.rank + move.to.rank)/2, move.from.file)
             }
             if(move.to == enPassantTarget) {
@@ -105,7 +99,7 @@ class BoardState(
             }
         }
 
-        // Set proper castling rights in new board
+        // Set proper castling rights in the new board
         if(getPieceAt(move.from) is King) {
             if(getPieceAt(move.from)?.owner == PlayerColor.WHITE) {
                 newCastlingRights = castlingRights.copy(whiteKingSide = false, whiteQueenSide = false)
@@ -181,7 +175,7 @@ class BoardState(
     fun isLegal() : Boolean {
         // Both kings must be on the board
         // King of player not on move must not be in check
-        isInCheck(currentTurn)
+        locateKing(currentTurn)
         if(isInCheck(currentTurn.getOpponent())) return false
 
         // Pawns must not be on ranks 1 and 8
@@ -215,22 +209,21 @@ class BoardState(
      */
     fun isInCheck(player: PlayerColor) : Boolean {
         val kingSquare = locateKing(player)
+
         for(r in 0..7) {
             for(f in 0..7) {
-                if(getPieceAt(Square(r, f)) is King && getPieceAt(Square(r, f)) != null) {
-                    if(getPieceAt(Square(r, f)) == null) continue
-                    if(kingSquare == Square(r, f)) continue
-                    if(getPieceAt(Square(r, f))!!.owner != getPieceAt(kingSquare)!!.owner) {
-                        val captureList = getPieceAt(Square(r, f))!!.getCaptureVision(this, Square(r, f))
-                        for(move in captureList) {
-                            if(move.to == kingSquare) {
-                                return true
-                            }
-                        }
-                    }
-                }
+                val square = Square(r, f)
+                val piece = getPieceAt(square)
+
+                if(piece == null || kingSquare == square || piece.owner == player)
+                    continue
+
+                for(move in piece.getCaptureVision(this, square))
+                    if(move.to == kingSquare)
+                        return true
             }
         }
+
         return false
     }
 
@@ -288,10 +281,10 @@ class BoardState(
             if(r != 0) FENData += '/'
         }
         FENData += if(currentTurn==PlayerColor.WHITE) { " w" } else { " b" }
-        FENData += " "+castlingRights
-        FENData += " "+if(enPassantTarget != null) {enPassantTarget} else {"-"}
-        FENData += " "+halfmoveCounter
-        FENData += " "+fullmoveNumber
+        FENData += " $castlingRights"
+        FENData += " ${(enPassantTarget ?: "-")}"
+        FENData += " $halfmoveCounter"
+        FENData += " $fullmoveNumber"
         return FEN(FENData)
     }
 
@@ -319,9 +312,9 @@ class BoardState(
                     if(getPieceAt(Square(r, f)) is King) continue
                     if(getPieceAt(Square(r, f)) is Bishop || getPieceAt(Square(r, f)) is Knight) {
                         if(getPieceAt(Square(r, f))!!.owner == PlayerColor.WHITE) {
-                            whiteLight++;
+                            whiteLight++
                         } else {
-                            blackLight++;
+                            blackLight++
                         }
                     } else {
                         return null

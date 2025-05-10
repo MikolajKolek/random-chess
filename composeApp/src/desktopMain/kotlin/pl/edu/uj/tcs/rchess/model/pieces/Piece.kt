@@ -9,27 +9,18 @@ import pl.edu.uj.tcs.rchess.model.Square
  * Sealed class describing all chess pieces.
  * @param owner The color of the piece.
  */
-sealed class Piece(
-    /**
-     * The color of the piece.
-     */
-    val owner: PlayerColor,
-) {
+sealed class Piece(val owner: PlayerColor) {
     /**
      * @param board The board that this piece is on.
      * @param square The square that this piece is on.
      * @return List of all possible and legal moves that this piece can currently perform.
      */
     fun getLegalMoves(board: BoardState, square: Square): List<Move> {
-        require(board.getPieceAt(square) != null) {}
-        val moves = getPieceVision(board, square)
-        val legalMoves : List<Move> = listOf()
-        for(move in moves) {
-            if(board.applyMove(move).isLegal()) {
-                legalMoves.plus(move)
-            }
-        }
-        return legalMoves
+        require(board.getPieceAt(square) != null) { "The square is not occupied by any piece" }
+        require(board.getPieceAt(square)!!::class == this::class) { "The square is not occupied by this piece" }
+        require(board.getPieceAt(square)!!.owner == owner) { "The piece in the given square has a different owner" }
+
+        return getPieceVision(board, square).filter { board.applyMove(it).isLegal() }
     }
 
     /**
@@ -53,7 +44,8 @@ sealed class Piece(
      * @see getCaptureVision
      * @see getMoveVision
      */
-    fun getPieceVision(board: BoardState, square: Square) = getMoveVision(board, square).plus(getCaptureVision(board, square))
+    fun getPieceVision(board: BoardState, square: Square) =
+        getMoveVision(board, square) + getCaptureVision(board, square)
 
     /**
      * Lowercase letter representing the piece
@@ -68,4 +60,24 @@ sealed class Piece(
             PlayerColor.WHITE -> fenLetterLowercase.uppercaseChar()
             PlayerColor.BLACK -> fenLetterLowercase
         }
+
+    companion object {
+        /**
+         * @param fenLetter The letter representing the piece as it appears in FEN notation
+         * @return The piece corresponding to the given letter and color
+         */
+        fun fromFenLetter(fenLetter: Char): Piece {
+            val owner = if(fenLetter.isUpperCase()) { PlayerColor.WHITE } else { PlayerColor.BLACK }
+
+            return when (fenLetter.lowercaseChar()) {
+                'k' -> King(owner)
+                'q' -> Queen(owner)
+                'r' -> Rook(owner)
+                'b' -> Bishop(owner)
+                'n' -> Knight(owner)
+                'p' -> Pawn(owner)
+                else -> throw IllegalArgumentException("Invalid fen piece letter: $fenLetter")
+            }
+        }
+    }
 }

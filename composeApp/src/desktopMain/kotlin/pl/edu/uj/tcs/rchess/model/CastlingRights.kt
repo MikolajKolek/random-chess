@@ -13,25 +13,28 @@ data class CastlingRights(
             blackKingSide = true,
             blackQueenSide = true
         )
+
         fun fromString(value : String) : CastlingRights {
-            var ret = CastlingRights.full()
-            if(!value.contains("K")) ret = ret.copy(whiteKingSide = false)
-            if(!value.contains("Q")) ret = ret.copy(whiteQueenSide = false)
-            if(!value.contains("k")) ret = ret.copy(blackKingSide = false)
-            if(!value.contains("q")) ret = ret.copy(blackQueenSide = false)
-            return ret
+            return CastlingRights(
+                whiteKingSide = value.contains("K"),
+                whiteQueenSide = value.contains("Q"),
+                blackKingSide = value.contains("k"),
+                blackQueenSide = value.contains("q"),
+            )
         }
     }
 
     override fun toString(): String {
-        if(!whiteKingSide && !blackKingSide && whiteQueenSide && !blackQueenSide) {
+        if(!whiteKingSide && !whiteQueenSide && !blackKingSide && !blackQueenSide)
             return "-"
-        }
+
         var res = ""
+
         if(whiteKingSide) res += "K"
         if(whiteQueenSide) res += "Q"
         if(blackKingSide) res += "k"
         if(blackQueenSide) res += "q"
+
         return res
     }
 }

@@ -5,6 +5,6 @@ enum class PlayerColor {
     BLACK;
 
     fun getOpponent() : PlayerColor {
-        return if (this==WHITE) BLACK else WHITE
+        return if(this == WHITE) BLACK else WHITE
     }
 }
