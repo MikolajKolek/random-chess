@@ -34,7 +34,7 @@ class Pawn(owner: PlayerColor): Piece(owner = owner) {
             square + Square.Vector(1, -1),
         ) else listOf(
             square + Square.Vector(-1, 1),
-            square + Square.Vector(-1, 1),
+            square + Square.Vector(-1, -1),
         )
 
         val validSquares = mutableListOf<Square>()
