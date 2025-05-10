@@ -13,14 +13,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import pl.edu.uj.tcs.rchess.navigation.NavigationViewModel
 import pl.edu.uj.tcs.rchess.navigation.Route
 
 @Composable
 fun Sidebar(
-    navigationViewModel: NavigationViewModel = viewModel(),
-) = navigationViewModel.run {
+    currentRoute: Route,
+    onNavigate: (Route) -> Unit,
+) {
     NavigationRail {
         Column(
             modifier = Modifier.padding(8.dp)
@@ -33,8 +32,8 @@ fun Sidebar(
                     )
                 },
                 label = { Text("Play") },
-                selected = route is Route.NewGame,
-                onClick = { navigateTo(Route.NewGame) }
+                selected = currentRoute is Route.NewGame,
+                onClick = { onNavigate(Route.NewGame) }
             )
             NavigationRailItem(
                 icon = {
@@ -44,8 +43,8 @@ fun Sidebar(
                     )
                 },
                 label = { Text("Games") },
-                selected = route is Route.GameHistory,
-                onClick = { navigateTo(Route.GameHistory) }
+                selected = currentRoute is Route.GameHistory,
+                onClick = { onNavigate(Route.GameHistory) }
             )
             NavigationRailItem(
                 icon = {
@@ -55,8 +54,8 @@ fun Sidebar(
                     )
                 },
                 label = { Text("Ranking") },
-                selected = route is Route.RankingList || route is Route.Ranking,
-                onClick = { navigateTo(Route.RankingList) }
+                selected = currentRoute is Route.RankingList || currentRoute is Route.Ranking,
+                onClick = { onNavigate(Route.RankingList) }
             )
             NavigationRailItem(
                 icon = {
@@ -66,8 +65,8 @@ fun Sidebar(
                     )
                 },
                 label = { Text("Tournaments") },
-                selected = route is Route.TournamentList || route is Route.Tournament,
-                onClick = { navigateTo(Route.TournamentList) }
+                selected = currentRoute is Route.TournamentList || currentRoute is Route.Tournament,
+                onClick = { onNavigate(Route.TournamentList) }
             )
             Spacer(modifier = Modifier.weight(1f))
             NavigationRailItem(
@@ -78,8 +77,8 @@ fun Sidebar(
                     )
                 },
                 label = { Text("Account") },
-                selected = route is Route.Account,
-                onClick = { navigateTo(Route.Account) }
+                selected = currentRoute is Route.Account,
+                onClick = { onNavigate(Route.Account) }
             )
         }
     }
