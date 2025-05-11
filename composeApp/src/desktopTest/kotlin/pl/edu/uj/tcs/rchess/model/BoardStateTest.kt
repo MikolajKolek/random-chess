@@ -228,7 +228,7 @@ class BoardStateTest {
 
     @Test
     fun checkmateTest() {
-        var myState = BoardState.fromFen("3rk2r/1p3ppp/p1qQbn2/4N3/4P3/2N1B3/PP3PPP/2KR3R w k - 1 17")
+        var myState = BoardState.fromFen("3rk2r/1p3ppp/p1qQbn2/4N3/4P3/2N1B3/PP3PPP/2KR3R w k - 1 17").applyStandardAlgebraicMove("Qxd8#")
         myState.isOver()
     }
 }

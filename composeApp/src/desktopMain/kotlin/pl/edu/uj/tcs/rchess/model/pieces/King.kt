@@ -22,15 +22,19 @@ class King(owner: PlayerColor): VectorListPiece(owner = owner) {
 
         if(owner == PlayerColor.WHITE) {
             if(boardState.castlingRights.whiteKingSide)
-                ret.add(Move(Square.fromString("e1"), Square.fromString("g1")))
+                if(boardState.board[Square.fromString("f1")] == null)
+                    ret.add(Move(Square.fromString("e1"), Square.fromString("g1")))
             if(boardState.castlingRights.whiteQueenSide)
-                ret.add(Move(Square.fromString("e1"), Square.fromString("c1")))
+                if(boardState.board[Square.fromString("d1")] == null)
+                    ret.add(Move(Square.fromString("e1"), Square.fromString("c1")))
         }
         else {
             if(boardState.castlingRights.blackKingSide)
-                ret.add(Move(Square.fromString("e8"), Square.fromString("g8")))
+                if(boardState.board[Square.fromString("f8")] == null)
+                    ret.add(Move(Square.fromString("e8"), Square.fromString("g8")))
             if(boardState.castlingRights.blackQueenSide)
-                ret.add(Move(Square.fromString("e8"), Square.fromString("c8")))
+                if(boardState.board[Square.fromString("d8")] == null)
+                    ret.add(Move(Square.fromString("e8"), Square.fromString("c8")))
         }
 
         return ret
