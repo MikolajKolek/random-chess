@@ -1,10 +1,27 @@
 package pl.edu.uj.tcs.rchess.model
 
-enum class PlayerColor {
-    WHITE,
-    BLACK;
+enum class PlayerColor(
+    /**
+     * The rank at which this player can promote pawns
+     */
+    val promotionRank: Int,
 
-    fun getOpponent() : PlayerColor {
-        return if(this == WHITE) BLACK else WHITE
-    }
+    /**
+     * The rank to which this player's pawns move in en passant moves
+     */
+    val enPassantTargetRank: Int,
+
+    /**
+     * The rank from which the player's pawns can start a double-square move
+     */
+    val pawnDoubleMoveRank: Int,
+) {
+    WHITE(promotionRank = 7, enPassantTargetRank = 5, pawnDoubleMoveRank = 1),
+    BLACK(promotionRank = 0, enPassantTargetRank = 2, pawnDoubleMoveRank = 6);
+
+    val opponent: PlayerColor
+        get() = when (this) {
+            WHITE -> BLACK
+            BLACK -> WHITE
+        }
 }

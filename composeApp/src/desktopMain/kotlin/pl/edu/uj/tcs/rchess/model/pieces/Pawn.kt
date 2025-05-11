@@ -1,52 +1,48 @@
 package pl.edu.uj.tcs.rchess.model.pieces
+
 import pl.edu.uj.tcs.rchess.model.BoardState
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.Square
 
-class Pawn(owner: PlayerColor): Piece(owner = owner) {
+class Pawn(owner: PlayerColor) : Piece(owner = owner) {
+    val advanceVector: Square.Vector = when (owner) {
+        PlayerColor.WHITE -> Square.Vector(1, 0)
+        PlayerColor.BLACK -> Square.Vector(-1, 0)
+    }
+
+    val captureVectors: List<Square.Vector> = listOf(
+        advanceVector + Square.Vector(0, -1),
+        advanceVector + Square.Vector(0, 1),
+    )
+
     override fun getMoveVision(board: BoardState, square: Square): List<Move> {
         val validSquares = mutableListOf<Square>()
 
-        if(owner == PlayerColor.WHITE) {
-            if(board.getPieceAt(square + Square.Vector(1, 0)) == null) {
-                validSquares += (square + Square.Vector(1, 0))!!
+        (square + advanceVector)
+            ?.takeIf { board.getPieceAt(it) == null }
+            ?.let { advanceSquare ->
+                validSquares += advanceSquare
 
-                if(square.rank == 1 && board.getPieceAt(square + Square.Vector(2, 0)) == null)
-                    validSquares += (square + Square.Vector(2, 0))!!
-            }
-        }
-        else {
-            if(board.getPieceAt(square + Square.Vector(-1, 0)) == null) {
-                validSquares += (square + Square.Vector(-1, 0))!!
-
-                if(square.rank == 6 && board.getPieceAt(square + Square.Vector(-2, 0)) == null)
-                    validSquares += (square + Square.Vector(-2, 0))!!
-            }
-        }
+                (advanceSquare + advanceVector)
+                    ?.takeIf { square.rank == owner.pawnDoubleMoveRank && board.getPieceAt(it) == null }
+                    ?.let { doubleMoveSquare ->
+                        validSquares += doubleMoveSquare
+                    }
+                }
 
         return validSquaresToMoves(validSquares, square)
     }
 
     override fun getCaptureVision(board: BoardState, square: Square): List<Move> {
-        val possibleSquares = if(owner == PlayerColor.WHITE) listOf(
-            square + Square.Vector(1, 1),
-            square + Square.Vector(1, -1),
-        ) else listOf(
-            square + Square.Vector(-1, 1),
-            square + Square.Vector(-1, -1),
-        )
+        val possibleSquares = captureVectors.mapNotNull { square + it }
 
         val validSquares = mutableListOf<Square>()
-        for(sqr in possibleSquares.filterNotNull()) {
-            if(sqr == board.enPassantTarget) {
-                if(owner == PlayerColor.WHITE && sqr.rank == 5)
-                    validSquares += sqr
-                else if(owner == PlayerColor.BLACK && sqr.rank == 2)
-                    validSquares += sqr
-            }
+        for (sqr in possibleSquares) {
+            if (sqr == board.enPassantTarget && sqr.rank == owner.enPassantTargetRank)
+                validSquares += sqr
 
-            if(board.getPieceAt(sqr)?.owner != owner)
+            if (board.getPieceAt(sqr)?.owner == owner.opponent)
                 validSquares += sqr
         }
 
@@ -55,15 +51,14 @@ class Pawn(owner: PlayerColor): Piece(owner = owner) {
 
     fun validSquaresToMoves(squares: List<Square>, startingSquare: Square) =
         squares.map {
-            if((it.rank == 7 && owner == PlayerColor.WHITE) || (it.rank == 0 && owner == PlayerColor.BLACK)) {
+            if (it.rank == owner.promotionRank) {
                 setOf(
                     Move(startingSquare, it, Move.Promotion.KNIGHT),
                     Move(startingSquare, it, Move.Promotion.BISHOP),
                     Move(startingSquare, it, Move.Promotion.ROOK),
                     Move(startingSquare, it, Move.Promotion.QUEEN)
                 )
-            }
-            else
+            } else
                 setOf(Move(startingSquare, it))
         }.flatten()
 

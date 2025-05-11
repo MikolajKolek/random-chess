@@ -162,7 +162,7 @@ class BoardState(
 
         return BoardState(
             newBoard,
-            currentTurn.getOpponent(),
+            currentTurn.opponent,
             newEnPassant,
             newCastlingRights,
             newHalfMoveCounter,
@@ -192,7 +192,7 @@ class BoardState(
         // Both kings must be on the board
         // King of player not on move must not be in check
         locateKing(currentTurn)
-        if(isInCheck(currentTurn.getOpponent())) return false
+        if(isInCheck(currentTurn.opponent)) return false
 
         // Pawns must not be on ranks 1 and 8
         for(f in 0..7) {
@@ -441,13 +441,14 @@ class BoardState(
         var returnMove : Move? = null
         for(r in 0..7) {
             for(f in 0..7) {
-                val piece = getPieceAt(Square(rank = r, file = f)) ?: continue
+                val fromSquare = Square(rank = r, file = f)
+                val piece = getPieceAt(fromSquare) ?: continue
                 if(piece.owner != currentTurn) continue
                 if(piece::class != requiredPiece) continue
                 if(rankDisambiguation != null) if(rankDisambiguation != r) continue
                 if(fileDisambiguation != null) if(fileDisambiguation != f) continue
-                val myMove = Move(Square(rank = r, file = f), destinationSquare, promotionPiece)
-                if(!piece.getPieceVision(this, Square(rank = r, file = f)).contains(myMove)) continue
+                val myMove = Move(fromSquare, destinationSquare, promotionPiece)
+                if(!piece.getPieceVision(this, fromSquare).contains(myMove)) continue
                 require(returnMove == null) { "Move definition ambiguous." }
                 returnMove = myMove
             }
@@ -468,5 +469,5 @@ class BoardState(
      * @param move Move to verify.
      * @return True if the given move is check, false otherwise.
      */
-    private fun verifyCheck(move: Move) = applyMove(move).isInCheck(currentTurn.getOpponent())
+    private fun verifyCheck(move: Move) = applyMove(move).isInCheck(currentTurn.opponent)
 }

@@ -52,6 +52,8 @@ data class Square(
         operator fun unaryMinus() = Vector(-rank, -file)
 
         operator fun times(n : Int) = Vector(rank * n, file * n)
+
+        operator fun plus(vector: Vector) = Vector(rank + vector.rank, file + vector.file)
     }
 
     operator fun plus(vector : Vector) : Square? =
