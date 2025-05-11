@@ -11,7 +11,8 @@ import pl.edu.uj.tcs.rchess.db.tables.references.PGN_GAMES
 import pl.edu.uj.tcs.rchess.db.tables.references.SERVICE_ACCOUNTS
 import pl.edu.uj.tcs.rchess.db.tables.references.SERVICE_GAMES
 import pl.edu.uj.tcs.rchess.model.GameResult
-import pl.edu.uj.tcs.rchess.model.pgnTagStringToTags
+import pl.edu.uj.tcs.rchess.model.Move
+import pl.edu.uj.tcs.rchess.model.Pgn
 import java.sql.DriverManager
 import java.time.LocalDateTime
 import java.util.*
@@ -64,30 +65,20 @@ class Server(private val config: Config) : ClientApi {
     }
 
     override suspend fun addPGNGames(fullPGN: String): List<Int> {
-        val pgnGameRegex = Regex("((\\[.*]\\n)*)\\n(.*(1-0|0-1|1/2-1/2|\\*))")
-
         val result = mutableListOf<Int>()
         dsl.transaction { transaction ->
-            for(match in pgnGameRegex.findAll(fullPGN)) {
-                val tagString = match.groupValues[1]
-                val movetext = match.groupValues[3]
-
-                val tags = pgnTagStringToTags(tagString)
-                val strippedTags = tags.toMap().filter { it.key != "White" && it.key != "Black" && it.key != "Date" }
-
-                //TODO: do movetext correctness verification and conversion to move[] here!
-
+            for(pgn in Pgn.fromPgnDatabase(fullPGN)) {
                 result.add(transaction.dsl().insertInto(PGN_GAMES)
-                    .set(PGN_GAMES.MOVES, movetext)
+                    .set(PGN_GAMES.MOVES, pgn.moves.map { it.toLongAlgebraicNotation() }.toTypedArray())
                     .set(PGN_GAMES.CREATION_DATE, LocalDateTime.now())
-                    .set(PGN_GAMES.RESULT, GameResult.fromPgnString(tags["Result"]!!).dbResult)
-                    .set(PGN_GAMES.METADATA, JSONB.jsonb(Json.encodeToString(strippedTags)))
+                    .set(PGN_GAMES.RESULT, pgn.result.dbResult)
+                    .set(PGN_GAMES.METADATA, JSONB.jsonb(Json.encodeToString(pgn.metadata)))
                     .set(PGN_GAMES.OWNER_ID, config.defaultUser)
-                    .set(PGN_GAMES.BLACK_PLAYER_NAME, tags["Black"])
-                    .set(PGN_GAMES.WHITE_PLAYER_NAME, tags["White"])
+                    .set(PGN_GAMES.BLACK_PLAYER_NAME, pgn.blackPlayerName)
+                    .set(PGN_GAMES.WHITE_PLAYER_NAME, pgn.whitePlayerName)
                     .returningResult(PGN_GAMES.ID)
-                    .fetchOne()?.getValue(PGN_GAMES.ID) ?:
-                        throw IllegalStateException("Failed to insert PGN into database")
+                    .fetchOne()?.getValue(PGN_GAMES.ID)
+                    ?: throw IllegalStateException("Failed to insert PGN into database")
                 )
             }
         }
@@ -132,7 +123,7 @@ class Server(private val config: Config) : ClientApi {
         return query.fetch { (sg, white, black) ->
             ServiceGame(
                 id = sg.id!!,
-                moves = sg.moves,
+                moves = sg.moves.map { Move.fromLongAlgebraicNotation(it!!) },
                 creationDate = sg.creationDate,
                 result = GameResult.fromDbResult(sg.result),
                 metadata = sg.metadata?.data()?.let { json -> Json.decodeFromString(json) },

@@ -67,7 +67,8 @@ CREATE TABLE "service_games"
 (
     "id"                 SERIAL         PRIMARY KEY,
     -- kolumny wspólne dla "service_games" i "pgn_games"
-    "moves"              VARCHAR        NOT NULL,
+    --TODO: DOES THE ARRAY BEING NOT NULL MAKE THE ELEMENTS NOT NULL??
+    "moves"              VARCHAR(5)[]   NOT NULL,
     "creation_date"      TIMESTAMP      NOT NULL, -- data rozegrania partii
     "result"             GAME_RESULT    NOT NULL,
     "metadata"           JSONB          NULL,
@@ -94,7 +95,7 @@ CREATE TABLE "pgn_games"
 (
     "id"                SERIAL          PRIMARY KEY,
     -- kolumny wspólne dla "service_games" i "pgn_games"
-    "moves"             VARCHAR         NOT NULL,
+    "moves"             VARCHAR(5)[]    NOT NULL,
     "creation_date"     TIMESTAMP       NOT NULL, -- data zaimportowania partii
     "result"            GAME_RESULT     NOT NULL,
     "metadata"          JSONB           NULL,
@@ -216,7 +217,7 @@ INSERT INTO service_accounts("user_id", "service_id", "user_id_in_service", "is_
     (NULL, 2, 'chess_com_bot', TRUE, 'chess_com_bot'),
     (NULL, 1, 'internal_bot', TRUE, 'bot_1');
 
-INSERT INTO service_games("moves", "creation_date", "result", "metadata", "service_id", "game_id_in_service", white_player, black_player) VALUES
+/*INSERT INTO service_games("moves", "creation_date", "result", "metadata", "service_id", "game_id_in_service", white_player, black_player) VALUES
     (
         '1. e4 d5 2. exd5 Qxd5 3. Nc3 Qd8 { B01 Scandinavian Defense: Valencian Variation } 4. d4 Nf6 5. Nf3 g6 6. Bc4 Bg7 7. O-O O-O 8. Re1 Nbd7 9. Bg5 Nb6 10. Bd3 c6 11. Ne2 Nbd5 12. c3 Nb6 13. h3 Re8 14. Ng3 Be6 15. Qd2 Qd7 16. Bh6 Rad8 17. Ng5 Bxh6 18. N3e4 Nxe4 19. Bxe4 Bd5 20. Bd3 f6 21. h4 fxg5 22. hxg5 Bg7 23. a4 e5 24. a5 Nc4 25. Qe2 exd4 26. Bxc4 Rxe2 27. Bxd5+ Qxd5 28. Rxe2 dxc3 { White resigns. } 0-1',
         '2025-04-24T16:02:54Z',
@@ -284,7 +285,7 @@ INSERT INTO pgn_games("moves", "creation_date", "result", "metadata", "owner_id"
         4,
         'Garry Kasparov',
         'Veselin Topalov'
-    );
+    );*/
 
 INSERT INTO openings("eco", "name", "partial_fen") VALUES
     ('D11','Slav Defense: Modern Line','rnbqkbnr/pp2pppp/2p5/3p4/2PP4/5N2/PP2PPPP/RNBQKB1R b KQkq -'), -- np. 1. d4 d5 2. c4 c6 3. Nf3
