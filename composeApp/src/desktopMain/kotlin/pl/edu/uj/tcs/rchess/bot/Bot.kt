@@ -33,6 +33,7 @@ class Bot(private val process: Process,
     //  Multiple calls to playGame will cause chaos
     suspend fun playGame(gameObserver: GameObserver, gameInput: GameInput) {
         // TODO: potential problem if multiple bots are called with the same gameInput
+        // TODO: FIX CRASH WHEN BOT LOSES
         gameObserver.updateFlow
             .takeWhile { update ->
                 update.state.progress is GameProgress.Running
