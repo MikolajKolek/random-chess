@@ -22,18 +22,24 @@ class King(owner: PlayerColor): VectorListPiece(owner = owner) {
 
         if(owner == PlayerColor.WHITE) {
             if(boardState.castlingRights.whiteKingSide)
-                if(boardState.board[Square.fromString("f1")] == null)
+                if(boardState.board[Square.fromString("f1")] == null &&
+                    boardState.board[Square.fromString("g1")] == null)
                     ret.add(Move(Square.fromString("e1"), Square.fromString("g1")))
             if(boardState.castlingRights.whiteQueenSide)
-                if(boardState.board[Square.fromString("d1")] == null)
+                if(boardState.board[Square.fromString("d1")] == null &&
+                    boardState.board[Square.fromString("c1")] == null &&
+                    boardState.board[Square.fromString("b1")] == null)
                     ret.add(Move(Square.fromString("e1"), Square.fromString("c1")))
         }
         else {
             if(boardState.castlingRights.blackKingSide)
-                if(boardState.board[Square.fromString("f8")] == null)
+                if(boardState.board[Square.fromString("f8")] == null &&
+                    boardState.board[Square.fromString("g8")] == null)
                     ret.add(Move(Square.fromString("e8"), Square.fromString("g8")))
             if(boardState.castlingRights.blackQueenSide)
-                if(boardState.board[Square.fromString("d8")] == null)
+                if(boardState.board[Square.fromString("d8")] == null &&
+                    boardState.board[Square.fromString("c8")] == null &&
+                    boardState.board[Square.fromString("b8")] == null)
                     ret.add(Move(Square.fromString("e8"), Square.fromString("c8")))
         }
 
