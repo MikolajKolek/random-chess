@@ -25,6 +25,13 @@ class SquareTest {
 
     @Test
     fun fromStringTest() {
-        Assert.assertEquals(Square(0, 4), Square.fromString("e1"))
+        Assert.assertEquals(Square(0, 2), Square.fromString("c1"))
+        Assert.assertEquals(Square(3, 4), Square.fromString("e4"))
+    }
+
+    @Test
+    fun toStringTest() {
+        Assert.assertEquals("c1", Square(0, 2).toString())
+        Assert.assertEquals("e4", Square(3, 4).toString())
     }
 }

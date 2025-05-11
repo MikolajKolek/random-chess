@@ -42,7 +42,7 @@ data class Square(
     fun positionInBoard() = (8 * rank) + file
 
     override fun toString(): String {
-        return (rank + 'a'.code).toChar() + (file + 1).toString()
+        return (file + 'a'.code).toChar() + (rank + 1).toString()
     }
 
     data class Vector(
