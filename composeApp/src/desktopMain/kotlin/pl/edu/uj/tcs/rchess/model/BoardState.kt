@@ -314,7 +314,7 @@ class BoardState(
             else {move = Move(Square.fromString("e8"), Square.fromString("g8"))}
             verifyCheckmate(move)
             verifyCheck(move)
-            require(isValidMove(move)) { "Move invalid." }
+            require(isLegalMove(move)) { "Castling is illegal here." }
             return move
         }
 
@@ -325,7 +325,7 @@ class BoardState(
             else {move = Move(Square.fromString("e8"), Square.fromString("c8"))}
             verifyCheckmate(move)
             verifyCheck(move)
-            require(isValidMove(move)) { "Move invalid." }
+            require(isLegalMove(move)) { "Castling is illegal here." }
             return move
         }
 
@@ -346,7 +346,6 @@ class BoardState(
         if(_sa.isNotEmpty()) {
             if(_sa.last() == 'x') {
                 requiresCapture = true
-                //require(getPieceAt(destinationSquare) != null) { "Capture declared, but no piece to capture." }
                 _sa = _sa.dropLast(1)
             }
         }
@@ -373,9 +372,13 @@ class BoardState(
         val requiredPiece : KClass<out Piece>
         if(_sa.isNotEmpty()) {
             requiredPiece = Piece.fromFenLetter(_sa.last())::class
+            _sa = _sa.dropLast(1)
         } else {
             requiredPiece = Pawn(currentTurn)::class
         }
+
+        // No additional invalid characters
+        require(_sa.isEmpty()) { "Unidentified characters present." }
 
         // Finding the correct move
         var returnMove : Move? = null
