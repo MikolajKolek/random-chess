@@ -90,7 +90,7 @@ fun Board(
                                     }
                                 }
                         ) {
-                            Text("$rank $file: ${piece?.fenLetter ?: "-"}")
+                            Text("${piece?.fenLetter ?: "-"}")
                         }
                     }
 
