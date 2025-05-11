@@ -215,7 +215,9 @@ class BoardState(
      * @return List of legal moves for the piece at the given position.
      * If there is no piece at the position, return an empty list.
      */
-    fun getLegalMovesFor(square: Square) = board[square]?.getLegalMoves(this, square) ?: emptyList()
+    fun getLegalMovesFor(square: Square) = board[square]
+        ?.let { piece -> if(piece.owner == currentTurn) piece else null }
+        ?.getLegalMoves(this, square) ?: emptyList()
 
     /**
      * @param player The player to check.
