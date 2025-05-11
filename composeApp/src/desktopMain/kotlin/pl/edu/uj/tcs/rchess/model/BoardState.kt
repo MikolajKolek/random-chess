@@ -98,13 +98,13 @@ class BoardState(
         }
 
         if(listOf(move.to, move.from).contains(Square.fromString("a1")))
-            newCastlingRights = castlingRights.copy(whiteQueenSide = false)
+            newCastlingRights = newCastlingRights.withoutQueen(PlayerColor.WHITE)
         if(listOf(move.to, move.from).contains(Square.fromString("a8")))
-            newCastlingRights = castlingRights.copy(blackQueenSide = false)
+            newCastlingRights = newCastlingRights.withoutQueen(PlayerColor.BLACK)
         if(listOf(move.to, move.from).contains(Square.fromString("h1")))
-            newCastlingRights = newCastlingRights.copy(whiteKingSide = false)
+            newCastlingRights = newCastlingRights.withoutKing(PlayerColor.WHITE)
         if(listOf(move.to, move.from).contains(Square.fromString("h8")))
-            newCastlingRights = newCastlingRights.copy(blackKingSide = false)
+            newCastlingRights = newCastlingRights.withoutKing(PlayerColor.BLACK)
 
         if(pieceTo != null)
             newHalfMoveCounter = 0
