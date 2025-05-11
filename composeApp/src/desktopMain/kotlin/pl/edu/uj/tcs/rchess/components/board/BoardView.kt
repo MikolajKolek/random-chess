@@ -4,7 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import pl.edu.uj.tcs.rchess.model.BoardState
+import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.Square
 
@@ -39,9 +40,35 @@ fun BoardView(
     state: BoardState,
     orientation: PlayerColor,
     moveEnabledForColor: PlayerColor? = null,
+    onMove: (move: Move) -> Unit = {},
 ) {
+    var moveInProgress: MoveInProgress? by remember { mutableStateOf(null) }
+
     val moveAvailableForColor = moveEnabledForColor?.takeIf {
         it == state.currentTurn
+    }
+
+    // Cancel the move if it's no longer possible
+    if (moveInProgress != null && moveAvailableForColor == null) {
+        moveInProgress = null
+    }
+
+    fun onSquareClicked(square: Square) {
+        val fromPiece = state.board[square]
+        if (fromPiece?.owner == moveAvailableForColor && square != moveInProgress?.startSquare) {
+            moveInProgress = MoveInProgress(
+                startSquare = square,
+                possibleMoves = state.getLegalMovesFor(square),
+            )
+            return
+        }
+
+        val selectedMoves = moveInProgress?.possibleMoves?.filter { move ->
+            move.to == square
+        }
+        // TODO: Handle promotion, there could be multiple moves to the same square
+        selectedMoves?.firstOrNull()?.let { onMove(it) }
+        moveInProgress = null
     }
 
     Column(
@@ -62,15 +89,18 @@ fun BoardView(
                             .weight(1f)
                             .fillMaxHeight()
                             .let {
-                                if (square.isDark) {
-                                    it.background(Color.LightGray)
-                                } else {
-                                    it
+                                when {
+                                    moveInProgress?.startSquare == square -> it.background(Color.Yellow)
+                                    moveInProgress?.targetSquares?.contains(square) ?: false -> it.background(Color.Green)
+                                    square.isDark -> it.background(Color.LightGray)
+                                    else -> it
                                 }
                             }
                             .let {
                                 if (moveAvailableForColor != null) {
-                                    it.clickable(onClick = {})
+                                    it.clickable(onClick = {
+                                        onSquareClicked(square)
+                                    })
                                 } else {
                                     it
                                 }
