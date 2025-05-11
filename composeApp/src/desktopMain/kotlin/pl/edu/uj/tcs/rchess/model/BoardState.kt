@@ -172,12 +172,18 @@ class BoardState(
 
     /**
      * @param move The move to check.
-     * @return True if the given move is valid in this context, otherwise false.
+     * @return Piece at the [move.from] square if the move is valid, null otherwise.
      */
     private fun fromPieceIfMoveValid(move: Move): Piece? =
         getPieceAt(move.from)?.takeIf { piece ->
             piece.owner == currentTurn && piece.getPieceVision(this, move.from).contains(move)
         }
+
+    /**
+     * @param move The move to check.
+     * @return True if the given move is valid in this context, otherwise false.
+     */
+    private fun isValidMove(move: Move) = fromPieceIfMoveValid(move) != null
 
     /**
      * @return Returns true if the current position is legal
