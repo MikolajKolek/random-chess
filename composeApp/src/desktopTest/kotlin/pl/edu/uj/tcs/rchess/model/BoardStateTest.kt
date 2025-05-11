@@ -242,5 +242,9 @@ class BoardStateTest {
             "r2qkbnr/p2n1ppp/8/1B2p3/8/2N5/PPPPQP1P/R1B1K1Nb w Qkq - 0 8",
             BoardState.fromFen("r2qkbnr/p2n1ppp/8/1B2p3/8/2N5/PPPPQPbP/R1B1K1NR b KQkq - 1 7").applyStandardAlgebraicMove("Bxh1").toFenString()
         )
+        Assert.assertEquals(
+            "4k2r/5ppp/2p5/1pbp4/4pP2/6Pb/1PP1B2P/rq1R3K w k - 3 29",
+            BoardState.fromFen("r3k2r/5ppp/2p5/1pbp4/4pP2/6Pb/1PP1B2P/1q1R3K b kq - 2 28").applyStandardAlgebraicMove("Ra1").toFenString()
+        )
     }
 }
