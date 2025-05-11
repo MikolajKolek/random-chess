@@ -1,7 +1,6 @@
 package pl.edu.uj.tcs.rchess
 
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import pl.edu.uj.tcs.rchess.components.GameScreen
@@ -26,8 +25,6 @@ fun GameWindowContent(game: HistoryGame) {
                 ),
             )
         }
-
-        Text(game.id.toString())
 
         GameScreen(gameState, null)
     }

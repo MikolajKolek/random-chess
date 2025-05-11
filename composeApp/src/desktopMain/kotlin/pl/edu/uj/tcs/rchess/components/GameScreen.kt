@@ -10,8 +10,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.dp
 import pl.edu.uj.tcs.rchess.components.board.LabeledBoard
-import pl.edu.uj.tcs.rchess.model.game.GameInput
 import pl.edu.uj.tcs.rchess.model.PlayerColor
+import pl.edu.uj.tcs.rchess.model.game.GameInput
 import pl.edu.uj.tcs.rchess.model.state.GameState
 
 @Composable
@@ -66,8 +66,10 @@ fun GameScreen(
         LabeledBoard(
             state = boardState,
             orientation = orientation.value,
-            // TODO: Remove WHITE default, it's only for testing
-            moveEnabledForColor = input?.takeIf { isCurrent }?.playerColor ?: PlayerColor.WHITE,
+            moveEnabledForColor = input?.takeIf { isCurrent }?.playerColor,
+            onMove = { move ->
+                input?.makeMove(move)
+            },
         )
     }
 }

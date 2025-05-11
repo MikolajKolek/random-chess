@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import pl.edu.uj.tcs.rchess.model.BoardState
+import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 
 @Composable
@@ -18,6 +19,7 @@ fun LabeledBoard(
     state: BoardState,
     orientation: PlayerColor,
     moveEnabledForColor: PlayerColor? = null,
+    onMove: (Move) -> Unit = {},
 ) {
     val labelsPadding = 24.dp
     val pieceSize = 64.dp
@@ -76,6 +78,7 @@ fun LabeledBoard(
                     state = state,
                     orientation = orientation,
                     moveEnabledForColor = moveEnabledForColor,
+                    onMove = onMove,
                 )
             }
             RankLabelColumn()

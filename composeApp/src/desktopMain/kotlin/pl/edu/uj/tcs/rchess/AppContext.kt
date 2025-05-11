@@ -4,6 +4,7 @@ import pl.edu.uj.tcs.rchess.navigation.NavigationManager
 import pl.edu.uj.tcs.rchess.server.ClientApi
 
 class AppContext(
+    val config: Config,
     val clientApi: ClientApi,
 ) {
     val navigation = NavigationManager()

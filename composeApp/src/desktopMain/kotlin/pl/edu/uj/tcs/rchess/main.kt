@@ -16,7 +16,7 @@ private val clientApi: ClientApi = Server(config)
 
 fun main() = application {
     val state = rememberWindowState(placement = WindowPlacement.Maximized)
-    val context = remember { AppContext(clientApi) }
+    val context = remember { AppContext(config, clientApi) }
 
     Window(
         onCloseRequest = ::exitApplication,
@@ -35,5 +35,13 @@ fun main() = application {
         ) {
             GameWindowContent(game)
         }
+    }
+
+    // TODO: Should use context.navigation in the future
+    Window(
+        onCloseRequest = ::exitApplication,
+        title = "Random Chess Live Game",
+    ) {
+        LiveGameWindowContent(context)
     }
 }
