@@ -7,7 +7,7 @@ import pl.edu.uj.tcs.rchess.model.PlayerColor
 /**
  * Immutable class holding the full state of the game including history and clocks
  */
-data class ImmutableGameState(
+data class GameState(
     val boardStates: List<BoardState>,
 
     @Suppress("KDocUnresolvedReference")
@@ -51,11 +51,11 @@ data class ImmutableGameState(
             initialBoardState: BoardState,
             moves: List<Move>,
             finishedProgress: GameProgress.Finished,
-        ): ImmutableGameState {
+        ): GameState {
             val boardStates = moves.runningFold(initialBoardState) { boardState, move ->
                 boardState.applyMove(move)
             }
-            return ImmutableGameState(
+            return GameState(
                 boardStates = boardStates,
                 moves = moves,
                 progress = finishedProgress,

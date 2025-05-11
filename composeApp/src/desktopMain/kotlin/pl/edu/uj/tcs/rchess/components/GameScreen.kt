@@ -11,11 +11,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.dp
 import pl.edu.uj.tcs.rchess.model.GameInput
 import pl.edu.uj.tcs.rchess.model.PlayerColor
-import pl.edu.uj.tcs.rchess.model.state.ImmutableGameState
+import pl.edu.uj.tcs.rchess.model.state.GameState
 
 @Composable
 fun GameScreen(
-    gameState: ImmutableGameState,
+    gameState: GameState,
     input: GameInput?,
 ) {
     val orientation = remember {

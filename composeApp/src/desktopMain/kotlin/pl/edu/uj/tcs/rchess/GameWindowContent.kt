@@ -7,7 +7,7 @@ import androidx.compose.runtime.remember
 import pl.edu.uj.tcs.rchess.components.GameScreen
 import pl.edu.uj.tcs.rchess.model.GameOverReason
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
-import pl.edu.uj.tcs.rchess.model.state.ImmutableGameState
+import pl.edu.uj.tcs.rchess.model.state.GameState
 import pl.edu.uj.tcs.rchess.server.HistoryGame
 import kotlin.time.ExperimentalTime
 
@@ -16,7 +16,7 @@ import kotlin.time.ExperimentalTime
 fun GameWindowContent(game: HistoryGame) {
     MaterialTheme {
         val gameState = remember {
-            ImmutableGameState.finished(
+            GameState.finished(
                 initialBoardState = game.startingPosition, // TODO: Replace with initial board state from the database when implemented
                 moves = game.moves,
                 finishedProgress = GameProgress.Finished(
