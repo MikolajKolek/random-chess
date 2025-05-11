@@ -35,7 +35,9 @@ class StateMachine<T, C: Change<T>>(
     val stateFlow = _stateFlow.asStateFlow()
 
     /**
-     * Access the state and optionally apply a change to it
+     * Access the state and optionally apply a change to it.
+     *
+     * This function uses an internal lock, so it's thread-safe and can be called from multiple coroutines.
      */
     suspend fun withState(block: suspend (state: T) -> C?): T {
         return stateMutex.withLock {
