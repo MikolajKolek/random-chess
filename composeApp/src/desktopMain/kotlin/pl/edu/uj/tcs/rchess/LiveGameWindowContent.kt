@@ -35,7 +35,7 @@ fun LiveGameWindowContent(context: AppContext) {
                 }
             }
 
-            LiveGame() to playerGameInput
+            liveGame to playerGameInput
         }
 
         val gameState by liveGame.stateFlow.collectAsStateWithLifecycle()
