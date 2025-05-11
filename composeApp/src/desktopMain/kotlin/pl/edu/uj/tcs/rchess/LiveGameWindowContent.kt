@@ -28,7 +28,7 @@ fun LiveGameWindowContent(context: AppContext) {
             val playerGameInput = LocalGameInput(liveGame = liveGame, playerColor = PlayerColor.WHITE)
             val botGameInput = LocalGameInput(liveGame = liveGame, playerColor = PlayerColor.BLACK)
 
-            val bot = context.config.bots.firstOrNull()!!.spawnBot()
+            val bot = context.config.bots[3].spawnBot()
             coroutineScope.launch {
                 withContext(Dispatchers.IO) {
                     bot.playGame(liveGame, botGameInput)
@@ -40,6 +40,6 @@ fun LiveGameWindowContent(context: AppContext) {
 
         val gameState by liveGame.stateFlow.collectAsStateWithLifecycle()
 
-        GameScreen(gameState, gameInput)
+        GameScreen(gameState, gameInput, false)
     }
 }

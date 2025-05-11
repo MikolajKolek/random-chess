@@ -18,47 +18,46 @@ import pl.edu.uj.tcs.rchess.model.state.GameState
 fun GameScreen(
     gameState: GameState,
     input: GameInput?,
+    // History browsing is disabled for live games, as it required stepping after each move
+    // TODO: Fix
+    enableBrowsing: Boolean = true
 ) {
     val orientation = remember {
         mutableStateOf(input?.playerColor ?: PlayerColor.WHITE)
     }
 
-// History browsing is disabled for live games, as it required stepping after each move
-// TODO: Fix
-//
-//    val boardStateIndex = remember { mutableStateOf(0) }
-//
-//    if (boardStateIndex.value >= gameState.boardStates.size) {
-//        boardStateIndex.value = gameState.boardStates.size - 1
-//    }
-//    val boardState = gameState.boardStates[boardStateIndex.value]
-    val boardState = gameState.currentState
+    val boardStateIndex = remember { mutableStateOf(0) }
+    if (enableBrowsing && boardStateIndex.value >= gameState.boardStates.size) {
+        boardStateIndex.value = gameState.boardStates.size - 1
+    }
+    val boardState = if(enableBrowsing) gameState.boardStates[boardStateIndex.value] else gameState.currentState
 
-//    val isInitial = boardStateIndex.value == 0
-//    val isCurrent = boardStateIndex.value == gameState.boardStates.size - 1
-    val isCurrent = true
+    val isInitial = boardStateIndex.value == 0
+    val isCurrent = if(enableBrowsing) boardStateIndex.value == gameState.boardStates.size - 1 else true
 
     Column {
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-//            Button(
-//                enabled = !isInitial,
-//                onClick = {
-//                    boardStateIndex.value--
-//                }
-//            ) {
-//                Text("Previous")
-//            }
-//
-//            Button(
-//                enabled = !isCurrent,
-//                onClick = {
-//                    boardStateIndex.value++
-//                }
-//            ) {
-//                Text("Next")
-//            }
+            if(enableBrowsing) {
+                Button(
+                    enabled = !isInitial,
+                    onClick = {
+                        boardStateIndex.value--
+                    }
+                ) {
+                    Text("Previous")
+                }
+
+                Button(
+                    enabled = !isCurrent,
+                    onClick = {
+                        boardStateIndex.value++
+                    }
+                ) {
+                    Text("Next")
+                }
+            }
 
             Button(
                 onClick = {
