@@ -95,29 +95,15 @@ class BoardState(
                     else -> throw IllegalArgumentException("Invalid castling move.")
                 }
             }
-        } else if(pieceFrom is Rook) {
-            if(move.from.file == 0) {
-                if(move.from.rank == 0) {
-                    newCastlingRights = newCastlingRights.copy(whiteQueenSide = false)
-                } else if(move.from.rank == 7) {
-                    newCastlingRights = newCastlingRights.copy(blackQueenSide = false)
-                }
-            } else if(move.from.file == 7) {
-                if(move.from.rank == 0) {
-                    newCastlingRights = newCastlingRights.copy(whiteKingSide = false)
-                } else if(move.from.rank == 7) {
-                    newCastlingRights = newCastlingRights.copy(blackKingSide = false)
-                }
-            }
         }
 
-        if(move.to == Square.fromString("a1"))
+        if(listOf(move.to, move.from).contains(Square.fromString("a1")))
             newCastlingRights = castlingRights.copy(whiteQueenSide = false)
-        if(move.to == Square.fromString("a8"))
+        if(listOf(move.to, move.from).contains(Square.fromString("a8")))
             newCastlingRights = castlingRights.copy(blackQueenSide = false)
-        if(move.to == Square.fromString("h1"))
+        if(listOf(move.to, move.from).contains(Square.fromString("h1")))
             newCastlingRights = newCastlingRights.copy(whiteKingSide = false)
-        if(move.to == Square.fromString("h8"))
+        if(listOf(move.to, move.from).contains(Square.fromString("h8")))
             newCastlingRights = newCastlingRights.copy(blackKingSide = false)
 
         if(pieceTo != null)
