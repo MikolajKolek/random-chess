@@ -8,7 +8,7 @@ import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 class PgnTest {
 
     @Test
-    fun smallSpecificTest() {
+    fun ambiguityTest() {
         val pgn = Pgn("[Event \"Hourly SuperBlitz Arena\"]\n" +
                 "[Site \"https://lichess.org/HafTJQ06\"]\n" +
                 "[Date \"2025.05.08\"]\n" +
@@ -28,6 +28,29 @@ class PgnTest {
                 "[Termination \"Normal\"]\n" +
                 "\n" +
                 "1. d4 d6 2. c4 Nd7 3. Nc3 c6 4. e4 e5 5. d5 cxd5 6. cxd5 Ngf6 7. Bd3 a6 8. Nf3 Nc5 9. Bc2 Be7 10. O-O Ncd7 11. h3 Qc7 12. Be3 b5 13. Rc1 b4 14. Ne2 Qd8 15. Nh2 a5 16. f4 g6 17. f5 gxf5 18. Rxf5 Nc5 19. Rf1 Ncxe4 20. Bh6 Bf8 21. Be3 Ba6 22. Ba4+ Ke7 23. Rc6 Bb7 24. Bb6 Qe8 25. Rc7+ Nd7 26. Rxb7 Nc5 27. Bxc5 dxc5 28. d6+ Ke6 29. Bxd7+ Qxd7 30. Qb3+ Kxd6 31. Rd1+ Kc6 32. Qa4+ Kxb7 33. Rxd7+ Kc8 34. Qc6+ Kb8 35. Qb7# 1-0")
+    }
+
+    @Test
+    fun checkmateTest() {
+        val pgn = Pgn("[Event \"Hourly SuperBlitz Arena\"]\n" +
+                "[Site \"https://lichess.org/hx0NGbtQ\"]\n" +
+                "[Date \"2025.05.08\"]\n" +
+                "[White \"bocah_nanas\"]\n" +
+                "[Black \"german11\"]\n" +
+                "[Result \"1-0\"]\n" +
+                "[GameId \"hx0NGbtQ\"]\n" +
+                "[UTCDate \"2025.05.08\"]\n" +
+                "[UTCTime \"16:44:12\"]\n" +
+                "[WhiteElo \"1812\"]\n" +
+                "[BlackElo \"1353\"]\n" +
+                "[WhiteRatingDiff \"+0\"]\n" +
+                "[BlackRatingDiff \"-1\"]\n" +
+                "[Variant \"Standard\"]\n" +
+                "[TimeControl \"180+0\"]\n" +
+                "[ECO \"C00\"]\n" +
+                "[Termination \"Normal\"]\n" +
+                "\n" +
+                "1. e4 e6 2. d4 d6 3. Nf3 Nd7 4. Nc3 c6 5. Bd3 Qc7 6. Be3 e5 7. d5 Nc5 8. Qe2 Nxd3+ 9. cxd3 a6 10. d4 Be7 11. dxe5 dxe5 12. O-O-O Bd6 13. Qd2 Nf6 14. dxc6 Qxc6 15. Qxd6 Be6 16. Nxe5 Rd8 17. Qxd8# 1-0")
     }
 
     @Test

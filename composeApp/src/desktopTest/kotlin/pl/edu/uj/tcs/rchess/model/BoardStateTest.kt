@@ -225,4 +225,10 @@ class BoardStateTest {
     fun longCastleTest() {
         BoardState.fromFen("r1bk3r/1ppn1pp1/p6p/8/1bP5/2N1P3/PP1B1PPP/R3KB1R w KQ - 0 11").applyStandardAlgebraicMove("O-O-O")
     }
+
+    @Test
+    fun checkmateTest() {
+        var myState = BoardState.fromFen("3rk2r/1p3ppp/p1qQbn2/4N3/4P3/2N1B3/PP3PPP/2KR3R w k - 1 17")
+        myState.isOver()
+    }
 }
