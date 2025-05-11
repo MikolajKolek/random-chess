@@ -73,9 +73,9 @@ class BoardState(
         // Set proper castling rights in the new board
         if(pieceFrom is King) {
             newCastlingRights = if(pieceFrom.owner == PlayerColor.WHITE) {
-                castlingRights.copy(whiteKingSide = false, whiteQueenSide = false)
+                newCastlingRights.copy(whiteKingSide = false, whiteQueenSide = false)
             } else {
-                castlingRights.copy(blackKingSide = false, blackQueenSide = false)
+                newCastlingRights.copy(blackKingSide = false, blackQueenSide = false)
             }
 
             if(abs(move.from.file - move.to.file) == 2) {
@@ -102,18 +102,27 @@ class BoardState(
         } else if(pieceFrom is Rook) {
             if(move.from.file == 0) {
                 if(move.from.rank == 0) {
-                    newCastlingRights = castlingRights.copy(whiteQueenSide = false)
+                    newCastlingRights = newCastlingRights.copy(whiteQueenSide = false)
                 } else if(move.from.rank == 7) {
-                    newCastlingRights = castlingRights.copy(blackQueenSide = false)
+                    newCastlingRights = newCastlingRights.copy(blackQueenSide = false)
                 }
             } else if(move.from.file == 7) {
                 if(move.from.rank == 0) {
-                    newCastlingRights = castlingRights.copy(whiteKingSide = false)
+                    newCastlingRights = newCastlingRights.copy(whiteKingSide = false)
                 } else if(move.from.rank == 7) {
-                    newCastlingRights = castlingRights.copy(blackKingSide = false)
+                    newCastlingRights = newCastlingRights.copy(blackKingSide = false)
                 }
             }
         }
+
+        if(move.to == Square.fromString("a1"))
+            newCastlingRights = castlingRights.copy(whiteQueenSide = false)
+        if(move.to == Square.fromString("a8"))
+            newCastlingRights = castlingRights.copy(blackQueenSide = false)
+        if(move.to == Square.fromString("h1"))
+            newCastlingRights = newCastlingRights.copy(whiteKingSide = false)
+        if(move.to == Square.fromString("h8"))
+            newCastlingRights = newCastlingRights.copy(blackKingSide = false)
 
         if(pieceTo != null)
             newHalfMoveCounter = 0

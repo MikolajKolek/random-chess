@@ -235,4 +235,12 @@ class BoardStateTest {
     fun checkPromotionTest() {
         BoardState.fromFen("8/8/6p1/7p/4p2P/4kp2/3p4/6K1 b - - 1 51").applyStandardAlgebraicMove("d1=Q+")
     }
+
+    @Test
+    fun castlingValidityCheck() {
+        Assert.assertEquals(
+            "r2qkbnr/p2n1ppp/8/1B2p3/8/2N5/PPPPQP1P/R1B1K1Nb w Qkq - 0 8",
+            BoardState.fromFen("r2qkbnr/p2n1ppp/8/1B2p3/8/2N5/PPPPQPbP/R1B1K1NR b KQkq - 1 7").applyStandardAlgebraicMove("Bxh1").toFenString()
+        )
+    }
 }
