@@ -41,4 +41,24 @@ data class ImmutableGameState(
                 else progress.otherPlayerClock
             }
         }
+
+    companion object {
+        /**
+         * Creates an already finished game state by recreating [boardStates] just from [moves]
+         */
+        fun finished(
+            initialBoardState: BoardState,
+            moves: List<Move>,
+            finishedProgress: GameProgress.Finished,
+        ): ImmutableGameState {
+            val boardStates = moves.runningFold(initialBoardState) { boardState, move ->
+                boardState.applyMove(move)
+            }
+            return ImmutableGameState(
+                boardStates = boardStates,
+                moves = moves,
+                progress = finishedProgress,
+            )
+        }
+    }
 }
