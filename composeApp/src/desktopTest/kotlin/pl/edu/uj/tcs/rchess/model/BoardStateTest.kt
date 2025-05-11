@@ -83,7 +83,7 @@ class BoardStateTest {
             .testAlgebraicMove("dxc5", "r1r3k1/pq1nbppp/np2p3/2PpP3/8/1N1P1N2/PPRBQPPP/2R3K1 b - - 0 15")
             .testAlgebraicMove("bxc5", "r1r3k1/pq1nbppp/n3p3/2ppP3/8/1N1P1N2/PPRBQPPP/2R3K1 w - - 0 16")
             .testAlgebraicMove("Qe3", "r1r3k1/pq1nbppp/n3p3/2ppP3/8/1N1PQN2/PPRB1PPP/2R3K1 b - - 1 16")
-            .testAlgebraicMove("nb4", "r1r3k1/pq1nbppp/4p3/2ppP3/1n6/1N1PQN2/PPRB1PPP/2R3K1 w - - 2 17")
+            .testAlgebraicMove("Nb4", "r1r3k1/pq1nbppp/4p3/2ppP3/1n6/1N1PQN2/PPRB1PPP/2R3K1 w - - 2 17")
             .testAlgebraicMove("Bxb4", "r1r3k1/pq1nbppp/4p3/2ppP3/1B6/1N1PQN2/PPR2PPP/2R3K1 b - - 0 17")
             .testAlgebraicMove("Qxb4", "r1r3k1/p2nbppp/4p3/2ppP3/1q6/1N1PQN2/PPR2PPP/2R3K1 w - - 0 18")
             .testAlgebraicMove("Nbd2", "r1r3k1/p2nbppp/4p3/2ppP3/1q6/3PQN2/PPRN1PPP/2R3K1 b - - 1 18")

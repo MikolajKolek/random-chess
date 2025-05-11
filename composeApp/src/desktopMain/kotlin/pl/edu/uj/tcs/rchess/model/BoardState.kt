@@ -95,10 +95,10 @@ class BoardState(
                 newEnPassant = Square((move.from.rank + move.to.rank) / 2, move.from.file)
 
             if(move.to == enPassantTarget) {
-                if(enPassantTarget.rank == 3)
-                    newBoard[move.to.copy(rank = 4).positionInBoard()] = null
+                if(enPassantTarget.rank == 2)
+                    newBoard[move.to.copy(rank = 3).positionInBoard()] = null
                 else
-                    newBoard[move.to.copy(rank = 5).positionInBoard()] = null
+                    newBoard[move.to.copy(rank = 4).positionInBoard()] = null
             }
         }
 
@@ -406,7 +406,7 @@ class BoardState(
         if(_sa.isNotEmpty()) {
             if(_sa.last() == 'x') {
                 requiresCapture = true
-                require(getPieceAt(destinationSquare) != null) { "Capture declared, but no piece to capture." }
+                //require(getPieceAt(destinationSquare) != null) { "Capture declared, but no piece to capture." }
                 _sa = _sa.dropLast(1)
             }
         }
@@ -416,16 +416,16 @@ class BoardState(
         // Redundant disambiguation is allowed here
         if(_sa.isNotEmpty()) {
             if(_sa.last().isDigit()) {
-                fileDisambiguation = _sa.last().digitToInt()-1
+                rankDisambiguation = _sa.last().digitToInt()-1
                 _sa = _sa.dropLast(1)
-                require(fileDisambiguation in 0..7) { "Invalid file." }
+                require(rankDisambiguation in 0..7) { "Invalid rank." }
             }
         }
         if(_sa.isNotEmpty()) {
             if(_sa.last().isLowerCase()) {
-                rankDisambiguation = _sa.last()-'a'
+                fileDisambiguation = _sa.last()-'a'
                 _sa = _sa.dropLast(1)
-                require(rankDisambiguation in 0..7) { "Invalid rank." }
+                require(fileDisambiguation in 0..7) { "Invalid file." }
             }
         }
 
@@ -456,6 +456,8 @@ class BoardState(
         require(returnMove != null) { "No such move found to $destinationSquare" }
         if(requiresCheckmate) require(verifyCheckmate(returnMove)) { "Checkmate declared and not delivered." }
         if(requiresCheck) require(verifyCheck(returnMove)) { "Check declared and not delivered." }
+        if(requiresCapture) require(getPieceAt(returnMove.from)!!.getCaptureVision(this, returnMove.from).contains(returnMove))
+            { "Capture declared, but there is no piece to capture." }
         return returnMove
     }
 
