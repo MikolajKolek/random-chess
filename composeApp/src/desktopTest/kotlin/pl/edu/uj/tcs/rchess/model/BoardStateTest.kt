@@ -11,11 +11,10 @@ class BoardStateTest {
     val rule = createComposeRule()
 
     companion object {
-        fun BoardState.testAlgebraicMove(move: String, expectedFen: String): BoardState {
-            val newBoard = this.applyStandardAlgebraicMove(move)
-            Assert.assertEquals(expectedFen, newBoard.toFenString())
-            return newBoard
-        }
+        fun BoardState.testAlgebraicMove(move: String, expectedFen: String): BoardState =
+            this.applyStandardAlgebraicMove(move).also {
+                Assert.assertEquals(expectedFen, it.toFenString())
+            }
     }
 
     @Test
