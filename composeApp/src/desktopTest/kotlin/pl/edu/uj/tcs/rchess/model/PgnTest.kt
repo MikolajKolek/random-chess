@@ -768,20 +768,22 @@ class PgnTest {
         val generator = ProcessBuilder("python3", fenGeneratorPath, pgnDatabasePath).start()
         val reader = BufferedReader(InputStreamReader(generator.inputStream))
         for(game in games) {
+            //TODO: Replace with a better identifier
+            val gameId = game.metadata?.get("GameId")?.jsonPrimitive?.content
             val json: JsonObject = Json.decodeFromString(reader.readLine())
 
             val fens = boardStateFens(game, true)
             json["fens"]?.jsonArray?.forEachIndexed { index, generatedFen ->
-                Assert.assertEquals(generatedFen.jsonPrimitive.content, fens[index])
+                assertEqualsPrint(generatedFen.jsonPrimitive.content, fens[index], "Game ID: $gameId, index: $index")
             }
 
             game.metadata?.jsonObject?.forEach { (key, value) ->
-                Assert.assertEquals(json["headers"]?.jsonObject[key]?.jsonPrimitive?.content, value.jsonPrimitive.content)
+                assertEqualsPrint(json["headers"]?.jsonObject[key]?.jsonPrimitive?.content, value.jsonPrimitive.content, gameId)
             }
 
-            Assert.assertEquals(json["white"]?.jsonPrimitive?.content, game.whitePlayerName)
-            Assert.assertEquals(json["black"]?.jsonPrimitive?.content, game.blackPlayerName)
-            Assert.assertEquals(json["result"]?.jsonPrimitive?.content, game.result.pgnString)
+            assertEqualsPrint(json["white"]?.jsonPrimitive?.content, game.whitePlayerName, gameId)
+            assertEqualsPrint(json["black"]?.jsonPrimitive?.content, game.blackPlayerName, gameId)
+            assertEqualsPrint(json["result"]?.jsonPrimitive?.content, game.result.pgnString, gameId)
         }
     }
 
@@ -800,13 +802,14 @@ class PgnTest {
             val jsonMoves: JsonArray = Json.decodeFromString(reader.readLine())
 
             boardStates(game, true).forEachIndexed { index, boardState ->
-                Assert.assertEquals(
+                assertEqualsPrint(
                     jsonMoves[index].jsonArray.map { it.jsonPrimitive.content }.sorted(),
                     (0..7).map { rank ->
                         (0..7).map { file ->
                             boardState.getLegalMovesFor(Square(rank, file))
                         }.flatten()
-                    }.flatten().map { it.toLongAlgebraicNotation() }.sorted()
+                    }.flatten().map { it.toLongAlgebraicNotation() }.sorted(),
+                    "Game ID: ${game.metadata?.get("GameId")?.jsonPrimitive?.content}, move index: $index"
                 )
             }
         }
@@ -816,7 +819,7 @@ class PgnTest {
         boardStates(pgn, includeFirstMove).map { it.toFenString() }
 
     fun boardStates(pgn: Pgn, includeFirstMove: Boolean = false): List<BoardState> {
-        val boardStates = mutableListOf(BoardState.initial())
+        val boardStates = mutableListOf(pgn.startingPosition)
 
         for(move in pgn.moves)
             boardStates.add(boardStates.last().applyMove(move))
@@ -825,5 +828,17 @@ class PgnTest {
             boardStates
         else
             boardStates.drop(1)
+    }
+
+    fun <T, S> assertEqualsPrint(expected: T, actual: S, toPrint: String?) {
+        try {
+            Assert.assertEquals(expected, actual)
+        } catch(t: Throwable) {
+            if(toPrint == null || toPrint.isEmpty())
+                throw t
+            else {
+                throw AssertionError(t.message + "\nAdditional information: $toPrint", t)
+            }
+        }
     }
 }
