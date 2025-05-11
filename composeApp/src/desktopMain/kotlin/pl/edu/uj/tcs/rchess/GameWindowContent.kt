@@ -6,9 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import kotlinx.coroutines.runBlocking
 import pl.edu.uj.tcs.rchess.components.GameScreen
-import pl.edu.uj.tcs.rchess.model.BoardState
-import pl.edu.uj.tcs.rchess.model.GameOverReason
-import pl.edu.uj.tcs.rchess.model.GameResult
+import pl.edu.uj.tcs.rchess.model.*
 import pl.edu.uj.tcs.rchess.model.state.ClockState
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import pl.edu.uj.tcs.rchess.model.state.GameStateChange
@@ -34,19 +32,19 @@ fun GameWindowContent(game: HistoryGame) {
             ))
 
             runBlocking {
-//                gameStateMachine.withState { state ->
-//                    GameStateChange.MoveChange(
-//                        move = Move(Square(1, 0), Square(2, 0), null),
-//                        progress = state.progress,
-//                    )
-//                }
-//
-//                gameStateMachine.withState { state ->
-//                    GameStateChange.MoveChange(
-//                        move = Move(Square(7, 0), Square(5, 0), null),
-//                        progress = state.progress,
-//                    )
-//                }
+                gameStateMachine.withState { state ->
+                    GameStateChange.MoveChange(
+                        move = Move(Square(1, 0), Square(2, 0), null),
+                        progress = state.progress,
+                    )
+                }
+
+                gameStateMachine.withState { state ->
+                    GameStateChange.MoveChange(
+                        move = Move(Square(6, 0), Square(4, 0), null),
+                        progress = state.progress,
+                    )
+                }
 
                 return@runBlocking gameStateMachine.withState {
                     GameStateChange.GameOverChange(
