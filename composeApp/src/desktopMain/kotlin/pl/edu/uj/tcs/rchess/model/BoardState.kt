@@ -344,7 +344,10 @@ class BoardState(
             }
         }.flatMap { it.entries }.associate { it.toPair() }.filterValues { it != null }.mapValues { it.value!! }
 
-    fun SAtoMove(sa : String) : Move {
+    fun applyStandardAlgebraicMove(move: String) =
+        applyMove(standardAlgebraicToMove(move))
+
+    fun standardAlgebraicToMove(sa : String) : Move {
         var _sa = sa
         var requiresCheckmate = false
         var requiresCheck = false
