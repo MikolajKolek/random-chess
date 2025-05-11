@@ -10,6 +10,9 @@ import pl.edu.uj.tcs.rchess.db.keys.SERVICE_GAMES__SERVICE_GAMES_SERVICE_ID_WHIT
 import pl.edu.uj.tcs.rchess.db.tables.references.PGN_GAMES
 import pl.edu.uj.tcs.rchess.db.tables.references.SERVICE_ACCOUNTS
 import pl.edu.uj.tcs.rchess.db.tables.references.SERVICE_GAMES
+import pl.edu.uj.tcs.rchess.model.BoardState
+import pl.edu.uj.tcs.rchess.model.Fen.Companion.fromFen
+import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 import pl.edu.uj.tcs.rchess.model.GameResult
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.Pgn
@@ -70,6 +73,7 @@ class Server(private val config: Config) : ClientApi {
             for(pgn in Pgn.fromPgnDatabase(fullPgn)) {
                 result.add(transaction.dsl().insertInto(PGN_GAMES)
                     .set(PGN_GAMES.MOVES, pgn.moves.map { it.toLongAlgebraicNotation() }.toTypedArray())
+                    .set(PGN_GAMES.STARTING_POSITION, pgn.startingPosition.toFenString())
                     .set(PGN_GAMES.CREATION_DATE, LocalDateTime.now())
                     .set(PGN_GAMES.RESULT, pgn.result.dbResult)
                     .set(PGN_GAMES.METADATA, JSONB.jsonb(Json.encodeToString(pgn.metadata)))
@@ -123,6 +127,7 @@ class Server(private val config: Config) : ClientApi {
         return query.fetch { (sg, white, black) ->
             ServiceGame(
                 id = sg.id!!,
+                startingPosition = BoardState.fromFen(sg.startingPosition),
                 moves = sg.moves.map { Move.fromLongAlgebraicNotation(it!!) },
                 creationDate = sg.creationDate,
                 result = GameResult.fromDbResult(sg.result),

@@ -69,6 +69,7 @@ CREATE TABLE "service_games"
     -- kolumny wspólne dla "service_games" i "pgn_games"
     --TODO: DOES THE ARRAY BEING NOT NULL MAKE THE ELEMENTS NOT NULL??
     "moves"              VARCHAR(5)[]   NOT NULL,
+    "starting_position"  VARCHAR(100)    NOT NULL,
     "creation_date"      TIMESTAMP      NOT NULL, -- data rozegrania partii
     "result"             GAME_RESULT    NOT NULL,
     "metadata"           JSONB          NULL,
@@ -96,6 +97,7 @@ CREATE TABLE "pgn_games"
     "id"                SERIAL          PRIMARY KEY,
     -- kolumny wspólne dla "service_games" i "pgn_games"
     "moves"             VARCHAR(5)[]    NOT NULL,
+    "starting_position" VARCHAR(100)    NOT NULL,
     "creation_date"     TIMESTAMP       NOT NULL, -- data zaimportowania partii
     "result"            GAME_RESULT     NOT NULL,
     "metadata"          JSONB           NULL,

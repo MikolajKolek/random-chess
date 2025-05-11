@@ -2,19 +2,23 @@ package pl.edu.uj.tcs.rchess.model
 
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import pl.edu.uj.tcs.rchess.model.Fen.Companion.fromFen
 import java.time.LocalDateTime
 
 private val pgnGameRegex = Regex("((\\[.*]\\n)*)\\n(.*(1-0|0-1|1/2-1/2|\\*))")
 
 class Pgn private constructor(pgnGameRegexMatch: MatchResult) {
     val moves: List<Move>
+    val startingPosition: BoardState
     val result: GameResult
+    //TODO: Should we store the metadata here and in HistoryGame as just a Map<String, String>?
     val metadata: JsonObject?
     val blackPlayerName: String
     val whitePlayerName: String
 
     init {
         pgnTagStringToTags(pgnGameRegexMatch.groupValues[1]).let { tags ->
+            startingPosition = tags["FEN"]?.let { BoardState.fromFen(it) } ?: BoardState.initial()
             moves = pgnMovetextToMoves(pgnGameRegexMatch.groupValues[3])
             result = GameResult.fromPgnString(tags["Result"]!!)
             metadata = JsonObject(
@@ -51,8 +55,9 @@ class Pgn private constructor(pgnGameRegexMatch: MatchResult) {
             .trim()
             .replace(Regex("\\s*(1-0|0-1|1/2-1/2|\\*)\\s*$"), "")
             .split(Regex("\\s+"))
+            .filter { it.isNotEmpty() }
 
-        var boardState = BoardState.initial()
+        var boardState = startingPosition
         val result = mutableListOf<Move>()
 
         for(move in moves) {
