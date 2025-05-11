@@ -344,7 +344,7 @@ class BoardState(
         require(_sa.length >= 2) { "Missing target square information." }
         var promotionPiece : Move.Promotion? = null
         if(_sa[_sa.length-2] == '=') {
-            promotionPiece = Move.Promotion.fromIdentifier(sa.last().lowercaseChar())
+            promotionPiece = Move.Promotion.fromIdentifier(_sa.last().lowercaseChar())
             _sa = _sa.dropLast(2)
         }
 
