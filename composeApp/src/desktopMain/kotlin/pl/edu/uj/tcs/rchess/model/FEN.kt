@@ -56,8 +56,8 @@ class FEN(fenData: String = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq 
             val square = Square.fromStringOrNull(enPassantSquare)
                 ?: throw IllegalArgumentException("En passant square is invalid.")
 
-            // square.file counts from 0 upwards, so file == 2 is file 3, and file == 5 is file 6
-            require(square.file == 2 || square.file == 5) { "En passant square is invalid." }
+            // square.rank counts from 0 upwards, so rank == 2 is rank 3, and rank == 5 is rank 6
+            require(square.rank == 2 || square.rank == 5) { "En passant square is invalid." }
         }
 
 
