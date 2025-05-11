@@ -15,6 +15,6 @@ abstract class SameMoveCapturePiece(owner: PlayerColor) : Piece(owner) {
 
     override fun getCaptureVision(boardState: BoardState, square: Square): List<Move> =
         getVision(boardState, square)
-            .filter { boardState.board[it]?.owner != owner }
+            .filter { boardState.board[it]?.owner == owner.opponent }
             .map { Move(square, it) }
 }
