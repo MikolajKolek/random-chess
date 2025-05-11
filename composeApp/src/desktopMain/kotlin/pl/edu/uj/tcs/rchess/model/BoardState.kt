@@ -41,9 +41,9 @@ class BoardState(
      * @param square The square to check
      * @return The piece on the given square (or null if there is none).
      */
-    fun getPieceAt(square: Square?) =
-        if(square == null) null
-        else board[(square.rank * 8) + square.file]
+    fun getPieceAt(square: Square?) = square?.let {
+        board[square.positionInBoard()]
+    }
 
     /**
      * @param move The move to apply.
