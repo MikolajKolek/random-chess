@@ -5,12 +5,12 @@ import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.Square
 
 class Queen(owner: PlayerColor): Piece(owner = owner) {
-    override fun getMoveVision(board: BoardState, square: Square): List<Move> {
-        return Bishop(owner).getMoveVision(board, square) + Rook(owner).getMoveVision(board, square)
+    override fun getMoveVision(boardState: BoardState, square: Square): List<Move> {
+        return Bishop(owner).getMoveVision(boardState, square) + Rook(owner).getMoveVision(boardState, square)
     }
 
-    override fun getCaptureVision(board: BoardState, square: Square): List<Move> {
-        return Bishop(owner).getCaptureVision(board, square) + Rook(owner).getCaptureVision(board, square)
+    override fun getCaptureVision(boardState: BoardState, square: Square): List<Move> {
+        return Bishop(owner).getCaptureVision(boardState, square) + Rook(owner).getCaptureVision(boardState, square)
     }
 
     override val fenLetterLowercase = 'q'

@@ -16,16 +16,16 @@ class Pawn(owner: PlayerColor) : Piece(owner = owner) {
         advanceVector + Square.Vector(0, 1),
     )
 
-    override fun getMoveVision(board: BoardState, square: Square): List<Move> {
+    override fun getMoveVision(boardState: BoardState, square: Square): List<Move> {
         val validSquares = mutableListOf<Square>()
 
         (square + advanceVector)
-            ?.takeIf { board.getPieceAt(it) == null }
+            ?.takeIf { boardState.board[it] == null }
             ?.let { advanceSquare ->
                 validSquares += advanceSquare
 
                 (advanceSquare + advanceVector)
-                    ?.takeIf { square.rank == owner.pawnDoubleMoveRank && board.getPieceAt(it) == null }
+                    ?.takeIf { square.rank == owner.pawnDoubleMoveRank && boardState.board[it] == null }
                     ?.let { doubleMoveSquare ->
                         validSquares += doubleMoveSquare
                     }
@@ -34,15 +34,15 @@ class Pawn(owner: PlayerColor) : Piece(owner = owner) {
         return validSquaresToMoves(validSquares, square)
     }
 
-    override fun getCaptureVision(board: BoardState, square: Square): List<Move> {
+    override fun getCaptureVision(boardState: BoardState, square: Square): List<Move> {
         val possibleSquares = captureVectors.mapNotNull { square + it }
 
         val validSquares = mutableListOf<Square>()
         for (sqr in possibleSquares) {
-            if (sqr == board.enPassantTarget && sqr.rank == owner.enPassantTargetRank)
+            if (sqr == boardState.enPassantTarget && sqr.rank == owner.enPassantTargetRank)
                 validSquares += sqr
 
-            if (board.getPieceAt(sqr)?.owner == owner.opponent)
+            if (boardState.board[sqr]?.owner == owner.opponent)
                 validSquares += sqr
         }
 

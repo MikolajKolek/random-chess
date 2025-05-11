@@ -71,7 +71,7 @@ fun Board(
 
                     for (file in files) {
                         val square = Square(rank = rank, file = file)
-                        val piece = state.getPieceAt(square)
+                        val piece = state.board[square]
 
                         Column(
                             modifier = Modifier

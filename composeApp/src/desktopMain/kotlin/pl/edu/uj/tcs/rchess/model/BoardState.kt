@@ -1,6 +1,8 @@
 package pl.edu.uj.tcs.rchess.model
 
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.fromFen
+import pl.edu.uj.tcs.rchess.model.board.Board
+import pl.edu.uj.tcs.rchess.model.board.emptyBoard
 import pl.edu.uj.tcs.rchess.model.pieces.*
 import kotlin.math.abs
 import kotlin.reflect.KClass
@@ -11,7 +13,7 @@ import kotlin.reflect.KClass
  * Can be exactly serialized to/from FEN.
  */
 class BoardState(
-    private val board: List<Piece?>,
+    val board: Board,
     val currentTurn: PlayerColor,
     val enPassantTarget: Square?,
     val castlingRights: CastlingRights,
@@ -19,14 +21,13 @@ class BoardState(
     val fullmoveNumber: Int
 ) {
     init {
-        require(board.size == 64) { "Board must have 64 squares." }
         require(halfmoveCounter >= 0) { "Halfmove counter must not be negative." }
         require(fullmoveNumber >= 1) { "Fullmove number must be positive." }
     }
 
     companion object {
         fun empty() = BoardState(
-            board = List(64) { null },
+            board = emptyBoard(),
             currentTurn = PlayerColor.WHITE,
             enPassantTarget = null,
             castlingRights = CastlingRights.full(),
@@ -35,14 +36,6 @@ class BoardState(
         )
 
         fun initial() = fromFen(Fen.INITIAL)
-    }
-
-    /**
-     * @param square The square to check
-     * @return The piece on the given square (or null if there is none).
-     */
-    fun getPieceAt(square: Square?) = square?.let {
-        board[square.positionInBoard()]
     }
 
     /**
@@ -55,9 +48,9 @@ class BoardState(
         if(!isLegal()) throw IllegalStateException( "Cannot apply move to illegal position." )
 
         val pieceFrom = fromPieceIfMoveValid(move) ?: throw IllegalArgumentException("Invalid move given.")
-        val pieceTo = getPieceAt(move.to)
+        val pieceTo = board[move.to]
 
-        val newBoard = board.toMutableList()
+        val newBoard = board.toMutableBoard()
         var newEnPassant : Square? = null
         var newHalfMoveCounter = halfmoveCounter + 1
         var newCastlingRights: CastlingRights = castlingRights.copy()
@@ -71,9 +64,9 @@ class BoardState(
 
             if(move.to == enPassantTarget) {
                 if(enPassantTarget.rank == 2)
-                    newBoard[move.to.copy(rank = 3).positionInBoard()] = null
+                    newBoard[move.to.copy(rank = 3)] = null
                 else
-                    newBoard[move.to.copy(rank = 4).positionInBoard()] = null
+                    newBoard[move.to.copy(rank = 4)] = null
             }
         }
 
@@ -88,20 +81,20 @@ class BoardState(
             if(abs(move.from.file - move.to.file) == 2) {
                 when(move.to) {
                     Square(0, 2) -> {
-                        newBoard[Square(0, 3).positionInBoard()] = Rook(PlayerColor.WHITE)
-                        newBoard[Square(0, 0).positionInBoard()] = null
+                        newBoard[Square(0, 3)] = Rook(PlayerColor.WHITE)
+                        newBoard[Square(0, 0)] = null
                     }
                     Square(0, 6) -> {
-                        newBoard[Square(0, 5).positionInBoard()] = Rook(PlayerColor.WHITE)
-                        newBoard[Square(0, 7).positionInBoard()] = null
+                        newBoard[Square(0, 5)] = Rook(PlayerColor.WHITE)
+                        newBoard[Square(0, 7)] = null
                     }
                     Square(7, 2) -> {
-                        newBoard[Square(7, 3).positionInBoard()] = Rook(PlayerColor.BLACK)
-                        newBoard[Square(7, 0).positionInBoard()] = null
+                        newBoard[Square(7, 3)] = Rook(PlayerColor.BLACK)
+                        newBoard[Square(7, 0)] = null
                     }
                     Square(7, 6) -> {
-                        newBoard[Square(7, 5).positionInBoard()] = Rook(PlayerColor.BLACK)
-                        newBoard[Square(7, 7).positionInBoard()] = null
+                        newBoard[Square(7, 5)] = Rook(PlayerColor.BLACK)
+                        newBoard[Square(7, 7)] = null
                     }
                     else -> throw IllegalArgumentException("Invalid castling move.")
                 }
@@ -126,9 +119,9 @@ class BoardState(
             newHalfMoveCounter = 0
 
         // Perform the move on the new board
-        newBoard[move.from.positionInBoard()] = null
-        newBoard[move.to.positionInBoard()] = when (move.promoteTo) {
-            null -> board[move.from.positionInBoard()]
+        newBoard[move.from] = null
+        newBoard[move.to] = when (move.promoteTo) {
+            null -> board[move.from]
             Move.Promotion.KNIGHT -> Knight(pieceFrom.owner)
             Move.Promotion.BISHOP -> Bishop(pieceFrom.owner)
             Move.Promotion.ROOK -> Rook(pieceFrom.owner)
@@ -136,7 +129,7 @@ class BoardState(
         }
 
         return BoardState(
-            newBoard,
+            board = newBoard,
             currentTurn.opponent,
             newEnPassant,
             newCastlingRights,
@@ -150,7 +143,7 @@ class BoardState(
      * @return Piece at the [move.from] square if the move is valid, null otherwise.
      */
     private fun fromPieceIfMoveValid(move: Move): Piece? =
-        getPieceAt(move.from)?.takeIf { piece ->
+        board[move.from]?.takeIf { piece ->
             piece.owner == currentTurn && piece.getPieceVision(this, move.from).contains(move)
         }
 
@@ -171,9 +164,9 @@ class BoardState(
 
         // Pawns must not be on ranks 1 and 8
         for(f in 0..7) {
-            if(getPieceAt(Square(0, f)) is Pawn)
+            if (board[Square(0, f)] is Pawn)
                 return false
-            if(getPieceAt(Square(7, f)) is Pawn)
+            if (board[Square(7, f)] is Pawn)
                 return false
         }
 
@@ -222,14 +215,14 @@ class BoardState(
      * @return List of legal moves for the piece at the given position.
      * If there is no piece at the position, return an empty list.
      */
-    fun getLegalMovesFor(square: Square) = getPieceAt(square)?.getLegalMoves(this, square) ?: emptyList()
+    fun getLegalMovesFor(square: Square) = board[square]?.getLegalMoves(this, square) ?: emptyList()
 
     /**
      * @param player The player to check.
      * @return True if the given player has any piece other than their king.
      */
     fun hasAnyNonKingMaterial(player: PlayerColor) : Boolean {
-        for(piece in board.filterNotNull())
+        for(piece in board.notNullPieces())
             if(piece !is King && piece.owner == player)
                 return true
 
@@ -256,7 +249,7 @@ class BoardState(
 
         var whiteLight = 0
         var blackLight = 0
-        for(piece in board.filterNotNull()) {
+        for(piece in board.notNullPieces()) {
             if(piece is King)
                 continue
 
@@ -279,7 +272,8 @@ class BoardState(
     private fun squaresToNotNullPieces() =
         (0..7).map { rank ->
             (0..7).associate { file ->
-                Square(rank, file) to getPieceAt(Square(rank, file))
+                val square = Square(rank, file)
+                square to board[square]
             }
         }.flatMap { it.entries }.associate { it.toPair() }.filterValues { it != null }.mapValues { it.value!! }
 
@@ -349,7 +343,7 @@ class BoardState(
                 _sa = _sa.dropLast(1)
             }
         }
-        require(requiresCapture || getPieceAt(destinationSquare) == null) { "No capture declared, but target square occupied." }
+        require(requiresCapture || board[destinationSquare] == null) { "No capture declared, but target square occupied." }
 
         // File and rank disambiguation
         // Redundant disambiguation is allowed here
@@ -381,7 +375,7 @@ class BoardState(
         for(r in 0..7) {
             for(f in 0..7) {
                 val fromSquare = Square(rank = r, file = f)
-                val piece = getPieceAt(fromSquare) ?: continue
+                val piece = board[fromSquare] ?: continue
                 if(piece.owner != currentTurn) continue
                 if(piece::class != requiredPiece) continue
                 if(rankDisambiguation != null) if(rankDisambiguation != r) continue
@@ -395,7 +389,7 @@ class BoardState(
         require(returnMove != null) { "No such move found to $destinationSquare" }
         if(requiresCheckmate) require(verifyCheckmate(returnMove)) { "Checkmate declared and not delivered." }
         if(requiresCheck) require(verifyCheck(returnMove)) { "Check declared and not delivered." }
-        if(requiresCapture) require(getPieceAt(returnMove.from)!!.getCaptureVision(this, returnMove.from).contains(returnMove))
+        if(requiresCapture) require(board[returnMove.from]!!.getCaptureVision(this, returnMove.from).contains(returnMove))
             { "Capture declared, but there is no piece to capture." }
         return returnMove
     }

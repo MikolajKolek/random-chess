@@ -17,19 +17,19 @@ class King(owner: PlayerColor): VectorListPiece(owner = owner) {
         Square.Vector(-1, -1),
     )
 
-    override fun getMoveVision(board: BoardState, square: Square): List<Move> {
-        val ret = super.getMoveVision(board, square).toMutableList()
+    override fun getMoveVision(boardState: BoardState, square: Square): List<Move> {
+        val ret = super.getMoveVision(boardState, square).toMutableList()
 
         if(owner == PlayerColor.WHITE) {
-            if(board.castlingRights.whiteKingSide)
+            if(boardState.castlingRights.whiteKingSide)
                 ret.add(Move(Square.fromString("e1"), Square.fromString("g1")))
-            if(board.castlingRights.whiteQueenSide)
+            if(boardState.castlingRights.whiteQueenSide)
                 ret.add(Move(Square.fromString("e1"), Square.fromString("c1")))
         }
         else {
-            if(board.castlingRights.blackKingSide)
+            if(boardState.castlingRights.blackKingSide)
                 ret.add(Move(Square.fromString("e8"), Square.fromString("g8")))
-            if(board.castlingRights.blackQueenSide)
+            if(boardState.castlingRights.blackQueenSide)
                 ret.add(Move(Square.fromString("e8"), Square.fromString("c8")))
         }
 

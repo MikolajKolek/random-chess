@@ -6,15 +6,15 @@ import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.Square
 
 abstract class SameMoveCapturePiece(owner: PlayerColor) : Piece(owner) {
-    abstract fun getVision(board: BoardState, square: Square): List<Square>
+    abstract fun getVision(boardState: BoardState, square: Square): List<Square>
 
-    override fun getMoveVision(board: BoardState, square: Square): List<Move> =
-        getVision(board, square)
-            .filter { board.getPieceAt(it) == null }
+    override fun getMoveVision(boardState: BoardState, square: Square): List<Move> =
+        getVision(boardState, square)
+            .filter { boardState.board[it] == null }
             .map { Move(square, it) }
 
-    override fun getCaptureVision(board: BoardState, square: Square): List<Move> =
-        getVision(board, square)
-            .filter { board.getPieceAt(it)?.owner != owner }
+    override fun getCaptureVision(boardState: BoardState, square: Square): List<Move> =
+        getVision(boardState, square)
+            .filter { boardState.board[it]?.owner != owner }
             .map { Move(square, it) }
 }

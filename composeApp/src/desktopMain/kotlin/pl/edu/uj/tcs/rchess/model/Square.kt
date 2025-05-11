@@ -39,8 +39,6 @@ data class Square(
 
     val isDark = (rank + file) % 2 == 0
 
-    fun positionInBoard() = (8 * rank) + file
-
     override fun toString(): String {
         return (file + 'a'.code).toChar() + (rank + 1).toString()
     }

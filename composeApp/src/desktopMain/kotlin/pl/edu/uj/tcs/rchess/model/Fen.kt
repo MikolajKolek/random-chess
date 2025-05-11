@@ -1,5 +1,6 @@
 package pl.edu.uj.tcs.rchess.model
 
+import pl.edu.uj.tcs.rchess.model.board.MutableBoard
 import pl.edu.uj.tcs.rchess.model.pieces.Piece
 
 /**
@@ -95,7 +96,7 @@ class Fen private constructor(fenData: String) {
                 var emptyCount = 0
 
                 for (f in 0..7) {
-                    getPieceAt(Square(r, f))?.let<Piece, StringBuilder> { piece ->
+                    board[Square(r, f)]?.let { piece ->
                         if (emptyCount != 0) {
                             this.append(emptyCount.digitToChar())
                             emptyCount = 0
@@ -135,7 +136,7 @@ class Fen private constructor(fenData: String) {
         fun BoardState.Companion.fromFen(fenString: String): BoardState {
             val fen = Fen(fenString)
 
-            val newBoard = MutableList<Piece?>(size = 64) { null }
+            val newBoard = MutableBoard.empty()
             for(row in 7 downTo 0) {
                 val fenRow = fen.boardState[7 - row]
                 var column = 0
@@ -144,7 +145,7 @@ class Fen private constructor(fenData: String) {
                     if(v.isDigit())
                         column += v.digitToInt()
                     else {
-                        newBoard[(8 * row) + column] = Piece.fromFenLetter(v)
+                        newBoard[Square(rank = row, file = column)] = Piece.fromFenLetter(v)
                         column++
                     }
                 }

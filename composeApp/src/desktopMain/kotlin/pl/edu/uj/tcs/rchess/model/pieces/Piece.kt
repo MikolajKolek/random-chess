@@ -11,42 +11,42 @@ import pl.edu.uj.tcs.rchess.model.Square
  */
 sealed class Piece(val owner: PlayerColor) {
     /**
-     * @param board The board that this piece is on.
+     * @param boardState The board that this piece is on.
      * @param square The square that this piece is on.
      * @return List of all possible and legal moves that this piece can currently perform.
      */
-    fun getLegalMoves(board: BoardState, square: Square): List<Move> {
-        val piece = board.getPieceAt(square)
+    fun getLegalMoves(boardState: BoardState, square: Square): List<Move> {
+        val piece = boardState.board[square]
             ?: throw IllegalArgumentException("The square is not occupied by any piece")
         require(piece::class == this::class) { "The square is not occupied by this piece" }
         require(piece.owner == owner) { "The piece in the given square has a different owner" }
 
-        return getPieceVision(board, square).filter { board.isLegalMove(it) }
+        return getPieceVision(boardState, square).filter { boardState.isLegalMove(it) }
     }
 
     /**
-     * @param board The board that this piece is on.
+     * @param boardState The board that this piece is on.
      * @param square The square that this piece is on.
      * @return List of all capturing moves.
      */
-    abstract fun getCaptureVision(board: BoardState, square: Square): List<Move>
+    abstract fun getCaptureVision(boardState: BoardState, square: Square): List<Move>
 
     /**
-     * @param board The board that this piece is on.
+     * @param boardState The board that this piece is on.
      * @param square The square that this piece is on.
      * @return List of all moves without captures.
      */
-    abstract fun getMoveVision(board: BoardState, square: Square): List<Move>
+    abstract fun getMoveVision(boardState: BoardState, square: Square): List<Move>
 
     /**
-     * @param board The board that this piece is on.
+     * @param boardState The board that this piece is on.
      * @param square The square that this piece is on.
      * @return List of all valid moves this piece can make.
      * @see getCaptureVision
      * @see getMoveVision
      */
-    fun getPieceVision(board: BoardState, square: Square) =
-        getMoveVision(board, square) + getCaptureVision(board, square)
+    fun getPieceVision(boardState: BoardState, square: Square) =
+        getMoveVision(boardState, square) + getCaptureVision(boardState, square)
 
     /**
      * Lowercase letter representing the piece

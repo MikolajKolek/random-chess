@@ -29,7 +29,7 @@ class BoardStateTest {
     fun initialPositionTest() {
         BoardState.fromFen(Fen.INITIAL)
         BoardState.initial().toFenString()
-        Assert.assertEquals(BoardState.initial().getPieceAt(Square.fromString("e1"))!!.javaClass, King(PlayerColor.WHITE).javaClass)
+        Assert.assertEquals(BoardState.initial().board[Square.fromString("e1")]!!.javaClass, King(PlayerColor.WHITE).javaClass)
     }
 
     @Test
