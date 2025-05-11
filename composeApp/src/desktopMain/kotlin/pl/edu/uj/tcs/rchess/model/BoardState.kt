@@ -319,7 +319,7 @@ class BoardState(
         }
 
         if(_sa.contains("O-O-O")) {
-            require(_sa == "O-O-0") { "Invalid move pattern." }
+            require(_sa == "O-O-O") { "Invalid move pattern." }
             require(if(currentTurn==PlayerColor.WHITE) {castlingRights.whiteQueenSide} else {castlingRights.blackQueenSide}) { "Castling rights invalid." }
             if(currentTurn==PlayerColor.WHITE) {move = Move(Square.fromString("e1"),Square.fromString("c1"))}
             else {move = Move(Square.fromString("e8"), Square.fromString("c8"))}
