@@ -1,0 +1,27 @@
+package pl.edu.uj.tcs.rchess.components
+
+import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import pl.edu.uj.tcs.rchess.AppContext
+
+class ImportPgnViewModel(private val context: AppContext): ViewModel() {
+    val pgnInput = mutableStateOf("")
+
+    private val _isLoading = mutableStateOf(false)
+    val isLoading: Boolean
+        get() = _isLoading.value
+
+    suspend fun submit() {
+        if (_isLoading.value) return
+        try {
+            _isLoading.value = true
+            withContext(Dispatchers.IO) {
+                context.clientApi.addPgnGames(pgnInput.value)
+            }
+        } finally {
+            _isLoading.value = false
+        }
+    }
+}

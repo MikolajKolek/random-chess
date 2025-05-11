@@ -21,11 +21,11 @@ interface ClientApi {
     suspend fun getPgnGame(id: Int): PgnGame
 
     /**
-     * @param fullPGN The full PGN string
+     * @param fullPgn The full PGN string
      * @return The IDs of the newly added games
-     * @throws IllegalArgumentException when the [fullPGN] argument is not a valid PGN database
+     * @throws IllegalArgumentException when the [fullPgn] argument is not a valid PGN database
      */
-    suspend fun addPGNGames(fullPGN: String): List<Int>
+    suspend fun addPgnGames(fullPgn: String): List<Int>
 
     /**
      * @return The system [ServiceAccount] of the user

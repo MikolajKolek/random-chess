@@ -64,10 +64,10 @@ class Server(private val config: Config) : ClientApi {
         )
     }
 
-    override suspend fun addPGNGames(fullPGN: String): List<Int> {
+    override suspend fun addPgnGames(fullPgn: String): List<Int> {
         val result = mutableListOf<Int>()
         dsl.transaction { transaction ->
-            for(pgn in Pgn.fromPgnDatabase(fullPGN)) {
+            for(pgn in Pgn.fromPgnDatabase(fullPgn)) {
                 result.add(transaction.dsl().insertInto(PGN_GAMES)
                     .set(PGN_GAMES.MOVES, pgn.moves.map { it.toLongAlgebraicNotation() }.toTypedArray())
                     .set(PGN_GAMES.CREATION_DATE, LocalDateTime.now())
