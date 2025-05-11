@@ -236,8 +236,15 @@ class BoardState(
     fun isOver() : GameOverReason? {
         // This method only checks game over reasons within the single BoardState
         // That is checkmate, stalemate, insufficient material and 50 move rule
-        val kingSquare = locateKing(currentTurn)
-        if(getLegalMovesFor(kingSquare).isEmpty()) {
+        val allLegalMoves = mutableListOf<Move>()
+        for(r in 0..7) {
+            for(f in 0..7) {
+                if(board.get(Square(r, f))?.owner == currentTurn) {
+                    allLegalMoves.addAll(getLegalMovesFor(Square(r, f)))
+                }
+            }
+        }
+        if(allLegalMoves.isEmpty()) {
             return if(isInCheck(currentTurn))
                 GameOverReason.CHECKMATE
             else
@@ -387,8 +394,8 @@ class BoardState(
             }
         }
         require(returnMove != null) { "No such move found to $destinationSquare" }
-        if(requiresCheckmate) require(verifyCheckmate(returnMove)) { "Checkmate declared and not delivered." }
-        if(requiresCheck) require(verifyCheck(returnMove)) { "Check declared and not delivered." }
+        require(requiresCheckmate == verifyCheckmate(returnMove)) { "Checkmate declaration mismatch." }
+        require(requiresCheck || requiresCheckmate == verifyCheck(returnMove)) { "Check declaration mismatch." }
         if(requiresCapture) require(board[returnMove.from]!!.getCaptureVision(this, returnMove.from).contains(returnMove))
             { "Capture declared, but there is no piece to capture." }
         return returnMove
