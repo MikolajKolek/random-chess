@@ -40,6 +40,9 @@ kotlin {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
         }
+        desktopMain.languageSettings {
+            optIn("kotlin.time.ExperimentalTime")
+        }
         @Suppress("unused")
         val desktopTest by getting {
             dependencies {

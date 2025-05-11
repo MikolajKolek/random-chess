@@ -2,10 +2,10 @@ package pl.edu.uj.tcs.rchess.bot
 
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.takeWhile
-import pl.edu.uj.tcs.rchess.model.GameInput
+import pl.edu.uj.tcs.rchess.model.game.GameInput
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
-import pl.edu.uj.tcs.rchess.model.observer.GameObserver
+import pl.edu.uj.tcs.rchess.model.game.GameObserver
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -33,12 +33,12 @@ class Bot(private val process: Process,
     //  Multiple calls to playGame will cause chaos
     suspend fun playGame(gameObserver: GameObserver, gameInput: GameInput) {
         // TODO: potential problem if multiple bots are called with the same gameInput
-        gameObserver.messageFlow
+        gameObserver.updateFlow
             .takeWhile { update ->
                 update.state.progress is GameProgress.Running
             }
             .filter { update ->
-                update.state.currentState.currentTurn == gameInput.getColor()
+                update.state.currentState.currentTurn == gameInput.playerColor
             }
             .collect { update ->
                 // TODO: If it's possible to never get a bestmove, the bot should send a resign command

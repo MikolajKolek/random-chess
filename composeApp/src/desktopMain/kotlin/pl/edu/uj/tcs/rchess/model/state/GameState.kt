@@ -3,6 +3,8 @@ package pl.edu.uj.tcs.rchess.model.state
 import pl.edu.uj.tcs.rchess.model.BoardState
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
+import kotlin.time.Clock
+import kotlin.time.Duration
 
 /**
  * Immutable class holding the full state of the game including history and clocks
@@ -44,6 +46,15 @@ data class GameState(
         }
 
     companion object {
+        fun starting(initialBoardState: BoardState, timeLimit: Duration) = GameState(
+            boardStates = listOf(initialBoardState),
+            moves = emptyList(),
+            progress = GameProgress.Running(
+                currentPlayerClock = ClockState.Running(timeLimit, Clock.System.now() + timeLimit),
+                otherPlayerClock = ClockState.Paused(timeLimit, timeLimit)
+            ),
+        )
+
         /**
          * Creates an already finished game state by recreating [boardStates] just from [moves]
          */

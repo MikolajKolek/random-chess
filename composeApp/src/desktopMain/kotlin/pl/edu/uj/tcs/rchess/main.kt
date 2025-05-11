@@ -2,7 +2,9 @@ package pl.edu.uj.tcs.rchess
 
 import androidx.compose.runtime.remember
 import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
+import androidx.compose.ui.window.rememberWindowState
 import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.addFileSource
 import pl.edu.uj.tcs.rchess.server.ClientApi
@@ -13,10 +15,12 @@ private val config: Config = ConfigLoaderBuilder.default().addFileSource(File("c
 private val clientApi: ClientApi = Server(config)
 
 fun main() = application {
+    val state = rememberWindowState(placement = WindowPlacement.Maximized)
     val context = remember { AppContext(clientApi) }
 
     Window(
         onCloseRequest = ::exitApplication,
+        state = state,
         title = "Random Chess",
     ) {
         MainWindowContent(context)
