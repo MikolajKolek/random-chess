@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -11,10 +12,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
+import org.jetbrains.compose.resources.painterResource
 import pl.edu.uj.tcs.rchess.model.BoardState
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.Square
+import rchess.composeapp.generated.resources.Res
+import rchess.composeapp.generated.resources.square_capture
 
 /**
  * Get the rank indexes as they appear from top to bottom on the screen
@@ -32,6 +36,12 @@ fun ranksFor(orientation: PlayerColor) = when (orientation) {
 fun filesFor(orientation: PlayerColor) = when (orientation) {
     PlayerColor.WHITE -> 0..7
     PlayerColor.BLACK -> 7 downTo 0
+}
+
+enum class SquareHighlight {
+    Start,
+    Capture,
+    Move,
 }
 
 @Composable
@@ -54,13 +64,15 @@ fun BoardView(
     }
 
     fun onSquareClicked(square: Square) {
-        val fromPiece = state.board[square]
-        if (fromPiece?.owner == moveAvailableForColor && square != moveInProgress?.startSquare) {
-            moveInProgress = MoveInProgress(
-                startSquare = square,
-                possibleMoves = state.getLegalMovesFor(square),
-            )
-            return
+        state.board[square]?.let { fromPiece ->
+            if (fromPiece.owner == moveAvailableForColor && square != moveInProgress?.startSquare) {
+                moveInProgress = MoveInProgress(
+                    startSquare = square,
+                    possibleMoves = state.getLegalMovesFor(square),
+                    startPiece = fromPiece,
+                )
+                return
+            }
         }
 
         val selectedMoves = moveInProgress?.possibleMoves?.filter { move ->
@@ -71,6 +83,7 @@ fun BoardView(
         moveInProgress = null
     }
 
+    val moveInProgressCopy = moveInProgress
     Column(
         modifier = Modifier
             .width(8 * pieceSize)
@@ -84,14 +97,23 @@ fun BoardView(
                     val square = Square(rank = rank, file = file)
                     val piece = state.board[square]
 
+                    val highlight: SquareHighlight? = when {
+                        moveInProgressCopy?.startSquare == square -> SquareHighlight.Start
+                        moveInProgressCopy != null && moveInProgressCopy.targetSquares.contains(square) ->
+                            if (piece?.owner == moveInProgressCopy.startPiece.owner.opponent) SquareHighlight.Capture
+                            else SquareHighlight.Move
+                        else -> null
+                    }
+
                     Box(
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxHeight()
                             .let {
                                 when {
-                                    moveInProgress?.startSquare == square -> it.background(Color.Yellow)
-                                    moveInProgress?.targetSquares?.contains(square) ?: false -> it.background(Color.Green)
+                                    highlight == SquareHighlight.Start -> it.background(Color.Yellow)
+                                    highlight == SquareHighlight.Move -> it.background(Color.Green)
+                                    highlight == SquareHighlight.Capture -> it.background(Color.Red.copy(alpha = 0.4f))
                                     square.isDark -> it.background(Color.LightGray)
                                     else -> it
                                 }
@@ -111,6 +133,15 @@ fun BoardView(
                                 piece.unicodeSymbol,
                                 fontSize = 48.sp,
                                 modifier = Modifier.align(Alignment.Center),
+                            )
+                        }
+
+                        if (highlight == SquareHighlight.Capture) {
+                            Icon(
+                                modifier = Modifier.align(Alignment.Center).fillMaxSize(),
+                                painter = painterResource(Res.drawable.square_capture),
+                                contentDescription = null,
+                                tint = Color.Black,
                             )
                         }
                     }

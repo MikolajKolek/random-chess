@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+        width="64"
+        height="64"
+        viewBox="0 0 64 64"
+        version="1.1"
+        id="svg5"
+        inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+        sodipodi:docname="board-square.svg"
+        xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+        xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+        xmlns="http://www.w3.org/2000/svg"
+>
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#505050"
+     bordercolor="#ffffff"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="1"
+     inkscape:deskcolor="#505050"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="3.2181565"
+     inkscape:cx="109.53476"
+     inkscape:cy="66.34233"
+     inkscape:window-width="1920"
+     inkscape:window-height="1004"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1">
+    <inkscape:grid
+       type="xygrid"
+       id="grid182"
+       empspacing="4" />
+  </sodipodi:namedview>
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="capture"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       style="fill:#ff0000;fill-opacity:0.990099;stroke-width:1.51181;stroke-linejoin:round;paint-order:markers stroke fill"
+       d="M 52,4 48,16 60,12 54,10 Z"
+       id="path238" />
+    <path
+       style="fill:#ff0000;fill-opacity:0.990099;stroke-width:1.51181;stroke-linejoin:round;paint-order:markers stroke fill"
+       d="m 60,52 -12,-4 4,12 2,-6 z"
+       id="path348" />
+    <path
+       style="fill:#ff0000;fill-opacity:0.990099;stroke-width:1.51181;stroke-linejoin:round;paint-order:markers stroke fill"
+       d="m 12,60 4,-12 -12.0000001,4 6,2 z"
+       id="path350" />
+    <path
+       style="fill:#ff0000;fill-opacity:0.990099;stroke-width:1.51181;stroke-linejoin:round;paint-order:markers stroke fill"
+       d="M 3.9999999,12 16,16 12,4 9.9999999,10 Z"
+       id="path352" />
+  </g>
+</svg>
