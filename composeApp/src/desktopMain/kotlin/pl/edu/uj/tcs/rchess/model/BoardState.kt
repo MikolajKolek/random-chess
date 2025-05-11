@@ -53,7 +53,7 @@ class BoardState(
         val newBoard = board.toMutableBoard()
         var newEnPassant : Square? = null
         var newHalfMoveCounter = halfmoveCounter + 1
-        var newCastlingRights: CastlingRights = castlingRights.copy()
+        var newCastlingRights: CastlingRights = castlingRights
 
         // Set en passant in the new board
         if(pieceFrom is Pawn) {
@@ -72,11 +72,7 @@ class BoardState(
 
         // Set proper castling rights in the new board
         if(pieceFrom is King) {
-            newCastlingRights = if(pieceFrom.owner == PlayerColor.WHITE) {
-                newCastlingRights.copy(whiteKingSide = false, whiteQueenSide = false)
-            } else {
-                newCastlingRights.copy(blackKingSide = false, blackQueenSide = false)
-            }
+            newCastlingRights = newCastlingRights.withoutBoth(pieceFrom.owner)
 
             if(abs(move.from.file - move.to.file) == 2) {
                 when(move.to) {

@@ -14,7 +14,7 @@ data class CastlingRights(
             blackQueenSide = true
         )
 
-        fun fromString(value : String) : CastlingRights {
+        fun fromString(value: String): CastlingRights {
             return CastlingRights(
                 whiteKingSide = value.contains("K"),
                 whiteQueenSide = value.contains("Q"),
@@ -25,16 +25,29 @@ data class CastlingRights(
     }
 
     override fun toString(): String {
-        if(!whiteKingSide && !whiteQueenSide && !blackKingSide && !blackQueenSide)
+        if (!whiteKingSide && !whiteQueenSide && !blackKingSide && !blackQueenSide)
             return "-"
 
-        var res = ""
-
-        if(whiteKingSide) res += "K"
-        if(whiteQueenSide) res += "Q"
-        if(blackKingSide) res += "k"
-        if(blackQueenSide) res += "q"
-
-        return res
+        return buildString {
+            if (whiteKingSide) append('K')
+            if (whiteQueenSide) append('Q')
+            if (blackKingSide) append('k')
+            if (blackQueenSide) append('q')
+        }
     }
+
+    fun withoutKing(color: PlayerColor): CastlingRights =
+        when (color) {
+            PlayerColor.WHITE -> copy(whiteKingSide = false)
+            PlayerColor.BLACK -> copy(blackKingSide = false)
+        }
+
+    fun withoutQueen(color: PlayerColor): CastlingRights =
+        when (color) {
+            PlayerColor.WHITE -> copy(whiteQueenSide = false)
+            PlayerColor.BLACK -> copy(blackQueenSide = false)
+        }
+
+    fun withoutBoth(color: PlayerColor) =
+        withoutKing(color).withoutQueen(color)
 }
