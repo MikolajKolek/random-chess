@@ -16,9 +16,10 @@ sealed class Piece(val owner: PlayerColor) {
      * @return List of all possible and legal moves that this piece can currently perform.
      */
     fun getLegalMoves(board: BoardState, square: Square): List<Move> {
-        require(board.getPieceAt(square) != null) { "The square is not occupied by any piece" }
-        require(board.getPieceAt(square)!!::class == this::class) { "The square is not occupied by this piece" }
-        require(board.getPieceAt(square)!!.owner == owner) { "The piece in the given square has a different owner" }
+        val piece = board.getPieceAt(square)
+            ?: throw IllegalArgumentException("The square is not occupied by any piece")
+        require(piece::class == this::class) { "The square is not occupied by this piece" }
+        require(piece.owner == owner) { "The piece in the given square has a different owner" }
 
         return getPieceVision(board, square).filter { board.isLegalMove(it) }
     }

@@ -78,9 +78,8 @@ class BoardState(
      */
     fun applyMove(move: Move) : BoardState {
         if(!isLegal()) throw IllegalStateException( "Cannot apply move to illegal position." )
-        require(isValidMove(move)) { "Invalid move given." }
 
-        val pieceFrom = getPieceAt(move.from)!!
+        val pieceFrom = fromPieceIfMoveValid(move) ?: throw IllegalArgumentException("Invalid move given.")
         val pieceTo = getPieceAt(move.to)
 
         val newBoard = board.toMutableList()
@@ -175,12 +174,10 @@ class BoardState(
      * @param move The move to check.
      * @return True if the given move is valid in this context, otherwise false.
      */
-    private fun isValidMove(move: Move): Boolean {
-        val movedPiece = getPieceAt(move.from) ?: return false // There must be a piece to move.
-
-        // Move must be valid for the piece. This also checks if the piece isn't capturing the same color.
-        return movedPiece.getPieceVision(this, move.from).contains(move)
-    }
+    private fun fromPieceIfMoveValid(move: Move): Piece? =
+        getPieceAt(move.from)?.takeIf { piece ->
+            piece.owner == currentTurn && piece.getPieceVision(this, move.from).contains(move)
+        }
 
     /**
      * @return Returns true if the current position is legal
@@ -268,13 +265,13 @@ class BoardState(
             var emptyCount = 0
 
             for(f in 0..7) {
-                if(getPieceAt(Square(r, f)) != null) {
+                getPieceAt(Square(r, f))?.let { piece ->
                     if(emptyCount != 0) {
                         fenData += emptyCount.digitToChar()
                         emptyCount = 0
                     }
-                    fenData += getPieceAt(Square(r, f))!!.fenLetter
-                } else {
+                    fenData += piece.fenLetter
+                } ?: run {
                     emptyCount += 1
                 }
             }
