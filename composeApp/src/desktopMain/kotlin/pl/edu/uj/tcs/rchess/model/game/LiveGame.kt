@@ -19,8 +19,10 @@ class LiveGame(
     val stateMachine: StateMachine<GameState, GameStateChange> =
         StateMachine(GameState.starting(initialBoardState, timeLimit))
 
-    override val updateFlow = stateMachine.updateFlow
-    override val stateFlow = stateMachine.stateFlow
+    override val updateFlow
+        get() = stateMachine.updateFlow
+    override val stateFlow
+        get() = stateMachine.stateFlow
 
     fun makeMove(move: Move, playerColor: PlayerColor) = runBlocking {
         stateMachine.withState { gameState ->

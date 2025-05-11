@@ -27,6 +27,11 @@ class StateMachine<T, C: Change<T>>(
         extraBufferCapacity = 10, // arbitrary
     )
 
+    init {
+        val emitSuccess = _updateFlow.tryEmit(Update(initialState, null))
+        if (!emitSuccess) throw IllegalStateException("Failed to emit initial state in StateMachine")
+    }
+
     /**
      * A flow that emits all updates to the state.
      */
