@@ -22,37 +22,43 @@ fun GameScreen(
     val orientation = remember {
         mutableStateOf(input?.playerColor ?: PlayerColor.WHITE)
     }
-    val boardStateIndex = remember { mutableStateOf(0) }
 
-    if (boardStateIndex.value >= gameState.boardStates.size) {
-        boardStateIndex.value = gameState.boardStates.size - 1
-    }
-    val boardState = gameState.boardStates[boardStateIndex.value]
+// History browsing is disabled for live games, as it required stepping after each move
+// TODO: Fix
+//
+//    val boardStateIndex = remember { mutableStateOf(0) }
+//
+//    if (boardStateIndex.value >= gameState.boardStates.size) {
+//        boardStateIndex.value = gameState.boardStates.size - 1
+//    }
+//    val boardState = gameState.boardStates[boardStateIndex.value]
+    val boardState = gameState.currentState
 
-    val isInitial = boardStateIndex.value == 0
-    val isCurrent = boardStateIndex.value == gameState.boardStates.size - 1
+//    val isInitial = boardStateIndex.value == 0
+//    val isCurrent = boardStateIndex.value == gameState.boardStates.size - 1
+    val isCurrent = true
 
     Column {
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Button(
-                enabled = !isInitial,
-                onClick = {
-                    boardStateIndex.value--
-                }
-            ) {
-                Text("Previous")
-            }
-
-            Button(
-                enabled = !isCurrent,
-                onClick = {
-                    boardStateIndex.value++
-                }
-            ) {
-                Text("Next")
-            }
+//            Button(
+//                enabled = !isInitial,
+//                onClick = {
+//                    boardStateIndex.value--
+//                }
+//            ) {
+//                Text("Previous")
+//            }
+//
+//            Button(
+//                enabled = !isCurrent,
+//                onClick = {
+//                    boardStateIndex.value++
+//                }
+//            ) {
+//                Text("Next")
+//            }
 
             Button(
                 onClick = {
