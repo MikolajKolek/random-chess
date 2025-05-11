@@ -209,7 +209,16 @@ class BoardState(
      * @param move The move to verify.
      * @return True if the given move is legal in this position.
      */
-    fun isLegalMove(move : Move) = applyMove(move).isLegal()
+    fun isLegalMove(move : Move) : Boolean {
+        if(board[move.from] is King) {
+            if(abs(move.from.file - move.to.file) == 2) {
+                if(isInCheck(currentTurn)) return false
+                val halfCastle = move.copy(to = move.to.copy(file = (move.to.file+move.from.file)/2))
+                if(!applyMove(halfCastle).isLegal()) return false
+            }
+        }
+        return applyMove(move).isLegal()
+    }
 
     /**
      * @return List of legal moves for the piece at the given position.
