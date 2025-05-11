@@ -752,6 +752,133 @@ class PgnTest {
         ), boardStateFens(pgns[2]))
     }
 
+    @Test
+    fun moveSuffixAnnotationsTest() {
+        val pgn = Pgn("[Event \"Blitz Titled Arena May '25\"]\n" +
+                "[Site \"https://lichess.org/E2WJLDVZ\"]\n" +
+                "[Date \"2025.05.10\"]\n" +
+                "[White \"Silent-killer763\"]\n" +
+                "[Black \"Koshulyan_Egor\"]\n" +
+                "[Result \"1-0\"]\n" +
+                "[GameId \"E2WJLDVZ\"]\n" +
+                "[UTCDate \"2025.05.10\"]\n" +
+                "[UTCTime \"19:37:13\"]\n" +
+                "[BlackFideId \"24237000\"]\n" +
+                "[Variant \"Standard\"]\n" +
+                "[TimeControl \"180+0\"]\n" +
+                "[ECO \"A07\"]\n" +
+                "[Opening \"King's Indian Attack\"]\n" +
+                "[Termination \"Normal\"]\n" +
+                "[Annotator \"lichess.org\"]\n" +
+                "\n" +
+                "1. Nf3 d5 2. g3 { A07 King's Indian Attack } Nc6 3. d4 Bf5 4. Bg2 Qd7?! { (0.28 → 0.87) Inaccuracy. Nb4 was best. } (4... Nb4 5. Na3 e6 6. O-O Be7 7. c3 Nc6 8. Qa4 Qd7 9. Nb5) 5. O-O O-O-O 6. c4 e6 7. Nc3 h5 8. Qa4 Be7? { (1.10 → 2.58) Mistake. a6 was best. } (8... a6) 9. c5 h4?! { (2.15 → 3.20) Inaccuracy. Nf6 was best. } (9... Nf6 10. b4) 10. b4 hxg3 11. hxg3 Bh3? { (2.45 → 3.98) Mistake. Bf6 was best. } (11... Bf6 12. b5 Nge7 13. Be3 e5 14. bxc6 Nxc6 15. Rab1 exd4 16. Qb5 Qe6 17. Qxb7+) 12. b5 Nb8?! { (3.76 → 4.89) Inaccuracy. Nxd4 was best. } (12... Nxd4 13. Qxa7 Qxb5 14. Nxd4 Qxc5 15. Qa8+ Kd7 16. Qa4+ Kc8 17. Ncb5 Bxg2 18. Kxg2) 13. Ne5 Qe8 14. Qxa7 Bxg2?! { (5.59 → 7.87) Inaccuracy. Rd6 was best. } (14... Rd6 15. c6 bxc6 16. bxc6 Qxc6 17. Rb1 Qb6 18. Rxb6 Rxb6 19. Nxf7 Rh5 20. Bxh3) 15. c6 bxc6 16. bxc6 Qxc6 17. Nxc6?! { (6.98 → 4.58) Inaccuracy. Rb1 was best. } (17. Rb1 Na6 18. Kxg2 Bc5 19. dxc5 Ne7 20. Nxc6 Nxc6 21. Qxa6+ Kd7 22. Bf4 e5) 17... Nxc6 18. Qa6+ Kd7 19. Kxg2 Nf6 20. Bg5 Ra8 21. Qd3 Ra3 22. Rfc1 Rb8 23. Qd2 Bb4 24. Bxf6 gxf6 25. Rab1 Rb6 26. Rb3 Ra8 27. Qb2 Rab8 28. e3 Na5 29. Na4 Rb5 30. Nc5+ Ke7 31. Nd3 Nxb3 32. Qxb3 Bd6 33. Qc2 R5b6 34. Qd1 f5 35. Rc2 Rb1 36. Qe2 Rh8 37. Rc1 Rbb8 38. Ne5 Rh7?! { (4.48 → 6.56) Inaccuracy. Rb6 was best. } (38... Rb6 39. Qc2 Ra6 40. Nc6+ Kf6 41. Rh1 Rxh1 42. Kxh1 Ra3 43. Kg2 Kg7 44. Nb8) 39. Nc6+ Kf6 40. Nxb8 Rg7 41. Nd7+ Ke7 42. Ne5 f6 43. Nf3 Kf7 44. Qc2 Rh7 45. Qc6 Kg6 46. Rc2 Re7 47. a4 f4 48. exf4 Kf7 49. a5 Re8 50. a6 Bc5 51. dxc5 { Black resigns. } 1-0"
+        )
+
+        Assert.assertEquals(listOf(
+            "rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b KQkq - 1 1",
+            "rnbqkbnr/ppp1pppp/8/3p4/8/5N2/PPPPPPPP/RNBQKB1R w KQkq d6 0 2",
+            "rnbqkbnr/ppp1pppp/8/3p4/8/5NP1/PPPPPP1P/RNBQKB1R b KQkq - 0 2",
+            "r1bqkbnr/ppp1pppp/2n5/3p4/8/5NP1/PPPPPP1P/RNBQKB1R w KQkq - 1 3",
+            "r1bqkbnr/ppp1pppp/2n5/3p4/3P4/5NP1/PPP1PP1P/RNBQKB1R b KQkq d3 0 3",
+            "r2qkbnr/ppp1pppp/2n5/3p1b2/3P4/5NP1/PPP1PP1P/RNBQKB1R w KQkq - 1 4",
+            "r2qkbnr/ppp1pppp/2n5/3p1b2/3P4/5NP1/PPP1PPBP/RNBQK2R b KQkq - 2 4",
+            "r3kbnr/pppqpppp/2n5/3p1b2/3P4/5NP1/PPP1PPBP/RNBQK2R w KQkq - 3 5",
+            "r3kbnr/pppqpppp/2n5/3p1b2/3P4/5NP1/PPP1PPBP/RNBQ1RK1 b kq - 4 5",
+            "2kr1bnr/pppqpppp/2n5/3p1b2/3P4/5NP1/PPP1PPBP/RNBQ1RK1 w - - 5 6",
+            "2kr1bnr/pppqpppp/2n5/3p1b2/2PP4/5NP1/PP2PPBP/RNBQ1RK1 b - c3 0 6",
+            "2kr1bnr/pppq1ppp/2n1p3/3p1b2/2PP4/5NP1/PP2PPBP/RNBQ1RK1 w - - 0 7",
+            "2kr1bnr/pppq1ppp/2n1p3/3p1b2/2PP4/2N2NP1/PP2PPBP/R1BQ1RK1 b - - 1 7",
+            "2kr1bnr/pppq1pp1/2n1p3/3p1b1p/2PP4/2N2NP1/PP2PPBP/R1BQ1RK1 w - h6 0 8",
+            "2kr1bnr/pppq1pp1/2n1p3/3p1b1p/Q1PP4/2N2NP1/PP2PPBP/R1B2RK1 b - - 1 8",
+            "2kr2nr/pppqbpp1/2n1p3/3p1b1p/Q1PP4/2N2NP1/PP2PPBP/R1B2RK1 w - - 2 9",
+            "2kr2nr/pppqbpp1/2n1p3/2Pp1b1p/Q2P4/2N2NP1/PP2PPBP/R1B2RK1 b - - 0 9",
+            "2kr2nr/pppqbpp1/2n1p3/2Pp1b2/Q2P3p/2N2NP1/PP2PPBP/R1B2RK1 w - - 0 10",
+            "2kr2nr/pppqbpp1/2n1p3/2Pp1b2/QP1P3p/2N2NP1/P3PPBP/R1B2RK1 b - b3 0 10",
+            "2kr2nr/pppqbpp1/2n1p3/2Pp1b2/QP1P4/2N2Np1/P3PPBP/R1B2RK1 w - - 0 11",
+            "2kr2nr/pppqbpp1/2n1p3/2Pp1b2/QP1P4/2N2NP1/P3PPB1/R1B2RK1 b - - 0 11",
+            "2kr2nr/pppqbpp1/2n1p3/2Pp4/QP1P4/2N2NPb/P3PPB1/R1B2RK1 w - - 1 12",
+            "2kr2nr/pppqbpp1/2n1p3/1PPp4/Q2P4/2N2NPb/P3PPB1/R1B2RK1 b - - 0 12",
+            "1nkr2nr/pppqbpp1/4p3/1PPp4/Q2P4/2N2NPb/P3PPB1/R1B2RK1 w - - 1 13",
+            "1nkr2nr/pppqbpp1/4p3/1PPpN3/Q2P4/2N3Pb/P3PPB1/R1B2RK1 b - - 2 13",
+            "1nkrq1nr/ppp1bpp1/4p3/1PPpN3/Q2P4/2N3Pb/P3PPB1/R1B2RK1 w - - 3 14",
+            "1nkrq1nr/Qpp1bpp1/4p3/1PPpN3/3P4/2N3Pb/P3PPB1/R1B2RK1 b - - 0 14",
+            "1nkrq1nr/Qpp1bpp1/4p3/1PPpN3/3P4/2N3P1/P3PPb1/R1B2RK1 w - - 0 15",
+            "1nkrq1nr/Qpp1bpp1/2P1p3/1P1pN3/3P4/2N3P1/P3PPb1/R1B2RK1 b - - 0 15",
+            "1nkrq1nr/Q1p1bpp1/2p1p3/1P1pN3/3P4/2N3P1/P3PPb1/R1B2RK1 w - - 0 16",
+            "1nkrq1nr/Q1p1bpp1/2P1p3/3pN3/3P4/2N3P1/P3PPb1/R1B2RK1 b - - 0 16",
+            "1nkr2nr/Q1p1bpp1/2q1p3/3pN3/3P4/2N3P1/P3PPb1/R1B2RK1 w - - 0 17",
+            "1nkr2nr/Q1p1bpp1/2N1p3/3p4/3P4/2N3P1/P3PPb1/R1B2RK1 b - - 0 17",
+            "2kr2nr/Q1p1bpp1/2n1p3/3p4/3P4/2N3P1/P3PPb1/R1B2RK1 w - - 0 18",
+            "2kr2nr/2p1bpp1/Q1n1p3/3p4/3P4/2N3P1/P3PPb1/R1B2RK1 b - - 1 18",
+            "3r2nr/2pkbpp1/Q1n1p3/3p4/3P4/2N3P1/P3PPb1/R1B2RK1 w - - 2 19",
+            "3r2nr/2pkbpp1/Q1n1p3/3p4/3P4/2N3P1/P3PPK1/R1B2R2 b - - 0 19",
+            "3r3r/2pkbpp1/Q1n1pn2/3p4/3P4/2N3P1/P3PPK1/R1B2R2 w - - 1 20",
+            "3r3r/2pkbpp1/Q1n1pn2/3p2B1/3P4/2N3P1/P3PPK1/R4R2 b - - 2 20",
+            "r6r/2pkbpp1/Q1n1pn2/3p2B1/3P4/2N3P1/P3PPK1/R4R2 w - - 3 21",
+            "r6r/2pkbpp1/2n1pn2/3p2B1/3P4/2NQ2P1/P3PPK1/R4R2 b - - 4 21",
+            "7r/2pkbpp1/2n1pn2/3p2B1/3P4/r1NQ2P1/P3PPK1/R4R2 w - - 5 22",
+            "7r/2pkbpp1/2n1pn2/3p2B1/3P4/r1NQ2P1/P3PPK1/R1R5 b - - 6 22",
+            "1r6/2pkbpp1/2n1pn2/3p2B1/3P4/r1NQ2P1/P3PPK1/R1R5 w - - 7 23",
+            "1r6/2pkbpp1/2n1pn2/3p2B1/3P4/r1N3P1/P2QPPK1/R1R5 b - - 8 23",
+            "1r6/2pk1pp1/2n1pn2/3p2B1/1b1P4/r1N3P1/P2QPPK1/R1R5 w - - 9 24",
+            "1r6/2pk1pp1/2n1pB2/3p4/1b1P4/r1N3P1/P2QPPK1/R1R5 b - - 0 24",
+            "1r6/2pk1p2/2n1pp2/3p4/1b1P4/r1N3P1/P2QPPK1/R1R5 w - - 0 25",
+            "1r6/2pk1p2/2n1pp2/3p4/1b1P4/r1N3P1/P2QPPK1/1RR5 b - - 1 25",
+            "8/2pk1p2/1rn1pp2/3p4/1b1P4/r1N3P1/P2QPPK1/1RR5 w - - 2 26",
+            "8/2pk1p2/1rn1pp2/3p4/1b1P4/rRN3P1/P2QPPK1/2R5 b - - 3 26",
+            "r7/2pk1p2/1rn1pp2/3p4/1b1P4/1RN3P1/P2QPPK1/2R5 w - - 4 27",
+            "r7/2pk1p2/1rn1pp2/3p4/1b1P4/1RN3P1/PQ2PPK1/2R5 b - - 5 27",
+            "1r6/2pk1p2/1rn1pp2/3p4/1b1P4/1RN3P1/PQ2PPK1/2R5 w - - 6 28",
+            "1r6/2pk1p2/1rn1pp2/3p4/1b1P4/1RN1P1P1/PQ3PK1/2R5 b - - 0 28",
+            "1r6/2pk1p2/1r2pp2/n2p4/1b1P4/1RN1P1P1/PQ3PK1/2R5 w - - 1 29",
+            "1r6/2pk1p2/1r2pp2/n2p4/Nb1P4/1R2P1P1/PQ3PK1/2R5 b - - 2 29",
+            "1r6/2pk1p2/4pp2/nr1p4/Nb1P4/1R2P1P1/PQ3PK1/2R5 w - - 3 30",
+            "1r6/2pk1p2/4pp2/nrNp4/1b1P4/1R2P1P1/PQ3PK1/2R5 b - - 4 30",
+            "1r6/2p1kp2/4pp2/nrNp4/1b1P4/1R2P1P1/PQ3PK1/2R5 w - - 5 31",
+            "1r6/2p1kp2/4pp2/nr1p4/1b1P4/1R1NP1P1/PQ3PK1/2R5 b - - 6 31",
+            "1r6/2p1kp2/4pp2/1r1p4/1b1P4/1n1NP1P1/PQ3PK1/2R5 w - - 0 32",
+            "1r6/2p1kp2/4pp2/1r1p4/1b1P4/1Q1NP1P1/P4PK1/2R5 b - - 0 32",
+            "1r6/2p1kp2/3bpp2/1r1p4/3P4/1Q1NP1P1/P4PK1/2R5 w - - 1 33",
+            "1r6/2p1kp2/3bpp2/1r1p4/3P4/3NP1P1/P1Q2PK1/2R5 b - - 2 33",
+            "1r6/2p1kp2/1r1bpp2/3p4/3P4/3NP1P1/P1Q2PK1/2R5 w - - 3 34",
+            "1r6/2p1kp2/1r1bpp2/3p4/3P4/3NP1P1/P4PK1/2RQ4 b - - 4 34",
+            "1r6/2p1kp2/1r1bp3/3p1p2/3P4/3NP1P1/P4PK1/2RQ4 w - - 0 35",
+            "1r6/2p1kp2/1r1bp3/3p1p2/3P4/3NP1P1/P1R2PK1/3Q4 b - - 1 35",
+            "1r6/2p1kp2/3bp3/3p1p2/3P4/3NP1P1/P1R2PK1/1r1Q4 w - - 2 36",
+            "1r6/2p1kp2/3bp3/3p1p2/3P4/3NP1P1/P1R1QPK1/1r6 b - - 3 36",
+            "7r/2p1kp2/3bp3/3p1p2/3P4/3NP1P1/P1R1QPK1/1r6 w - - 4 37",
+            "7r/2p1kp2/3bp3/3p1p2/3P4/3NP1P1/P3QPK1/1rR5 b - - 5 37",
+            "1r5r/2p1kp2/3bp3/3p1p2/3P4/3NP1P1/P3QPK1/2R5 w - - 6 38",
+            "1r5r/2p1kp2/3bp3/3pNp2/3P4/4P1P1/P3QPK1/2R5 b - - 7 38",
+            "1r6/2p1kp1r/3bp3/3pNp2/3P4/4P1P1/P3QPK1/2R5 w - - 8 39",
+            "1r6/2p1kp1r/2Nbp3/3p1p2/3P4/4P1P1/P3QPK1/2R5 b - - 9 39",
+            "1r6/2p2p1r/2Nbpk2/3p1p2/3P4/4P1P1/P3QPK1/2R5 w - - 10 40",
+            "1N6/2p2p1r/3bpk2/3p1p2/3P4/4P1P1/P3QPK1/2R5 b - - 0 40",
+            "1N6/2p2pr1/3bpk2/3p1p2/3P4/4P1P1/P3QPK1/2R5 w - - 1 41",
+            "8/2pN1pr1/3bpk2/3p1p2/3P4/4P1P1/P3QPK1/2R5 b - - 2 41",
+            "8/2pNkpr1/3bp3/3p1p2/3P4/4P1P1/P3QPK1/2R5 w - - 3 42",
+            "8/2p1kpr1/3bp3/3pNp2/3P4/4P1P1/P3QPK1/2R5 b - - 4 42",
+            "8/2p1k1r1/3bpp2/3pNp2/3P4/4P1P1/P3QPK1/2R5 w - - 0 43",
+            "8/2p1k1r1/3bpp2/3p1p2/3P4/4PNP1/P3QPK1/2R5 b - - 1 43",
+            "8/2p2kr1/3bpp2/3p1p2/3P4/4PNP1/P3QPK1/2R5 w - - 2 44",
+            "8/2p2kr1/3bpp2/3p1p2/3P4/4PNP1/P1Q2PK1/2R5 b - - 3 44",
+            "8/2p2k1r/3bpp2/3p1p2/3P4/4PNP1/P1Q2PK1/2R5 w - - 4 45",
+            "8/2p2k1r/2Qbpp2/3p1p2/3P4/4PNP1/P4PK1/2R5 b - - 5 45",
+            "8/2p4r/2Qbppk1/3p1p2/3P4/4PNP1/P4PK1/2R5 w - - 6 46",
+            "8/2p4r/2Qbppk1/3p1p2/3P4/4PNP1/P1R2PK1/8 b - - 7 46",
+            "8/2p1r3/2Qbppk1/3p1p2/3P4/4PNP1/P1R2PK1/8 w - - 8 47",
+            "8/2p1r3/2Qbppk1/3p1p2/P2P4/4PNP1/2R2PK1/8 b - a3 0 47",
+            "8/2p1r3/2Qbppk1/3p4/P2P1p2/4PNP1/2R2PK1/8 w - - 0 48",
+            "8/2p1r3/2Qbppk1/3p4/P2P1P2/5NP1/2R2PK1/8 b - - 0 48",
+            "8/2p1rk2/2Qbpp2/3p4/P2P1P2/5NP1/2R2PK1/8 w - - 1 49",
+            "8/2p1rk2/2Qbpp2/P2p4/3P1P2/5NP1/2R2PK1/8 b - - 0 49",
+            "4r3/2p2k2/2Qbpp2/P2p4/3P1P2/5NP1/2R2PK1/8 w - - 1 50",
+            "4r3/2p2k2/P1Qbpp2/3p4/3P1P2/5NP1/2R2PK1/8 b - - 0 50",
+            "4r3/2p2k2/P1Q1pp2/2bp4/3P1P2/5NP1/2R2PK1/8 w - - 1 51",
+            "4r3/2p2k2/P1Q1pp2/2Pp4/5P2/5NP1/2R2PK1/8 b - - 0 51"
+        ), boardStateFens(pgn))
+    }
+
     // Set this to true if you want to run the external tests.
     // They require the presence of the pgn databases in desktopTest.
     val runExternalTests = false

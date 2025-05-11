@@ -46,16 +46,31 @@ class Pgn private constructor(pgnGameRegexMatch: MatchResult) {
     }
 
     private fun pgnMovetextToMoves(movetext: String): List<Move> {
-        val moves = movetext
+        val withoutRAV = StringBuilder()
+        var ravDepth = 0
+        for(c in movetext) {
+            if(c == '(')
+                ravDepth++
+            else if(c == ')') {
+                if(ravDepth == 0)
+                    throw IllegalArgumentException("Invalid RAV in PGN.")
+
+                ravDepth--
+            }
+            else if(ravDepth == 0)
+                withoutRAV.append(c)
+        }
+
+        val moves = withoutRAV
             .replace(Regex("\\{[^}]*}"), " ")               // komentarze multi-line
             .replace(Regex(";.+$"), " ")                    // komentarze single-line
             .replace(Regex("\\$\\d+"), " ")                 // NAG
-            .replace(Regex("\\(.*\\)"), " ")                // RAV
             .replace(Regex("\\d+\\.(\\.\\.)?\\s*"), " ")    // numery tur
             .trim()
             .replace(Regex("\\s*(1-0|0-1|1/2-1/2|\\*)\\s*$"), "")
             .split(Regex("\\s+"))
             .filter { it.isNotEmpty() }
+            .map { it.replace(Regex("(!|\\?|!!|!\\?|\\?!|\\?\\?)"), "") }
 
         var boardState = startingPosition
         val result = mutableListOf<Move>()
