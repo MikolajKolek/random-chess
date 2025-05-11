@@ -220,4 +220,9 @@ class BoardStateTest {
             .testAlgebraicMove("Kc1", "1Q6/5pk1/2p3p1/1p2N2p/1b5P/1bn5/r5P1/2K5 b - - 15 41")
             .testAlgebraicMove("Rc2#", "1Q6/5pk1/2p3p1/1p2N2p/1b5P/1bn5/2r3P1/2K5 w - - 16 42")
     }
+
+    @Test
+    fun longCastleTest() {
+        BoardState.fromFen("r1bk3r/1ppn1pp1/p6p/8/1bP5/2N1P3/PP1B1PPP/R3KB1R w KQ - 0 11").applyStandardAlgebraicMove("O-O-O")
+    }
 }
