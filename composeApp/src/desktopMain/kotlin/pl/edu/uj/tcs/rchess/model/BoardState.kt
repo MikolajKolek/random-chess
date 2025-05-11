@@ -392,6 +392,7 @@ class BoardState(
                 if(fileDisambiguation != null) if(fileDisambiguation != f) continue
                 val myMove = Move(fromSquare, destinationSquare, promotionPiece)
                 if(!piece.getPieceVision(this, fromSquare).contains(myMove)) continue
+                if(!applyMove(myMove).isLegal()) continue
                 require(returnMove == null) { "Move definition ambiguous." }
                 returnMove = myMove
             }

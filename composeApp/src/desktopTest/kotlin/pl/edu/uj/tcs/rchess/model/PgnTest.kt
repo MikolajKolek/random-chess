@@ -6,6 +6,30 @@ import org.junit.Test
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 
 class PgnTest {
+
+    @Test
+    fun smallSpecificTest() {
+        val pgn = Pgn("[Event \"Hourly SuperBlitz Arena\"]\n" +
+                "[Site \"https://lichess.org/HafTJQ06\"]\n" +
+                "[Date \"2025.05.08\"]\n" +
+                "[White \"oussamabha\"]\n" +
+                "[Black \"german11\"]\n" +
+                "[Result \"1-0\"]\n" +
+                "[GameId \"HafTJQ06\"]\n" +
+                "[UTCDate \"2025.05.08\"]\n" +
+                "[UTCTime \"22:08:17\"]\n" +
+                "[WhiteElo \"1730\"]\n" +
+                "[BlackElo \"1317\"]\n" +
+                "[WhiteRatingDiff \"+1\"]\n" +
+                "[BlackRatingDiff \"-1\"]\n" +
+                "[Variant \"Standard\"]\n" +
+                "[TimeControl \"180+0\"]\n" +
+                "[ECO \"A41\"]\n" +
+                "[Termination \"Normal\"]\n" +
+                "\n" +
+                "1. d4 d6 2. c4 Nd7 3. Nc3 c6 4. e4 e5 5. d5 cxd5 6. cxd5 Ngf6 7. Bd3 a6 8. Nf3 Nc5 9. Bc2 Be7 10. O-O Ncd7 11. h3 Qc7 12. Be3 b5 13. Rc1 b4 14. Ne2 Qd8 15. Nh2 a5 16. f4 g6 17. f5 gxf5 18. Rxf5 Nc5 19. Rf1 Ncxe4 20. Bh6 Bf8 21. Be3 Ba6 22. Ba4+ Ke7 23. Rc6 Bb7 24. Bb6 Qe8 25. Rc7+ Nd7 26. Rxb7 Nc5 27. Bxc5 dxc5 28. d6+ Ke6 29. Bxd7+ Qxd7 30. Qb3+ Kxd6 31. Rd1+ Kc6 32. Qa4+ Kxb7 33. Rxd7+ Kc8 34. Qc6+ Kb8 35. Qb7# 1-0")
+    }
+
     @Test
     fun fullMetadataTest() {
         val pgn = Pgn("[Event \"Hourly SuperBlitz Arena\"]\n" +
