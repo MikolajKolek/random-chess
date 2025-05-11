@@ -1,5 +1,6 @@
 package pl.edu.uj.tcs.rchess.model
 
+import pl.edu.uj.tcs.rchess.model.Fen.Companion.fromFen
 import pl.edu.uj.tcs.rchess.model.pieces.*
 import kotlin.math.abs
 import kotlin.reflect.KClass
@@ -33,33 +34,7 @@ class BoardState(
             fullmoveNumber = 1
         )
 
-        fun fromFen(fen: FEN): BoardState {
-            val newBoard = MutableList<Piece?>(size = 64) { null }
-            for(row in 7 downTo 0) {
-                val fenRow = fen.boardState[7 - row]
-                var column = 0
-
-                for(v in fenRow) {
-                    if(v.isDigit())
-                        column += v.digitToInt()
-                    else {
-                        newBoard[(8 * row) + column] = Piece.fromFenLetter(v)
-                        column++
-                    }
-                }
-            }
-
-            return BoardState(
-                board = newBoard,
-                currentTurn = if(fen.color == 'w') { PlayerColor.WHITE } else { PlayerColor.BLACK },
-                castlingRights = CastlingRights.fromString(fen.castling),
-                enPassantTarget = Square.fromStringOrNull(fen.enPassantSquare),
-                halfmoveCounter = fen.halfmoveCounter,
-                fullmoveNumber = fen.fullmoveNumber
-            )
-        }
-
-        fun initial() = fromFen(FEN())
+        fun initial() = fromFen(Fen.INITIAL)
     }
 
     /**
@@ -259,42 +234,6 @@ class BoardState(
                 return true
 
         return false
-    }
-
-    /**
-     * @return The FEN representation of this GameState.
-     * @see FEN
-     */
-    fun toFenString(): String {
-        var fenData = ""
-        for(r in 7 downTo 0) {
-            var emptyCount = 0
-
-            for(f in 0..7) {
-                getPieceAt(Square(r, f))?.let { piece ->
-                    if(emptyCount != 0) {
-                        fenData += emptyCount.digitToChar()
-                        emptyCount = 0
-                    }
-                    fenData += piece.fenLetter
-                } ?: run {
-                    emptyCount += 1
-                }
-            }
-
-            if(emptyCount != 0)
-                fenData += emptyCount.digitToChar()
-            if(r != 0)
-                fenData += '/'
-        }
-
-        fenData += (if(currentTurn==PlayerColor.WHITE) { " w " } else { " b " }) +
-            "$castlingRights " +
-            "${(enPassantTarget ?: "-")} " +
-            "$halfmoveCounter " +
-            "$fullmoveNumber"
-
-        return fenData
     }
 
     /**
