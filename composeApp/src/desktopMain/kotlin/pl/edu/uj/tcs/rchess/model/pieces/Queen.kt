@@ -14,4 +14,9 @@ class Queen(owner: PlayerColor): Piece(owner = owner) {
     }
 
     override val fenLetterLowercase = 'q'
+
+    override val unicodeSymbol = when (owner) {
+        PlayerColor.WHITE -> "♕"
+        PlayerColor.BLACK -> "♛"
+    }
 }

@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import pl.edu.uj.tcs.rchess.model.BoardState
@@ -93,7 +94,9 @@ fun Board(
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
-                            Text("${piece?.fenLetter ?: "-"}")
+                            if (piece != null) {
+                                Text(piece.unicodeSymbol, fontSize = 48.sp)
+                            }
                         }
                     }
 

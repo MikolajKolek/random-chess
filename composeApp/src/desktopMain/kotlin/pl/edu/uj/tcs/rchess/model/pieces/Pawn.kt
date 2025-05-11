@@ -63,4 +63,9 @@ class Pawn(owner: PlayerColor) : Piece(owner = owner) {
         }.flatten()
 
     override val fenLetterLowercase = 'p'
+
+    override val unicodeSymbol = when (owner) {
+        PlayerColor.WHITE -> "♙"
+        PlayerColor.BLACK -> "♟"
+    }
 }

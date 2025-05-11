@@ -1,11 +1,14 @@
 package pl.edu.uj.tcs.rchess.components
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.unit.dp
 import pl.edu.uj.tcs.rchess.model.GameInput
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.state.ImmutableGameState
@@ -15,7 +18,7 @@ fun GameScreen(
     gameState: ImmutableGameState,
     input: GameInput?,
 ) {
-    val playerColor = remember {
+    val orientation = remember {
         mutableStateOf(input?.getColor() ?: PlayerColor.WHITE)
     }
     val boardStateIndex = remember { mutableStateOf(0) }
@@ -29,27 +32,39 @@ fun GameScreen(
     val isCurrent = boardStateIndex.value == gameState.boardStates.size - 1
 
     Column {
-        Button(
-            enabled = !isInitial,
-            onClick = {
-                boardStateIndex.value--
-            }
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text("Previous")
-        }
+            Button(
+                enabled = !isInitial,
+                onClick = {
+                    boardStateIndex.value--
+                }
+            ) {
+                Text("Previous")
+            }
 
-        Button(
-            enabled = !isCurrent,
-            onClick = {
-                boardStateIndex.value++
+            Button(
+                enabled = !isCurrent,
+                onClick = {
+                    boardStateIndex.value++
+                }
+            ) {
+                Text("Next")
             }
-        ) {
-            Text("Next")
+
+            Button(
+                onClick = {
+                    orientation.value = orientation.value.opponent
+                }
+            ) {
+                Text("Rotate")
+            }
         }
 
         Board(
             state = boardState,
-            orientation = playerColor.value,
+            orientation = orientation.value,
             // TODO: Remove WHITE default, it's only for testing
             moveEnabledForColor = input?.takeIf { isCurrent }?.getColor() ?: PlayerColor.WHITE,
         )

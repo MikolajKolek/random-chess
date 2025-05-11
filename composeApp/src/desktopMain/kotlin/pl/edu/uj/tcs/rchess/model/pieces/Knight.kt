@@ -16,4 +16,9 @@ class Knight(owner: PlayerColor): VectorListPiece(owner = owner) {
     )
 
     override val fenLetterLowercase = 'n'
+
+    override val unicodeSymbol = when (owner) {
+        PlayerColor.WHITE -> "♘"
+        PlayerColor.BLACK -> "♞"
+    }
 }

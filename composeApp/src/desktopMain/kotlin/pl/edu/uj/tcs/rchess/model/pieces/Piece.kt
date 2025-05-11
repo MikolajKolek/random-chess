@@ -62,6 +62,11 @@ sealed class Piece(val owner: PlayerColor) {
             PlayerColor.BLACK -> fenLetterLowercase
         }
 
+    /**
+     * Unicode symbol representing the piece in the correct color
+     */
+    abstract val unicodeSymbol: String
+
     companion object {
         /**
          * @param fenLetter The letter representing the piece as it appears in FEN notation

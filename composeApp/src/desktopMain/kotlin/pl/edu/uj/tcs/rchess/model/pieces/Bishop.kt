@@ -12,4 +12,9 @@ class Bishop(owner: PlayerColor): StraightLinePiece(owner = owner) {
     )
 
     override val fenLetterLowercase = 'b'
+
+    override val unicodeSymbol = when (owner) {
+        PlayerColor.WHITE -> "♗"
+        PlayerColor.BLACK -> "♝"
+    }
 }

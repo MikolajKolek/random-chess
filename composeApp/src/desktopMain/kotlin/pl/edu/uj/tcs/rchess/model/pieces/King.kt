@@ -37,4 +37,9 @@ class King(owner: PlayerColor): VectorListPiece(owner = owner) {
     }
 
     override val fenLetterLowercase = 'k'
+
+    override val unicodeSymbol = when (owner) {
+        PlayerColor.WHITE -> "♔"
+        PlayerColor.BLACK -> "♚"
+    }
 }

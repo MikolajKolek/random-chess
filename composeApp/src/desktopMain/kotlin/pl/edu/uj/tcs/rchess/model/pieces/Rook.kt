@@ -11,4 +11,9 @@ class Rook(owner: PlayerColor): StraightLinePiece(owner = owner) {
     )
 
     override val fenLetterLowercase = 'r'
+
+    override val unicodeSymbol = when (owner) {
+        PlayerColor.WHITE -> "♖"
+        PlayerColor.BLACK -> "♜"
+    }
 }
