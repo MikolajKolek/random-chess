@@ -12,12 +12,17 @@ sealed class GameProgress {
         val otherPlayerClock: ClockState.Paused,
     ) : GameProgress()
 
-    data class Finished(
-        val whitePlayerClock: ClockState.Paused,
-        val blackPlayerClock: ClockState.Paused,
+    open class Finished(
         val reason: GameOverReason,
         val result: GameResult
-    ) : GameProgress() {
+    ) : GameProgress()
+
+    class FinishedWithClockInfo(
+        reason: GameOverReason,
+        result: GameResult,
+        val whitePlayerClock: ClockState.Paused,
+        val blackPlayerClock: ClockState.Paused,
+    ): Finished(reason, result) {
         fun playerClock(color: PlayerColor) =
             when (color) {
                 PlayerColor.WHITE -> whitePlayerClock

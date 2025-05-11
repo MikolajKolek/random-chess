@@ -35,7 +35,8 @@ data class ImmutableGameState(
 
     fun getPlayerClock(color: PlayerColor) =
         when (progress) {
-            is GameProgress.Finished -> progress.playerClock(color)
+            is GameProgress.FinishedWithClockInfo -> progress.playerClock(color)
+            is GameProgress.Finished -> null
             is GameProgress.Running -> {
                 if (color == currentState.currentTurn) progress.currentPlayerClock
                 else progress.otherPlayerClock

@@ -42,14 +42,26 @@ class Bot(private val process: Process,
             }
             .collect { update ->
                 // TODO: If it's possible to never get a bestmove, the bot should send a resign command
-                val bestMove = writeAndParse("position startpos moves "
-                        + update.state.moves.joinToString(" ") { it.toLongAlgebraicNotation() }
-                        + "\ngo wtime ${update.state.getPlayerClock(PlayerColor.WHITE).remainingTime().inWholeMilliseconds} " +
-                        "btime ${update.state.getPlayerClock(PlayerColor.BLACK).remainingTime().inWholeMilliseconds} " +
-                        "winc 0 binc 0 " +
-                        if(maxDepth != null) "depth $maxDepth " else "" +
-                                if(moveTimeMs != null) "movetime $moveTimeMs\n" else ""
-                ) {
+                val bestMove = writeAndParse(buildString {
+                    append("position startpos moves ")
+                    append(update.state.moves.joinToString(" ") { it.toLongAlgebraicNotation() })
+                    append('\n')
+
+                    append("go ")
+
+                    fun addRemainingTime(command: String, color: PlayerColor) {
+                        update.state.getPlayerClock(color)?.let {
+                            append("$command ${it.remainingTime().inWholeMilliseconds} ")
+                        }
+                    }
+                    addRemainingTime("wtime", PlayerColor.WHITE)
+                    addRemainingTime("btime", PlayerColor.BLACK)
+
+                    append("winc 0 binc 0 ")
+                    maxDepth?.let { append("depth $it ") }
+                    moveTimeMs?.let { append("movetime $it ") }
+                    append('\n')
+                }) {
                     bestMoveRegex.find(it)?.let { bestMoveMatch ->
                         Move.fromLongAlgebraicNotation(bestMoveMatch.groupValues[1])
                     }
