@@ -9,10 +9,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import pl.edu.uj.tcs.rchess.components.GameScreen
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.game.LiveGame
 import pl.edu.uj.tcs.rchess.model.game.LocalGameInput
+import pl.edu.uj.tcs.rchess.view.GameScreen
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)

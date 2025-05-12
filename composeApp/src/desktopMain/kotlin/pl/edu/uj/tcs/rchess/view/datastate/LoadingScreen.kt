@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.components.datastate
+package pl.edu.uj.tcs.rchess.view.datastate
 
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable

@@ -1,9 +1,11 @@
-package pl.edu.uj.tcs.rchess.components.datastate
+package pl.edu.uj.tcs.rchess.view.datastate
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
+import pl.edu.uj.tcs.rchess.viewmodel.DataStateViewModel
+import pl.edu.uj.tcs.rchess.viewmodel.datastate.DataState
 
 @Composable
 fun <T> DataStateScreen(

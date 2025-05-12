@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.components.board
+package pl.edu.uj.tcs.rchess.viewmodel.board
 
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.Square

@@ -9,10 +9,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import pl.edu.uj.tcs.rchess.components.GameHistoryScreen
-import pl.edu.uj.tcs.rchess.components.PlaceholderScreen
-import pl.edu.uj.tcs.rchess.components.Sidebar
-import pl.edu.uj.tcs.rchess.navigation.Route
+import pl.edu.uj.tcs.rchess.view.GameHistoryScreen
+import pl.edu.uj.tcs.rchess.view.PlaceholderScreen
+import pl.edu.uj.tcs.rchess.view.Sidebar
+import pl.edu.uj.tcs.rchess.viewmodel.navigation.Route
 
 // TODO: This is temporary
 @Composable

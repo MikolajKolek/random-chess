@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.navigation
+package pl.edu.uj.tcs.rchess.viewmodel.navigation
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf

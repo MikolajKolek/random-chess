@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.components
+package pl.edu.uj.tcs.rchess.view
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,10 +9,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.dp
-import pl.edu.uj.tcs.rchess.components.board.LabeledBoard
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.game.GameInput
 import pl.edu.uj.tcs.rchess.model.state.GameState
+import pl.edu.uj.tcs.rchess.view.board.LabeledBoard
 
 @Composable
 fun GameScreen(

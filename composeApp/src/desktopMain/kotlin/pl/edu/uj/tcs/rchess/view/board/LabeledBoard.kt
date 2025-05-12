@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.components.board
+package pl.edu.uj.tcs.rchess.view.board
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text

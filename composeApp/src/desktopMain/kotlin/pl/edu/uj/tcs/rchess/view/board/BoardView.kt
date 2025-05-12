@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.components.board
+package pl.edu.uj.tcs.rchess.view.board
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,6 +17,7 @@ import pl.edu.uj.tcs.rchess.model.BoardState
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.Square
+import pl.edu.uj.tcs.rchess.viewmodel.board.MoveInProgress
 import rchess.composeapp.generated.resources.Res
 import rchess.composeapp.generated.resources.square_capture
 

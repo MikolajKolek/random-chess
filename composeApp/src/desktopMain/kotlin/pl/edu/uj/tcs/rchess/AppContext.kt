@@ -1,7 +1,7 @@
 package pl.edu.uj.tcs.rchess
 
-import pl.edu.uj.tcs.rchess.navigation.NavigationManager
 import pl.edu.uj.tcs.rchess.server.ClientApi
+import pl.edu.uj.tcs.rchess.viewmodel.navigation.NavigationManager
 
 class AppContext(
     val config: Config,

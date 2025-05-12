@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.components
+package pl.edu.uj.tcs.rchess.viewmodel
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel

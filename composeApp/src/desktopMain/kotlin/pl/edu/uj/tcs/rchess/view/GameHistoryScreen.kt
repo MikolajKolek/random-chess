@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.components
+package pl.edu.uj.tcs.rchess.view
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,7 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import pl.edu.uj.tcs.rchess.AppContext
-import pl.edu.uj.tcs.rchess.components.datastate.DataStateScreen
+import pl.edu.uj.tcs.rchess.view.datastate.DataStateScreen
 
 @Composable
 fun GameHistoryScreen(context: AppContext) {

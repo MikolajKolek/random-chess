@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.components
+package pl.edu.uj.tcs.rchess.view
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable

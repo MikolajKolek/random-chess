@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.navigation
+package pl.edu.uj.tcs.rchess.viewmodel.navigation
 
 sealed class Route() {
     object NewGame : Route()

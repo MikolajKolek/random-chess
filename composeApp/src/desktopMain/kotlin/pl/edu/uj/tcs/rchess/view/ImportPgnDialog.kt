@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.components
+package pl.edu.uj.tcs.rchess.view
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
@@ -15,6 +15,7 @@ import androidx.compose.ui.window.rememberDialogState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import pl.edu.uj.tcs.rchess.AppContext
+import pl.edu.uj.tcs.rchess.viewmodel.ImportPgnViewModel
 
 @Composable
 fun ImportPgnDialog(
