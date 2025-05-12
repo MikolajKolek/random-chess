@@ -5,20 +5,11 @@ import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.Square
 
-class King(owner: PlayerColor): VectorListPiece(owner = owner) {
-    override val vectors = listOf(
-        Square.Vector(1, 1),
-        Square.Vector(1, 0),
-        Square.Vector(1, -1),
-        Square.Vector(0, 1),
-        Square.Vector(0, -1),
-        Square.Vector(-1, 1),
-        Square.Vector(-1, 0),
-        Square.Vector(-1, -1),
-    )
+class King(owner: PlayerColor): Piece(owner = owner) {
+    private val kingWithoutCastling = KingWithoutCastling(owner)
 
     override fun getMoveVision(boardState: BoardState, square: Square): List<Move> {
-        val ret = super.getMoveVision(boardState, square).toMutableList()
+        val ret = kingWithoutCastling.getMoveVision(boardState, square).toMutableList()
 
         if(owner == PlayerColor.WHITE) {
             if(boardState.castlingRights.whiteKingSide)
@@ -46,10 +37,31 @@ class King(owner: PlayerColor): VectorListPiece(owner = owner) {
         return ret
     }
 
-    override val fenLetterLowercase = 'k'
+    override fun getCaptureVision(boardState: BoardState, square: Square): List<Move> =
+            kingWithoutCastling.getCaptureVision(boardState, square)
 
-    override val unicodeSymbol = when (owner) {
-        PlayerColor.WHITE -> "♔"
-        PlayerColor.BLACK -> "♚"
+    override val fenLetterLowercase = kingWithoutCastling.fenLetterLowercase
+
+    override val unicodeSymbol = kingWithoutCastling.unicodeSymbol
+
+
+    private class KingWithoutCastling(owner: PlayerColor): VectorListPiece(owner = owner) {
+        override val vectors = listOf(
+            Square.Vector(1, 1),
+            Square.Vector(1, 0),
+            Square.Vector(1, -1),
+            Square.Vector(0, 1),
+            Square.Vector(0, -1),
+            Square.Vector(-1, 1),
+            Square.Vector(-1, 0),
+            Square.Vector(-1, -1),
+        )
+
+        override val fenLetterLowercase = 'k'
+
+        override val unicodeSymbol = when (owner) {
+            PlayerColor.WHITE -> "♔"
+            PlayerColor.BLACK -> "♚"
+        }
     }
 }
