@@ -4,7 +4,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import pl.edu.uj.tcs.rchess.AppContext
 
 class ImportPgnViewModel(private val context: AppContext): ViewModel() {
     val pgnInput = mutableStateOf("")

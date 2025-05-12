@@ -4,7 +4,6 @@ import kotlinx.serialization.json.Json
 import org.jooq.JSONB
 import org.jooq.SQLDialect
 import org.jooq.impl.DSL
-import pl.edu.uj.tcs.rchess.Config
 import pl.edu.uj.tcs.rchess.db.keys.SERVICE_GAMES__SERVICE_GAMES_SERVICE_ID_BLACK_PLAYER_FKEY
 import pl.edu.uj.tcs.rchess.db.keys.SERVICE_GAMES__SERVICE_GAMES_SERVICE_ID_WHITE_PLAYER_FKEY
 import pl.edu.uj.tcs.rchess.db.tables.references.PGN_GAMES
@@ -16,6 +15,7 @@ import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 import pl.edu.uj.tcs.rchess.model.GameResult
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.Pgn
+import pl.edu.uj.tcs.rchess.viewmodel.Config
 import java.sql.DriverManager
 import java.time.LocalDateTime
 import java.util.*

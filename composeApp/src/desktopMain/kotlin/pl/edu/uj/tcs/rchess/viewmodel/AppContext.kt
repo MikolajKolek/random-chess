@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess
+package pl.edu.uj.tcs.rchess.viewmodel
 
 import pl.edu.uj.tcs.rchess.server.ClientApi
 import pl.edu.uj.tcs.rchess.viewmodel.navigation.NavigationManager

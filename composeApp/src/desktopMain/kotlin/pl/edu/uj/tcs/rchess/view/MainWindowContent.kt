@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess
+package pl.edu.uj.tcs.rchess.view
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -9,9 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import pl.edu.uj.tcs.rchess.view.GameHistoryScreen
-import pl.edu.uj.tcs.rchess.view.PlaceholderScreen
-import pl.edu.uj.tcs.rchess.view.Sidebar
+import pl.edu.uj.tcs.rchess.viewmodel.AppContext
 import pl.edu.uj.tcs.rchess.viewmodel.navigation.Route
 
 // TODO: This is temporary

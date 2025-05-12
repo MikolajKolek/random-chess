@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.viewmodel
+package pl.edu.uj.tcs.rchess.viewmodel.datastate
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import pl.edu.uj.tcs.rchess.viewmodel.datastate.DataState
 
 class DataStateViewModel<T>(
     private val loadData: suspend () -> T,

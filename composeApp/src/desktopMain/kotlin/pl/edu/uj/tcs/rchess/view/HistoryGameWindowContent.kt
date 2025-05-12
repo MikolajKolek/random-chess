@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess
+package pl.edu.uj.tcs.rchess.view
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -7,7 +7,6 @@ import pl.edu.uj.tcs.rchess.model.GameOverReason
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import pl.edu.uj.tcs.rchess.model.state.GameState
 import pl.edu.uj.tcs.rchess.server.HistoryGame
-import pl.edu.uj.tcs.rchess.view.GameScreen
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)

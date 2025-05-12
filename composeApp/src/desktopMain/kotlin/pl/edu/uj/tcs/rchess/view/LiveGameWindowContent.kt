@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess
+package pl.edu.uj.tcs.rchess.view
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.game.LiveGame
-import pl.edu.uj.tcs.rchess.view.GameScreen
+import pl.edu.uj.tcs.rchess.viewmodel.AppContext
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)

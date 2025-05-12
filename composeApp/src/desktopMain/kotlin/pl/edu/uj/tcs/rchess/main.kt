@@ -9,6 +9,11 @@ import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.addFileSource
 import pl.edu.uj.tcs.rchess.server.ClientApi
 import pl.edu.uj.tcs.rchess.server.Server
+import pl.edu.uj.tcs.rchess.view.GameWindowContent
+import pl.edu.uj.tcs.rchess.view.LiveGameWindowContent
+import pl.edu.uj.tcs.rchess.view.MainWindowContent
+import pl.edu.uj.tcs.rchess.viewmodel.AppContext
+import pl.edu.uj.tcs.rchess.viewmodel.Config
 import java.io.File
 
 private val config: Config = ConfigLoaderBuilder.default().addFileSource(File("config.yml")).build().loadConfigOrThrow()
