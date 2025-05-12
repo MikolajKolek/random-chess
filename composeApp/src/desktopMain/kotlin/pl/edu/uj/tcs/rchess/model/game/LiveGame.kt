@@ -42,4 +42,23 @@ class LiveGame(
             ))
         }
     }
+
+    fun getGameInput(playerColor: PlayerColor): GameInput =
+        when (playerColor) {
+            PlayerColor.WHITE -> LocalGameInput(PlayerColor.WHITE)
+            PlayerColor.BLACK -> LocalGameInput(PlayerColor.BLACK)
+        }
+
+
+    inner class LocalGameInput(
+        override val playerColor: PlayerColor,
+    ) : GameInput {
+        override fun makeMove(move: Move) {
+            makeMove(move, playerColor)
+        }
+
+        override fun resign() {
+            TODO("Not yet implemented")
+        }
+    }
 }

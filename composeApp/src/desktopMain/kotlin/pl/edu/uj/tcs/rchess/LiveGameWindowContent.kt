@@ -11,7 +11,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.game.LiveGame
-import pl.edu.uj.tcs.rchess.model.game.LocalGameInput
 import pl.edu.uj.tcs.rchess.view.GameScreen
 import kotlin.time.ExperimentalTime
 
@@ -25,8 +24,8 @@ fun LiveGameWindowContent(context: AppContext) {
         val (liveGame, gameInput) = remember {
             val liveGame = LiveGame()
 
-            val playerGameInput = LocalGameInput(liveGame = liveGame, playerColor = PlayerColor.WHITE)
-            val botGameInput = LocalGameInput(liveGame = liveGame, playerColor = PlayerColor.BLACK)
+            val playerGameInput = liveGame.getGameInput(playerColor = PlayerColor.WHITE)
+            val botGameInput = liveGame.getGameInput(playerColor = PlayerColor.BLACK)
 
             val bot = context.config.bots[3].spawnBot()
             coroutineScope.launch {
