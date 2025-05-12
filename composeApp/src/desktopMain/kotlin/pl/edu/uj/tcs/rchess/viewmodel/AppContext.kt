@@ -1,5 +1,6 @@
 package pl.edu.uj.tcs.rchess.viewmodel
 
+import pl.edu.uj.tcs.rchess.config.Config
 import pl.edu.uj.tcs.rchess.server.ClientApi
 import pl.edu.uj.tcs.rchess.viewmodel.navigation.NavigationManager
 

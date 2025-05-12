@@ -5,8 +5,6 @@ import kotlinx.serialization.json.JsonPrimitive
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.fromFen
 import java.time.LocalDateTime
 
-private val pgnGameRegex = Regex("((\\[.*]\\n)*)\\n(.*(1-0|0-1|1/2-1/2|\\*))")
-
 class Pgn private constructor(pgnGameRegexMatch: MatchResult) {
     val moves: List<Move>
     val startingPosition: BoardState
@@ -106,6 +104,8 @@ class Pgn private constructor(pgnGameRegexMatch: MatchResult) {
     }
 
     companion object {
+        private val pgnGameRegex = Regex("((\\[.*]\\n)*)\\n(.*(1-0|0-1|1/2-1/2|\\*))")
+
         /**
          * @return A list of [Pgn] objects parsed from the given [pgnDatabase] string.
          * @throws IllegalArgumentException if the PGN database is invalid.
