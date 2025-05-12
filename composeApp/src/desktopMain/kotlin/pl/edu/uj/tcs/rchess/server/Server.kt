@@ -1,5 +1,6 @@
 package pl.edu.uj.tcs.rchess.server
 
+import kotlinx.coroutines.MainScope
 import kotlinx.serialization.json.Json
 import org.jooq.JSONB
 import org.jooq.SQLDialect
@@ -10,12 +11,10 @@ import pl.edu.uj.tcs.rchess.db.keys.SERVICE_GAMES__SERVICE_GAMES_SERVICE_ID_WHIT
 import pl.edu.uj.tcs.rchess.db.tables.references.PGN_GAMES
 import pl.edu.uj.tcs.rchess.db.tables.references.SERVICE_ACCOUNTS
 import pl.edu.uj.tcs.rchess.db.tables.references.SERVICE_GAMES
-import pl.edu.uj.tcs.rchess.model.BoardState
+import pl.edu.uj.tcs.rchess.model.*
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.fromFen
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
-import pl.edu.uj.tcs.rchess.model.GameResult
-import pl.edu.uj.tcs.rchess.model.Move
-import pl.edu.uj.tcs.rchess.model.Pgn
+import pl.edu.uj.tcs.rchess.model.game.PlayerGameControls
 import java.sql.DriverManager
 import java.time.LocalDateTime
 import java.util.*
@@ -28,6 +27,7 @@ class Server(private val config: Config) : ClientApi {
     )
     private val dsl = DSL.using(connection, SQLDialect.POSTGRES)
     private val botOpponents: List<BotOpponent>
+    private val botGameFactory = GameWithBotFactory(config.bots[3])
 
     init {
         val botServiceAccounts = dsl.selectFrom(SERVICE_ACCOUNTS)
@@ -107,6 +107,15 @@ class Server(private val config: Config) : ClientApi {
 
     override suspend fun getBotOpponents(): List<BotOpponent> {
         return botOpponents
+    }
+
+    override suspend fun startGameWithBot(
+        playerColor: PlayerColor,
+    ): PlayerGameControls {
+        return botGameFactory.createAndStart(
+            playerColor,
+            coroutineScope = MainScope()
+        )
     }
 
 

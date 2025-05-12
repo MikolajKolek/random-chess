@@ -1,5 +1,8 @@
 package pl.edu.uj.tcs.rchess.server
 
+import pl.edu.uj.tcs.rchess.model.PlayerColor
+import pl.edu.uj.tcs.rchess.model.game.PlayerGameControls
+
 interface ClientApi {
     /**
      * @return A list of all [HistoryGame]s the user has access to
@@ -36,4 +39,12 @@ interface ClientApi {
      * @return A list of [BotOpponent]s the user can start a game with
      */
     suspend fun getBotOpponents(): List<BotOpponent>
+
+    /**
+     * @return [pl.edu.uj.tcs.rchess.model.game.PlayerGameControls] for the newly started game.
+     */
+    // TODO: Add a parameter for the bot opponent
+    suspend fun startGameWithBot(
+        playerColor: PlayerColor,
+    ): PlayerGameControls
 }

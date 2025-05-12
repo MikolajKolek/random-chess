@@ -21,7 +21,7 @@ private val clientApi: ClientApi = Server(config)
 
 fun main() = application {
     val state = rememberWindowState(placement = WindowPlacement.Maximized)
-    val context = remember { AppContext(config, clientApi) }
+    val context = remember { AppContext(clientApi) }
 
     Window(
         onCloseRequest = ::exitApplication,
