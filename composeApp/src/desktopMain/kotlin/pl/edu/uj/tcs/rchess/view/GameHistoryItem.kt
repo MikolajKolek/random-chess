@@ -1,17 +1,17 @@
 package pl.edu.uj.tcs.rchess.view
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.server.HistoryGame
 import pl.edu.uj.tcs.rchess.server.PgnGame
 import pl.edu.uj.tcs.rchess.server.ServiceGame
+import pl.edu.uj.tcs.rchess.view.board.BoardView
 
 @Composable
 fun GameHistoryItem(
@@ -29,9 +29,10 @@ fun GameHistoryItem(
                 modifier = Modifier
                     .padding(12.dp),
             ) {
-                // TODO: Replace with board preview
-                Box(
-                    modifier = Modifier.height(128.dp).aspectRatio(1f).background(Color.Cyan),
+                BoardView(
+                    16.dp,
+                    state = game.finalPosition,
+                    orientation = PlayerColor.WHITE,
                 )
             }
 

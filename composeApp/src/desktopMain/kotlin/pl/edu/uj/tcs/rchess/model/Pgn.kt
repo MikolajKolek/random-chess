@@ -21,7 +21,7 @@ class Pgn private constructor(pgnGameRegexMatch: MatchResult) {
             result = GameResult.fromPgnString(tags["Result"]!!)
             metadata = JsonObject(
                 tags.toMap().filter { it.key != "White" && it.key != "Black" && it.key != "Result" }
-                    .mapValues { JsonPrimitive(it.value) }
+                    .mapValues { JsonPrimitive(it.value ) }
             )
             blackPlayerName = tags["Black"]!!
             whitePlayerName = tags["White"]!!
