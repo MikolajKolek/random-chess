@@ -408,6 +408,89 @@ class BoardState(
     }
 
     /**
+     * @param move The move to convert
+     * @return Short Algebraic format of the given move.
+     */
+    fun movetoStandardAlgebraic(move : Move) : String {
+        require(isLegalMove(move)) { "Move must be legal." }
+        var ret = "";
+
+        // Moving piece and castling
+        var isCastling = false
+        if(board[move.from] is King && move.to.file - move.from.file == 2) {
+            isCastling = true
+            ret += "O-O"
+        } else if(board[move.from] is King && move.to.file - move.from.file == -2) {
+            isCastling = true
+            ret += "O-O-O"
+        } else if(board[move.from] !is Pawn) {
+            ret += board[move.from]!!.fenLetterLowercase.uppercaseChar();
+        }
+
+        // Rank and file disambiguation
+        var anyAmbiguous = false
+        var rankAmbiguous = false
+        var fileAmbiguous = false
+
+        for(r in 0..7) {
+            for(f in 0..7) {
+                val fromSquare = Square(r, f)
+                if(fromSquare == move.from) continue
+                val piece = board[fromSquare] ?: continue
+                if(piece.owner != currentTurn) continue
+                if(piece::class != board[move.from]!!::class) continue
+                val myMove = Move(fromSquare, move.to, move.promoteTo)
+                if(!piece.getPieceVision(this, fromSquare).contains(myMove)) continue
+                if(!isLegalMove(move)) continue
+                anyAmbiguous = true
+                if(fromSquare.rank == move.from.rank) {
+                    fileAmbiguous = true
+                }
+                if(fromSquare.file == move.from.file) {
+                    rankAmbiguous = true
+                }
+            }
+        }
+
+        if(anyAmbiguous) {
+            if(fileAmbiguous) {
+                ret += (move.from.file+'a'.code).toChar()
+            }
+            if(rankAmbiguous) {
+                ret += (move.from.rank+1)
+            }
+            if(!rankAmbiguous && !fileAmbiguous) {
+                ret += (move.from.file+'a'.code).toChar()
+            }
+        }
+
+        // Capture
+        if(board[move.to] != null || (board[move.from] is Pawn && move.to == enPassantTarget)) {
+            if(board[move.from] is Pawn && ret == "") {
+                ret += (move.from.file+'a'.code).toChar()
+            }
+            ret += 'x'
+        }
+
+        // Target square
+        if(!isCastling) ret += move.to.toString();
+
+        // Promotion
+        if(move.promoteTo != null) {
+            ret += "="+move.promoteTo.identifier.uppercaseChar()
+        }
+
+        // Check/checkmate
+        if(verifyCheckmate(move)) {
+            ret += '#'
+        } else if(verifyCheck(move)) {
+            ret += '+'
+        }
+
+        return ret;
+    }
+
+    /**
      * @param move Move to verify.
      * @return True if the given move is checkmate, false otherwise.
      */
