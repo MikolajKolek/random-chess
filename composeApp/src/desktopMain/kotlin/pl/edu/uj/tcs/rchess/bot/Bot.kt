@@ -2,9 +2,9 @@ package pl.edu.uj.tcs.rchess.bot
 
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.takeWhile
-import pl.edu.uj.tcs.rchess.model.game.GameInput
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
+import pl.edu.uj.tcs.rchess.model.game.GameInput
 import pl.edu.uj.tcs.rchess.model.game.GameObserver
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import java.io.BufferedReader

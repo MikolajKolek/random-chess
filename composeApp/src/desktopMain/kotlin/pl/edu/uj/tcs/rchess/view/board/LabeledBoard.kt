@@ -12,6 +12,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import pl.edu.uj.tcs.rchess.model.BoardState
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
+import pl.edu.uj.tcs.rchess.model.state.ClockState
 
 @Composable
 @Preview
@@ -20,6 +21,8 @@ fun LabeledBoard(
     orientation: PlayerColor,
     moveEnabledForColor: PlayerColor? = null,
     onMove: (Move) -> Unit = {},
+    whiteClock: ClockState?,
+    blackClock: ClockState?,
 ) {
     val labelsPadding = 24.dp
     val pieceSize = 64.dp
@@ -64,18 +67,27 @@ fun LabeledBoard(
 
     val boardSize = 8 * pieceSize
 
+    @Composable
+    fun ScopedPlayerBar(playerColor: PlayerColor) {
+        PlayerBar(
+            modifier = Modifier.width(boardSize),
+            color = playerColor,
+            name = null,
+            isSelf = playerColor == moveEnabledForColor,
+            clockState = when (playerColor) {
+                PlayerColor.WHITE -> whiteClock
+                PlayerColor.BLACK -> blackClock
+            },
+        )
+    }
+
     Column(
         modifier = Modifier
             .width(boardSize + 2 * labelsPadding)
             .height(boardSize + 2 * labelsPadding + 2 * PlayerBar.height),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        PlayerBar(
-            modifier = Modifier.width(boardSize),
-            color = orientation.opponent,
-            name = null,
-            isSelf = orientation.opponent == moveEnabledForColor,
-        )
+        ScopedPlayerBar(orientation.opponent)
         FileLabelRow()
         Row(
             modifier = Modifier.fillMaxWidth().height(boardSize),
@@ -93,11 +105,6 @@ fun LabeledBoard(
             RankLabelColumn()
         }
         FileLabelRow()
-        PlayerBar(
-            modifier = Modifier.width(boardSize),
-            color = orientation,
-            name = null,
-            isSelf = orientation == moveEnabledForColor,
-        )
+        ScopedPlayerBar(orientation)
     }
 }

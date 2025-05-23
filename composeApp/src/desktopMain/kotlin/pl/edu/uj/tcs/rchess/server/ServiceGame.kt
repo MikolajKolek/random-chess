@@ -1,10 +1,10 @@
 package pl.edu.uj.tcs.rchess.server
 
-import java.time.LocalDateTime
 import kotlinx.serialization.json.JsonObject
 import pl.edu.uj.tcs.rchess.model.BoardState
 import pl.edu.uj.tcs.rchess.model.GameResult
 import pl.edu.uj.tcs.rchess.model.Move
+import java.time.LocalDateTime
 
 data class ServiceGame(
     override val id: Int,

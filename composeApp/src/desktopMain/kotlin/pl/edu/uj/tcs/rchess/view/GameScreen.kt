@@ -75,6 +75,8 @@ fun GameScreen(
             onMove = { move ->
                 input?.makeMove(move)
             },
+            whiteClock = gameState.getPlayerClock(PlayerColor.WHITE),
+            blackClock = gameState.getPlayerClock(PlayerColor.BLACK),
         )
     }
 }

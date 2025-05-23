@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import pl.edu.uj.tcs.rchess.model.PlayerColor
+import pl.edu.uj.tcs.rchess.model.state.ClockState
 
 /**
  * @param isSelf
@@ -18,6 +19,7 @@ fun PlayerBar(
     color: PlayerColor,
     name: String?,
     isSelf: Boolean,
+    clockState: ClockState?,
 ) {
     Row(
         modifier = modifier.height(PlayerBar.height)
@@ -33,7 +35,16 @@ fun PlayerBar(
             modifier = Modifier.weight(1f)
         )
 
-        Text("timer")
+        when (clockState) {
+            is ClockState.Paused -> {
+                Text("Paused: ${clockState.remainingTime}")
+            }
+            is ClockState.Running -> {
+                // TODO: Fix, this will not update
+                Text("Running: ${clockState.remainingTime()}")
+            }
+            null -> {}
+        }
     }
 }
 
