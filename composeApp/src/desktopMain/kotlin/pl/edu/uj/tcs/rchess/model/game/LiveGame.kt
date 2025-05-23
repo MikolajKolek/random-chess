@@ -13,7 +13,7 @@ import kotlin.time.Clock
 import kotlin.time.Duration
 
 class LiveGame(
-    initialBoardState: BoardState = BoardState.initial(),
+    initialBoardState: BoardState = BoardState.initial,
     timeLimit: Duration = Duration.INFINITE,
 ) : GameObserver {
     val stateMachine: StateMachine<GameState, GameStateChange> =

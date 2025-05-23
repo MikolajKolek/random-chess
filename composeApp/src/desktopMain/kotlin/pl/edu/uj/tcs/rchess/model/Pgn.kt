@@ -16,7 +16,7 @@ class Pgn private constructor(pgnGameRegexMatch: MatchResult) {
 
     init {
         pgnTagStringToTags(pgnGameRegexMatch.groupValues[1]).let { tags ->
-            startingPosition = tags["FEN"]?.let { BoardState.fromFen(it) } ?: BoardState.initial()
+            startingPosition = tags["FEN"]?.let { BoardState.fromFen(it) } ?: BoardState.initial
             moves = pgnMovetextToMoves(pgnGameRegexMatch.groupValues[3])
             result = GameResult.fromPgnString(tags["Result"]!!)
             metadata = JsonObject(

@@ -10,6 +10,7 @@ sealed class HistoryGame {
     abstract val id: Int
     abstract val moves: List<Move>
     abstract val startingPosition: BoardState
+    abstract val finalPosition: BoardState
     abstract val creationDate: LocalDateTime
     abstract val result: GameResult
     abstract val metadata: JsonObject?

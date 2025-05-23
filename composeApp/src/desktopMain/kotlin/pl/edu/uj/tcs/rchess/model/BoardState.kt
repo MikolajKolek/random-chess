@@ -26,7 +26,7 @@ class BoardState(
     }
 
     companion object {
-        fun empty() = BoardState(
+        val empty = BoardState(
             board = emptyBoard(),
             currentTurn = PlayerColor.WHITE,
             enPassantTarget = null,
@@ -35,7 +35,7 @@ class BoardState(
             fullmoveNumber = 1
         )
 
-        fun initial() = fromFen(Fen.INITIAL)
+        val initial = fromFen(Fen.INITIAL)
     }
 
     /**
