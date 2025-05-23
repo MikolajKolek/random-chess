@@ -62,14 +62,23 @@ fun LabeledBoard(
         }
     }
 
+    val boardSize = 8 * pieceSize
+
     Column(
         modifier = Modifier
-            .width(8 * pieceSize + 2 * labelsPadding)
-            .height(8 * pieceSize + 2 * labelsPadding),
+            .width(boardSize + 2 * labelsPadding)
+            .height(boardSize + 2 * labelsPadding + 2 * PlayerBar.height),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        PlayerBar(
+            modifier = Modifier.width(boardSize),
+            color = orientation.opponent,
+            name = null,
+            isSelf = orientation.opponent == moveEnabledForColor,
+        )
         FileLabelRow()
         Row(
-            modifier = Modifier.fillMaxWidth().height(8 * pieceSize),
+            modifier = Modifier.fillMaxWidth().height(boardSize),
         ) {
             RankLabelColumn()
             OutlinedCard {
@@ -84,5 +93,11 @@ fun LabeledBoard(
             RankLabelColumn()
         }
         FileLabelRow()
+        PlayerBar(
+            modifier = Modifier.width(boardSize),
+            color = orientation,
+            name = null,
+            isSelf = orientation == moveEnabledForColor,
+        )
     }
 }

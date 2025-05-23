@@ -15,9 +15,14 @@ enum class PlayerColor(
      * The rank from which the player's pawns can start a double-square move
      */
     val pawnDoubleMoveRank: Int,
+
+    /**
+     * A Unicode symbol representing this player color
+     */
+    val unicodeSymbol: String,
 ) {
-    WHITE(promotionRank = 7, enPassantTargetRank = 5, pawnDoubleMoveRank = 1),
-    BLACK(promotionRank = 0, enPassantTargetRank = 2, pawnDoubleMoveRank = 6);
+    WHITE(promotionRank = 7, enPassantTargetRank = 5, pawnDoubleMoveRank = 1, unicodeSymbol = "♙"),
+    BLACK(promotionRank = 0, enPassantTargetRank = 2, pawnDoubleMoveRank = 6, unicodeSymbol = "♟");
 
     val opponent: PlayerColor
         get() = when (this) {
