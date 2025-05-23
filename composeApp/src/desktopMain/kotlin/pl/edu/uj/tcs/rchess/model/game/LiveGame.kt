@@ -44,13 +44,10 @@ class LiveGame(
     }
 
     fun getGameInput(playerColor: PlayerColor): GameInput =
-        when (playerColor) {
-            PlayerColor.WHITE -> LocalGameInput(PlayerColor.WHITE)
-            PlayerColor.BLACK -> LocalGameInput(PlayerColor.BLACK)
-        }
+        LocalGameInput(playerColor)
 
 
-    inner class LocalGameInput(
+    private inner class LocalGameInput(
         override val playerColor: PlayerColor,
     ) : GameInput {
         override fun makeMove(move: Move) {
