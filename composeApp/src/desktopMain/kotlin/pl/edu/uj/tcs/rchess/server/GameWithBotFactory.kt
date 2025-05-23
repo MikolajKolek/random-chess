@@ -8,6 +8,7 @@ import pl.edu.uj.tcs.rchess.config.BotType
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.game.LiveGame
 import pl.edu.uj.tcs.rchess.model.game.PlayerGameControls
+import kotlin.time.Duration.Companion.minutes
 
 /**
  * A class for creating a live game with a bot.
@@ -21,7 +22,9 @@ class GameWithBotFactory(
         playerColor: PlayerColor,
         coroutineScope: CoroutineScope,
     ): PlayerGameControls {
-        val liveGame = LiveGame()
+        val liveGame = LiveGame(
+            timeLimit = 5.minutes
+        )
 
         val playerGameInput = liveGame.getGameInput(playerColor = playerColor)
         val botGameInput = liveGame.getGameInput(playerColor = playerColor.opponent)
