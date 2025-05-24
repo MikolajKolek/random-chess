@@ -77,7 +77,7 @@ class Server(private val config: Config) : ClientApi {
                     .set(PGN_GAMES.MOVES, pgn.moves.map { it.toLongAlgebraicNotation() }.toTypedArray())
                     .set(PGN_GAMES.STARTING_POSITION, pgn.startingPosition.toFenString())
                     .set(PGN_GAMES.CREATION_DATE, LocalDateTime.now())
-                    .set(PGN_GAMES.RESULT, pgn.result.dbResult)
+                    .set(PGN_GAMES.RESULT, pgn.result.toDbResult())
                     .set(PGN_GAMES.METADATA, JSONB.jsonb(Json.encodeToString(pgn.metadata)))
                     .set(PGN_GAMES.OWNER_ID, config.defaultUser)
                     .set(PGN_GAMES.BLACK_PLAYER_NAME, pgn.blackPlayerName)

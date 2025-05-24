@@ -42,7 +42,7 @@ sealed class HistoryGame {
         appendMetadataTagOr("Round", "?")
         appendMetadataTagOr("White", getPlayerName(PlayerColor.WHITE))
         appendMetadataTagOr("Black", getPlayerName(PlayerColor.BLACK))
-        appendMetadataTagOr("Result", result.pgnString)
+        appendMetadataTagOr("Result", result.toPgnString())
 
         if(!metadata.contains("FEN") && startingPosition.toFenString() != BoardState.initial.toFenString()) {
             appendTag("FEN", startingPosition.toFenString())
@@ -53,7 +53,7 @@ sealed class HistoryGame {
         append("\n")
 
         if(moves.isEmpty()) {
-            append(result.pgnString)
+            append(result.toPgnString())
             return@buildString
         }
 
@@ -76,7 +76,7 @@ sealed class HistoryGame {
             }
         }
 
-        append(result.pgnString)
+        append(result.toPgnString())
     }
 
     abstract fun getPlayerName(playerColor: PlayerColor): String

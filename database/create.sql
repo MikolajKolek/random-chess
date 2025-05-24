@@ -1,5 +1,22 @@
-CREATE TYPE "game_result" AS ENUM ('white_won', 'black_won', 'draw');
+CREATE TYPE "game_result_type" AS (
+    "game_end_type" VARCHAR,
+    "game_end_reason" VARCHAR
+);
 
+CREATE DOMAIN "game_result" AS "game_result_type"
+    CONSTRAINT "game_result_valid" CHECK(
+        (
+            ((VALUE).game_end_type IN ('1-0', '0-1'))
+            AND
+            ((VALUE).game_end_reason IN ('UNKNOWN', 'TIMEOUT', 'CHECKMATE', 'RESIGNATION'))
+        )
+        OR
+        (
+            ((VALUE).game_end_type = '1/2-1/2')
+                AND
+            ((VALUE).game_end_reason IN ('UNKNOWN', 'TIMEOUT_VS_INSUFFICIENT_MATERIAL', 'INSUFFICIENT_MATERIAL', 'THREEFOLD_REPETITION', 'FIFTY_MOVE_RULE', 'STALEMATE'))
+        )
+    );
 
 -- Tabelę openings możemy bazować np. na https://github.com/lichess-org/chess-openings
 CREATE TABLE "openings"

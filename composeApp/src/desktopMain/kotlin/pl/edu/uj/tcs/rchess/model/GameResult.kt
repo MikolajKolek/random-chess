@@ -1,22 +1,50 @@
 package pl.edu.uj.tcs.rchess.model
 
-import pl.edu.uj.tcs.rchess.db.enums.DbGameResult
+import pl.edu.uj.tcs.rchess.db.udt.records.GameResultTypeRecord
 
-enum class GameResult(val dbResult: DbGameResult, val pgnString: String) {
-    WHITE_WON(DbGameResult.white_won, "1-0"),
-    BLACK_WON(DbGameResult.black_won, "0-1"),
-    DRAW(DbGameResult.draw, "1/2-1/2");
+sealed class GameResult() {
+    abstract fun toPgnString(): String
+
+    abstract fun toDbResult(): GameResultTypeRecord
 
     companion object {
-        fun fromDbResult(result: DbGameResult): GameResult = entries.find { it.dbResult == result }
-            ?: throw IllegalArgumentException("Invalid db game result : $result")
+        //TODO: maybe move this out of here? somewhere into server? idk it's 1:21 am
+        fun fromDbResult(result: GameResultTypeRecord): GameResult {
+            return when(result.gameEndType) {
+                "1-0" -> Win(GameWinReason.fromDbString(result.gameEndReason), PlayerColor.WHITE)
+                "0-1" -> Win(GameWinReason.fromDbString(result.gameEndReason), PlayerColor.BLACK)
+                "1/2-1/2" -> Draw(GameDrawReason.fromDbString(result.gameEndReason))
+                else -> throw IllegalArgumentException("Invalid db game_result")
+            }
+        }
 
-        fun fromPgnString(string: String): GameResult = entries.find { it.pgnString == string }
-            ?: throw IllegalArgumentException("Invalid pgn result string: $string")
+        fun fromPgnString(string: String): GameResult = when(string) {
+            "1-0" -> Win(GameWinReason.UNKNOWN, PlayerColor.WHITE)
+            "0-1" -> Win(GameWinReason.UNKNOWN, PlayerColor.BLACK)
+            "1/2-1/2" -> Draw(GameDrawReason.UNKNOWN)
+            else -> throw IllegalArgumentException("Invalid pgn result string")
+        }
 
-        fun winFromPlayerColor(color: PlayerColor) = when(color) {
-            PlayerColor.WHITE -> WHITE_WON
-            PlayerColor.BLACK -> BLACK_WON
+        fun winFromPlayerColor(color: PlayerColor, winReason: GameWinReason) = when(color) {
+            PlayerColor.WHITE -> Win(winReason, PlayerColor.WHITE)
+            PlayerColor.BLACK -> Win(winReason, PlayerColor.BLACK)
         }
     }
+}
+
+class Win(val winReason: GameWinReason, val winner: PlayerColor) : GameResult() {
+    override fun toPgnString(): String = when(winner) {
+        PlayerColor.WHITE -> "1-0"
+        PlayerColor.BLACK -> "0-1"
+    }
+
+    override fun toDbResult(): GameResultTypeRecord =
+        GameResultTypeRecord(gameEndType = toPgnString(), gameEndReason = winReason.toDbWinReason())
+}
+
+class Draw(val drawReason: GameDrawReason) : GameResult() {
+    override fun toPgnString(): String = "1/2-1/2"
+
+    override fun toDbResult(): GameResultTypeRecord =
+        GameResultTypeRecord(gameEndType = toPgnString(), gameEndReason = drawReason.toDbWinReason())
 }

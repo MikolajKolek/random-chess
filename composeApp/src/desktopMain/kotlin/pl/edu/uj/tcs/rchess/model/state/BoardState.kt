@@ -1,22 +1,10 @@
 package pl.edu.uj.tcs.rchess.model.state
 
-import pl.edu.uj.tcs.rchess.model.CastlingRights
-import pl.edu.uj.tcs.rchess.model.Fen
+import pl.edu.uj.tcs.rchess.model.*
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.fromFen
-import pl.edu.uj.tcs.rchess.model.GameOverReason
-import pl.edu.uj.tcs.rchess.model.Move
-import pl.edu.uj.tcs.rchess.model.PlayerColor
-import pl.edu.uj.tcs.rchess.model.Square
 import pl.edu.uj.tcs.rchess.model.board.Board
 import pl.edu.uj.tcs.rchess.model.board.emptyBoard
-import pl.edu.uj.tcs.rchess.model.pieces.Bishop
-import pl.edu.uj.tcs.rchess.model.pieces.King
-import pl.edu.uj.tcs.rchess.model.pieces.Knight
-import pl.edu.uj.tcs.rchess.model.pieces.Pawn
-import pl.edu.uj.tcs.rchess.model.pieces.Piece
-import pl.edu.uj.tcs.rchess.model.pieces.Queen
-import pl.edu.uj.tcs.rchess.model.pieces.Rook
-import kotlin.collections.iterator
+import pl.edu.uj.tcs.rchess.model.pieces.*
 import kotlin.math.abs
 import kotlin.reflect.KClass
 
@@ -245,12 +233,13 @@ class BoardState(
         return false
     }
 
+    //TODO: ONLY WHITE WINS RIGHT NOW, MAKARON PLEASE FIX
     /**
      * @return If the internal state of the board implies that the game
-     * should be over, the appropriate [GameOverReason] is returned
-     * @see pl.edu.uj.tcs.rchess.model.GameOverReason
+     * should be over, the appropriate [GameResult] is returned
+     * @see pl.edu.uj.tcs.rchess.model.GameResult
      */
-    fun impliedGameOverReason() : GameOverReason? {
+    fun impliedGameOverReason() : GameResult? {
         // This method only checks game over reasons within the single BoardState
         // That is checkmate, stalemate, insufficient material and 50 move rule
 
@@ -258,13 +247,13 @@ class BoardState(
             piece.owner == currentTurn && getLegalMovesFor(square).isNotEmpty()
         }) {
             return if(isInCheck(currentTurn))
-                GameOverReason.CHECKMATE
+                Win(GameWinReason.CHECKMATE, PlayerColor.WHITE)
             else
-                GameOverReason.STALEMATE
+                Draw(GameDrawReason.STALEMATE)
         }
 
         if(halfmoveCounter >= 100)
-            return GameOverReason.FIFTY_MOVE_RULE
+            return Draw(GameDrawReason.FIFTY_MOVE_RULE)
 
         var whiteLight = 0
         var blackLight = 0
@@ -283,7 +272,7 @@ class BoardState(
         }
 
         if((whiteLight == 0 && blackLight <= 1) || (whiteLight <= 1 && blackLight == 0))
-            return GameOverReason.INSUFFICIENT_MATERIAL
+            return Draw(GameDrawReason.INSUFFICIENT_MATERIAL)
 
         return null
     }
@@ -510,7 +499,11 @@ class BoardState(
      * @param move Move to verify.
      * @return True if the given move is checkmate, false otherwise.
      */
-    private fun verifyCheckmate(move: Move) = (applyMove(move).impliedGameOverReason() == GameOverReason.CHECKMATE)
+    private fun verifyCheckmate(move: Move): Boolean {
+        val gameOverReason = applyMove(move).impliedGameOverReason()
+
+        return gameOverReason is Win && gameOverReason.winReason == GameWinReason.CHECKMATE
+    }
 
     /**
      * @param move Move to verify.

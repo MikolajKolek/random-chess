@@ -1,10 +1,10 @@
 package pl.edu.uj.tcs.rchess.model.game
 
 import kotlinx.coroutines.runBlocking
-import pl.edu.uj.tcs.rchess.model.GameOverReason
-import pl.edu.uj.tcs.rchess.model.GameResult
+import pl.edu.uj.tcs.rchess.model.GameWinReason
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
+import pl.edu.uj.tcs.rchess.model.Win
 import pl.edu.uj.tcs.rchess.model.state.*
 import pl.edu.uj.tcs.rchess.model.statemachine.StateMachine
 import kotlin.time.Clock
@@ -60,8 +60,7 @@ class LiveGame(
                 ?: throw IllegalStateException("Black player clock is null")
 
             GameStateChange.GameOverChange(GameProgress.FinishedWithClockInfo(
-                GameOverReason.RESIGNATION,
-                GameResult.winFromPlayerColor(playerColor),
+                Win(GameWinReason.RESIGNATION, playerColor.opponent),
                 ClockState.Paused(
                     whitePlayerClock.totalTime,
                     whitePlayerClock.remainingTime()
