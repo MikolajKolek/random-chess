@@ -5,9 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
@@ -23,22 +21,27 @@ import rchess.composeapp.generated.resources.swap_vert
 fun GameScreen(
     gameState: GameState,
     input: GameInput?,
-    // History browsing is disabled for live games, as it required stepping after each move
-    // TODO: Fix
-    enableBrowsing: Boolean = true
 ) {
     val orientation = remember {
         mutableStateOf(input?.playerColor ?: PlayerColor.WHITE)
     }
 
     val boardStateIndex = remember { mutableStateOf(0) }
-    if (enableBrowsing && boardStateIndex.value >= gameState.boardStates.size) {
+    if (boardStateIndex.value >= gameState.boardStates.size) {
         boardStateIndex.value = gameState.boardStates.size - 1
     }
-    val boardState = if(enableBrowsing) gameState.boardStates[boardStateIndex.value] else gameState.currentState
+    val boardState = gameState.boardStates[boardStateIndex.value]
 
     val isInitial = boardStateIndex.value == 0
-    val isCurrent = if(enableBrowsing) boardStateIndex.value == gameState.boardStates.size - 1 else true
+    val isCurrent = boardStateIndex.value == gameState.boardStates.size - 1
+
+    var lastBoardStateSize by remember { mutableStateOf(gameState.boardStates.size) }
+    LaunchedEffect(gameState.boardStates.size) {
+        if (boardStateIndex.value == lastBoardStateSize - 1) {
+            boardStateIndex.value = gameState.boardStates.size - 1
+        }
+        lastBoardStateSize = gameState.boardStates.size
+    }
 
     Row {
         BoardArea(
@@ -93,32 +96,30 @@ fun GameScreen(
                 )
             }
 
-            if (enableBrowsing) {
-                TooltipIconButton(
-                    enabled = !isInitial,
-                    onClick = {
-                        boardStateIndex.value--
-                    },
-                    tooltip = "Previous move",
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Previous move",
-                    )
-                }
+            TooltipIconButton(
+                enabled = !isInitial,
+                onClick = {
+                    boardStateIndex.value--
+                },
+                tooltip = "Previous move",
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Previous move",
+                )
+            }
 
-                TooltipIconButton(
-                    enabled = !isCurrent,
-                    onClick = {
-                        boardStateIndex.value++
-                    },
-                    tooltip = "Next move",
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = "Next move",
-                    )
-                }
+            TooltipIconButton(
+                enabled = !isCurrent,
+                onClick = {
+                    boardStateIndex.value++
+                },
+                tooltip = "Next move",
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = "Next move",
+                )
             }
         }
 

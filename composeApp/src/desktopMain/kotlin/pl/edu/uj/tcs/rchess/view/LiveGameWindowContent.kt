@@ -26,6 +26,6 @@ fun LiveGameWindowContent(context: AppContext) {
 
         val gameState by gameControls.observer.stateFlow.collectAsStateWithLifecycle()
 
-        GameScreen(gameState, gameControls.input, false)
+        GameScreen(gameState, gameControls.input)
     }
 }
