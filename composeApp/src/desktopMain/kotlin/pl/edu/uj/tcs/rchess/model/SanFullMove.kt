@@ -16,7 +16,10 @@ sealed class SanFullMove(
     }
 
     class HalfMove(
-        val index: Int,
+        /**
+         * The position of this move in the [GameState.moves] list
+         */
+        val moveIndex: Int,
         val san: String,
     )
 

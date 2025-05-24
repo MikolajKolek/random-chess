@@ -26,7 +26,11 @@ fun MovesTab(
             .verticalScroll(rememberScrollState())
             .then(modifier)
     ) {
-        fullMoves.forEach { fullMove ->
+        @Composable
+        fun FullMoveRow(
+            number: Int,
+            content: @Composable () -> Unit,
+        ) {
             Row(
                 Modifier.height(36.dp)
             ) {
@@ -35,40 +39,69 @@ fun MovesTab(
                     contentAlignment = Alignment.CenterStart,
                 ) {
                     Text(
-                        "${fullMove.number}.",
+                        "${number}.",
                         modifier = Modifier.padding(start = 16.dp),
                         fontSize = 18.sp,
                     )
                 }
 
-                @Composable
-                fun HalfMove(halfMove: SanFullMove.HalfMove?) {
-                    if (halfMove == null) {
-                        Spacer(Modifier.weight(1f))
-                        return
-                    }
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight()
-                            .clickable {
-                                onSelectIndex(halfMove.index)
-                            }
-                            .run {
-                                if (halfMove.index == boardStateIndex) {
-                                    background(color = MaterialTheme.colorScheme.primaryContainer)
-                                } else this
-                            },
-                        contentAlignment = Alignment.CenterStart,
-                    ) {
-                        Text(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            text = halfMove.san,
-                            fontSize = 18.sp,
-                        )
-                    }
-                }
+                content()
+            }
+        }
 
+        @Composable
+        fun HalfMove(halfMove: SanFullMove.HalfMove?) {
+            if (halfMove == null) {
+                Spacer(Modifier.weight(1f))
+                return
+            }
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .clickable {
+                        onSelectIndex(halfMove.moveIndex + 1)
+                    }
+                    .run {
+                        if (halfMove.moveIndex + 1 == boardStateIndex) {
+                            background(color = MaterialTheme.colorScheme.primaryContainer)
+                        } else this
+                    },
+                contentAlignment = Alignment.CenterStart,
+            ) {
+                Text(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    text = halfMove.san,
+                    fontSize = 18.sp,
+                )
+            }
+        }
+
+        FullMoveRow(0) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .clickable {
+                        onSelectIndex(0)
+                    }
+                    .run {
+                        if (0 == boardStateIndex) {
+                            background(color = MaterialTheme.colorScheme.primaryContainer)
+                        } else this
+                    },
+                contentAlignment = Alignment.CenterStart,
+            ) {
+                Text(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    text = "Initial position",
+                    fontSize = 18.sp,
+                )
+            }
+        }
+
+        fullMoves.forEach { fullMove ->
+            FullMoveRow(fullMove.number) {
                 HalfMove(fullMove.white)
                 HalfMove(fullMove.black)
             }
