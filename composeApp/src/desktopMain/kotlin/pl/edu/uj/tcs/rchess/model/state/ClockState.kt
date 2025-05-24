@@ -7,7 +7,7 @@ import kotlin.time.Instant
 
 //TODO: implement time increase on move?
 // if it is implemented also implement winc and binc in BotClockState
-abstract class ClockState {
+sealed class ClockState {
     abstract val totalTime: Duration
 
     abstract fun remainingTime() : Duration

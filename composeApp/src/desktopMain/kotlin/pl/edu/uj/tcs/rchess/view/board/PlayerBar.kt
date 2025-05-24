@@ -4,11 +4,42 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.state.ClockState
+import kotlin.time.Duration
+
+@Composable
+fun remainingTime(clockState: ClockState): Duration {
+    var remainingTime by remember { mutableStateOf(clockState.remainingTime()) }
+
+    LaunchedEffect(clockState) {
+        remainingTime = clockState.remainingTime()
+        if (clockState is ClockState.Running) {
+            while (true) {
+                withFrameNanos {
+                    remainingTime = clockState.remainingTime()
+                }
+            }
+        }
+    }
+
+    return maxOf(remainingTime, Duration.ZERO)
+}
+
+fun Duration.formatHuman() =
+    toComponents { hours, minutes, seconds, nanoseconds ->
+        val centisecond = nanoseconds / 10_000_000
+
+        if (hours > 0) {
+            "%d:%02d:%02d.%02d".format(hours, minutes, seconds, centisecond)
+        } else {
+            "%d:%02d.%02d".format(minutes, seconds, centisecond)
+        }
+    }
 
 /**
  * @param isSelf
@@ -35,15 +66,13 @@ fun PlayerBar(
             modifier = Modifier.weight(1f)
         )
 
-        when (clockState) {
-            is ClockState.Paused -> {
-                Text("Paused: ${clockState.remainingTime}")
-            }
-            is ClockState.Running -> {
-                // TODO: Fix, this will not update
-                Text("Running: ${clockState.remainingTime()}")
-            }
-            null -> {}
+        if (clockState != null) {
+            val remainingTime = remainingTime(clockState)
+
+            Text(
+                remainingTime.formatHuman(),
+                fontSize = 20.sp
+            )
         }
     }
 }
