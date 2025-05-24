@@ -1,5 +1,6 @@
 package pl.edu.uj.tcs.rchess.view
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -65,85 +66,100 @@ fun GameScreen(
     }
 
     Row {
-        BoardArea(
-            modifier = Modifier.weight(1f).fillMaxHeight(),
-            state = boardState,
-            orientation = orientation.value,
-            moveEnabledForColor = input?.takeIf { isCurrent }?.playerColor,
-            onMove = ::tryMakeMove,
-            whiteClock = gameState.getPlayerClock(PlayerColor.WHITE),
-            blackClock = gameState.getPlayerClock(PlayerColor.BLACK),
-        )
-
-        Column(
-            modifier = Modifier.padding(16.dp).fillMaxHeight()
+        Row(
+          modifier = Modifier
+              .weight(1f)
+              .fillMaxHeight()
+              .background(MaterialTheme.colorScheme.background),
         ) {
-            @OptIn(ExperimentalMaterial3Api::class)
-            @Composable
-            fun TooltipIconButton(
-                onClick: () -> Unit,
-                tooltip: String,
-                enabled: Boolean = true,
-                icon: @Composable () -> Unit,
+            BoardArea(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+                state = boardState,
+                orientation = orientation.value,
+                moveEnabledForColor = input?.takeIf { isCurrent }?.playerColor,
+                onMove = ::tryMakeMove,
+                whiteClock = gameState.getPlayerClock(PlayerColor.WHITE),
+                blackClock = gameState.getPlayerClock(PlayerColor.BLACK),
+            )
+
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxHeight(),
             ) {
-                TooltipBox(
-                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                    tooltip = { PlainTooltip { Text(tooltip) } },
-                    state = rememberTooltipState()
+                @OptIn(ExperimentalMaterial3Api::class)
+                @Composable
+                fun TooltipIconButton(
+                    onClick: () -> Unit,
+                    tooltip: String,
+                    enabled: Boolean = true,
+                    icon: @Composable () -> Unit,
                 ) {
-                    IconButton(
-                        enabled = enabled,
-                        onClick = onClick,
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text(tooltip) } },
+                        state = rememberTooltipState()
                     ) {
-                        icon()
+                        IconButton(
+                            enabled = enabled,
+                            onClick = onClick,
+                        ) {
+                            icon()
+                        }
                     }
+
                 }
 
-            }
+                Spacer(modifier = Modifier.weight(1f))
 
-            Spacer(modifier = Modifier.weight(1f))
+                TooltipIconButton(
+                    onClick = {
+                        orientation.value = orientation.value.opponent
+                    },
+                    tooltip = "Rotate board",
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.swap_vert),
+                        contentDescription = "Rotate board",
+                    )
+                }
 
-            TooltipIconButton(
-                onClick = {
-                    orientation.value = orientation.value.opponent
-                },
-                tooltip = "Rotate board",
-            ) {
-                Icon(
-                    painter = painterResource(Res.drawable.swap_vert),
-                    contentDescription = "Rotate board",
-                )
-            }
+                TooltipIconButton(
+                    enabled = !isInitial,
+                    onClick = {
+                        boardStateIndex.value--
+                    },
+                    tooltip = "Previous move",
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Previous move",
+                    )
+                }
 
-            TooltipIconButton(
-                enabled = !isInitial,
-                onClick = {
-                    boardStateIndex.value--
-                },
-                tooltip = "Previous move",
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Previous move",
-                )
-            }
-
-            TooltipIconButton(
-                enabled = !isCurrent,
-                onClick = {
-                    boardStateIndex.value++
-                },
-                tooltip = "Next move",
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = "Next move",
-                )
+                TooltipIconButton(
+                    enabled = !isCurrent,
+                    onClick = {
+                        boardStateIndex.value++
+                    },
+                    tooltip = "Next move",
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = "Next move",
+                    )
+                }
             }
         }
 
+        VerticalDivider()
+
         GameSidebar(
-            modifier = Modifier.width(512.dp).fillMaxHeight(),
+            modifier = Modifier
+                .width(512.dp)
+                .fillMaxHeight(),
         ) { tab ->
             when (tab) {
                 Tab.MOVES -> MovesTab(

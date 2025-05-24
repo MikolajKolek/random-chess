@@ -134,9 +134,10 @@ fun BoardView(
                                 when {
                                     highlight == SquareHighlight.Start -> background(Color.Yellow)
                                     highlight == SquareHighlight.Move -> background(Color.Green)
+                                    // TODO: Don't use transparent colors as board background
                                     highlight == SquareHighlight.Capture -> background(Color.Red.copy(alpha = 0.4f))
                                     square.isDark -> background(Color.LightGray)
-                                    else -> this
+                                    else -> background(Color.White)
                                 }
                             }
                             .run {

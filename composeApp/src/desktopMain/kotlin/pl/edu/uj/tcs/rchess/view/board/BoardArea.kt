@@ -27,7 +27,9 @@ fun BoardArea(
     blackClock: ClockState?,
 ) {
     BoxWithConstraints(
-        modifier = Modifier.padding(32.dp).then(modifier),
+        modifier = Modifier
+            .padding(32.dp)
+            .then(modifier),
         contentAlignment = Alignment.Center,
     ) {
         val labelsPadding = 24.dp
