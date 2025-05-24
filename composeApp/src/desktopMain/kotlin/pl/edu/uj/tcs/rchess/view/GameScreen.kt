@@ -1,18 +1,23 @@
 package pl.edu.uj.tcs.rchess.view
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.resources.painterResource
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.game.GameInput
 import pl.edu.uj.tcs.rchess.model.state.GameState
 import pl.edu.uj.tcs.rchess.view.board.LabeledBoard
 import pl.edu.uj.tcs.rchess.view.gamesidebar.GameSidebar
+import rchess.composeapp.generated.resources.Res
+import rchess.composeapp.generated.resources.swap_vert
 
 @Composable
 fun GameScreen(
@@ -39,38 +44,6 @@ fun GameScreen(
         Column(
             modifier = Modifier.weight(1f),
         ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                if(enableBrowsing) {
-                    Button(
-                        enabled = !isInitial,
-                        onClick = {
-                            boardStateIndex.value--
-                        }
-                    ) {
-                        Text("Previous")
-                    }
-
-                    Button(
-                        enabled = !isCurrent,
-                        onClick = {
-                            boardStateIndex.value++
-                        }
-                    ) {
-                        Text("Next")
-                    }
-                }
-
-                Button(
-                    onClick = {
-                        orientation.value = orientation.value.opponent
-                    }
-                ) {
-                    Text("Rotate")
-                }
-            }
-
             LabeledBoard(
                 state = boardState,
                 orientation = orientation.value,
@@ -83,8 +56,77 @@ fun GameScreen(
             )
         }
 
+        Column(
+            modifier = Modifier.padding(16.dp).fillMaxHeight()
+        ) {
+            @OptIn(ExperimentalMaterial3Api::class)
+            @Composable
+            fun TooltipIconButton(
+                onClick: () -> Unit,
+                tooltip: String,
+                enabled: Boolean = true,
+                icon: @Composable () -> Unit,
+            ) {
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                    tooltip = { PlainTooltip { Text(tooltip) } },
+                    state = rememberTooltipState()
+                ) {
+                    IconButton(
+                        enabled = enabled,
+                        onClick = onClick,
+                    ) {
+                        icon()
+                    }
+                }
+
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            TooltipIconButton(
+                onClick = {
+                    orientation.value = orientation.value.opponent
+                },
+                tooltip = "Rotate board",
+            ) {
+                Icon(
+                    painter = painterResource(Res.drawable.swap_vert),
+                    contentDescription = "Rotate board",
+                )
+            }
+
+            if (enableBrowsing) {
+                TooltipIconButton(
+                    enabled = !isInitial,
+                    onClick = {
+                        boardStateIndex.value--
+                    },
+                    tooltip = "Previous move",
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Previous move",
+                    )
+                }
+
+                TooltipIconButton(
+                    enabled = !isCurrent,
+                    onClick = {
+                        boardStateIndex.value++
+                    },
+                    tooltip = "Next move",
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = "Next move",
+                    )
+                }
+            }
+        }
+
         GameSidebar(
-                modifier = Modifier.width(512.dp).fillMaxHeight()
+            modifier = Modifier.width(512.dp).fillMaxHeight()
         )
     }
 }
