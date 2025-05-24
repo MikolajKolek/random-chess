@@ -18,13 +18,16 @@ class Pgn private constructor(pgnGameRegexMatch: MatchResult) {
         pgnTagStringToTags(pgnGameRegexMatch.groupValues[1]).let { tags ->
             startingPosition = tags["FEN"]?.let { BoardState.fromFen(it) } ?: BoardState.initial
             moves = pgnMovetextToMoves(pgnGameRegexMatch.groupValues[3])
-            result = GameResult.fromPgnString(tags["Result"]!!)
+            result = tags["Result"]?.let { GameResult.fromPgnString(it) }
+                ?: throw IllegalArgumentException("The PGN does not contain the Result tag")
             metadata = JsonObject(
                 tags.toMap().filter { it.key != "White" && it.key != "Black" && it.key != "Result" }
                     .mapValues { JsonPrimitive(it.value ) }
             )
-            blackPlayerName = tags["Black"]!!
-            whitePlayerName = tags["White"]!!
+            blackPlayerName = tags["Black"]
+                ?: throw IllegalArgumentException("The PGN does not contain the Black tag")
+            whitePlayerName = tags["White"]
+                ?: throw IllegalArgumentException("The PGN does not contain the White tag")
         }
     }
 
@@ -83,7 +86,9 @@ class Pgn private constructor(pgnGameRegexMatch: MatchResult) {
 
     private fun pgnDateToLocalDateTime(date: String): LocalDateTime {
         val pgnDateRegex = Regex("([\\d?]{4})\\.([\\d?]{2})\\.([\\d?]{2})")
-        var (year, month, day) = pgnDateRegex.find(date)!!.destructured
+        var (year, month, day) = (pgnDateRegex.find(date) ?:
+            throw IllegalArgumentException("Invalid date format")
+        ).destructured
 
         if(year.contains('?'))
             year = LocalDateTime.now().year.toString()
@@ -106,6 +111,7 @@ class Pgn private constructor(pgnGameRegexMatch: MatchResult) {
     companion object {
         private val pgnGameRegex = Regex("((\\[.*]\\n)*)\\n(.*(1-0|0-1|1/2-1/2|\\*))")
 
+        //TODO: make this concurrent and profile the function
         /**
          * @return A list of [Pgn] objects parsed from the given [pgnDatabase] string.
          * @throws IllegalArgumentException if the PGN database is invalid.

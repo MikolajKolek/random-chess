@@ -438,6 +438,7 @@ class BoardState(
                 if(fromSquare == move.from) continue
                 val piece = board[fromSquare] ?: continue
                 if(piece.owner != currentTurn) continue
+                // We can trust that board[move.from] is not null as we checked that the move is legal
                 if(piece::class != board[move.from]!!::class) continue
                 val myMove = Move(fromSquare, move.to, move.promoteTo)
                 if(!piece.getPieceVision(this, fromSquare).contains(myMove)) continue

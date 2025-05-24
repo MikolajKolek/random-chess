@@ -102,7 +102,7 @@ class Server(private val config: Config) : ClientApi {
                     it.isBot,
                     true
                 )
-            }!!
+            } ?: throw IllegalStateException("The system account does not exist")
     }
 
     override suspend fun getBotOpponents(): List<BotOpponent> {
@@ -142,7 +142,8 @@ class Server(private val config: Config) : ClientApi {
                 moves = sg.moves.map { Move.fromLongAlgebraicNotation(it!!) },
                 creationDate = sg.creationDate,
                 result = GameResult.fromDbResult(sg.result),
-                metadata = sg.metadata?.data()?.let { json -> Json.decodeFromString(json) },
+                metadata = sg.metadata?.data()?.let { json -> Json.decodeFromString<Map<String, String>>(json) }
+                    ?: emptyMap(),
                 gameIdInService = sg.gameIdInService,
                 service = Service.fromId(sg.serviceId),
                 blackPlayer = ServiceAccount(
