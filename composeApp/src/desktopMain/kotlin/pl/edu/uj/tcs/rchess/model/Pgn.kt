@@ -1,5 +1,9 @@
 package pl.edu.uj.tcs.rchess.model
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.fromFen
@@ -116,7 +120,12 @@ class Pgn private constructor(pgnGameRegexMatch: MatchResult) {
          * @return A list of [Pgn] objects parsed from the given [pgnDatabase] string.
          * @throws IllegalArgumentException if the PGN database is invalid.
          */
-        fun fromPgnDatabase(pgnDatabase: String): List<Pgn> =
-            pgnGameRegex.findAll(pgnDatabase).map { match -> Pgn(match) }.toList()
+        suspend fun fromPgnDatabase(pgnDatabase: String): List<Pgn> = coroutineScope {
+            pgnGameRegex.findAll(pgnDatabase).map {
+                async(Dispatchers.Default) {
+                    Pgn(it)
+                }
+            }.toList().awaitAll()
+        }
     }
 }

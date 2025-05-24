@@ -201,6 +201,7 @@ class BoardState(
      * @return True if the given move is legal in this position.
      */
     fun isLegalMove(move : Move) : Boolean {
+        if(!isValidMove(move)) return false
         if(board[move.from] is King) {
             if(abs(move.from.file - move.to.file) == 2) {
                 if(isInCheck(currentTurn)) return false
@@ -238,15 +239,10 @@ class BoardState(
     fun isOver() : GameOverReason? {
         // This method only checks game over reasons within the single BoardState
         // That is checkmate, stalemate, insufficient material and 50 move rule
-        val allLegalMoves = mutableListOf<Move>()
-        for(r in 0..7) {
-            for(f in 0..7) {
-                if(board[Square(r, f)]?.owner == currentTurn) {
-                    allLegalMoves.addAll(getLegalMovesFor(Square(r, f)))
-                }
-            }
-        }
-        if(allLegalMoves.isEmpty()) {
+
+        if(!squaresToNotNullPieces().any { (square, piece) ->
+            piece.owner == currentTurn && getLegalMovesFor(square).isNotEmpty()
+        }) {
             return if(isInCheck(currentTurn))
                 GameOverReason.CHECKMATE
             else
@@ -411,20 +407,23 @@ class BoardState(
      * @param move The move to convert
      * @return Short Algebraic format of the given move.
      */
-    fun moveToStandardAlgebraic(move : Move) : String {
+    fun moveToStandardAlgebraic(move : Move) : String = buildString {
         require(isLegalMove(move)) { "Move must be legal." }
-        var ret = ""
 
         // Moving piece and castling
         var isCastling = false
         if(board[move.from] is King && move.to.file - move.from.file == 2) {
             isCastling = true
-            ret += "O-O"
-        } else if(board[move.from] is King && move.to.file - move.from.file == -2) {
+            append("O-O")
+        }
+        else if(board[move.from] is King && move.to.file - move.from.file == -2) {
             isCastling = true
-            ret += "O-O-O"
-        } else if(board[move.from] !is Pawn) {
-            ret += board[move.from]!!.fenLetterLowercase.uppercaseChar()
+            append("O-O-O")
+        }
+        else board[move.from]?.let {
+            if(it !is Pawn) {
+                append(it.fenLetterLowercase.uppercaseChar())
+            }
         }
 
         // Rank and file disambiguation
@@ -432,63 +431,65 @@ class BoardState(
         var rankAmbiguous = false
         var fileAmbiguous = false
 
-        for(r in 0..7) {
-            for(f in 0..7) {
-                val fromSquare = Square(r, f)
-                if(fromSquare == move.from) continue
-                val piece = board[fromSquare] ?: continue
-                if(piece.owner != currentTurn) continue
-                // We can trust that board[move.from] is not null as we checked that the move is legal
-                if(piece::class != board[move.from]!!::class) continue
-                val myMove = Move(fromSquare, move.to, move.promoteTo)
-                if(!piece.getPieceVision(this, fromSquare).contains(myMove)) continue
-                if(!isLegalMove(move)) continue
-                anyAmbiguous = true
-                if(fromSquare.rank == move.from.rank) {
-                    fileAmbiguous = true
-                }
-                if(fromSquare.file == move.from.file) {
-                    rankAmbiguous = true
-                }
+        for((fromSquare, piece) in squaresToNotNullPieces()) {
+            if(fromSquare == move.from)
+                continue
+            if(piece.owner != currentTurn)
+                continue
+            // We can trust that board[move.from] is not null as we checked that the move is legal
+            if(piece::class != board[move.from]!!::class)
+                continue
+
+            val currentMove = Move(fromSquare, move.to, move.promoteTo)
+            if(!isLegalMove(currentMove))
+                continue
+
+            anyAmbiguous = true
+            if(fromSquare.rank == move.from.rank) {
+                fileAmbiguous = true
+            }
+            if(fromSquare.file == move.from.file) {
+                rankAmbiguous = true
             }
         }
 
         if(anyAmbiguous) {
             if(fileAmbiguous) {
-                ret += (move.from.file+'a'.code).toChar()
+                append((move.from.file+'a'.code).toChar())
             }
             if(rankAmbiguous) {
-                ret += (move.from.rank+1)
+                append(move.from.rank + 1)
             }
             if(!rankAmbiguous && !fileAmbiguous) {
-                ret += (move.from.file+'a'.code).toChar()
+                append((move.from.file + 'a'.code).toChar())
             }
         }
 
         // Capture
         if(board[move.to] != null || (board[move.from] is Pawn && move.to == enPassantTarget)) {
-            if(board[move.from] is Pawn && ret == "") {
-                ret += (move.from.file+'a'.code).toChar()
+            if(board[move.from] is Pawn && this@buildString.isEmpty()) {
+                append((move.from.file+'a'.code).toChar())
             }
-            ret += 'x'
+
+            append('x')
         }
 
         // Target square
-        if(!isCastling) ret += move.to.toString()
+        if(!isCastling)
+            append(move.to.toString())
 
         // Promotion
         if(move.promoteTo != null) {
-            ret += "="+move.promoteTo.identifier.uppercaseChar()
+            append("=${move.promoteTo.identifier.uppercaseChar()}")
         }
 
         // Check/checkmate
         if(verifyCheckmate(move)) {
-            ret += '#'
-        } else if(verifyCheck(move)) {
-            ret += '+'
+            append('#')
         }
-
-        return ret
+        else if(verifyCheck(move)) {
+            append('+')
+        }
     }
 
     /**

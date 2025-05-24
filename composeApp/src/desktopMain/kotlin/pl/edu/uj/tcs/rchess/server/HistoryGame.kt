@@ -30,7 +30,8 @@ sealed class HistoryGame {
                 strippedMetadata.remove(key)
             }
 
-            appendTag(key, alternative)
+            if(!metadata.contains(key))
+                appendTag(key, alternative)
         }
 
         appendMetadataTagOr("Event", "?")
@@ -51,17 +52,18 @@ sealed class HistoryGame {
 
         append("\n")
 
-        if(moves.isEmpty())
+        if(moves.isEmpty()) {
+            append(result.pgnString)
             return@buildString
+        }
 
         var moveIndex = 0
         var fullMoveNumber = 1
         var boardState: BoardState = startingPosition
         if(startingPosition.currentTurn == PlayerColor.BLACK) {
-            append("1... ${boardState.moveToStandardAlgebraic(moves[0])}")
+            append("${fullMoveNumber++}... ${boardState.moveToStandardAlgebraic(moves[0])} ")
             boardState = boardState.applyMove(moves[0])
             moveIndex++
-            fullMoveNumber++
         }
 
         while(moveIndex <= moves.lastIndex) {
@@ -73,6 +75,8 @@ sealed class HistoryGame {
                 moveIndex++
             }
         }
+
+        append(result.pgnString)
     }
 
     abstract fun getPlayerName(playerColor: PlayerColor): String

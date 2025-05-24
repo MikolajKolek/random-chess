@@ -69,8 +69,9 @@ class Server(private val config: Config) : ClientApi {
 
     override suspend fun addPgnGames(fullPgn: String): List<Int> {
         val result = mutableListOf<Int>()
+        val pgnList = Pgn.fromPgnDatabase(fullPgn)
         dsl.transaction { transaction ->
-            for(pgn in Pgn.fromPgnDatabase(fullPgn)) {
+            for(pgn in pgnList) {
                 result.add(transaction.dsl().insertInto(PGN_GAMES)
                     .set(PGN_GAMES.MOVES, pgn.moves.map { it.toLongAlgebraicNotation() }.toTypedArray())
                     .set(PGN_GAMES.STARTING_POSITION, pgn.startingPosition.toFenString())

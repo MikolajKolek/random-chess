@@ -1,18 +1,16 @@
 package pl.edu.uj.tcs.rchess.model
 
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
+import junit.framework.TestCase.fail
+import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.*
 import org.junit.Assert
 import org.junit.Test
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
+import pl.edu.uj.tcs.rchess.server.PgnGame
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
-import kotlin.collections.mutableListOf
+import java.time.LocalDateTime
 
 class PgnTest {
     @Test
@@ -520,7 +518,7 @@ class PgnTest {
 
     @Test
     fun pgnDatabaseTest() {
-        val pgns = Pgn.fromPgnDatabase(
+        val pgns = runBlocking { Pgn.fromPgnDatabase(
             "[Event \"Hourly SuperBlitz Arena\"]\n" +
                     "[Site \"https://lichess.org/a1jAjKkw\"]\n" +
                     "[Date \"2025.02.28\"]\n" +
@@ -582,7 +580,7 @@ class PgnTest {
                     "[Termination \"Time forfeit\"]\n" +
                     "\n" +
                     "1. e4 c5 2. Nf3 Nc6 3. d4 cxd4 4. Nxd4 d6 5. Nf3 Nf6 6. Nc3 g6 7. h3 Bg7 8. Bd3 O-O 9. O-O Bd7 10. a3 Qc8 11. Be3 a6 12. Qd2 Ne5 13. Bh6 Nxf3+ 14. gxf3 Bxh3 15. Rfe1 Nh5 16. Kh2 e5 17. Ne2 f5 18. Bxg7 Kxg7 19. exf5 Bxf5 20. Rg1 Qc6 21. Bxf5 Rxf5 22. Ng3 Qxf3 23. Nxh5+ Qxh5+ 24. Kg2 Raf8 25. Rh1 Rxf2+ 0-1\n"
-        )
+        ) }
 
         Assert.assertEquals(listOf(
             "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
@@ -891,7 +889,9 @@ class PgnTest {
         val fenGeneratorPath = System.getProperty("user.dir") + "/src/desktopTest/fen_generator.py"
         val pgnDatabasePath = System.getProperty("user.dir") + "/src/desktopTest/pgn_database.pgn"
 
-        val games = Pgn.fromPgnDatabase(File(pgnDatabasePath).readText())
+        val games = runBlocking {
+            Pgn.fromPgnDatabase(File(pgnDatabasePath).readText())
+        }
         val generator = ProcessBuilder("python3", fenGeneratorPath, pgnDatabasePath).start()
         val reader = BufferedReader(InputStreamReader(generator.inputStream))
         for(game in games) {
@@ -922,7 +922,9 @@ class PgnTest {
         val moveCheckerPath = System.getProperty("user.dir") + "/src/desktopTest/move_checker.py"
         val pgnDatabasePath = System.getProperty("user.dir") + "/src/desktopTest/pgn_database_small.pgn"
 
-        val games = Pgn.fromPgnDatabase(File(pgnDatabasePath).readText())
+        val games = runBlocking {
+            Pgn.fromPgnDatabase(File(pgnDatabasePath).readText())
+        }
         val checker = ProcessBuilder("python3", moveCheckerPath, pgnDatabasePath).start()
         val reader = BufferedReader(InputStreamReader(checker.inputStream))
         for(game in games) {
@@ -939,6 +941,58 @@ class PgnTest {
                     "Game ID: ${game.metadata?.get("GameId")?.jsonPrimitive?.content}, move index: $index"
                 )
             }
+        }
+    }
+
+    @Test
+    fun pgnExportExternalTest() {
+        if(!runExternalTests)
+            return
+
+        val fenGeneratorPath = System.getProperty("user.dir") + "/src/desktopTest/fen_generator.py"
+        val pgnDatabasePath = System.getProperty("user.dir") + "/src/desktopTest/pgn_100k.pgn"
+
+        val games = runBlocking {
+            Pgn.fromPgnDatabase(File(pgnDatabasePath).readText())
+        }
+        val generator = ProcessBuilder("python3", fenGeneratorPath, pgnDatabasePath).start()
+        val reader = BufferedReader(InputStreamReader(generator.inputStream))
+        for(importGame in games) {
+            val historyGame = PgnGame(
+                id = 0, // Unused data
+                moves = importGame.moves,
+                startingPosition = importGame.startingPosition,
+                finalPosition = BoardState.initial, // Unused data
+                creationDate = LocalDateTime.now(), // Unused data
+                result = importGame.result,
+                metadata = Json.decodeFromJsonElement<Map<String, String>>(importGame.metadata!!),
+                blackPlayerName = importGame.blackPlayerName,
+                whitePlayerName = importGame.whitePlayerName
+            )
+            var game: Pgn? = null
+            try {
+                val pgnString = historyGame.toPgnString()
+                game = Pgn(pgnString)
+            } catch(e: Exception) {
+                fail("Failed to re-import PGN: ${e.message}\nMetadata: ${importGame.metadata}")
+            }
+            game = game!!
+
+            val gameId = game.metadata?.get("GameId")?.jsonPrimitive?.content
+            val json: JsonObject = Json.decodeFromString(reader.readLine())
+
+            val fens = boardStateFens(game, true)
+            json["fens"]?.jsonArray?.forEachIndexed { index, generatedFen ->
+                assertEqualsPrint(generatedFen.jsonPrimitive.content, fens[index], "Game ID: $gameId, index: $index")
+            }
+
+            game.metadata?.jsonObject?.forEach { (key, value) ->
+                assertEqualsPrint(json["headers"]?.jsonObject[key]?.jsonPrimitive?.content, value.jsonPrimitive.content, gameId)
+            }
+
+            assertEqualsPrint(json["white"]?.jsonPrimitive?.content, game.whitePlayerName, gameId)
+            assertEqualsPrint(json["black"]?.jsonPrimitive?.content, game.blackPlayerName, gameId)
+            assertEqualsPrint(json["result"]?.jsonPrimitive?.content, game.result.pgnString, gameId)
         }
     }
 
