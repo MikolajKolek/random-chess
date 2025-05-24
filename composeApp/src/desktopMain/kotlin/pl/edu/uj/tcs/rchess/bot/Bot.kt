@@ -2,6 +2,7 @@ package pl.edu.uj.tcs.rchess.bot
 
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.takeWhile
+import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.game.GameInput
@@ -44,7 +45,8 @@ class Bot(private val process: Process,
             .collect { update ->
                 // TODO: If it's possible to never get a bestmove, the bot should send a resign command
                 val bestMove = writeAndParse(buildString {
-                    append("position startpos moves ")
+                    append("position fen ${update.state.initialState.toFenString()} ")
+                    append("moves ")
                     append(update.state.moves.joinToString(" ") { it.toLongAlgebraicNotation() })
                     append('\n')
 
