@@ -1,18 +1,18 @@
 package pl.edu.uj.tcs.rchess.view
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.game.GameInput
 import pl.edu.uj.tcs.rchess.model.state.GameState
 import pl.edu.uj.tcs.rchess.view.board.LabeledBoard
+import pl.edu.uj.tcs.rchess.view.gamesidebar.GameSidebar
 
 @Composable
 fun GameScreen(
@@ -35,48 +35,56 @@ fun GameScreen(
     val isInitial = boardStateIndex.value == 0
     val isCurrent = if(enableBrowsing) boardStateIndex.value == gameState.boardStates.size - 1 else true
 
-    Column {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+    Row {
+        Column(
+            modifier = Modifier.weight(1f),
         ) {
-            if(enableBrowsing) {
-                Button(
-                    enabled = !isInitial,
-                    onClick = {
-                        boardStateIndex.value--
-                    }
-                ) {
-                    Text("Previous")
-                }
-
-                Button(
-                    enabled = !isCurrent,
-                    onClick = {
-                        boardStateIndex.value++
-                    }
-                ) {
-                    Text("Next")
-                }
-            }
-
-            Button(
-                onClick = {
-                    orientation.value = orientation.value.opponent
-                }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text("Rotate")
+                if(enableBrowsing) {
+                    Button(
+                        enabled = !isInitial,
+                        onClick = {
+                            boardStateIndex.value--
+                        }
+                    ) {
+                        Text("Previous")
+                    }
+
+                    Button(
+                        enabled = !isCurrent,
+                        onClick = {
+                            boardStateIndex.value++
+                        }
+                    ) {
+                        Text("Next")
+                    }
+                }
+
+                Button(
+                    onClick = {
+                        orientation.value = orientation.value.opponent
+                    }
+                ) {
+                    Text("Rotate")
+                }
             }
+
+            LabeledBoard(
+                state = boardState,
+                orientation = orientation.value,
+                moveEnabledForColor = input?.takeIf { isCurrent }?.playerColor,
+                onMove = { move ->
+                    input?.makeMove(move)
+                },
+                whiteClock = gameState.getPlayerClock(PlayerColor.WHITE),
+                blackClock = gameState.getPlayerClock(PlayerColor.BLACK),
+            )
         }
 
-        LabeledBoard(
-            state = boardState,
-            orientation = orientation.value,
-            moveEnabledForColor = input?.takeIf { isCurrent }?.playerColor,
-            onMove = { move ->
-                input?.makeMove(move)
-            },
-            whiteClock = gameState.getPlayerClock(PlayerColor.WHITE),
-            blackClock = gameState.getPlayerClock(PlayerColor.BLACK),
+        GameSidebar(
+                modifier = Modifier.width(512.dp).fillMaxHeight()
         )
     }
 }

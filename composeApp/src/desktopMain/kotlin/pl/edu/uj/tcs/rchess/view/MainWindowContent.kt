@@ -19,13 +19,13 @@ fun RouteScreen(
 ) {
     context.navigation.route.let { route ->
         when (route) {
-            is Route.NewGame -> PlaceholderScreen("New game")
+            is Route.NewGame -> PlaceholderScreen(text = "New game")
             is Route.GameHistory -> GameHistoryScreen(context)
-            is Route.RankingList -> PlaceholderScreen("Ranking list")
-            is Route.TournamentList -> PlaceholderScreen("Tournament list")
-            is Route.Account -> PlaceholderScreen("Account")
-            is Route.Ranking -> PlaceholderScreen("Ranking ${route.rankingId}")
-            is Route.Tournament -> PlaceholderScreen("Tournament ${route.tournamentId}")
+            is Route.RankingList -> PlaceholderScreen(text = "Ranking list")
+            is Route.TournamentList -> PlaceholderScreen(text = "Tournament list")
+            is Route.Account -> PlaceholderScreen(text = "Account")
+            is Route.Ranking -> PlaceholderScreen(text = "Ranking ${route.rankingId}")
+            is Route.Tournament -> PlaceholderScreen(text = "Tournament ${route.tournamentId}")
         }
     }
 }
