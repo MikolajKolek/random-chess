@@ -9,6 +9,7 @@ enum class GameOverReason {
     INSUFFICIENT_MATERIAL,
     THREEFOLD_REPETITION,
     FIFTY_MOVE_RULE,
-    AGREEMENT,
+    //TODO: if multiplayer games are ever added, this needs to be implemented
+    //AGREEMENT,
     STALEMATE
 }

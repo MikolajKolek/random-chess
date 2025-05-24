@@ -30,9 +30,21 @@ class Bot(private val process: Process,
         writeAndWaitUntil("ucinewgame\nisready\n") { it.contains("readyok") }
     }
 
+    suspend fun playGame(gameObserver: GameObserver, gameInput: GameInput) {
+        try {
+            throwingPlayGame(gameObserver, gameInput)
+        } catch (_: Exception) {
+            //TODO: DO LOGGING HERE
+            //TODO: maybe this shouldn't be a resign but something else so it's clear it's an error
+            gameInput.resign()
+        } finally {
+            process.destroyForcibly()
+        }
+    }
+
     // FIXME: Do we want to be able to use this function from multiple threads?
     //  Multiple calls to playGame will cause chaos
-    suspend fun playGame(gameObserver: GameObserver, gameInput: GameInput) {
+    suspend fun throwingPlayGame(gameObserver: GameObserver, gameInput: GameInput) {
         // TODO: potential problem if multiple bots are called with the same gameInput
         // TODO: FIX CRASH WHEN BOT LOSES
         gameObserver.updateFlow
@@ -72,8 +84,6 @@ class Bot(private val process: Process,
 
                 gameInput.makeMove(bestMove)
             }
-
-        process.destroyForcibly()
     }
 
     /**

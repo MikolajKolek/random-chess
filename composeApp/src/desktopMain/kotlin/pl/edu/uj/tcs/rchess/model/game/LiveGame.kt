@@ -1,6 +1,8 @@
 package pl.edu.uj.tcs.rchess.model.game
 
 import kotlinx.coroutines.runBlocking
+import pl.edu.uj.tcs.rchess.model.GameOverReason
+import pl.edu.uj.tcs.rchess.model.GameResult
 import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
@@ -30,6 +32,15 @@ class LiveGame(
             require(gameState.currentState.isLegalMove(move)) { "The move is not legal" }
             require(gameState.currentState.board[move.from]?.owner == playerColor) { "It's not your turn" }
 
+            /*val nextBoardState = gameState.currentState.applyMove(move)
+            nextBoardState.impliedGameOverReason()?.let {
+                return@withState GameStateChange.MoveChange(move, GameProgress.Finished(
+                    it,
+                    GameResult.BLACK_WON//TODO:FIX,
+
+                ))
+            }*/
+
             GameStateChange.MoveChange(move, GameProgress.Running(
                 ClockState.Running(
                     gameState.progress.otherPlayerClock.totalTime,
@@ -38,6 +49,30 @@ class LiveGame(
                 ClockState.Paused(
                     gameState.progress.currentPlayerClock.totalTime,
                     gameState.progress.currentPlayerClock.endsAt - Clock.System.now()
+                )
+            ))
+        }
+    }
+
+    fun resign(playerColor: PlayerColor) = runBlocking {
+        stateMachine.withState { gameState ->
+            require(gameState.progress is GameProgress.Running) { "The game is not running" }
+
+            val whitePlayerClock = gameState.getPlayerClock(PlayerColor.WHITE)
+                ?: throw IllegalStateException("White player clock is null")
+            val blackPlayerClock = gameState.getPlayerClock(PlayerColor.BLACK)
+                ?: throw IllegalStateException("Black player clock is null")
+
+            GameStateChange.GameOverChange(GameProgress.FinishedWithClockInfo(
+                GameOverReason.RESIGNATION,
+                GameResult.winFromPlayerColor(playerColor),
+                ClockState.Paused(
+                    whitePlayerClock.totalTime,
+                    whitePlayerClock.remainingTime()
+                ),
+                ClockState.Paused(
+                    blackPlayerClock.totalTime,
+                    blackPlayerClock.remainingTime()
                 )
             ))
         }
@@ -55,7 +90,7 @@ class LiveGame(
         }
 
         override fun resign() {
-            TODO("Not yet implemented")
+            resign(playerColor)
         }
     }
 }

@@ -246,10 +246,11 @@ class BoardState(
     }
 
     /**
-     * @return The internal reason of game over (or null, if there is none)
+     * @return If the internal state of the board implies that the game
+     * should be over, the appropriate [GameOverReason] is returned
      * @see pl.edu.uj.tcs.rchess.model.GameOverReason
      */
-    fun isOver() : GameOverReason? {
+    fun impliedGameOverReason() : GameOverReason? {
         // This method only checks game over reasons within the single BoardState
         // That is checkmate, stalemate, insufficient material and 50 move rule
 
@@ -509,7 +510,7 @@ class BoardState(
      * @param move Move to verify.
      * @return True if the given move is checkmate, false otherwise.
      */
-    private fun verifyCheckmate(move: Move) = (applyMove(move).isOver() == GameOverReason.CHECKMATE)
+    private fun verifyCheckmate(move: Move) = (applyMove(move).impliedGameOverReason() == GameOverReason.CHECKMATE)
 
     /**
      * @param move Move to verify.

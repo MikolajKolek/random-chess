@@ -14,7 +14,6 @@ class Pgn private constructor(pgnGameRegexMatch: MatchResult) {
     val moves: List<Move>
     val startingPosition: BoardState
     val result: GameResult
-    //TODO: Should we store the metadata here and in HistoryGame as just a Map<String, String>?
     val metadata: JsonObject?
     val blackPlayerName: String
     val whitePlayerName: String
@@ -116,7 +115,6 @@ class Pgn private constructor(pgnGameRegexMatch: MatchResult) {
     companion object {
         private val pgnGameRegex = Regex("((\\[.*]\\n)*)\\n(.*(1-0|0-1|1/2-1/2|\\*))")
 
-        //TODO: make this concurrent and profile the function
         /**
          * @return A list of [Pgn] objects parsed from the given [pgnDatabase] string.
          * @throws IllegalArgumentException if the PGN database is invalid.

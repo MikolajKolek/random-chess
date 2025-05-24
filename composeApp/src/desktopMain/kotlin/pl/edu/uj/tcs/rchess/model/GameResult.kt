@@ -13,5 +13,10 @@ enum class GameResult(val dbResult: DbGameResult, val pgnString: String) {
 
         fun fromPgnString(string: String): GameResult = entries.find { it.pgnString == string }
             ?: throw IllegalArgumentException("Invalid pgn result string: $string")
+
+        fun winFromPlayerColor(color: PlayerColor) = when(color) {
+            PlayerColor.WHITE -> WHITE_WON
+            PlayerColor.BLACK -> BLACK_WON
+        }
     }
 }
