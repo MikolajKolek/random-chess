@@ -23,7 +23,7 @@ fun GameHistoryItem(
         onClick = onClick,
     ) {
         Row(
-            modifier = modifier.height(IntrinsicSize.Min),
+            modifier = Modifier.height(IntrinsicSize.Min).then(modifier),
         ) {
             Box(
                 modifier = Modifier

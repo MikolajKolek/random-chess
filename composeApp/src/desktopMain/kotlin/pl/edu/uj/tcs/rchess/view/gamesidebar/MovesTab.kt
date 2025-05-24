@@ -35,7 +35,7 @@ fun MovesTab(
                 Modifier.height(36.dp)
             ) {
                 Box(
-                    modifier.fillMaxHeight().width(48.dp),
+                    Modifier.fillMaxHeight().width(48.dp).then(modifier),
                     contentAlignment = Alignment.CenterStart,
                 ) {
                     Text(

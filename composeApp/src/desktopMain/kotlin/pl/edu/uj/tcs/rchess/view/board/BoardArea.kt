@@ -10,9 +10,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import androidx.compose.ui.unit.times
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
+import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.model.state.ClockState
 
 @Composable
@@ -27,7 +27,7 @@ fun BoardArea(
     blackClock: ClockState?,
 ) {
     BoxWithConstraints(
-        modifier = modifier.padding(32.dp),
+        modifier = Modifier.padding(32.dp).then(modifier),
         contentAlignment = Alignment.Center,
     ) {
         val labelsPadding = 24.dp

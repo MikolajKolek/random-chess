@@ -53,7 +53,7 @@ fun PlayerBar(
     clockState: ClockState?,
 ) {
     Row(
-        modifier = modifier.height(PlayerBar.height)
+        modifier = Modifier.height(PlayerBar.height).then(modifier)
     ) {
         Text(color.unicodeSymbol)
 
