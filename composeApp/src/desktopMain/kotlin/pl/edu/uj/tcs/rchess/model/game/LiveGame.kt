@@ -3,13 +3,9 @@ package pl.edu.uj.tcs.rchess.model.game
 import kotlinx.coroutines.runBlocking
 import pl.edu.uj.tcs.rchess.model.GameOverReason
 import pl.edu.uj.tcs.rchess.model.GameResult
-import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
-import pl.edu.uj.tcs.rchess.model.state.ClockState
-import pl.edu.uj.tcs.rchess.model.state.GameProgress
-import pl.edu.uj.tcs.rchess.model.state.GameState
-import pl.edu.uj.tcs.rchess.model.state.GameStateChange
+import pl.edu.uj.tcs.rchess.model.state.*
 import pl.edu.uj.tcs.rchess.model.statemachine.StateMachine
 import kotlin.time.Clock
 import kotlin.time.Duration
@@ -26,7 +22,7 @@ class LiveGame(
     override val stateFlow
         get() = stateMachine.stateFlow
 
-    fun makeMove(move: Move, playerColor: PlayerColor) = runBlocking {
+    suspend fun makeMove(move: Move, playerColor: PlayerColor) {
         stateMachine.withState { gameState ->
             require(gameState.progress is GameProgress.Running) { "The game is not running" }
             require(gameState.currentState.isLegalMove(move)) { "The move is not legal" }
@@ -85,7 +81,7 @@ class LiveGame(
     private inner class LocalGameInput(
         override val playerColor: PlayerColor,
     ) : GameInput {
-        override fun makeMove(move: Move) {
+        override suspend fun makeMove(move: Move) {
             makeMove(move, playerColor)
         }
 

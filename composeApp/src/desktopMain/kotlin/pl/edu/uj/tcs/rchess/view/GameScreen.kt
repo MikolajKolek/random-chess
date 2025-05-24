@@ -8,7 +8,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
+import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.game.GameInput
 import pl.edu.uj.tcs.rchess.model.state.GameState
@@ -43,15 +45,32 @@ fun GameScreen(
         lastBoardStateSize = gameState.boardStates.size
     }
 
+    // TODO: Introduce a view model
+    val coroutineScope = rememberCoroutineScope()
+    var makeMoveLoading by remember { mutableStateOf(false) }
+    fun tryMakeMove(move: Move) {
+        input?.let {
+            if (makeMoveLoading) return
+            makeMoveLoading = true
+            // TODO: Should this happen in the Dispatchers.IO scope?
+            coroutineScope.launch {
+                // TODO: Handle errors, needed in case we introduce a client-server architecture
+                try {
+                    it.makeMove(move)
+                } finally {
+                    makeMoveLoading = false
+                }
+            }
+        }
+    }
+
     Row {
         BoardArea(
             modifier = Modifier.weight(1f).fillMaxHeight(),
             state = boardState,
             orientation = orientation.value,
             moveEnabledForColor = input?.takeIf { isCurrent }?.playerColor,
-            onMove = { move ->
-                input?.makeMove(move)
-            },
+            onMove = ::tryMakeMove,
             whiteClock = gameState.getPlayerClock(PlayerColor.WHITE),
             blackClock = gameState.getPlayerClock(PlayerColor.BLACK),
         )

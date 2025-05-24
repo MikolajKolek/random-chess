@@ -13,7 +13,7 @@ interface GameInput {
      * Makes a move on the chessboard
      * @throws IllegalArgumentException if the argument is not a valid move, or it is not the moving player's turn
      */
-    fun makeMove(move: Move)
+    suspend fun makeMove(move: Move)
 
     /**
      * Resigns the game
