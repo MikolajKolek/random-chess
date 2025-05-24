@@ -13,10 +13,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import org.jetbrains.compose.resources.painterResource
-import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.Square
+import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.viewmodel.board.MoveInProgress
 import rchess.composeapp.generated.resources.Res
 import rchess.composeapp.generated.resources.square_capture
@@ -67,7 +67,7 @@ fun BoardView(
     fun onSquareClicked(square: Square) {
         state.board[square]?.let { fromPiece ->
             if (fromPiece.owner == moveAvailableForColor && square != moveInProgress?.startSquare) {
-                moveInProgress = MoveInProgress(
+                moveInProgress = MoveInProgress.FirstPicked(
                     startSquare = square,
                     possibleMoves = state.getLegalMovesFor(square),
                     startPiece = fromPiece,
@@ -76,12 +76,21 @@ fun BoardView(
             }
         }
 
-        val selectedMoves = moveInProgress?.possibleMoves?.filter { move ->
-            move.to == square
+        moveInProgress = (moveInProgress as? MoveInProgress.FirstPicked)?.let { firstPicked ->
+            val selectedMoves = firstPicked.possibleMoves.filter { move ->
+                move.to == square
+            }
+            if (selectedMoves.size > 1) {
+                MoveInProgress.Promotion(
+                    startSquare = firstPicked.startSquare,
+                    startPiece = firstPicked.startPiece,
+                    promotionMoves = selectedMoves,
+                )
+            } else {
+                selectedMoves.firstOrNull()?.let { onMove(it) }
+                null
+            }
         }
-        // TODO: Handle promotion, there could be multiple moves to the same square
-        selectedMoves?.firstOrNull()?.let { onMove(it) }
-        moveInProgress = null
     }
 
     val moveInProgressCopy = moveInProgress
@@ -101,49 +110,87 @@ fun BoardView(
 
                     val highlight: SquareHighlight? = when {
                         moveInProgressCopy?.startSquare == square -> SquareHighlight.Start
-                        moveInProgressCopy != null && moveInProgressCopy.targetSquares.contains(square) ->
+                        moveInProgressCopy is MoveInProgress.FirstPicked && moveInProgressCopy.targetSquares.contains(square) ->
                             if (piece?.owner == moveInProgressCopy.startPiece.owner.opponent) SquareHighlight.Capture
                             else SquareHighlight.Move
                         else -> null
                     }
 
+                    val promotionPieces = (moveInProgressCopy as? MoveInProgress.Promotion)?.let { promotion ->
+                        promotion.promotionMoves
+                            .filter { it -> it.to == square }
+                            .mapNotNull { move ->
+                                move.promoteTo?.let { promoteTo ->
+                                    move to promoteTo.toPiece(promotion.startPiece.owner)
+                                }
+                            }
+                    } ?: emptyList()
+
                     Box(
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxHeight()
-                            .let {
+                            .run {
                                 when {
-                                    highlight == SquareHighlight.Start -> it.background(Color.Yellow)
-                                    highlight == SquareHighlight.Move -> it.background(Color.Green)
-                                    highlight == SquareHighlight.Capture -> it.background(Color.Red.copy(alpha = 0.4f))
-                                    square.isDark -> it.background(Color.LightGray)
-                                    else -> it
+                                    highlight == SquareHighlight.Start -> background(Color.Yellow)
+                                    highlight == SquareHighlight.Move -> background(Color.Green)
+                                    highlight == SquareHighlight.Capture -> background(Color.Red.copy(alpha = 0.4f))
+                                    square.isDark -> background(Color.LightGray)
+                                    else -> this
                                 }
                             }
-                            .let {
-                                if (moveAvailableForColor != null) {
-                                    it.clickable(onClick = {
+                            .run {
+                                if (moveAvailableForColor != null && promotionPieces.isEmpty()) {
+                                    clickable(onClick = {
                                         onSquareClicked(square)
                                     })
                                 } else {
-                                    it
+                                    this
                                 }
                             },
                     ) {
-                        if (piece != null) {
-                            Text(
-                                piece.unicodeSymbol,
-                                fontSize = pieceSize.value.sp * 0.8f,
-                                modifier = Modifier.align(Alignment.Center),
-                            )
-                        }
-
                         if (highlight == SquareHighlight.Capture) {
                             Icon(
                                 modifier = Modifier.align(Alignment.Center).fillMaxSize(),
                                 painter = painterResource(Res.drawable.square_capture),
                                 contentDescription = null,
                                 tint = Color.Black,
+                            )
+                        }
+
+                        if (promotionPieces.isNotEmpty()) {
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                            ) {
+                                promotionPieces.chunked(2).forEach { chunk ->
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth().weight(1f),
+                                    ) {
+                                        chunk.forEach { (move, piece) ->
+                                            Box(
+                                                modifier = Modifier
+                                                    .fillMaxHeight()
+                                                    .weight(1f)
+                                                    .clickable {
+                                                        onMove(move)
+                                                        moveInProgress = null
+                                                    },
+                                                contentAlignment = Alignment.Center,
+                                            ) {
+                                                Text(
+                                                    piece.unicodeSymbol,
+                                                    fontSize = pieceSize.value.sp * 0.45f,
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        } else if (piece != null) {
+                            Text(
+                                piece.unicodeSymbol,
+                                fontSize = pieceSize.value.sp * 0.8f,
+                                modifier = Modifier.align(Alignment.Center),
                             )
                         }
                     }

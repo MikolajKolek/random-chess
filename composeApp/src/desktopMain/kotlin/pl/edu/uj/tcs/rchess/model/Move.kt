@@ -1,5 +1,10 @@
 package pl.edu.uj.tcs.rchess.model
 
+import pl.edu.uj.tcs.rchess.model.pieces.Bishop
+import pl.edu.uj.tcs.rchess.model.pieces.Knight
+import pl.edu.uj.tcs.rchess.model.pieces.Queen
+import pl.edu.uj.tcs.rchess.model.pieces.Rook
+
 /**
  * Data class describing chess moves. It's the responsibility of the game logic to verify if the move is valid.
  *
@@ -13,6 +18,13 @@ data class Move(val from: Square, val to: Square, val promoteTo: Promotion? = nu
         ROOK('r'),
         BISHOP('b'),
         KNIGHT('n');
+
+        fun toPiece(owner: PlayerColor) = when (this) {
+            QUEEN -> Queen(owner)
+            ROOK -> Rook(owner)
+            BISHOP -> Bishop(owner)
+            KNIGHT -> Knight(owner)
+        }
 
         companion object {
             fun fromIdentifier(identifier: Char) : Promotion? = entries.find { it.identifier == identifier }
