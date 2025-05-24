@@ -93,7 +93,7 @@ class Bot(private val process: Process,
         }
     }
 
-    fun writeAndWaitUntil(commands: String, condition: (String) -> Boolean) = writeAndParse<Unit>(commands) {
+    fun writeAndWaitUntil(commands: String, condition: (String) -> Boolean) = writeAndParse(commands) {
         if (condition(it)) Unit
         else null
     }

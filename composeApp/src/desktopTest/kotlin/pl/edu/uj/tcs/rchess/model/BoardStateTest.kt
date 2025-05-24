@@ -14,7 +14,7 @@ class BoardStateTest {
 
     companion object {
         fun BoardState.testAlgebraicMove(move: String, expectedFen: String): BoardState {
-            Assert.assertEquals(move, this.movetoStandardAlgebraic(this.standardAlgebraicToMove(move)))
+            Assert.assertEquals(move, this.moveToStandardAlgebraic(this.standardAlgebraicToMove(move)))
             return this.applyStandardAlgebraicMove(move).also {
                 Assert.assertEquals(expectedFen, it.toFenString())
             }
@@ -23,15 +23,15 @@ class BoardStateTest {
 
     @Test
     fun emptyPositionTest() {
-        BoardState.empty()
-        Assert.assertThrows(IllegalArgumentException::class.java) { BoardState.empty().isLegal() }
+        BoardState.empty
+        Assert.assertThrows(IllegalArgumentException::class.java) { BoardState.empty.isLegal() }
     }
 
     @Test
     fun initialPositionTest() {
         BoardState.fromFen(Fen.INITIAL)
-        BoardState.initial().toFenString()
-        Assert.assertEquals(BoardState.initial().board[Square.fromString("e1")]!!.javaClass, King(PlayerColor.WHITE).javaClass)
+        BoardState.initial.toFenString()
+        Assert.assertEquals(BoardState.initial.board[Square.fromString("e1")]!!.javaClass, King(PlayerColor.WHITE).javaClass)
     }
 
     @Test
@@ -55,7 +55,7 @@ class BoardStateTest {
     //  https://masterinchess.com/pgn-to-fen-string-converter
     @Test
     fun enPassantTest2() {
-        BoardState.initial()
+        BoardState.initial
             .testAlgebraicMove("e4", "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1")
             .testAlgebraicMove("e6", "rnbqkbnr/pppp1ppp/4p3/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2")
             .testAlgebraicMove("d4", "rnbqkbnr/pppp1ppp/4p3/8/3PP3/8/PPP2PPP/RNBQKBNR b KQkq d3 0 2")
@@ -138,7 +138,7 @@ class BoardStateTest {
         30. Nxe1 Bd5 31. Nf3 Ne4 32. Qb8 b5 33. h4 h5 34. Ne5 Kg7 35. Kg1 Bc5+ 36. Kf1 Ng3+ 37. Ke1 Bb4+ 38. Kd1 Bb3+ 39. Kc1 Ne2+
         40. Kb1 Nc3+ 41. Kc1 Rc2# 0-1
          */
-        BoardState.initial()
+        BoardState.initial
             .testAlgebraicMove("Nf3", "rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b KQkq - 1 1")
             .testAlgebraicMove("Nf6", "rnbqkb1r/pppppppp/5n2/8/8/5N2/PPPPPPPP/RNBQKB1R w KQkq - 2 2")
             .testAlgebraicMove("c4", "rnbqkb1r/pppppppp/5n2/8/2P5/5N2/PP1PPPPP/RNBQKB1R b KQkq c3 0 2")
@@ -230,7 +230,7 @@ class BoardStateTest {
 
     @Test
     fun checkmateTest() {
-        var myState = BoardState.fromFen("3rk2r/1p3ppp/p1qQbn2/4N3/4P3/2N1B3/PP3PPP/2KR3R w k - 1 17").applyStandardAlgebraicMove("Qxd8#")
+        BoardState.fromFen("3rk2r/1p3ppp/p1qQbn2/4N3/4P3/2N1B3/PP3PPP/2KR3R w k - 1 17").applyStandardAlgebraicMove("Qxd8#")
     }
 
     @Test

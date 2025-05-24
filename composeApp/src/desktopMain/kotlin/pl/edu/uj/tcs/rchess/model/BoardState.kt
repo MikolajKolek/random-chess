@@ -131,7 +131,7 @@ class BoardState(
 
     /**
      * @param move The move to check.
-     * @return Piece at the [move.from] square if the move is valid, null otherwise.
+     * @return Piece at the [Move.from] square if the move is valid, null otherwise.
      */
     private fun fromPieceIfMoveValid(move: Move): Piece? =
         board[move.from]?.takeIf { piece ->
@@ -241,7 +241,7 @@ class BoardState(
         val allLegalMoves = mutableListOf<Move>()
         for(r in 0..7) {
             for(f in 0..7) {
-                if(board.get(Square(r, f))?.owner == currentTurn) {
+                if(board[Square(r, f)]?.owner == currentTurn) {
                     allLegalMoves.addAll(getLegalMovesFor(Square(r, f)))
                 }
             }
@@ -411,9 +411,9 @@ class BoardState(
      * @param move The move to convert
      * @return Short Algebraic format of the given move.
      */
-    fun movetoStandardAlgebraic(move : Move) : String {
+    fun moveToStandardAlgebraic(move : Move) : String {
         require(isLegalMove(move)) { "Move must be legal." }
-        var ret = "";
+        var ret = ""
 
         // Moving piece and castling
         var isCastling = false
@@ -424,7 +424,7 @@ class BoardState(
             isCastling = true
             ret += "O-O-O"
         } else if(board[move.from] !is Pawn) {
-            ret += board[move.from]!!.fenLetterLowercase.uppercaseChar();
+            ret += board[move.from]!!.fenLetterLowercase.uppercaseChar()
         }
 
         // Rank and file disambiguation
@@ -473,7 +473,7 @@ class BoardState(
         }
 
         // Target square
-        if(!isCastling) ret += move.to.toString();
+        if(!isCastling) ret += move.to.toString()
 
         // Promotion
         if(move.promoteTo != null) {
@@ -487,7 +487,7 @@ class BoardState(
             ret += '+'
         }
 
-        return ret;
+        return ret
     }
 
     /**
