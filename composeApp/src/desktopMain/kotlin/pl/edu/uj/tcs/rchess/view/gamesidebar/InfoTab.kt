@@ -5,6 +5,6 @@ import androidx.compose.ui.Modifier
 import pl.edu.uj.tcs.rchess.view.PlaceholderScreen
 
 @Composable
-fun InfoTab(modifier: Modifier) {
+fun InfoTab(modifier: Modifier = Modifier) {
     PlaceholderScreen(modifier = modifier, "Game info tab")
 }

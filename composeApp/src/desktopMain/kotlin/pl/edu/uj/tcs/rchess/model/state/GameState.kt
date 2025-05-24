@@ -3,12 +3,15 @@ package pl.edu.uj.tcs.rchess.model.state
 import pl.edu.uj.tcs.rchess.model.BoardState
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
+import pl.edu.uj.tcs.rchess.model.SanFullMove
 import kotlin.time.Clock
 import kotlin.time.Duration
+import kotlin.time.ExperimentalTime
 
 /**
  * Immutable class holding the full state of the game including history and clocks
  */
+@OptIn(ExperimentalTime::class)
 data class GameState(
     val boardStates: List<BoardState>,
 
@@ -44,6 +47,33 @@ data class GameState(
                 else progress.otherPlayerClock
             }
         }
+
+    /**
+     * List of full moves in SAN notation.
+     *
+     * Only the first move can be a [SanFullMove.InitialBlackMove].
+     * The last full move can be a [SanFullMove.FinalWhiteMove].
+     */
+    val fullMoves: List<SanFullMove> by lazy {
+        buildList {
+            var moveNumber = 1
+            var whiteMove: SanFullMove.HalfMove? = null
+            moves.zip(boardStates).forEachIndexed { index, (move, state) ->
+                val halfMove = SanFullMove.HalfMove(index, state.moveToStandardAlgebraic(move))
+                if (state.currentTurn == PlayerColor.WHITE) {
+                    assert(whiteMove == null) { "The game state contains two consecutive white moves" }
+                    whiteMove = halfMove
+                } else if (whiteMove != null) {
+                    add(SanFullMove.FullMove(moveNumber++, whiteMove, halfMove))
+                    whiteMove = null
+                } else {
+                    assert(moveNumber == 1) { "The game state contains two consecutive black moves" }
+                    add(SanFullMove.InitialBlackMove(moveNumber++, halfMove))
+                }
+            }
+            if (whiteMove != null) add(SanFullMove.FinalWhiteMove(moveNumber, whiteMove))
+        }
+    }
 
     companion object {
         fun starting(initialBoardState: BoardState, timeLimit: Duration) = GameState(

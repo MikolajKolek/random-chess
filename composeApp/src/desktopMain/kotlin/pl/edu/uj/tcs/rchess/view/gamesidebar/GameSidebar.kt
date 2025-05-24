@@ -1,5 +1,6 @@
 package pl.edu.uj.tcs.rchess.view.gamesidebar
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.PrimaryTabRow
@@ -16,7 +17,8 @@ enum class Tab(val displayName: String) {
 
 @Composable
 fun GameSidebar(
-    modifier: Modifier
+    modifier: Modifier,
+    displayTab: @Composable (Tab) -> Unit,
 ) {
     var tab by remember { mutableStateOf(Tab.MOVES) }
     Column(
@@ -33,10 +35,10 @@ fun GameSidebar(
             }
         }
 
-        when (tab) {
-            Tab.MOVES -> MovesTab(modifier = Modifier.weight(1f))
-            Tab.INFO -> InfoTab(modifier = Modifier.weight(1f))
-            Tab.EXPORT -> ExportTab(modifier = Modifier.weight(1f))
+        Box(
+            modifier = Modifier.weight(1f),
+        ) {
+            displayTab(tab)
         }
     }
 }

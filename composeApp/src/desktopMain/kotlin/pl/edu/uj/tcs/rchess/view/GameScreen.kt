@@ -15,7 +15,7 @@ import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.game.GameInput
 import pl.edu.uj.tcs.rchess.model.state.GameState
 import pl.edu.uj.tcs.rchess.view.board.BoardArea
-import pl.edu.uj.tcs.rchess.view.gamesidebar.GameSidebar
+import pl.edu.uj.tcs.rchess.view.gamesidebar.*
 import rchess.composeapp.generated.resources.Res
 import rchess.composeapp.generated.resources.swap_vert
 
@@ -123,7 +123,19 @@ fun GameScreen(
         }
 
         GameSidebar(
-            modifier = Modifier.width(512.dp).fillMaxHeight()
-        )
+            modifier = Modifier.width(512.dp).fillMaxHeight(),
+        ) { tab ->
+            when (tab) {
+                Tab.MOVES -> MovesTab(
+                    fullMoves = gameState.fullMoves,
+                    boardStateIndex = boardStateIndex.value,
+                    onSelectIndex = { index ->
+                        boardStateIndex.value = index
+                    }
+                )
+                Tab.INFO -> InfoTab()
+                Tab.EXPORT -> ExportTab()
+            }
+        }
     }
 }
