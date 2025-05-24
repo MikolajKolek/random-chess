@@ -278,13 +278,13 @@ class BoardState(
         return null
     }
 
-    private fun squaresToNotNullPieces() =
-        (0..7).map { rank ->
-            (0..7).associate { file ->
+    private fun squaresToNotNullPieces(): Map<Square, Piece> =
+        (0..7).flatMap { rank ->
+            (0..7).mapNotNull { file ->
                 val square = Square(rank, file)
-                square to board[square]
+                board[square]?.let { square to it }
             }
-        }.flatMap { it.entries }.associate { it.toPair() }.filterValues { it != null }.mapValues { it.value!! }
+        }.associate { it }
 
     fun applyStandardAlgebraicMove(move: String) =
         applyMove(standardAlgebraicToMove(move))
