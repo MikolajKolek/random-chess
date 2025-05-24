@@ -2,6 +2,7 @@ package pl.edu.uj.tcs.rchess.model
 
 import pl.edu.uj.tcs.rchess.model.board.MutableBoard
 import pl.edu.uj.tcs.rchess.model.pieces.Piece
+import pl.edu.uj.tcs.rchess.model.state.BoardState
 
 /**
  * A class handling Forsyth-Edwards notation.
@@ -87,7 +88,7 @@ class Fen private constructor(fenData: String) {
         const val INITIAL: String = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
         /**
-         * Extension method on [BoardState] to convert it to a FEN string.
+         * Extension method on [pl.edu.uj.tcs.rchess.model.state.BoardState] to convert it to a FEN string.
          *
          * @return The FEN representation of this board state.
          */

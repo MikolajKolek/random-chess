@@ -1,6 +1,6 @@
 package pl.edu.uj.tcs.rchess.server
 
-import pl.edu.uj.tcs.rchess.model.BoardState
+import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 import pl.edu.uj.tcs.rchess.model.GameResult
 import pl.edu.uj.tcs.rchess.model.Move

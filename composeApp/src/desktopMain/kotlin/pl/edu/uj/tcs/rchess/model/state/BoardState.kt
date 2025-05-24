@@ -1,9 +1,22 @@
-package pl.edu.uj.tcs.rchess.model
+package pl.edu.uj.tcs.rchess.model.state
 
+import pl.edu.uj.tcs.rchess.model.CastlingRights
+import pl.edu.uj.tcs.rchess.model.Fen
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.fromFen
+import pl.edu.uj.tcs.rchess.model.GameOverReason
+import pl.edu.uj.tcs.rchess.model.Move
+import pl.edu.uj.tcs.rchess.model.PlayerColor
+import pl.edu.uj.tcs.rchess.model.Square
 import pl.edu.uj.tcs.rchess.model.board.Board
 import pl.edu.uj.tcs.rchess.model.board.emptyBoard
-import pl.edu.uj.tcs.rchess.model.pieces.*
+import pl.edu.uj.tcs.rchess.model.pieces.Bishop
+import pl.edu.uj.tcs.rchess.model.pieces.King
+import pl.edu.uj.tcs.rchess.model.pieces.Knight
+import pl.edu.uj.tcs.rchess.model.pieces.Pawn
+import pl.edu.uj.tcs.rchess.model.pieces.Piece
+import pl.edu.uj.tcs.rchess.model.pieces.Queen
+import pl.edu.uj.tcs.rchess.model.pieces.Rook
+import kotlin.collections.iterator
 import kotlin.math.abs
 import kotlin.reflect.KClass
 
@@ -234,7 +247,7 @@ class BoardState(
 
     /**
      * @return The internal reason of game over (or null, if there is none)
-     * @see GameOverReason
+     * @see pl.edu.uj.tcs.rchess.model.GameOverReason
      */
     fun isOver() : GameOverReason? {
         // This method only checks game over reasons within the single BoardState

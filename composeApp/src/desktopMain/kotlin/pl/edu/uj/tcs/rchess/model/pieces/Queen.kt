@@ -1,5 +1,5 @@
 package pl.edu.uj.tcs.rchess.model.pieces
-import pl.edu.uj.tcs.rchess.model.BoardState
+import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.Square

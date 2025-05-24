@@ -7,6 +7,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.fromFen
+import pl.edu.uj.tcs.rchess.model.state.BoardState
 import java.time.LocalDateTime
 
 class Pgn private constructor(pgnGameRegexMatch: MatchResult) {

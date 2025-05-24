@@ -2,7 +2,7 @@ package pl.edu.uj.tcs.rchess.server
 
 import kotlinx.serialization.json.Json
 import pl.edu.uj.tcs.rchess.db.tables.records.PgnGamesRecord
-import pl.edu.uj.tcs.rchess.model.BoardState
+import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.fromFen
 import pl.edu.uj.tcs.rchess.model.GameResult
 import pl.edu.uj.tcs.rchess.model.Move

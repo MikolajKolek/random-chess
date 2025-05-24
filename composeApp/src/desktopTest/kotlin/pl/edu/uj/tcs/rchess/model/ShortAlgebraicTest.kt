@@ -4,6 +4,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
+import pl.edu.uj.tcs.rchess.model.state.BoardState
 
 class ShortAlgebraicTest {
     @get:Rule

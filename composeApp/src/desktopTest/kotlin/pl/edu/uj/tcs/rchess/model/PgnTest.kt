@@ -6,6 +6,7 @@ import kotlinx.serialization.json.*
 import org.junit.Assert
 import org.junit.Test
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
+import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.server.PgnGame
 import java.io.BufferedReader
 import java.io.File

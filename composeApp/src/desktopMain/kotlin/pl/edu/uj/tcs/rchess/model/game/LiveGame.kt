@@ -1,7 +1,7 @@
 package pl.edu.uj.tcs.rchess.model.game
 
 import kotlinx.coroutines.runBlocking
-import pl.edu.uj.tcs.rchess.model.BoardState
+import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.state.ClockState

@@ -15,6 +15,7 @@ import pl.edu.uj.tcs.rchess.model.*
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.fromFen
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 import pl.edu.uj.tcs.rchess.model.game.PlayerGameControls
+import pl.edu.uj.tcs.rchess.model.state.BoardState
 import java.sql.DriverManager
 import java.time.LocalDateTime
 import java.util.*
