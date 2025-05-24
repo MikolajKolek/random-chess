@@ -88,7 +88,8 @@ fun BoardView(
     Column(
         modifier = Modifier
             .width(8 * pieceSize)
-            .height(8 * pieceSize),
+            .height(8 * pieceSize)
+            .aspectRatio(1f),
     ) {
         for (rank in ranksFor(orientation)) {
             Row(
@@ -132,7 +133,7 @@ fun BoardView(
                         if (piece != null) {
                             Text(
                                 piece.unicodeSymbol,
-                                fontSize = 48.sp,
+                                fontSize = pieceSize.value.sp * 0.8f,
                                 modifier = Modifier.align(Alignment.Center),
                             )
                         }

@@ -14,7 +14,7 @@ import org.jetbrains.compose.resources.painterResource
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.game.GameInput
 import pl.edu.uj.tcs.rchess.model.state.GameState
-import pl.edu.uj.tcs.rchess.view.board.LabeledBoard
+import pl.edu.uj.tcs.rchess.view.board.BoardArea
 import pl.edu.uj.tcs.rchess.view.gamesidebar.GameSidebar
 import rchess.composeapp.generated.resources.Res
 import rchess.composeapp.generated.resources.swap_vert
@@ -41,20 +41,17 @@ fun GameScreen(
     val isCurrent = if(enableBrowsing) boardStateIndex.value == gameState.boardStates.size - 1 else true
 
     Row {
-        Column(
-            modifier = Modifier.weight(1f),
-        ) {
-            LabeledBoard(
-                state = boardState,
-                orientation = orientation.value,
-                moveEnabledForColor = input?.takeIf { isCurrent }?.playerColor,
-                onMove = { move ->
-                    input?.makeMove(move)
-                },
-                whiteClock = gameState.getPlayerClock(PlayerColor.WHITE),
-                blackClock = gameState.getPlayerClock(PlayerColor.BLACK),
-            )
-        }
+        BoardArea(
+            modifier = Modifier.weight(1f).fillMaxHeight(),
+            state = boardState,
+            orientation = orientation.value,
+            moveEnabledForColor = input?.takeIf { isCurrent }?.playerColor,
+            onMove = { move ->
+                input?.makeMove(move)
+            },
+            whiteClock = gameState.getPlayerClock(PlayerColor.WHITE),
+            blackClock = gameState.getPlayerClock(PlayerColor.BLACK),
+        )
 
         Column(
             modifier = Modifier.padding(16.dp).fillMaxHeight()
