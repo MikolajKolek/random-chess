@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.view
+package pl.edu.uj.tcs.rchess.view.shared
 
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text

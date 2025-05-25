@@ -1,10 +1,7 @@
 package pl.edu.uj.tcs.rchess
 
 import androidx.compose.runtime.remember
-import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.WindowPlacement
-import androidx.compose.ui.window.application
-import androidx.compose.ui.window.rememberWindowState
+import androidx.compose.ui.window.*
 import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.addFileSource
 import pl.edu.uj.tcs.rchess.config.Config
@@ -36,7 +33,10 @@ fun main() = application {
             onCloseRequest = {
                 context.navigation.closeGameWindow(index)
             },
-            title = "Random Chess",
+            title = "Random Chess history game",
+            state = WindowState(
+                placement = WindowPlacement.Maximized,
+            ),
         ) {
             GameWindowContent(game)
         }
@@ -45,7 +45,10 @@ fun main() = application {
     // TODO: Should use context.navigation in the future
     Window(
         onCloseRequest = ::exitApplication,
-        title = "Random Chess Live Game",
+        title = "Random Chess live game",
+        state = rememberWindowState(
+            placement = WindowPlacement.Maximized,
+        ),
     ) {
         LiveGameWindowContent(context)
     }

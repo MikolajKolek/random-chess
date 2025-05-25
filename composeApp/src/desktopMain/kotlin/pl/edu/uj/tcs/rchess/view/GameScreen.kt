@@ -158,7 +158,7 @@ fun GameScreen(
 
         GameSidebar(
             modifier = Modifier
-                .width(512.dp)
+                .width(384.dp)
                 .fillMaxHeight(),
         ) { tab ->
             when (tab) {
@@ -170,7 +170,9 @@ fun GameScreen(
                     }
                 )
                 Tab.INFO -> InfoTab()
-                Tab.EXPORT -> ExportTab()
+                Tab.EXPORT -> ExportTab(
+                    currentBoardState = boardState,
+                )
             }
         }
     }

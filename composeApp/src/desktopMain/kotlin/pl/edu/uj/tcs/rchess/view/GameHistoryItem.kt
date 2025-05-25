@@ -12,6 +12,7 @@ import pl.edu.uj.tcs.rchess.server.HistoryGame
 import pl.edu.uj.tcs.rchess.server.PgnGame
 import pl.edu.uj.tcs.rchess.server.ServiceGame
 import pl.edu.uj.tcs.rchess.view.board.BoardView
+import pl.edu.uj.tcs.rchess.view.shared.ServiceLabel
 
 @Composable
 fun GameHistoryItem(
