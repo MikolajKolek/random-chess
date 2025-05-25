@@ -9,11 +9,18 @@ sealed interface ClockState {
     val settings: ClockSettings
 
     /**
-     * This does not include the extra time before the first move. For that, see [RunningBeforeFirstMove.remainingExtraTime]
+     * Returns the remaining time on the clock, which does not include the extra time before the first move. For that, see [remainingTotalTime] or [RunningBeforeFirstMove.remainingExtraTime]
      */
     fun remainingTimeOnClock(): Duration
 
+    /**
+     * Returns the remaining time, including the time on the clock and the extra time before the first move.
+     */
+    fun remainingTotalTime(): Duration
+
     fun toPausedAfterMove(): Paused
+
+    fun toPausedWithoutMove(): Paused
 
     fun toRunning(): Running
 
@@ -25,6 +32,8 @@ sealed interface ClockState {
      */
     sealed class Running() : ClockState {
         protected abstract val endsAt: Instant
+
+        override fun remainingTotalTime(): Duration = endsAt - Clock.System.now()
     }
 
     data class RunningBeforeFirstMove(override val settings: ClockSettings) : Running() {
@@ -36,6 +45,8 @@ sealed interface ClockState {
         }
 
         override fun toPausedAfterMove() = Paused.fromRunningAfterMove(this)
+
+        override fun toPausedWithoutMove() = Paused.fromRunningWithoutMove(this)
 
         override fun toRunning(): Running = this
 
@@ -56,6 +67,8 @@ sealed interface ClockState {
         override fun remainingTimeOnClock() = endsAt - Clock.System.now()
 
         override fun toPausedAfterMove() = Paused.fromRunningAfterMove(this)
+
+        override fun toPausedWithoutMove() = Paused.fromRunningWithoutMove(this)
 
         override fun toRunning() = this
 
@@ -82,7 +95,11 @@ sealed interface ClockState {
 
         override fun remainingTimeOnClock(): Duration = remainingTime
 
+        override fun remainingTotalTime(): Duration = remainingTime
+
         override fun toPausedAfterMove(): Paused = this
+
+        override fun toPausedWithoutMove(): Paused = this
 
         override fun toRunning() = RunningAfterFirstMove.fromPaused(this)
 
@@ -90,6 +107,11 @@ sealed interface ClockState {
             fun fromRunningAfterMove(running: Running) = Paused(
                 running.settings,
                 running.remainingTimeOnClock() + running.settings.moveIncrease
+            )
+
+            fun fromRunningWithoutMove(running: Running) = Paused(
+                running.settings,
+                running.remainingTimeOnClock()
             )
         }
     }
