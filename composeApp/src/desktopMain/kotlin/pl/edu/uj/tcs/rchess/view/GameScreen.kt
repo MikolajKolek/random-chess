@@ -20,6 +20,7 @@ import pl.edu.uj.tcs.rchess.view.board.BoardArea
 import pl.edu.uj.tcs.rchess.view.board.Progress
 import pl.edu.uj.tcs.rchess.view.gamesidebar.*
 import rchess.composeapp.generated.resources.Res
+import rchess.composeapp.generated.resources.resign
 import rchess.composeapp.generated.resources.swap_vert
 
 @Composable
@@ -64,6 +65,13 @@ fun GameScreen(
                     makeMoveLoading = false
                 }
             }
+        }
+    }
+
+    fun resign() {
+        coroutineScope.launch {
+            // TODO: Handle errors, needed in case we introduce a client-server architecture
+            input?.resign()
         }
     }
 
@@ -115,6 +123,21 @@ fun GameScreen(
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
+
+                val canResign = input != null && gameState.progress is GameProgress.Running
+                if (canResign) {
+                    TooltipIconButton(
+                        onClick = ::resign,
+                        tooltip = "Resign",
+                    ) {
+                        Icon(
+                            painter = painterResource(Res.drawable.resign),
+                            contentDescription = "Resign",
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
 
                 TooltipIconButton(
                     onClick = {
