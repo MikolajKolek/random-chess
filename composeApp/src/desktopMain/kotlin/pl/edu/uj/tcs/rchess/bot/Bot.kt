@@ -2,6 +2,7 @@ package pl.edu.uj.tcs.rchess.bot
 
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.takeWhile
+import pl.edu.uj.tcs.rchess.logger
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
@@ -33,8 +34,8 @@ class Bot(private val process: Process,
     suspend fun playGame(gameObserver: GameObserver, gameInput: GameInput) {
         try {
             throwingPlayGame(gameObserver, gameInput)
-        } catch (_: Exception) {
-            //TODO: DO LOGGING HERE
+        } catch (e: Exception) {
+            logger.error { "The bot has crashed with the following exception: $e" }
             //TODO: maybe this shouldn't be a resign but something else so it's clear it's an error
             gameInput.resign()
         } finally {

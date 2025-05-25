@@ -4,6 +4,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.window.*
 import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.addFileSource
+import io.github.oshai.kotlinlogging.KotlinLogging
 import pl.edu.uj.tcs.rchess.config.Config
 import pl.edu.uj.tcs.rchess.server.ClientApi
 import pl.edu.uj.tcs.rchess.server.Server
@@ -15,6 +16,7 @@ import java.io.File
 
 private val config: Config = ConfigLoaderBuilder.default().addFileSource(File("config.yml")).build().loadConfigOrThrow()
 private val clientApi: ClientApi = Server(config)
+val logger = KotlinLogging.logger("RandomChess")
 
 fun main() = application {
     val state = rememberWindowState(placement = WindowPlacement.Maximized)

@@ -8,6 +8,8 @@ kotlinx-serialization-json = "1.8.1"
 hoplite = "2.9.0"
 jooq = "3.20.4"
 postgresql = "42.7.5"
+logback = "1.5.18"
+kotlin-logging = "7.0.3"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -24,6 +26,8 @@ jooq = { module = "org.jooq:jooq", version.ref = "jooq" }
 jooq-meta = { module = "org.jooq:jooq-meta", version.ref = "jooq" }
 jooq-codegen = { module = "org.jooq:jooq-codegen", version.ref = "jooq" }
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
+logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+kotlin-logging = { module = 'io.github.oshai:kotlin-logging-jvm', version.ref = "kotlin-logging" }
 
 [plugins]
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform" }

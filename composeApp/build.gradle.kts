@@ -35,6 +35,9 @@ kotlin {
             implementation(libs.jooq.meta)
             implementation(libs.jooq.codegen)
             implementation(libs.postgresql)
+
+            implementation(libs.logback)
+            implementation(libs.kotlin.logging)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
