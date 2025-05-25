@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pl.edu.uj.tcs.rchess.model.SanFullMove
+import pl.edu.uj.tcs.rchess.util.runIf
 
 @Composable
 fun MovesTab(
@@ -62,10 +63,8 @@ fun MovesTab(
                     .clickable {
                         onSelectIndex(halfMove.moveIndex + 1)
                     }
-                    .run {
-                        if (halfMove.moveIndex + 1 == boardStateIndex) {
-                            background(color = MaterialTheme.colorScheme.primaryContainer)
-                        } else this
+                    .runIf(halfMove.moveIndex + 1 == boardStateIndex) {
+                        background(color = MaterialTheme.colorScheme.primaryContainer)
                     },
                 contentAlignment = Alignment.CenterStart,
             ) {
@@ -85,10 +84,8 @@ fun MovesTab(
                     .clickable {
                         onSelectIndex(0)
                     }
-                    .run {
-                        if (0 == boardStateIndex) {
-                            background(color = MaterialTheme.colorScheme.primaryContainer)
-                        } else this
+                    .runIf(0 == boardStateIndex) {
+                        background(color = MaterialTheme.colorScheme.primaryContainer)
                     },
                 contentAlignment = Alignment.CenterStart,
             ) {

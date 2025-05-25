@@ -17,6 +17,7 @@ import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.Square
 import pl.edu.uj.tcs.rchess.model.state.BoardState
+import pl.edu.uj.tcs.rchess.util.runIf
 import pl.edu.uj.tcs.rchess.viewmodel.board.MoveInProgress
 import rchess.composeapp.generated.resources.Res
 import rchess.composeapp.generated.resources.square_capture
@@ -140,14 +141,10 @@ fun BoardView(
                                     else -> background(Color.White)
                                 }
                             }
-                            .run {
-                                if (moveAvailableForColor != null && promotionPieces.isEmpty()) {
-                                    clickable(onClick = {
-                                        onSquareClicked(square)
-                                    })
-                                } else {
-                                    this
-                                }
+                            .runIf(moveAvailableForColor != null && promotionPieces.isEmpty()) {
+                                clickable(onClick = {
+                                    onSquareClicked(square)
+                                })
                             },
                     ) {
                         if (highlight == SquareHighlight.Capture) {
