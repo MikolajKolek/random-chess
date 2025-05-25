@@ -88,7 +88,9 @@ fun GameScreen(
                     .fillMaxHeight(),
                 state = boardState,
                 orientation = orientation.value,
-                moveEnabledForColor = input?.takeIf { isCurrent }?.playerColor,
+                moveEnabledForColor = input
+                    ?.takeIf { isCurrent && gameState.progress is GameProgress.Running }
+                    ?.playerColor,
                 onMove = ::tryMakeMove,
                 whiteClock = gameState.getPlayerClock(PlayerColor.WHITE),
                 blackClock = gameState.getPlayerClock(PlayerColor.BLACK),
@@ -136,7 +138,7 @@ fun GameScreen(
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(48.dp))
                 }
 
                 TooltipIconButton(
