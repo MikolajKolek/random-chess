@@ -2,9 +2,7 @@ package pl.edu.uj.tcs.rchess.model.state
 
 import pl.edu.uj.tcs.rchess.model.GameResult
 import pl.edu.uj.tcs.rchess.model.PlayerColor
-import kotlin.time.ExperimentalTime
 
-@OptIn(ExperimentalTime::class)
 sealed class GameProgress {
     data class Running(
         val currentPlayerClock: ClockState.Running,

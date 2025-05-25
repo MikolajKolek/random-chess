@@ -5,10 +5,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import pl.edu.uj.tcs.rchess.config.BotType
+import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.game.LiveGame
 import pl.edu.uj.tcs.rchess.model.game.PlayerGameControls
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * A class for creating a live game with a bot.
@@ -23,7 +25,12 @@ class GameWithBotFactory(
         coroutineScope: CoroutineScope,
     ): PlayerGameControls {
         val liveGame = LiveGame(
-            timeLimit = 5.minutes
+            //TODO: add more clock options
+            clockSettings = ClockSettings(
+                startingTime = 5.minutes,
+                moveIncrease = 3.seconds,
+                extraTimeForFirstMove = 20.seconds
+            ),
         )
 
         val playerGameInput = liveGame.getGameInput(playerColor = playerColor)

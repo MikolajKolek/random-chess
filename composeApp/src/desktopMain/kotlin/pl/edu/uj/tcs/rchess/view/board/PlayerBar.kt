@@ -14,14 +14,14 @@ import kotlin.time.Duration
 
 @Composable
 fun remainingTime(clockState: ClockState): Duration {
-    var remainingTime by remember { mutableStateOf(clockState.remainingTime()) }
+    var remainingTime by remember { mutableStateOf(clockState.remainingTimeOnClock()) }
 
     LaunchedEffect(clockState) {
-        remainingTime = clockState.remainingTime()
+        remainingTime = clockState.remainingTimeOnClock()
         if (clockState is ClockState.Running) {
             while (true) {
                 withFrameNanos {
-                    remainingTime = clockState.remainingTime()
+                    remainingTime = clockState.remainingTimeOnClock()
                 }
             }
         }

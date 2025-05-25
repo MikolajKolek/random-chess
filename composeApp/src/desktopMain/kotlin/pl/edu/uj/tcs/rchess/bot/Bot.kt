@@ -66,13 +66,19 @@ class Bot(private val process: Process,
 
                     fun addRemainingTime(command: String, color: PlayerColor) {
                         update.state.getPlayerClock(color)?.let {
-                            append("$command ${it.remainingTime().inWholeMilliseconds} ")
+                            append("$command ${it.remainingTimeOnClock().inWholeMilliseconds} ")
+                        }
+                    }
+                    fun addTimeIncrease(command: String, color: PlayerColor) {
+                        update.state.getPlayerClock(color)?.let {
+                            append("$command ${it.settings.moveIncrease.inWholeMilliseconds} ")
                         }
                     }
                     addRemainingTime("wtime", PlayerColor.WHITE)
                     addRemainingTime("btime", PlayerColor.BLACK)
+                    addTimeIncrease("winc", PlayerColor.WHITE)
+                    addTimeIncrease("binc", PlayerColor.BLACK)
 
-                    append("winc 0 binc 0 ")
                     maxDepth?.let { append("depth $it ") }
                     moveTimeMs?.let { append("movetime $it ") }
                     append('\n')

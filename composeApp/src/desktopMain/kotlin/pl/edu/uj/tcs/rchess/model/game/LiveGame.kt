@@ -1,26 +1,23 @@
 package pl.edu.uj.tcs.rchess.model.game
 
-import kotlinx.coroutines.runBlocking
-import pl.edu.uj.tcs.rchess.model.GameWinReason
-import pl.edu.uj.tcs.rchess.model.Move
-import pl.edu.uj.tcs.rchess.model.PlayerColor
-import pl.edu.uj.tcs.rchess.model.Win
+import kotlinx.coroutines.CompletableDeferred
+import pl.edu.uj.tcs.rchess.model.*
 import pl.edu.uj.tcs.rchess.model.state.*
 import pl.edu.uj.tcs.rchess.model.statemachine.StateMachine
-import kotlin.time.Clock
-import kotlin.time.Duration
+import pl.edu.uj.tcs.rchess.server.ServiceGame
 
 class LiveGame(
     initialBoardState: BoardState = BoardState.initial,
-    timeLimit: Duration = Duration.INFINITE,
+    clockSettings: ClockSettings,
 ) : GameObserver {
     val stateMachine: StateMachine<GameState, GameStateChange> =
-        StateMachine(GameState.starting(initialBoardState, timeLimit))
+        StateMachine(GameState.starting(initialBoardState, clockSettings))
 
     override val updateFlow
         get() = stateMachine.updateFlow
     override val stateFlow
         get() = stateMachine.stateFlow
+    override val finishedGame: CompletableDeferred<ServiceGame> = CompletableDeferred()
 
     suspend fun makeMove(move: Move, playerColor: PlayerColor) {
         stateMachine.withState { gameState ->
@@ -28,47 +25,33 @@ class LiveGame(
             require(gameState.currentState.isLegalMove(move)) { "The move is not legal" }
             require(gameState.currentState.board[move.from]?.owner == playerColor) { "It's not your turn" }
 
-            /*val nextBoardState = gameState.currentState.applyMove(move)
+            val nextBoardState = gameState.currentState.applyMove(move)
             nextBoardState.impliedGameOverReason()?.let {
-                return@withState GameStateChange.MoveChange(move, GameProgress.Finished(
-                    it,
-                    GameResult.BLACK_WON//TODO:FIX,
+                saveGame(gameState)
 
+                return@withState GameStateChange.MoveChange(move, GameProgress.FinishedWithClockInfo(
+                    it,
+                    getPlayerClock(gameState, PlayerColor.WHITE).toPausedAfterMove(),
+                    getPlayerClock(gameState, PlayerColor.BLACK).toPausedAfterMove()
                 ))
-            }*/
+            }
 
             GameStateChange.MoveChange(move, GameProgress.Running(
-                ClockState.Running(
-                    gameState.progress.otherPlayerClock.totalTime,
-                    Clock.System.now() + gameState.progress.otherPlayerClock.remainingTime
-                ),
-                ClockState.Paused(
-                    gameState.progress.currentPlayerClock.totalTime,
-                    gameState.progress.currentPlayerClock.endsAt - Clock.System.now()
-                )
+                gameState.progress.otherPlayerClock.toRunning(),
+                gameState.progress.currentPlayerClock.toPausedAfterMove()
             ))
         }
     }
 
-    fun resign(playerColor: PlayerColor) = runBlocking {
+    suspend fun resign(playerColor: PlayerColor) {
         stateMachine.withState { gameState ->
             require(gameState.progress is GameProgress.Running) { "The game is not running" }
 
-            val whitePlayerClock = gameState.getPlayerClock(PlayerColor.WHITE)
-                ?: throw IllegalStateException("White player clock is null")
-            val blackPlayerClock = gameState.getPlayerClock(PlayerColor.BLACK)
-                ?: throw IllegalStateException("Black player clock is null")
-
+            saveGame(gameState)
             GameStateChange.GameOverChange(GameProgress.FinishedWithClockInfo(
                 Win(GameWinReason.RESIGNATION, playerColor.opponent),
-                ClockState.Paused(
-                    whitePlayerClock.totalTime,
-                    whitePlayerClock.remainingTime()
-                ),
-                ClockState.Paused(
-                    blackPlayerClock.totalTime,
-                    blackPlayerClock.remainingTime()
-                )
+                getPlayerClock(gameState, PlayerColor.WHITE).toPausedAfterMove(),
+                getPlayerClock(gameState, PlayerColor.BLACK).toPausedAfterMove()
             ))
         }
     }
@@ -76,6 +59,12 @@ class LiveGame(
     fun getGameInput(playerColor: PlayerColor): GameInput =
         LocalGameInput(playerColor)
 
+    private fun getPlayerClock(state: GameState, color: PlayerColor): ClockState =
+        state.getPlayerClock(color) ?: throw IllegalStateException("Player clock is null")
+
+    private fun saveGame(state: GameState) {
+
+    }
 
     private inner class LocalGameInput(
         override val playerColor: PlayerColor,
@@ -84,7 +73,7 @@ class LiveGame(
             makeMove(move, playerColor)
         }
 
-        override fun resign() {
+        override suspend fun resign() {
             resign(playerColor)
         }
     }

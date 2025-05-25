@@ -1,10 +1,9 @@
 package pl.edu.uj.tcs.rchess.model.state
 
+import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.SanFullMove
-import kotlin.time.Clock
-import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 
 /**
@@ -75,12 +74,12 @@ data class GameState(
     }
 
     companion object {
-        fun starting(initialBoardState: BoardState, timeLimit: Duration) = GameState(
+        fun starting(initialBoardState: BoardState, clockSettings: ClockSettings) = GameState(
             boardStates = listOf(initialBoardState),
             moves = emptyList(),
             progress = GameProgress.Running(
-                currentPlayerClock = ClockState.Running(timeLimit, Clock.System.now() + timeLimit),
-                otherPlayerClock = ClockState.Paused(timeLimit, timeLimit)
+                currentPlayerClock = ClockState.RunningBeforeFirstMove(clockSettings),
+                otherPlayerClock = ClockState.Paused(clockSettings)
             ),
         )
 

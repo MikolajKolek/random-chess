@@ -18,5 +18,5 @@ interface GameInput {
     /**
      * Resigns the game
      */
-    fun resign()
+    suspend fun resign()
 }

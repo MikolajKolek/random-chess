@@ -1,36 +1,96 @@
 package pl.edu.uj.tcs.rchess.model.state
 
+import pl.edu.uj.tcs.rchess.model.ClockSettings
 import kotlin.time.Clock
 import kotlin.time.Duration
-import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
-//TODO: implement time increase on move?
-// if it is implemented also implement winc and binc in BotClockState
-sealed class ClockState {
-    abstract val totalTime: Duration
+sealed interface ClockState {
+    val settings: ClockSettings
 
-    abstract fun remainingTime() : Duration
+    /**
+     * This does not include the extra time before the first move. For that, see [RunningBeforeFirstMove.remainingExtraTime]
+     */
+    fun remainingTimeOnClock(): Duration
+
+    fun toPausedAfterMove(): Paused
+
+    fun toRunning(): Running
 
     // TODO: In a client-server scenario, a time synchronization mechanism should be implemented,
     //  Instant might not be the best choice, as we cannot trust the the client's system clock to
     //  be the same as the server's.
-    @OptIn(ExperimentalTime::class)
     /**
-     * Clock is counting down for this player, the remaining duration can be calculated using [endsAt]
+     * Clock is counting down for this player.
      */
-    data class Running(override val totalTime: Duration, val endsAt: Instant) : ClockState() {
-        override fun remainingTime(): Duration {
-            return endsAt - Clock.System.now()
+    sealed class Running() : ClockState {
+        protected abstract val endsAt: Instant
+    }
+
+    data class RunningBeforeFirstMove(override val settings: ClockSettings) : Running() {
+        override val endsAt: Instant = Clock.System.now() + settings.startingTime + settings.extraTimeForFirstMove
+        private val firstMoveTimeEndsAt: Instant = Clock.System.now() + settings.extraTimeForFirstMove
+
+        override fun remainingTimeOnClock(): Duration {
+            return minOf(settings.startingTime, endsAt - Clock.System.now())
+        }
+
+        override fun toPausedAfterMove() = Paused.fromRunningAfterMove(this)
+
+        override fun toRunning(): Running = this
+
+        /**
+         * The amount of remaining extra time that is given to a player before the first move.
+         *
+         * If the extra time has ended, [remainingTimeOnClock] starts to decrease, and this function
+         * returns [Duration.ZERO].
+         */
+        fun remainingExtraTime() = maxOf(Duration.ZERO, firstMoveTimeEndsAt - Clock.System.now())
+    }
+
+    @ConsistentCopyVisibility
+    data class RunningAfterFirstMove private constructor(
+        override val settings: ClockSettings,
+        override val endsAt: Instant
+    ) : Running() {
+        override fun remainingTimeOnClock() = endsAt - Clock.System.now()
+
+        override fun toPausedAfterMove() = Paused.fromRunningAfterMove(this)
+
+        override fun toRunning() = this
+
+        companion object {
+            fun fromPaused(paused: Paused) = RunningAfterFirstMove(
+                paused.settings,
+                Clock.System.now() + paused.remainingTime
+            )
         }
     }
 
     /**
      * Clock is not running for this player
      */
-    data class Paused(override val totalTime: Duration, val remainingTime: Duration) : ClockState() {
-        override fun remainingTime(): Duration {
-            return remainingTime
+    @ConsistentCopyVisibility
+    data class Paused private constructor(
+        override val settings: ClockSettings,
+        val remainingTime: Duration
+    ) : ClockState {
+        constructor(settings: ClockSettings) : this(
+            settings,
+            settings.startingTime
+        )
+
+        override fun remainingTimeOnClock(): Duration = remainingTime
+
+        override fun toPausedAfterMove(): Paused = this
+
+        override fun toRunning() = RunningAfterFirstMove.fromPaused(this)
+
+        companion object {
+            fun fromRunningAfterMove(running: Running) = Paused(
+                running.settings,
+                running.remainingTimeOnClock() + running.settings.moveIncrease
+            )
         }
     }
 }
