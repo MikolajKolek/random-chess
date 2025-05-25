@@ -14,6 +14,7 @@ import org.jetbrains.compose.resources.painterResource
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.game.GameInput
+import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import pl.edu.uj.tcs.rchess.model.state.GameState
 import pl.edu.uj.tcs.rchess.view.board.BoardArea
 import pl.edu.uj.tcs.rchess.view.board.Progress
@@ -184,6 +185,7 @@ fun GameScreen(
                     onSelectCurrent = {
                         boardStateIndex.value = gameState.boardStates.size - 1
                     },
+                    waitingForOwnMove = gameState.progress is GameProgress.Running && gameState.currentState.currentTurn == input?.playerColor,
                 )
             },
         )

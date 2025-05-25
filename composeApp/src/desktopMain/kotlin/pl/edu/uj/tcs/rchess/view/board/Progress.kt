@@ -1,5 +1,8 @@
 package pl.edu.uj.tcs.rchess.view.board
 
+import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
@@ -7,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import pl.edu.uj.tcs.rchess.model.Draw
@@ -15,6 +19,7 @@ import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.Win
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import pl.edu.uj.tcs.rchess.model.state.GameState
+import pl.edu.uj.tcs.rchess.util.runIf
 
 @Composable
 private fun ProgressRow(
@@ -45,6 +50,7 @@ fun ProgressFinished(result: GameResult) {
             // TODO: Human format
             ProgressRow("Draw", result.drawReason.name)
         }
+
         is Win -> {
             ProgressRow(
                 when (result.winner) {
@@ -77,12 +83,34 @@ fun Progress(
     gameState: GameState,
     currentBoardStateSelected: Boolean,
     onSelectCurrent: () -> Unit,
+    waitingForOwnMove: Boolean,
 ) {
+    val infiniteTransition = rememberInfiniteTransition()
+
     Box(
-        Modifier.clickable(
-            enabled = !currentBoardStateSelected,
-            onClick = onSelectCurrent,
-        )
+        Modifier
+            .clickable(
+                enabled = !currentBoardStateSelected,
+                onClick = onSelectCurrent,
+            )
+            .background(Color.White)
+            .runIf(waitingForOwnMove) {
+                val color = if (currentBoardStateSelected)
+                    MaterialTheme.colorScheme.primaryContainer
+                else
+                    // Highlight when the player is browsing an earlier move,
+                    // while the game is running and it's their turn
+                    infiniteTransition.animateColor(
+                        targetValue = Color.White,
+                        initialValue = MaterialTheme.colorScheme.primaryContainer,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(500, delayMillis = 500, easing = EaseInOut),
+                            repeatMode = RepeatMode.Reverse,
+                        ),
+                    ).value
+
+                background(color)
+            }
     ) {
         when (gameState.progress) {
             is GameProgress.Finished -> ProgressFinished(gameState.progress.result)
