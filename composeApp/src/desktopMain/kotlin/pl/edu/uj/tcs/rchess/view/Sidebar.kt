@@ -4,8 +4,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
@@ -13,7 +13,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.resources.painterResource
 import pl.edu.uj.tcs.rchess.viewmodel.navigation.Route
+import rchess.composeapp.generated.resources.Res
+import rchess.composeapp.generated.resources.game
+import rchess.composeapp.generated.resources.ranking
+import rchess.composeapp.generated.resources.tournament
 
 @Composable
 fun Sidebar(
@@ -27,7 +32,7 @@ fun Sidebar(
             NavigationRailItem(
                 icon = {
                     Icon(
-                        imageVector = Icons.Default.Star,
+                        imageVector = Icons.Default.Add,
                         contentDescription = "Play",
                     )
                 },
@@ -38,7 +43,7 @@ fun Sidebar(
             NavigationRailItem(
                 icon = {
                     Icon(
-                        imageVector = Icons.Default.Star,
+                        painter = painterResource(Res.drawable.game),
                         contentDescription = "Games",
                     )
                 },
@@ -49,7 +54,7 @@ fun Sidebar(
             NavigationRailItem(
                 icon = {
                     Icon(
-                        imageVector = Icons.Default.Star,
+                        painter = painterResource(Res.drawable.ranking),
                         contentDescription = "Ranking",
                     )
                 },
@@ -60,7 +65,7 @@ fun Sidebar(
             NavigationRailItem(
                 icon = {
                     Icon(
-                        imageVector = Icons.Default.Star,
+                        painter = painterResource(Res.drawable.tournament),
                         contentDescription = "Tournaments",
                     )
                 },
