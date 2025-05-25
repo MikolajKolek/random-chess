@@ -16,6 +16,7 @@ import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.game.GameInput
 import pl.edu.uj.tcs.rchess.model.state.GameState
 import pl.edu.uj.tcs.rchess.view.board.BoardArea
+import pl.edu.uj.tcs.rchess.view.board.Progress
 import pl.edu.uj.tcs.rchess.view.gamesidebar.*
 import rchess.composeapp.generated.resources.Res
 import rchess.composeapp.generated.resources.swap_vert
@@ -67,10 +68,10 @@ fun GameScreen(
 
     Row {
         Row(
-          modifier = Modifier
-              .weight(1f)
-              .fillMaxHeight()
-              .background(MaterialTheme.colorScheme.background),
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight()
+                .background(MaterialTheme.colorScheme.background),
         ) {
             BoardArea(
                 modifier = Modifier
@@ -160,20 +161,25 @@ fun GameScreen(
             modifier = Modifier
                 .width(384.dp)
                 .fillMaxHeight(),
-        ) { tab ->
-            when (tab) {
-                Tab.MOVES -> MovesTab(
-                    fullMoves = gameState.fullMoves,
-                    boardStateIndex = boardStateIndex.value,
-                    onSelectIndex = { index ->
-                        boardStateIndex.value = index
-                    }
-                )
-                Tab.INFO -> InfoTab()
-                Tab.EXPORT -> ExportTab(
-                    currentBoardState = boardState,
-                )
-            }
-        }
+            displayTab = { tab ->
+                when (tab) {
+                    Tab.MOVES -> MovesTab(
+                        fullMoves = gameState.fullMoves,
+                        boardStateIndex = boardStateIndex.value,
+                        onSelectIndex = { index ->
+                            boardStateIndex.value = index
+                        }
+                    )
+
+                    Tab.INFO -> InfoTab()
+                    Tab.EXPORT -> ExportTab(
+                        currentBoardState = boardState,
+                    )
+                }
+            },
+            displayProgress = {
+                Progress(gameState)
+            },
+        )
     }
 }
