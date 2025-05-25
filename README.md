@@ -12,3 +12,10 @@ Download [the Stockfish executable](https://stockfishchess.org/download/) for yo
 and [nn-1c0000000000.nnue](https://tests.stockfishchess.org/api/nn/nn-1c0000000000.nnue).
 Then, point the executable field in [composeApp/config.yml](composeApp/config.yml) to your executable,
 and the `EvalFile` field to the nnue. 
+
+# Debugging
+To change the log level, create a local.properties file in `composeApp/` and add:
+```
+log.level=<LEVEL>
+```
+The available levels are `ERROR`, `WARN`, `INFO` (default), `DEBUG` and `TRACE`.
