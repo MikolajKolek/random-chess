@@ -233,7 +233,6 @@ class BoardState(
         return false
     }
 
-    //TODO: ONLY WHITE WINS RIGHT NOW, MAKARON PLEASE FIX
     /**
      * @return If the internal state of the board implies that the game
      * should be over, the appropriate [GameResult] is returned
@@ -247,7 +246,7 @@ class BoardState(
             piece.owner == currentTurn && getLegalMovesFor(square).isNotEmpty()
         }) {
             return if(isInCheck(currentTurn))
-                Win(GameWinReason.CHECKMATE, PlayerColor.WHITE)
+                Win(GameWinReason.CHECKMATE, currentTurn.opponent)
             else
                 Draw(GameDrawReason.STALEMATE)
         }
