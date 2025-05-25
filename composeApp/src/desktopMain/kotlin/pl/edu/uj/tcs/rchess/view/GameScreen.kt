@@ -178,7 +178,13 @@ fun GameScreen(
                 }
             },
             displayProgress = {
-                Progress(gameState)
+                Progress(
+                    gameState,
+                    currentBoardStateSelected = isCurrent,
+                    onSelectCurrent = {
+                        boardStateIndex.value = gameState.boardStates.size - 1
+                    },
+                )
             },
         )
     }
