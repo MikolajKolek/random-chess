@@ -96,7 +96,7 @@ DECLARE
     elem VARCHAR(5);
 BEGIN
     result_fen_array := array_append(result_fen_array, starting_position);
-    FOREACH elem IN ARRAY result_fen_array
+    FOREACH elem IN ARRAY moves
     LOOP
         last_fen := apply_move(last_fen, elem);
         result_fen_array := array_append(result_fen_array, last_fen);
