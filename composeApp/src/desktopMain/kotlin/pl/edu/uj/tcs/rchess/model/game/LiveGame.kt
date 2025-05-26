@@ -1,11 +1,14 @@
 package pl.edu.uj.tcs.rchess.model.game
 
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import pl.edu.uj.tcs.rchess.model.*
 import pl.edu.uj.tcs.rchess.model.state.*
 import pl.edu.uj.tcs.rchess.model.statemachine.StateMachine
 import pl.edu.uj.tcs.rchess.server.ServiceGame
+import pl.edu.uj.tcs.rchess.util.SingleTaskTimer
+import kotlin.time.Duration
 
 class LiveGame(
     initialBoardState: BoardState = BoardState.initial,
@@ -20,33 +23,12 @@ class LiveGame(
         get() = stateMachine.stateFlow
     override val finishedGame = CompletableDeferred<ServiceGame>()
 
-    val timerScope = CoroutineScope(context = Dispatchers.IO)
-
+    val timer = SingleTaskTimer(Dispatchers.IO)
     init {
-        timerScope.launch {
-            stateFlow.collectLatest { state ->
-                if(state.progress !is GameProgress.Running)
-                    return@collectLatest
+        val progress = stateFlow.value.progress
 
-                delay(state.progress.currentPlayerClock.remainingTotalTime())
-
-                stateMachine.withState {
-                    val opponent = state.currentState.currentTurn.opponent
-                    val result = if(state.currentState.hasAnyNonKingMaterial(opponent))
-                        Win(GameWinReason.TIMEOUT, opponent)
-                    else
-                        Draw(GameDrawReason.TIMEOUT_VS_INSUFFICIENT_MATERIAL)
-
-                    endGame(state)
-                    GameStateChange.GameOverChange(
-                        GameProgress.FinishedWithClockInfo(
-                            result,
-                            getPlayerClock(state, PlayerColor.WHITE).toPausedWithoutMove(),
-                            getPlayerClock(state, PlayerColor.BLACK).toPausedWithoutMove()
-                        )
-                    )
-                }
-            }
+        if(progress is GameProgress.Running) runBlocking {
+            setTimer(progress.currentPlayerClock.remainingTotalTime())
         }
     }
 
@@ -69,10 +51,14 @@ class LiveGame(
                 )
             }
 
+            val startedClock = gameState.progress.otherPlayerClock.toRunning()
+            val pausedClock = gameState.progress.currentPlayerClock.toPausedAfterMove()
+
+            setTimer(startedClock.remainingTotalTime())
             GameStateChange.MoveChange(
                 move, GameProgress.Running(
-                    gameState.progress.otherPlayerClock.toRunning(),
-                    gameState.progress.currentPlayerClock.toPausedAfterMove()
+                    startedClock,
+                    pausedClock
                 )
             )
         }
@@ -86,8 +72,8 @@ class LiveGame(
             GameStateChange.GameOverChange(
                 GameProgress.FinishedWithClockInfo(
                     Win(GameWinReason.RESIGNATION, playerColor.opponent),
-                    getPlayerClock(gameState, PlayerColor.WHITE).toPausedAfterMove(),
-                    getPlayerClock(gameState, PlayerColor.BLACK).toPausedAfterMove()
+                    getPlayerClock(gameState, PlayerColor.WHITE).toPausedWithoutMove(),
+                    getPlayerClock(gameState, PlayerColor.BLACK).toPausedWithoutMove()
                 )
             )
         }
@@ -99,9 +85,33 @@ class LiveGame(
     private fun getPlayerClock(state: GameState, color: PlayerColor): ClockState =
         state.getPlayerClock(color) ?: throw IllegalStateException("Player clock is null")
 
+    private suspend fun setTimer(time: Duration) {
+        timer.replaceTask(time) {
+            stateMachine.withState { state ->
+                if(state.progress !is GameProgress.Running)
+                    return@withState null
+
+                val opponent = state.currentState.currentTurn.opponent
+                val result = if (state.currentState.hasAnyNonKingMaterial(opponent))
+                    Win(GameWinReason.TIMEOUT, opponent)
+                else
+                    Draw(GameDrawReason.TIMEOUT_VS_INSUFFICIENT_MATERIAL)
+
+                endGame(state)
+                return@withState GameStateChange.GameOverChange(
+                    GameProgress.FinishedWithClockInfo(
+                        result,
+                        getPlayerClock(state, PlayerColor.WHITE).toPausedWithoutMove(),
+                        getPlayerClock(state, PlayerColor.BLACK).toPausedWithoutMove()
+                    )
+                )
+            }
+        }
+    }
+
     //TODO: implement game saving after it's done
     private fun endGame(state: GameState) {
-        timerScope.cancel()
+        timer.stop()
     }
 
     private inner class LocalGameInput(
