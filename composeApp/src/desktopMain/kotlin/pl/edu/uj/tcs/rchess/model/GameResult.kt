@@ -24,11 +24,6 @@ sealed interface GameResult {
             "1/2-1/2" -> Draw(GameDrawReason.UNKNOWN)
             else -> throw IllegalArgumentException("Invalid pgn result string")
         }
-
-        fun winFromPlayerColor(color: PlayerColor, winReason: GameWinReason) = when(color) {
-            PlayerColor.WHITE -> Win(winReason, PlayerColor.WHITE)
-            PlayerColor.BLACK -> Win(winReason, PlayerColor.BLACK)
-        }
     }
 }
 
