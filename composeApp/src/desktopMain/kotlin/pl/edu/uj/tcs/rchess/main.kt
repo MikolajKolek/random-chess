@@ -12,6 +12,7 @@ import pl.edu.uj.tcs.rchess.view.GameWindowContent
 import pl.edu.uj.tcs.rchess.view.LiveGameWindowContent
 import pl.edu.uj.tcs.rchess.view.MainWindowContent
 import pl.edu.uj.tcs.rchess.viewmodel.AppContext
+import java.awt.Dimension
 import java.io.File
 
 private val config: Config = ConfigLoaderBuilder.default().addFileSource(File("config.yml")).build().loadConfigOrThrow()
@@ -27,6 +28,7 @@ fun main() = application {
         state = state,
         title = "Random Chess",
     ) {
+        window.minimumSize = Dimension(800, 600)
         MainWindowContent(context)
     }
 
@@ -40,6 +42,8 @@ fun main() = application {
                 placement = WindowPlacement.Maximized,
             ),
         ) {
+            window.minimumSize = Dimension(900, 600)
+
             GameWindowContent(game)
         }
     }
@@ -52,6 +56,8 @@ fun main() = application {
             placement = WindowPlacement.Maximized,
         ),
     ) {
+        window.minimumSize = Dimension(900, 600)
+
         LiveGameWindowContent(context)
     }
 }
