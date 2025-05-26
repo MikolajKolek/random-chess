@@ -2,10 +2,10 @@ package pl.edu.uj.tcs.rchess.model
 
 import pl.edu.uj.tcs.rchess.db.udt.records.GameResultTypeRecord
 
-sealed class GameResult() {
-    abstract fun toPgnString(): String
+sealed interface GameResult {
+    fun toPgnString(): String
 
-    abstract fun toDbResult(): GameResultTypeRecord
+    fun toDbResult(): GameResultTypeRecord
 
     companion object {
         //TODO: maybe move this out of here? somewhere into server? idk it's 1:21 am
@@ -32,7 +32,7 @@ sealed class GameResult() {
     }
 }
 
-class Win(val winReason: GameWinReason, val winner: PlayerColor) : GameResult() {
+class Win(val winReason: GameWinReason, val winner: PlayerColor) : GameResult {
     override fun toPgnString(): String = when(winner) {
         PlayerColor.WHITE -> "1-0"
         PlayerColor.BLACK -> "0-1"
@@ -42,7 +42,7 @@ class Win(val winReason: GameWinReason, val winner: PlayerColor) : GameResult() 
         GameResultTypeRecord(gameEndType = toPgnString(), gameEndReason = winReason.toDbWinReason())
 }
 
-class Draw(val drawReason: GameDrawReason) : GameResult() {
+class Draw(val drawReason: GameDrawReason) : GameResult {
     override fun toPgnString(): String = "1/2-1/2"
 
     override fun toDbResult(): GameResultTypeRecord =

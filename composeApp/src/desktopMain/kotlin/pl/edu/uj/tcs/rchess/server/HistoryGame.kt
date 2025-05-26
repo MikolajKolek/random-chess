@@ -1,22 +1,22 @@
 package pl.edu.uj.tcs.rchess.server
 
-import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 import pl.edu.uj.tcs.rchess.model.GameResult
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
+import pl.edu.uj.tcs.rchess.model.state.BoardState
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.math.min
 
-sealed class HistoryGame {
-    abstract val id: Int
-    abstract val moves: List<Move>
-    abstract val startingPosition: BoardState
-    abstract val finalPosition: BoardState
-    abstract val creationDate: LocalDateTime
-    abstract val result: GameResult
-    abstract val metadata: Map<String, String>
+sealed interface HistoryGame {
+    val id: Int
+    val moves: List<Move>
+    val startingPosition: BoardState
+    val finalPosition: BoardState
+    val creationDate: LocalDateTime
+    val result: GameResult
+    val metadata: Map<String, String>
 
     fun toPgnString(): String = buildString {
         fun appendTag(key: String, value: String) {
@@ -79,5 +79,5 @@ sealed class HistoryGame {
         append(result.toPgnString())
     }
 
-    abstract fun getPlayerName(playerColor: PlayerColor): String
+    fun getPlayerName(playerColor: PlayerColor): String
 }

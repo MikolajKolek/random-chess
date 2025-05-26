@@ -3,15 +3,15 @@ package pl.edu.uj.tcs.rchess.model.state
 import pl.edu.uj.tcs.rchess.model.GameResult
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 
-sealed class GameProgress {
+sealed interface GameProgress {
     data class Running(
         val currentPlayerClock: ClockState.Running,
         val otherPlayerClock: ClockState.Paused,
-    ) : GameProgress()
+    ) : GameProgress
 
     open class Finished(
         val result: GameResult,
-    ) : GameProgress()
+    ) : GameProgress
 
     class FinishedWithClockInfo(
         result: GameResult,

@@ -3,7 +3,7 @@ package pl.edu.uj.tcs.rchess.model.state
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.statemachine.Change
 
-sealed class GameStateChange: Change<GameState> {
+sealed interface GameStateChange: Change<GameState> {
     /**
      * Apply a move to the current game state.
      */
@@ -14,7 +14,7 @@ sealed class GameStateChange: Change<GameState> {
          * The change to [GameState.progress]
          */
         val progress: GameProgress,
-    ) : GameStateChange() {
+    ) : GameStateChange {
         override fun applyTo(state: GameState): GameState {
             require(state.progress !is GameProgress.Finished) {
                 "Game is already over"
@@ -37,7 +37,7 @@ sealed class GameStateChange: Change<GameState> {
      */
     class GameOverChange(
         val progress: GameProgress.Finished,
-    ) : GameStateChange() {
+    ) : GameStateChange {
         override fun applyTo(state: GameState): GameState {
             require(state.progress !is GameProgress.Finished) {
                 "Game is already over"

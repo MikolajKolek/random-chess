@@ -1,9 +1,9 @@
 package pl.edu.uj.tcs.rchess.server
 
-import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.model.GameResult
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
+import pl.edu.uj.tcs.rchess.model.state.BoardState
 import java.time.LocalDateTime
 
 data class ServiceGame(
@@ -18,7 +18,7 @@ data class ServiceGame(
     val service: Service,
     val blackPlayer: ServiceAccount,
     val whitePlayer: ServiceAccount,
-) : HistoryGame() {
+) : HistoryGame {
     override fun getPlayerName(playerColor: PlayerColor): String =
         when (playerColor) {
             PlayerColor.BLACK -> blackPlayer.displayName

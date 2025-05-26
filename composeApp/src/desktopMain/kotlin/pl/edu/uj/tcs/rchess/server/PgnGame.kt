@@ -2,11 +2,11 @@ package pl.edu.uj.tcs.rchess.server
 
 import kotlinx.serialization.json.Json
 import pl.edu.uj.tcs.rchess.db.tables.records.PgnGamesRecord
-import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.fromFen
 import pl.edu.uj.tcs.rchess.model.GameResult
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
+import pl.edu.uj.tcs.rchess.model.state.BoardState
 import java.time.LocalDateTime
 
 data class PgnGame(
@@ -19,7 +19,7 @@ data class PgnGame(
     override val metadata: Map<String, String>,
     val blackPlayerName: String,
     val whitePlayerName: String,
-) : HistoryGame() {
+) : HistoryGame {
     //TODO: don't do this here maybe
     constructor(resultRow: PgnGamesRecord) : this(
         id = resultRow.id!!,

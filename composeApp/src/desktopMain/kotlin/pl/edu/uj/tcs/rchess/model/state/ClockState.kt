@@ -30,7 +30,7 @@ sealed interface ClockState {
     /**
      * Clock is counting down for this player.
      */
-    sealed class Running() : ClockState {
+    sealed class Running : ClockState {
         protected abstract val endsAt: Instant
 
         override fun remainingTotalTime(): Duration = endsAt - Clock.System.now()

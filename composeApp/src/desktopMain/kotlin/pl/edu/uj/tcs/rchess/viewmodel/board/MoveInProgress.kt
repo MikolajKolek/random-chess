@@ -4,15 +4,15 @@ import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.Square
 import pl.edu.uj.tcs.rchess.model.pieces.Piece
 
-sealed class MoveInProgress {
-    abstract val startPiece: Piece
-    abstract val startSquare: Square
+sealed interface MoveInProgress {
+    val startPiece: Piece
+    val startSquare: Square
 
     class FirstPicked(
         override val startPiece: Piece,
         override val startSquare: Square,
         val possibleMoves: List<Move>,
-    ): MoveInProgress() {
+    ): MoveInProgress {
         val targetSquares by lazy {
             possibleMoves.map { it.to }.toSet()
         }
@@ -22,5 +22,5 @@ sealed class MoveInProgress {
         override val startPiece: Piece,
         override val startSquare: Square,
         val promotionMoves: List<Move>,
-    ): MoveInProgress()
+    ): MoveInProgress
 }
