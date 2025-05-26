@@ -71,6 +71,41 @@ CREATE TABLE "service_accounts"
     )
 );
 
+-- Funkcja aplikująca ruch do partial FEN
+CREATE OR REPLACE FUNCTION apply_move(
+    fen VARCHAR,
+    move VARCHAR(5)
+) RETURNS VARCHAR AS
+$$
+DECLARE
+BEGIN
+    RETURN fen||move; -- TODO: Zaimplementować dodawanie ruchu do FEN w bazie
+END;
+$$
+LANGUAGE plpgsql IMMUTABLE;
+
+-- Funkcja generująca tablicę partial FEN zaczynając od pozycji startowej i potem po każdym ruchu
+CREATE OR REPLACE FUNCTION generate_fen_array(
+    starting_position VARCHAR,
+    moves VARCHAR(5)[]
+) RETURNS VARCHAR[] AS
+$$
+DECLARE
+    result_fen_array VARCHAR[] := '{}';
+    last_fen VARCHAR := starting_position;
+    elem VARCHAR(5);
+BEGIN
+    result_fen_array := array_append(result_fen_array, starting_position);
+    FOREACH elem IN ARRAY result_fen_array
+    LOOP
+        last_fen := apply_move(last_fen, elem);
+        result_fen_array := array_append(result_fen_array, last_fen);
+    END LOOP;
+    RETURN result_fen_array;
+END;
+$$
+LANGUAGE plpgsql IMMUTABLE;
+
 
 -- Tworzymy dwie tabele reprezentujące rozegrane gry: service_games i pgn_games.
 -- Niektóre z ich kolumn się pokrywają.
@@ -87,6 +122,7 @@ CREATE TABLE "service_games"
     --TODO: DOES THE ARRAY BEING NOT NULL MAKE THE ELEMENTS NOT NULL??
     "moves"              VARCHAR(5)[]   NOT NULL CHECK(array_position(moves, NULL) IS NULL),
     "starting_position"  VARCHAR(100)   NOT NULL,
+    "partial_fens"       VARCHAR[]      GENERATED ALWAYS AS (generate_fen_array(starting_position, moves)) STORED, -- FEN pozycji po każdym ruchu od pozycji startowej
     "creation_date"      TIMESTAMP      NOT NULL, -- data rozegrania partii
     "result"             GAME_RESULT    NOT NULL,
     "metadata"           JSONB          NULL,
@@ -115,6 +151,7 @@ CREATE TABLE "pgn_games"
     -- kolumny wspólne dla "service_games" i "pgn_games"
     "moves"             VARCHAR(5)[]    NOT NULL,
     "starting_position" VARCHAR(100)    NOT NULL,
+    "partial_fens"      VARCHAR[]       GENERATED ALWAYS AS (generate_fen_array(starting_position, moves)) STORED, -- FEN pozycji po każdym ruchu od pozycji startowej
     "creation_date"     TIMESTAMP       NOT NULL, -- data zaimportowania partii
     "result"            GAME_RESULT     NOT NULL,
     "metadata"          JSONB           NULL,
