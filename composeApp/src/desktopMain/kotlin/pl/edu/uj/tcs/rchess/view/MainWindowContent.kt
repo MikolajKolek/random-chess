@@ -4,11 +4,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import pl.edu.uj.tcs.rchess.view.theme.RandomChessTheme
 import pl.edu.uj.tcs.rchess.viewmodel.AppContext
 import pl.edu.uj.tcs.rchess.viewmodel.navigation.Route
 
@@ -35,7 +35,7 @@ fun RouteScreen(
 fun MainWindowContent(
     context: AppContext,
 ) {
-    MaterialTheme {
+    RandomChessTheme {
         Row(
             modifier = Modifier.fillMaxSize(),
         ) {
