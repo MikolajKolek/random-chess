@@ -17,7 +17,6 @@ import pl.edu.uj.tcs.rchess.model.game.GameInput
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import pl.edu.uj.tcs.rchess.model.state.GameState
 import pl.edu.uj.tcs.rchess.view.board.BoardArea
-import pl.edu.uj.tcs.rchess.view.board.Progress
 import pl.edu.uj.tcs.rchess.view.gamesidebar.*
 import rchess.composeapp.generated.resources.Res
 import rchess.composeapp.generated.resources.resign

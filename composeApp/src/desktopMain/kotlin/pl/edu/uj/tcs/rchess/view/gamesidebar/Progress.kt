@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.view.board
+package pl.edu.uj.tcs.rchess.view.gamesidebar
 
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.*
@@ -13,6 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import format
+import formatCapitalized
 import pl.edu.uj.tcs.rchess.model.Draw
 import pl.edu.uj.tcs.rchess.model.GameResult
 import pl.edu.uj.tcs.rchess.model.PlayerColor
@@ -47,18 +49,13 @@ private fun ProgressRow(
 fun ProgressFinished(result: GameResult) {
     when (result) {
         is Draw -> {
-            // TODO: Human format
-            ProgressRow("Draw", result.drawReason.name)
+            ProgressRow("Draw", result.drawReason.format())
         }
 
         is Win -> {
             ProgressRow(
-                when (result.winner) {
-                    PlayerColor.WHITE -> "White won"
-                    PlayerColor.BLACK -> "Black won"
-                },
-                // TODO: Human format
-                result.winReason.name
+                "${result.winner.formatCapitalized()} won",
+                result.winReason.format(result.winner)
             )
         }
     }
