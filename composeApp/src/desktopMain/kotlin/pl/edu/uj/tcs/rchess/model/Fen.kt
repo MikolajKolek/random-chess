@@ -90,9 +90,10 @@ class Fen private constructor(fenData: String) {
         /**
          * Extension method on [pl.edu.uj.tcs.rchess.model.state.BoardState] to convert it to a FEN string.
          *
+         * @param partial Whether the fen string should be in partial FEN format. False by default.
          * @return The FEN representation of this board state.
          */
-        fun BoardState.toFenString(): String = buildString {
+        fun BoardState.toFenString(partial: Boolean = false): String = buildString {
             for (r in 7 downTo 0) {
                 var emptyCount = 0
 
@@ -125,10 +126,13 @@ class Fen private constructor(fenData: String) {
             this.append(castlingRights.toString())
             this.append(" ")
             this.append(enPassantTarget?.toString() ?: "-")
-            this.append(" ")
-            this.append(halfmoveCounter)
-            this.append(" ")
-            this.append(fullmoveNumber)
+
+            if(!partial) {
+                this.append(" ")
+                this.append(halfmoveCounter)
+                this.append(" ")
+                this.append(fullmoveNumber)
+            }
         }
 
         /**

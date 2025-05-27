@@ -1,17 +1,12 @@
 package pl.edu.uj.tcs.rchess.model
 
-import androidx.compose.ui.test.junit4.createComposeRule
 import org.junit.Assert
-import org.junit.Rule
 import org.junit.Test
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.fromFen
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 import pl.edu.uj.tcs.rchess.model.state.BoardState
 
 class FenTest {
-    @get:Rule
-    val rule = createComposeRule()
-
     @Test
     fun variousValidFENTest() {
         val fens = listOf(

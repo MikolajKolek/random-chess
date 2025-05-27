@@ -4,6 +4,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import pl.edu.uj.tcs.rchess.model.*
+import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 import pl.edu.uj.tcs.rchess.model.state.*
 import pl.edu.uj.tcs.rchess.model.statemachine.StateMachine
 import pl.edu.uj.tcs.rchess.server.ServiceGame
@@ -16,6 +17,7 @@ class LiveGame(
 ) : GameObserver {
     val stateMachine: StateMachine<GameState, GameStateChange> =
         StateMachine(GameState.starting(initialBoardState, clockSettings))
+    private val previousPositions = mutableMapOf(initialBoardState.toFenString(true) to 1)
 
     override val updateFlow
         get() = stateMachine.updateFlow
@@ -47,6 +49,22 @@ class LiveGame(
                         it,
                         getPlayerClock(gameState, PlayerColor.WHITE).toPausedAfterMove(),
                         getPlayerClock(gameState, PlayerColor.BLACK).toPausedAfterMove()
+                    )
+                )
+            }
+
+            val fen = nextBoardState.toFenString(partial = true)
+            previousPositions.getOrDefault(fen, 0).let {
+                if(it < 2) {
+                    previousPositions[fen] = it + 1
+                    return@let
+                }
+
+                return@withState GameStateChange.GameOverChange(
+                    GameProgress.FinishedWithClockInfo(
+                        Draw(GameDrawReason.THREEFOLD_REPETITION),
+                        getPlayerClock(gameState, PlayerColor.WHITE).toPausedWithoutMove(),
+                        getPlayerClock(gameState, PlayerColor.BLACK).toPausedWithoutMove()
                     )
                 )
             }

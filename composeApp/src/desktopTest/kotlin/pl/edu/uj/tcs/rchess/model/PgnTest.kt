@@ -154,7 +154,7 @@ class PgnTest {
             "8/1p2p2p/5kp1/2p2b2/pp2K3/7P/2r3P1/5R2 w - - 2 35"
         ), boardStateFens(pgn))
         
-        Assert.assertEquals(GameResult.BLACK_WON, pgn.result)
+        Assert.assertEquals("0-1", pgn.result.toPgnString())
         Assert.assertEquals(
             mapOf(
                 "Event" to "Hourly SuperBlitz Arena",
@@ -911,7 +911,7 @@ class PgnTest {
 
             assertEqualsPrint(json["white"]?.jsonPrimitive?.content, game.whitePlayerName, gameId)
             assertEqualsPrint(json["black"]?.jsonPrimitive?.content, game.blackPlayerName, gameId)
-            assertEqualsPrint(json["result"]?.jsonPrimitive?.content, game.result.pgnString, gameId)
+            assertEqualsPrint(json["result"]?.jsonPrimitive?.content, game.result.toPgnString(), gameId)
         }
     }
 
@@ -993,7 +993,7 @@ class PgnTest {
 
             assertEqualsPrint(json["white"]?.jsonPrimitive?.content, game.whitePlayerName, gameId)
             assertEqualsPrint(json["black"]?.jsonPrimitive?.content, game.blackPlayerName, gameId)
-            assertEqualsPrint(json["result"]?.jsonPrimitive?.content, game.result.pgnString, gameId)
+            assertEqualsPrint(json["result"]?.jsonPrimitive?.content, game.result.toPgnString(), gameId)
         }
     }
 

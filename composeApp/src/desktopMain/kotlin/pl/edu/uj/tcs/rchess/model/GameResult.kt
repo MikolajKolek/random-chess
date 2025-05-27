@@ -27,7 +27,7 @@ sealed interface GameResult {
     }
 }
 
-class Win(val winReason: GameWinReason, val winner: PlayerColor) : GameResult {
+data class Win(val winReason: GameWinReason, val winner: PlayerColor) : GameResult {
     override fun toPgnString(): String = when(winner) {
         PlayerColor.WHITE -> "1-0"
         PlayerColor.BLACK -> "0-1"
@@ -37,7 +37,7 @@ class Win(val winReason: GameWinReason, val winner: PlayerColor) : GameResult {
         GameResultTypeRecord(gameEndType = toPgnString(), gameEndReason = winReason.toDbWinReason())
 }
 
-class Draw(val drawReason: GameDrawReason) : GameResult {
+data    class Draw(val drawReason: GameDrawReason) : GameResult {
     override fun toPgnString(): String = "1/2-1/2"
 
     override fun toDbResult(): GameResultTypeRecord =
