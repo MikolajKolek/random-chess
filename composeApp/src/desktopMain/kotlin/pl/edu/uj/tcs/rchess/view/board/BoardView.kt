@@ -188,7 +188,7 @@ fun BoardView(
                             }
                         } else if (piece != null) {
                             Image(
-                                modifier = Modifier.align(Alignment.Center),
+                                modifier = Modifier.align(Alignment.Center).fillMaxSize(),
                                 painter = painterResource(piece.icon),
                                 contentDescription = piece.fenLetter.toString(),
                             )
