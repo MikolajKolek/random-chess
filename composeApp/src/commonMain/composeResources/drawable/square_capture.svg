@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-        width="56"
-        height="56"
-        viewBox="0 0 56 56"
+        width="64"
+        height="64"
+        viewBox="0 0 64 64"
         version="1.1"
         id="svg5"
         xmlns="http://www.w3.org/2000/svg"
@@ -12,23 +12,22 @@
   <defs
      id="defs2" />
   <g
-     id="layer1"
-     transform="translate(-3.9999999,-4)">
+     id="layer1">
     <path
-       style="fill:#ff0000;fill-opacity:0.990099;stroke-width:1.51181;stroke-linejoin:round;paint-order:markers stroke fill"
-       d="M 52,4 48,16 60,12 54,10 Z"
+       style="fill:#000000;fill-opacity:0.990099;stroke-width:1.51181;stroke-linejoin:round;paint-order:markers stroke fill"
+       d="M 55,1 51,13 63,9 57,7 Z"
        id="path238" />
     <path
-       style="fill:#ff0000;fill-opacity:0.990099;stroke-width:1.51181;stroke-linejoin:round;paint-order:markers stroke fill"
-       d="m 60,52 -12,-4 4,12 2,-6 z"
+       style="fill:#000000;fill-opacity:0.990099;stroke-width:1.51181;stroke-linejoin:round;paint-order:markers stroke fill"
+       d="m 63,55 -12,-4 4,12 2,-6 z"
        id="path348" />
     <path
-       style="fill:#ff0000;fill-opacity:0.990099;stroke-width:1.51181;stroke-linejoin:round;paint-order:markers stroke fill"
-       d="m 12,60 4,-12 -12.0000001,4 6,2 z"
+       style="fill:#000000;fill-opacity:0.990099;stroke-width:1.51181;stroke-linejoin:round;paint-order:markers stroke fill"
+       d="m 9,63 4,-12 -12.0000001,4 6,2 z"
        id="path350" />
     <path
-       style="fill:#ff0000;fill-opacity:0.990099;stroke-width:1.51181;stroke-linejoin:round;paint-order:markers stroke fill"
-       d="M 3.9999999,12 16,16 12,4 9.9999999,10 Z"
+       style="fill:#000000;fill-opacity:0.990099;stroke-width:1.51181;stroke-linejoin:round;paint-order:markers stroke fill"
+       d="M 0.9999999,9 13,13 9,1 6.9999999,7 Z"
        id="path352" />
   </g>
 </svg>

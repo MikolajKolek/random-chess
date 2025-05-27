@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,6 +21,7 @@ import pl.edu.uj.tcs.rchess.util.runIf
 import pl.edu.uj.tcs.rchess.viewmodel.board.MoveInProgress
 import rchess.composeapp.generated.resources.Res
 import rchess.composeapp.generated.resources.square_capture
+import rchess.composeapp.generated.resources.square_move
 
 /**
  * Get the rank indexes as they appear from top to bottom on the screen
@@ -132,10 +134,7 @@ fun BoardView(
                             .fillMaxHeight()
                             .run {
                                 when {
-                                    highlight == SquareHighlight.Start -> background(Color.Yellow)
-                                    highlight == SquareHighlight.Move -> background(Color.Green)
-                                    // TODO: Don't use transparent colors as board background
-                                    highlight == SquareHighlight.Capture -> background(Color.Red.copy(alpha = 0.4f))
+                                    highlight == SquareHighlight.Start -> background(MaterialTheme.colorScheme.primaryContainer)
                                     square.isDark -> background(Color.LightGray)
                                     else -> background(Color.White)
                                 }
@@ -146,12 +145,16 @@ fun BoardView(
                                 })
                             },
                     ) {
-                        if (highlight == SquareHighlight.Capture) {
+                        when (highlight) {
+                            SquareHighlight.Capture -> Res.drawable.square_capture
+                            SquareHighlight.Move -> Res.drawable.square_move
+                            else -> null
+                        }?.let { icon ->
                             Icon(
                                 modifier = Modifier.align(Alignment.Center).fillMaxSize(),
-                                painter = painterResource(Res.drawable.square_capture),
+                                painter = painterResource(icon),
                                 contentDescription = null,
-                                tint = Color.Black,
+                                tint = MaterialTheme.colorScheme.primary,
                             )
                         }
 
