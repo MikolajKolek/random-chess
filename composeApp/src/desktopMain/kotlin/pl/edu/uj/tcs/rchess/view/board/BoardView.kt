@@ -1,16 +1,15 @@
 package pl.edu.uj.tcs.rchess.view.board
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Text
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import org.jetbrains.compose.resources.painterResource
 import pl.edu.uj.tcs.rchess.model.Move
@@ -175,9 +174,9 @@ fun BoardView(
                                                     },
                                                 contentAlignment = Alignment.Center,
                                             ) {
-                                                Text(
-                                                    piece.unicodeSymbol,
-                                                    fontSize = pieceSize.value.sp * 0.45f,
+                                                Image(
+                                                    painter = painterResource(piece.icon),
+                                                    contentDescription = piece.fenLetter.toString(),
                                                 )
                                             }
                                         }
@@ -185,10 +184,10 @@ fun BoardView(
                                 }
                             }
                         } else if (piece != null) {
-                            Text(
-                                piece.unicodeSymbol,
-                                fontSize = pieceSize.value.sp * 0.8f,
+                            Image(
                                 modifier = Modifier.align(Alignment.Center),
+                                painter = painterResource(piece.icon),
+                                contentDescription = piece.fenLetter.toString(),
                             )
                         }
                     }

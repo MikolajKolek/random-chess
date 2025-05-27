@@ -1,11 +1,11 @@
 package pl.edu.uj.tcs.rchess.model.pieces
 
-import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.Square
+import pl.edu.uj.tcs.rchess.model.state.BoardState
 
-abstract class SameMoveCapturePiece(owner: PlayerColor) : Piece(owner) {
+sealed class SameMoveCapturePiece(owner: PlayerColor) : Piece(owner) {
     abstract fun getVision(boardState: BoardState, square: Square): List<Square>
 
     override fun getMoveVision(boardState: BoardState, square: Square): List<Move> =

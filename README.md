@@ -19,3 +19,7 @@ To change the log level, create a local.properties file in `composeApp/` and add
 log.level=<LEVEL>
 ```
 The available levels are `ERROR`, `WARN`, `INFO` (default), `DEBUG` and `TRACE`.
+
+# Licences
+- **Fresca** chess piece set from [Lichess.org GitHub](https://github.com/lichess-org/lila/blob/master/COPYING.md):
+  [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
