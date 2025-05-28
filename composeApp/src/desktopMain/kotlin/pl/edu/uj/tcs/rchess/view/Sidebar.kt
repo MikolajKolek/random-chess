@@ -3,9 +3,6 @@ package pl.edu.uj.tcs.rchess.view
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
@@ -15,10 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
 import pl.edu.uj.tcs.rchess.viewmodel.navigation.Route
-import rchess.composeapp.generated.resources.Res
-import rchess.composeapp.generated.resources.game
-import rchess.composeapp.generated.resources.ranking
-import rchess.composeapp.generated.resources.tournament
+import rchess.composeapp.generated.resources.*
 
 @Composable
 fun Sidebar(
@@ -32,8 +26,8 @@ fun Sidebar(
             NavigationRailItem(
                 icon = {
                     Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Play",
+                        painter = painterResource(Res.drawable.icon_add),
+                        contentDescription = "New game",
                     )
                 },
                 label = { Text("Play") },
@@ -43,7 +37,7 @@ fun Sidebar(
             NavigationRailItem(
                 icon = {
                     Icon(
-                        painter = painterResource(Res.drawable.game),
+                        painter = painterResource(Res.drawable.icon_game),
                         contentDescription = "Games",
                     )
                 },
@@ -54,7 +48,7 @@ fun Sidebar(
             NavigationRailItem(
                 icon = {
                     Icon(
-                        painter = painterResource(Res.drawable.ranking),
+                        painter = painterResource(Res.drawable.icon_ranking),
                         contentDescription = "Ranking",
                     )
                 },
@@ -65,7 +59,7 @@ fun Sidebar(
             NavigationRailItem(
                 icon = {
                     Icon(
-                        painter = painterResource(Res.drawable.tournament),
+                        painter = painterResource(Res.drawable.icon_tournament),
                         contentDescription = "Tournaments",
                     )
                 },
@@ -77,7 +71,7 @@ fun Sidebar(
             NavigationRailItem(
                 icon = {
                     Icon(
-                        imageVector = Icons.Default.Person,
+                        painter = painterResource(Res.drawable.icon_account),
                         contentDescription = "Account",
                     )
                 },

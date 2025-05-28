@@ -2,9 +2,6 @@ package pl.edu.uj.tcs.rchess.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -18,9 +15,7 @@ import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import pl.edu.uj.tcs.rchess.model.state.GameState
 import pl.edu.uj.tcs.rchess.view.board.BoardArea
 import pl.edu.uj.tcs.rchess.view.gamesidebar.*
-import rchess.composeapp.generated.resources.Res
-import rchess.composeapp.generated.resources.resign
-import rchess.composeapp.generated.resources.swap_vert
+import rchess.composeapp.generated.resources.*
 
 @Composable
 fun GameScreen(
@@ -132,7 +127,7 @@ fun GameScreen(
                         tooltip = "Resign",
                     ) {
                         Icon(
-                            painter = painterResource(Res.drawable.resign),
+                            painter = painterResource(Res.drawable.icon_resign),
                             contentDescription = "Resign",
                         )
                     }
@@ -147,7 +142,7 @@ fun GameScreen(
                     tooltip = "Rotate board",
                 ) {
                     Icon(
-                        painter = painterResource(Res.drawable.swap_vert),
+                        painter = painterResource(Res.drawable.icon_swap_vert),
                         contentDescription = "Rotate board",
                     )
                 }
@@ -160,7 +155,7 @@ fun GameScreen(
                     tooltip = "Previous move",
                 ) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        painter = painterResource(Res.drawable.icon_chevron_prev),
                         contentDescription = "Previous move",
                     )
                 }
@@ -173,7 +168,7 @@ fun GameScreen(
                     tooltip = "Next move",
                 ) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        painter = painterResource(Res.drawable.icon_chevron_next),
                         contentDescription = "Next move",
                     )
                 }
