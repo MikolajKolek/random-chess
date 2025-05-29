@@ -12,13 +12,16 @@ class ImportPgnViewModel(private val context: AppContext): ViewModel() {
     val isLoading: Boolean
         get() = _isLoading.value
 
-    suspend fun submit() {
+    suspend fun submitAnd(
+        onSuccess: () -> Unit,
+    ) {
         if (_isLoading.value) return
         try {
             _isLoading.value = true
             withContext(Dispatchers.IO) {
                 context.clientApi.addPgnGames(pgnInput.value)
             }
+            onSuccess()
         } finally {
             _isLoading.value = false
         }

@@ -1,6 +1,11 @@
 package pl.edu.uj.tcs.rchess.view
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -14,6 +19,7 @@ import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.rememberDialogState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
+import pl.edu.uj.tcs.rchess.view.shared.Loading
 import pl.edu.uj.tcs.rchess.viewmodel.AppContext
 import pl.edu.uj.tcs.rchess.viewmodel.ImportPgnViewModel
 
@@ -28,8 +34,9 @@ fun ImportPgnDialog(
 
     fun submit() {
         coroutineScope.launch {
-            viewModel.submit()
-            onSuccess()
+            viewModel.submitAnd {
+                onSuccess()
+            }
         }
     }
 
@@ -38,6 +45,11 @@ fun ImportPgnDialog(
         onCloseRequest = { onCancel() },
         state = rememberDialogState(position = WindowPosition(Alignment.Center)),
     ) {
+        if (viewModel.isLoading) {
+            Loading(text = "Importing")
+            return@DialogWindow
+        }
+
         Column(
             modifier = Modifier.fillMaxSize().padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),

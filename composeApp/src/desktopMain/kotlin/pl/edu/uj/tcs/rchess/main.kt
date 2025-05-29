@@ -1,6 +1,5 @@
 package pl.edu.uj.tcs.rchess
 
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
@@ -9,9 +8,7 @@ import androidx.compose.ui.window.rememberWindowState
 import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.addFileSource
 import io.github.oshai.kotlinlogging.KotlinLogging
-import kotlinx.coroutines.runBlocking
 import pl.edu.uj.tcs.rchess.config.Config
-import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.server.ClientApi
 import pl.edu.uj.tcs.rchess.server.Server
 import pl.edu.uj.tcs.rchess.view.MainWindowContent
@@ -44,13 +41,5 @@ fun main() = application {
                 context.navigation.closeGameWindow(index)
             }
         )
-    }
-
-    // TODO: Remove, this is just for testing before the new game dialog works
-    LaunchedEffect(Unit) {
-        runBlocking {
-            context.navigation.openGameWindow(context.clientApi.startGameWithBot(PlayerColor.WHITE))
-            context.navigation.openGameWindow(context.clientApi.startGameWithBot(PlayerColor.BLACK))
-        }
     }
 }
