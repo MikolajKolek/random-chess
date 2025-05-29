@@ -172,4 +172,11 @@ fun GameScreen(
             },
         )
     }
+
+    state.resignation?.takeIf { it.dialogVisible }?.run {
+        ResignDialog(
+            onConfirm = ::confirmResignation,
+            onDismiss = ::cancelResignation,
+        )
+    }
 }

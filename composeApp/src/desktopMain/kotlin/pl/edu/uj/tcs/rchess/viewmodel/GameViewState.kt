@@ -25,7 +25,7 @@ interface GameViewState {
     interface Resignation {
         val dialogVisible: Boolean
         fun openDialog()
-        fun closeDialog()
+        fun cancelResignation()
         fun confirmResignation()
     }
 
@@ -75,12 +75,10 @@ fun rememberGameViewState(
                     override val dialogVisible = _dialogVisible
 
                     override fun openDialog() {
-                        confirmResignation()
-                        // TODO: Restore when the dialog is implemented
-                        // _dialogVisible = true
+                         _dialogVisible = true
                     }
 
-                    override fun closeDialog() {
+                    override fun cancelResignation() {
                         _dialogVisible = false
                     }
 
