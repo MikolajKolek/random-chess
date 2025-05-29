@@ -79,7 +79,7 @@ data class GameState(
             moves = emptyList(),
             progress = GameProgress.Running(
                 currentPlayerClock = ClockState.RunningBeforeFirstMove(clockSettings),
-                otherPlayerClock = ClockState.Paused(clockSettings)
+                otherPlayerClock = ClockState.PausedBeforeFirstMove(clockSettings)
             ),
         )
 
