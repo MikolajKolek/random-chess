@@ -26,12 +26,12 @@ data class PgnGame(
     // TODO: don't do this here maybe
     constructor(resultRow: PgnGamesRecord) : this(
         id = resultRow.id!!,
-        moves = resultRow.moves.map { Move.Companion.fromLongAlgebraicNotation(it!!) },
-        startingPosition = BoardState.Companion.fromFen(resultRow.startingPosition),
+        moves = resultRow.moves.map { Move.fromLongAlgebraicNotation(it!!) },
+        startingPosition = BoardState.fromFen(resultRow.startingPosition),
         // TODO: Use data from a generated column in the database
-        finalPosition = BoardState.Companion.initial,
+        finalPosition = BoardState.initial,
         creationDate = resultRow.creationDate,
-        result = GameResult.Companion.fromDbResult(resultRow.result),
+        result = GameResult.fromDbResult(resultRow.result),
         metadata = resultRow.metadata?.data()?.let { Json.Default.decodeFromString<Map<String, String>>(it) }
             ?: emptyMap(),
         blackPlayerName = resultRow.blackPlayerName,
