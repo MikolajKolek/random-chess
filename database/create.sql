@@ -71,6 +71,42 @@ CREATE TABLE "service_accounts"
     )
 );
 
+-- Funkcja parsująca szachownicę z FEN na format łatwiejszy do modyfikacji
+CREATE OR REPLACE FUNCTION fen_to_board(
+    fen VARCHAR
+) RETURNS VARCHAR AS
+$$
+DECLARE
+BEGIN
+    RETURN ''; -- TODO: Zaimplementować konwersję z szachownicy FEN
+END;
+$$
+LANGUAGE plpgsql;
+
+-- Funkcja parsująca szachownicę z lokalnego formatu na format FEN
+CREATE OR REPLACE FUNCTION board_to_fen(
+    board VARCHAR
+) RETURNS VARCHAR AS
+$$
+DECLARE
+BEGIN
+    RETURN ''; -- TODO: Zaimplementować konwersję do szachownicy FEN
+END;
+$$
+LANGUAGE plpgsql;
+
+-- Funkcja przekształcająca pole szachownicy na jego miejsce w tablicy
+CREATE OR REPLACE FUNCTION square_to_id(
+    square VARCHAR(2)
+) RETURNS INTEGER AS
+$$
+DECLARE
+BEGIN
+    RETURN 0; -- TODO: Zaimplementować przekształcanie pola na jego miejsce w tablicy
+END;
+$$
+LANGUAGE plpgsql;
+
 -- Funkcja aplikująca ruch do partial FEN
 CREATE OR REPLACE FUNCTION apply_move(
     fen VARCHAR,
