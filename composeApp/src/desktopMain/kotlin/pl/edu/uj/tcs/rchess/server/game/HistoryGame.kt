@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter
 import kotlin.math.min
 
 /**
- * A game commited to the database
+ * A game committed to the database
  */
 sealed class HistoryGame : ApiGame {
     abstract val id: Int

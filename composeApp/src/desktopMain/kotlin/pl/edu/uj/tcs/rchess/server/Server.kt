@@ -5,12 +5,14 @@ import kotlinx.serialization.json.Json
 import org.jooq.JSONB
 import org.jooq.SQLDialect
 import org.jooq.impl.DSL
+import pl.edu.uj.tcs.rchess.config.BotType
 import pl.edu.uj.tcs.rchess.config.Config
 import pl.edu.uj.tcs.rchess.db.keys.SERVICE_GAMES__SERVICE_GAMES_SERVICE_ID_BLACK_PLAYER_FKEY
 import pl.edu.uj.tcs.rchess.db.keys.SERVICE_GAMES__SERVICE_GAMES_SERVICE_ID_WHITE_PLAYER_FKEY
 import pl.edu.uj.tcs.rchess.db.tables.references.PGN_GAMES
 import pl.edu.uj.tcs.rchess.db.tables.references.SERVICE_ACCOUNTS
 import pl.edu.uj.tcs.rchess.db.tables.references.SERVICE_GAMES
+import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.fromFen
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 import pl.edu.uj.tcs.rchess.model.GameResult
@@ -18,23 +20,25 @@ import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.Pgn
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.state.BoardState
+import pl.edu.uj.tcs.rchess.model.state.GameProgress
+import pl.edu.uj.tcs.rchess.model.state.GameState
 import pl.edu.uj.tcs.rchess.server.game.HistoryGame
 import pl.edu.uj.tcs.rchess.server.game.HistoryServiceGame
 import pl.edu.uj.tcs.rchess.server.game.LiveGame
 import pl.edu.uj.tcs.rchess.server.game.PgnGame
 import java.sql.DriverManager
 import java.time.LocalDateTime
-import java.util.Optional
+import java.util.*
 
-class Server(private val config: Config) : ClientApi {
+class Server(private val config: Config) : ClientApi, Database {
     private val connection = DriverManager.getConnection(
         "jdbc:postgresql://${config.database.host}:${config.database.port}/${config.database.database}",
         config.database.user,
         config.database.password
     )
     private val dsl = DSL.using(connection, SQLDialect.POSTGRES)
-    private val botOpponents: List<BotOpponent>
-    private val botGameFactory = GameWithBotFactory(config.bots[3])
+    private val botOpponents: Map<BotOpponent, BotType>
+    private val botGameFactory = GameWithBotFactory(this)
 
     init {
         val botServiceAccounts = dsl.selectFrom(SERVICE_ACCOUNTS)
@@ -53,8 +57,8 @@ class Server(private val config: Config) : ClientApi {
                 serviceAccountRecord.displayName,
                 botType.description,
                 botType.elo,
-                serviceAccountRecord.userIdInService,
-            ) }
+                serviceAccountRecord.userIdInService,) to botType
+            }.associate { it }
     }
 
 
@@ -114,16 +118,22 @@ class Server(private val config: Config) : ClientApi {
     }
 
     override suspend fun getBotOpponents(): List<BotOpponent> {
-        return botOpponents
+        return botOpponents.keys.toList().sortedBy { it.elo }
     }
 
     override suspend fun startGameWithBot(
         playerColor: PlayerColor?,
+        botOpponent: BotOpponent,
+        clockSettings: ClockSettings
     ): LiveGame {
         val finalPlayerColor = playerColor ?: listOf(PlayerColor.WHITE, PlayerColor.BLACK).random()
 
         val controls = botGameFactory.createAndStart(
             finalPlayerColor,
+            playerServiceAccountId = config.defaultUser.toString(),
+            botType = botOpponents[botOpponent]
+                ?: throw IllegalArgumentException("The provided bot opponent does not exist"),
+            clockSettings = clockSettings,
             coroutineScope = MainScope()
         )
 
@@ -131,7 +141,6 @@ class Server(private val config: Config) : ClientApi {
             controls = controls
         )
     }
-
 
     private fun serviceGamesRequest(id: Optional<Int>): List<HistoryServiceGame> {
         val whiteAccount = SERVICE_ACCOUNTS.`as`("white_account")
@@ -185,5 +194,28 @@ class Server(private val config: Config) : ClientApi {
             query = query.and(PGN_GAMES.ID.eq(id.get()))
 
         return query.fetch().map { PgnGame(it) }
+    }
+
+    override suspend fun saveGame(
+        game: GameState,
+        blackPlayerId: String,
+        whitePlayerId: String
+    ): HistoryServiceGame {
+        require(game.progress is GameProgress.Finished) { "The game is not finished" }
+
+        val id = dsl.insertInto(SERVICE_GAMES)
+            .set(SERVICE_GAMES.MOVES, game.moves.map { it.toLongAlgebraicNotation() }.toTypedArray())
+            .set(SERVICE_GAMES.STARTING_POSITION, game.initialState.toFenString())
+            .set(SERVICE_GAMES.CREATION_DATE, LocalDateTime.now())
+            .set(SERVICE_GAMES.RESULT, game.progress.result.toDbResult())
+            .set(SERVICE_GAMES.SERVICE_ID, Service.RANDOM_CHESS.id)
+            .set(SERVICE_GAMES.BLACK_PLAYER, blackPlayerId)
+            .set(SERVICE_GAMES.WHITE_PLAYER, whitePlayerId)
+            .returningResult(SERVICE_GAMES.ID)
+            .fetchOne()?.getValue(SERVICE_GAMES.ID)
+            ?: throw IllegalStateException("Failed to save game to the database")
+
+        return serviceGamesRequest(Optional.of(id))
+            .firstOrNull() ?: throw IllegalStateException("The inserted ")
     }
 }

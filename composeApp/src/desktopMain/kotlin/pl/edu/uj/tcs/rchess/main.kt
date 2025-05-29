@@ -11,6 +11,7 @@ import com.sksamuel.hoplite.addFileSource
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.runBlocking
 import pl.edu.uj.tcs.rchess.config.Config
+import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.server.ClientApi
 import pl.edu.uj.tcs.rchess.server.Server
@@ -19,6 +20,8 @@ import pl.edu.uj.tcs.rchess.view.game.GameWindow
 import pl.edu.uj.tcs.rchess.viewmodel.AppContext
 import java.awt.Dimension
 import java.io.File
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 private val config: Config = ConfigLoaderBuilder.default().addFileSource(File("config.yml")).build().loadConfigOrThrow()
 private val clientApi: ClientApi = Server(config)
@@ -49,8 +52,17 @@ fun main() = application {
     // TODO: Remove, this is just for testing before the new game dialog works
     LaunchedEffect(Unit) {
         runBlocking {
-            context.navigation.openGameWindow(context.clientApi.startGameWithBot(PlayerColor.WHITE))
-            context.navigation.openGameWindow(context.clientApi.startGameWithBot(PlayerColor.BLACK))
+            val botOpponents = context.clientApi.getBotOpponents()
+            context.navigation.openGameWindow(context.clientApi.startGameWithBot(
+                PlayerColor.WHITE,
+                botOpponents[0],
+                ClockSettings(5.minutes, 3.seconds, 5.seconds)
+            ))
+            context.navigation.openGameWindow(context.clientApi.startGameWithBot(
+                PlayerColor.BLACK,
+                botOpponents[0],
+                ClockSettings(5.minutes, 3.seconds, 5.seconds)
+            ))
         }
     }
 }

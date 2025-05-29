@@ -7,6 +7,7 @@ import pl.edu.uj.tcs.rchess.model.*
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 import pl.edu.uj.tcs.rchess.model.state.*
 import pl.edu.uj.tcs.rchess.model.statemachine.StateMachine
+import pl.edu.uj.tcs.rchess.server.Database
 import pl.edu.uj.tcs.rchess.server.game.HistoryServiceGame
 import pl.edu.uj.tcs.rchess.util.SingleTaskTimer
 import kotlin.time.Duration
@@ -14,6 +15,9 @@ import kotlin.time.Duration
 class LiveGameController(
     initialBoardState: BoardState = BoardState.initial,
     clockSettings: ClockSettings,
+    val whitePlayerId: String,
+    val blackPlayerId: String,
+    private val database: Database
 ) : GameObserver {
     val stateMachine: StateMachine<GameState, GameStateChange> =
         StateMachine(GameState.starting(initialBoardState, clockSettings))
@@ -35,16 +39,15 @@ class LiveGameController(
     }
 
     suspend fun makeMove(move: Move, playerColor: PlayerColor) {
-        stateMachine.withState { gameState ->
+        withStateWrapper { gameState ->
             require(gameState.progress is GameProgress.Running) { "The game is not running" }
             require(gameState.currentState.isLegalMove(move)) { "The move is not legal" }
             require(gameState.currentState.board[move.from]?.owner == playerColor) { "It's not your turn" }
 
             val nextBoardState = gameState.currentState.applyMove(move)
+            // Checks for game over states that BoardState detects
             nextBoardState.impliedGameOverReason()?.let {
-                endGame(gameState)
-
-                return@withState GameStateChange.MoveChange(
+                return@withStateWrapper GameStateChange.MoveChange(
                     move, GameProgress.FinishedWithClockInfo(
                         it,
                         getPlayerClock(gameState, PlayerColor.WHITE).toPausedAfterMove(),
@@ -53,6 +56,7 @@ class LiveGameController(
                 )
             }
 
+            // Checks for threefold repetition
             val fen = nextBoardState.toFenString(partial = true)
             previousPositions.getOrDefault(fen, 0).let {
                 if(it < 2) {
@@ -60,8 +64,8 @@ class LiveGameController(
                     return@let
                 }
 
-                return@withState GameStateChange.GameOverChange(
-                    GameProgress.FinishedWithClockInfo(
+                return@withStateWrapper GameStateChange.MoveChange(
+                    move, GameProgress.FinishedWithClockInfo(
                         Draw(GameDrawReason.THREEFOLD_REPETITION),
                         getPlayerClock(gameState, PlayerColor.WHITE).toPausedWithoutMove(),
                         getPlayerClock(gameState, PlayerColor.BLACK).toPausedWithoutMove()
@@ -83,10 +87,9 @@ class LiveGameController(
     }
 
     suspend fun resign(playerColor: PlayerColor) {
-        stateMachine.withState { gameState ->
+        withStateWrapper { gameState ->
             require(gameState.progress is GameProgress.Running) { "The game is not running" }
 
-            endGame(gameState)
             GameStateChange.GameOverChange(
                 GameProgress.FinishedWithClockInfo(
                     Win(GameWinReason.RESIGNATION, playerColor.opponent),
@@ -105,9 +108,9 @@ class LiveGameController(
 
     private suspend fun setTimer(time: Duration) {
         timer.replaceTask(time) {
-            stateMachine.withState { state ->
+            withStateWrapper { state ->
                 if(state.progress !is GameProgress.Running)
-                    return@withState null
+                    return@withStateWrapper null
 
                 val opponent = state.currentState.currentTurn.opponent
                 val result = if (state.currentState.hasAnyNonKingMaterial(opponent))
@@ -115,8 +118,7 @@ class LiveGameController(
                 else
                     Draw(GameDrawReason.TIMEOUT_VS_INSUFFICIENT_MATERIAL)
 
-                endGame(state)
-                return@withState GameStateChange.GameOverChange(
+                GameStateChange.GameOverChange(
                     GameProgress.FinishedWithClockInfo(
                         result,
                         getPlayerClock(state, PlayerColor.WHITE).toPausedWithoutMove(),
@@ -127,9 +129,15 @@ class LiveGameController(
         }
     }
 
-    //TODO: implement game saving after it's done
-    private fun endGame(state: GameState) {
-        timer.stop()
+    private suspend fun withStateWrapper(block: suspend (state: GameState) -> GameStateChange?): GameState {
+        val updatedState = stateMachine.withState(block)
+
+        if(updatedState.progress is GameProgress.FinishedWithClockInfo) {
+            timer.stop()
+            finishedGame.complete(database.saveGame(updatedState, blackPlayerId, whitePlayerId))
+        }
+
+        return updatedState
     }
 
     private inner class LocalGameInput(

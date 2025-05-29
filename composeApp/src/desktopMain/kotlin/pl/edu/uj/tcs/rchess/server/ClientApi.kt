@@ -1,5 +1,6 @@
 package pl.edu.uj.tcs.rchess.server
 
+import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.server.game.HistoryGame
 import pl.edu.uj.tcs.rchess.server.game.HistoryServiceGame
@@ -44,11 +45,15 @@ interface ClientApi {
     suspend fun getBotOpponents(): List<BotOpponent>
 
     /**
-     * @param playerColor The color the player wants to play as. If null the server will pick a random color.
+     * @param playerColor The color the player wants to play as. If null, the server will pick a random color.
+     * @param botOpponent The bot opponent to play against.
+     * @param clockSettings The clock settings to use.
      * @return [pl.edu.uj.tcs.rchess.model.game.PlayerGameControls] for the newly started game.
      */
     // TODO: Add a parameter for the bot opponent
     suspend fun startGameWithBot(
         playerColor: PlayerColor?,
+        botOpponent: BotOpponent,
+        clockSettings: ClockSettings
     ): LiveGame
 }
