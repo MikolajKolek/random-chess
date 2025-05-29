@@ -12,6 +12,7 @@ import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
 import java.time.LocalDateTime
+import java.util.Properties
 
 class PgnTest {
     @Test
@@ -878,9 +879,27 @@ class PgnTest {
         ), boardStateFens(pgn))
     }
 
-    // Set this to true if you want to run the external tests.
-    // They require the presence of the pgn databases in desktopTest.
-    val runExternalTests = false
+    /**
+     * If you want to run the external tests, set `runExternalTests=true` in the
+     * local.properties file in `composeApp/` and create a `pgn_database.pgn` file in
+     * desktopTest/ containing example pgn data.
+     *
+     * An example pgn database to use is the first 100k lines of
+     * [this file](https://lichess.org/api/games/user/german11).
+     */
+    var runExternalTests: Boolean = false
+    init {
+        val localProperties = File("local.properties")
+
+        if(localProperties.isFile) {
+            val properties = Properties()
+            properties.load(localProperties.inputStream())
+
+            properties["runExternalTests"]?.let {
+                runExternalTests = it.toString().toBoolean()
+            }
+        }
+    }
 
     @Test
     fun fenExternalTest() {
@@ -921,7 +940,7 @@ class PgnTest {
             return
 
         val moveCheckerPath = System.getProperty("user.dir") + "/src/desktopTest/move_checker.py"
-        val pgnDatabasePath = System.getProperty("user.dir") + "/src/desktopTest/pgn_database_small.pgn"
+        val pgnDatabasePath = System.getProperty("user.dir") + "/src/desktopTest/pgn_database.pgn"
 
         val games = runBlocking {
             Pgn.fromPgnDatabase(File(pgnDatabasePath).readText())
@@ -951,7 +970,7 @@ class PgnTest {
             return
 
         val fenGeneratorPath = System.getProperty("user.dir") + "/src/desktopTest/fen_generator.py"
-        val pgnDatabasePath = System.getProperty("user.dir") + "/src/desktopTest/pgn_100k.pgn"
+        val pgnDatabasePath = System.getProperty("user.dir") + "/src/desktopTest/pgn_database.pgn"
 
         val games = runBlocking {
             Pgn.fromPgnDatabase(File(pgnDatabasePath).readText())
