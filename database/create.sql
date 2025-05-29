@@ -77,8 +77,25 @@ CREATE OR REPLACE FUNCTION fen_to_board(
 ) RETURNS VARCHAR AS
 $$
 DECLARE
+    ret VARCHAR := '';
+    c CHAR;
+    i INT := 1;
+    j INT := 0;
 BEGIN
-    RETURN ''; -- TODO: Zaimplementować konwersję z szachownicy FEN
+    WHILE(i <= length(fen)) LOOP
+        c := substr(fen, i, 1);
+        IF(c ~ '[0-9]') THEN
+            WHILE(j < c::integer) LOOP
+                ret:=ret||'e'; -- 'e' represents empty square
+                j:=j+1;
+            END LOOP;
+            j:=0;
+        ELSE
+            ret:=ret||c;
+        END IF;
+        i:=i+1;
+    END LOOP;
+    RETURN ret;
 END;
 $$
 LANGUAGE plpgsql IMMUTABLE;
@@ -89,8 +106,25 @@ CREATE OR REPLACE FUNCTION board_to_fen(
 ) RETURNS VARCHAR AS
 $$
 DECLARE
+    ret VARCHAR := '';
+    c CHAR;
+    empty INT := 0;
+    i INT := 1;
 BEGIN
-    RETURN ''; -- TODO: Zaimplementować konwersję do szachownicy FEN
+    WHILE(i <= length(board)) LOOP
+        c:=substr(board,i,1);
+        IF(c='e') THEN empty:=empty+1;
+        ELSE
+            IF(empty!=0) THEN
+                ret=ret||empty::CHAR;
+                empty:=0;
+            END IF;
+            ret=ret||c;
+        END IF;
+        i:=i+1;
+    END LOOP;
+    IF(empty!=0) THEN ret=ret||empty::CHAR; END IF;
+    RETURN ret;
 END;
 $$
 LANGUAGE plpgsql IMMUTABLE;
@@ -102,7 +136,19 @@ CREATE OR REPLACE FUNCTION square_to_id(
 $$
 DECLARE
 BEGIN
-    RETURN (ascii('h')-ascii(substr(square, 1, 1)))*8+substr(square, 2, 1)::integer;
+    RETURN (ascii('h')-ascii(substr(square, 1, 1)))*9+substr(square, 2, 1)::integer;
+END;
+$$
+LANGUAGE plpgsql IMMUTABLE;
+
+-- Funkcja przekształcająca miejsce w tablicy na pole szachownicy
+CREATE OR REPLACE FUNCTION id_to_square(
+    id INTEGER
+) RETURNS VARCHAR(2) AS
+$$
+DECLARE
+BEGIN
+    return ''; -- TODO: Zaimplementować konwersję z miejsca w tablicy do pola szachownicy
 END;
 $$
 LANGUAGE plpgsql IMMUTABLE;
