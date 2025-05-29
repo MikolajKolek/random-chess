@@ -102,7 +102,7 @@ CREATE OR REPLACE FUNCTION square_to_id(
 $$
 DECLARE
 BEGIN
-    RETURN 0; -- TODO: Zaimplementować przekształcanie pola na jego miejsce w tablicy
+    RETURN (ascii('h')-ascii(substr(square, 1, 1)))*8+substr(square, 2, 1)::integer;
 END;
 $$
 LANGUAGE plpgsql IMMUTABLE;
