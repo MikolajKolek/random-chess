@@ -148,7 +148,7 @@ CREATE OR REPLACE FUNCTION id_to_square(
 $$
 DECLARE
 BEGIN
-    return ''; -- TODO: Zaimplementować konwersję z miejsca w tablicy do pola szachownicy
+    return chr((ascii('h')-(id/9)))||(id%9)::char;
 END;
 $$
 LANGUAGE plpgsql IMMUTABLE;
