@@ -15,6 +15,7 @@ import pl.edu.uj.tcs.rchess.server.ServiceAccount
 import pl.edu.uj.tcs.rchess.server.game.HistoryServiceGame
 import java.time.LocalDateTime
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 val infiniteClock = ClockSettings(
@@ -109,11 +110,6 @@ class LiveGameTest {
         Assert.assertEquals(expected, (actual as Draw).drawReason)
     }
 
-    fun assertWinReason(expected: GameWinReason, actual: GameResult) {
-        Assert.assertTrue(actual is Win)
-        Assert.assertEquals(expected, (actual as Win).winReason)
-    }
-
     @Test
     fun threefoldRepetitionTest() {
         val game = Wrapper("k7/8/8/8/8/8/7P/K7 w - - 0 1")
@@ -156,7 +152,38 @@ class LiveGameTest {
         Assert.assertEquals(Win(GameWinReason.RESIGNATION, PlayerColor.BLACK), game.getResult())
     }
 
-    //TODO:timeout test
-    // checkmate test
-    // TIMEOUT_VS_INSUFFICIENT_MATERIAL,
+    @Test
+    fun checkmateTest() {
+        val game = Wrapper("k7/7R/8/8/8/8/8/K5R1 w - - 0 1")
+            .move("g1g8")
+
+        Assert.assertEquals(Win(GameWinReason.CHECKMATE, PlayerColor.WHITE), game.getResult())
+    }
+
+    //TODO: timeoutTest and timeoutVsInsufficientMaterialTest can probably be done better
+    @Test
+    fun timeoutTest() {
+        val game = Wrapper(clockSettings = ClockSettings(
+            startingTime = 1.milliseconds,
+            moveIncrease = 0.seconds,
+            extraTimeForFirstMove = 0.seconds
+        ))
+
+        Thread.sleep(100)
+
+        Assert.assertEquals(Win(GameWinReason.TIMEOUT, PlayerColor.BLACK), game.getResult())
+    }
+
+    @Test
+    fun timeoutVsInsufficientMaterialTest() {
+        val game = Wrapper("k7/8/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1", ClockSettings(
+            startingTime = 1.milliseconds,
+            moveIncrease = 0.seconds,
+            extraTimeForFirstMove = 0.seconds
+        ))
+
+        Thread.sleep(100)
+
+        assertDrawReason(GameDrawReason.TIMEOUT_VS_INSUFFICIENT_MATERIAL, game.getResult())
+    }
 }
