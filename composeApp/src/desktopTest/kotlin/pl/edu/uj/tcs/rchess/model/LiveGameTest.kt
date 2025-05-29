@@ -8,6 +8,12 @@ import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 import pl.edu.uj.tcs.rchess.model.game.LiveGameController
 import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
+import pl.edu.uj.tcs.rchess.model.state.GameState
+import pl.edu.uj.tcs.rchess.server.Database
+import pl.edu.uj.tcs.rchess.server.Service
+import pl.edu.uj.tcs.rchess.server.ServiceAccount
+import pl.edu.uj.tcs.rchess.server.game.HistoryServiceGame
+import java.time.LocalDateTime
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -17,12 +23,52 @@ val infiniteClock = ClockSettings(
     extraTimeForFirstMove = 0.seconds
 )
 
+class MockDatabase : Database {
+    override suspend fun saveGame(
+        game: GameState,
+        blackPlayerId: String,
+        whitePlayerId: String
+    ): HistoryServiceGame {
+        return HistoryServiceGame(
+            id = 0,
+            moves = game.moves,
+            startingPosition = game.initialState,
+            creationDate = LocalDateTime.now(),
+            result = (game.progress as GameProgress.FinishedWithClockInfo).result,
+            metadata = mapOf(),
+            gameIdInService = null,
+            service = Service.RANDOM_CHESS,
+            blackPlayer = ServiceAccount(
+                service = Service.RANDOM_CHESS,
+                userIdInService = blackPlayerId,
+                displayName = blackPlayerId,
+                isBot = false,
+                isCurrentUser = false
+            ),
+            whitePlayer = ServiceAccount(
+                service = Service.RANDOM_CHESS,
+                userIdInService = whitePlayerId,
+                displayName = whitePlayerId,
+                isBot = false,
+                isCurrentUser = false
+            )
+        )
+    }
+
+}
+
 class LiveGameTest {
     class Wrapper(
         initialBoardState: String = BoardState.initial.toFenString(),
         clockSettings: ClockSettings = infiniteClock
     ) {
-        val game = LiveGameController(BoardState.fromFen(initialBoardState), clockSettings)
+        val game = LiveGameController(
+            initialBoardState = BoardState.fromFen(initialBoardState),
+            database = MockDatabase(),
+            clockSettings = clockSettings,
+            blackPlayerId = "Black player",
+            whitePlayerId = "White player"
+        )
         val whiteInput = game.getGameInput(PlayerColor.WHITE)
         val blackInput = game.getGameInput(PlayerColor.BLACK)
 
