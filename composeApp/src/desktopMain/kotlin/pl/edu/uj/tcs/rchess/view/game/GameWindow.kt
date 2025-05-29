@@ -2,13 +2,17 @@ package pl.edu.uj.tcs.rchess.view.game
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pl.edu.uj.tcs.rchess.server.game.ApiGame
 import pl.edu.uj.tcs.rchess.server.game.HistoryGame
 import pl.edu.uj.tcs.rchess.server.game.LiveGame
 import pl.edu.uj.tcs.rchess.view.theme.RandomChessTheme
+import pl.edu.uj.tcs.rchess.viewmodel.rememberGameWindowState
 import java.awt.Dimension
 
 @Composable
@@ -24,6 +28,15 @@ fun GameWindow(
         onFinish(finishedGame)
     }
 
+    val gameState by when (game) {
+        is HistoryGame -> derivedStateOf { game.finalGameState }
+        is LiveGame -> {
+            game.controls.observer.stateFlow.collectAsStateWithLifecycle()
+        }
+    }
+    val input = (game as? LiveGame)?.controls?.input
+    val windowState = rememberGameWindowState(gameState, input)
+
     Window(
         onCloseRequest = onCloseRequest,
         title = when (game) {
@@ -36,7 +49,7 @@ fun GameWindow(
     ) {
         window.minimumSize = Dimension(900, 600)
         RandomChessTheme {
-            GameWindowContent(game)
+            GameScreen(gameState, windowState)
         }
     }
 }

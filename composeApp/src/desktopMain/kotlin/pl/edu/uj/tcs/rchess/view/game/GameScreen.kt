@@ -23,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
 import pl.edu.uj.tcs.rchess.model.PlayerColor
-import pl.edu.uj.tcs.rchess.model.game.GameInput
 import pl.edu.uj.tcs.rchess.model.state.GameState
 import pl.edu.uj.tcs.rchess.view.board.BoardArea
 import pl.edu.uj.tcs.rchess.view.gamesidebar.ExportTab
@@ -32,7 +31,7 @@ import pl.edu.uj.tcs.rchess.view.gamesidebar.InfoTab
 import pl.edu.uj.tcs.rchess.view.gamesidebar.MovesTab
 import pl.edu.uj.tcs.rchess.view.gamesidebar.Progress
 import pl.edu.uj.tcs.rchess.view.gamesidebar.Tab
-import pl.edu.uj.tcs.rchess.viewmodel.rememberGameViewState
+import pl.edu.uj.tcs.rchess.viewmodel.GameWindowState
 import rchess.composeapp.generated.resources.Res
 import rchess.composeapp.generated.resources.icon_chevron_next
 import rchess.composeapp.generated.resources.icon_chevron_prev
@@ -42,10 +41,8 @@ import rchess.composeapp.generated.resources.icon_swap_vert
 @Composable
 fun GameScreen(
     gameState: GameState,
-    input: GameInput?,
-) {
-    val state = rememberGameViewState(gameState, input)
-
+    windowState: GameWindowState,
+) = windowState.run {
     Row {
         Row(
             modifier = Modifier
@@ -57,10 +54,10 @@ fun GameScreen(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight(),
-                state = state.boardStateBrowser.current,
-                orientation = state.orientation,
-                moveEnabledForColor = state.moveEnabledForColor,
-                onMove = state::makeMove,
+                state = boardStateBrowser.current,
+                orientation = orientation,
+                moveEnabledForColor = moveEnabledForColor,
+                onMove = ::makeMove,
                 whiteClock = gameState.getPlayerClock(PlayerColor.WHITE),
                 blackClock = gameState.getPlayerClock(PlayerColor.BLACK),
             )
@@ -95,7 +92,7 @@ fun GameScreen(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                state.resignation?.let {
+                resignation?.let {
                     TooltipIconButton(
                         onClick = it::openDialog,
                         tooltip = "Resign",
@@ -110,7 +107,7 @@ fun GameScreen(
                 }
 
                 TooltipIconButton(
-                    onClick = state::flipOrientation,
+                    onClick = ::flipOrientation,
                     tooltip = "Rotate board",
                 ) {
                     Icon(
@@ -120,8 +117,8 @@ fun GameScreen(
                 }
 
                 TooltipIconButton(
-                    enabled = !state.boardStateBrowser.firstSelected,
-                    onClick = state.boardStateBrowser::selectPrev,
+                    enabled = !boardStateBrowser.firstSelected,
+                    onClick = boardStateBrowser::selectPrev,
                     tooltip = "Previous move",
                 ) {
                     Icon(
@@ -131,8 +128,8 @@ fun GameScreen(
                 }
 
                 TooltipIconButton(
-                    enabled = !state.boardStateBrowser.lastSelected,
-                    onClick = state.boardStateBrowser::selectNext,
+                    enabled = !boardStateBrowser.lastSelected,
+                    onClick = boardStateBrowser::selectNext,
                     tooltip = "Next move",
                 ) {
                     Icon(
@@ -153,27 +150,27 @@ fun GameScreen(
                 when (tab) {
                     Tab.MOVES -> MovesTab(
                         fullMoves = gameState.fullMoves,
-                        boardStateIndex = state.boardStateBrowser.index,
-                        onSelectIndex = state.boardStateBrowser::select
+                        boardStateIndex = boardStateBrowser.index,
+                        onSelectIndex = boardStateBrowser::select
                     )
                     Tab.INFO -> InfoTab()
                     Tab.EXPORT -> ExportTab(
-                        currentBoardState = state.boardStateBrowser.current,
+                        currentBoardState = boardStateBrowser.current,
                     )
                 }
             },
             displayProgress = {
                 Progress(
                     gameState,
-                    currentBoardStateSelected = state.boardStateBrowser.lastSelected,
-                    onSelectCurrent = state.boardStateBrowser::selectLast,
-                    waitingForOwnMove = state.waitingForOwnMove,
+                    currentBoardStateSelected = boardStateBrowser.lastSelected,
+                    onSelectCurrent = boardStateBrowser::selectLast,
+                    waitingForOwnMove = waitingForOwnMove,
                 )
             },
         )
     }
 
-    state.resignation?.takeIf { it.dialogVisible }?.run {
+    resignation?.takeIf { it.dialogVisible }?.run {
         ResignDialog(
             onConfirm = ::confirmResignation,
             onDismiss = ::cancelResignation,

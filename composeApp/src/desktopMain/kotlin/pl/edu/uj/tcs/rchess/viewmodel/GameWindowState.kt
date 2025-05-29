@@ -17,7 +17,7 @@ import pl.edu.uj.tcs.rchess.model.state.GameState
 /**
  * Used as the state and business logic management mechanism for [GameScreen]
  */
-interface GameViewState {
+interface GameWindowState {
     val orientation: PlayerColor
 
     fun flipOrientation()
@@ -51,17 +51,17 @@ interface GameViewState {
 }
 
 @Composable
-fun rememberGameViewState(
+fun rememberGameWindowState(
     gameState: GameState,
     input: GameInput?,
-): GameViewState {
+): GameWindowState {
     val coroutineScope = rememberCoroutineScope()
 
     val orientation = remember { mutableStateOf(input?.playerColor ?: PlayerColor.WHITE) }
     val makeMoveLoading = remember { mutableStateOf(false) }
     val boardStateBrowser = rememberListBrowser(gameState.boardStates)
 
-    return object : GameViewState {
+    return object : GameWindowState {
         override val orientation by orientation
 
         override fun flipOrientation() {
@@ -70,7 +70,7 @@ fun rememberGameViewState(
 
         override val resignation =
             input.takeIf { gameState.progress is GameProgress.Running }?.let { resignInput ->
-                object : GameViewState.Resignation {
+                object : GameWindowState.Resignation {
                     private var _dialogVisible by remember { mutableStateOf(false) }
                     override val dialogVisible = _dialogVisible
 
