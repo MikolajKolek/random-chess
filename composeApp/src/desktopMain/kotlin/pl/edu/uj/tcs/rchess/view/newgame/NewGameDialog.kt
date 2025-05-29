@@ -28,8 +28,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import pl.edu.uj.tcs.rchess.model.PlayerColor
-import pl.edu.uj.tcs.rchess.view.PlaceholderScreen
 import pl.edu.uj.tcs.rchess.view.shared.Loading
+import pl.edu.uj.tcs.rchess.view.shared.PlaceholderScreen
 import pl.edu.uj.tcs.rchess.viewmodel.AppContext
 import pl.edu.uj.tcs.rchess.viewmodel.NewGameViewModel
 import rchess.composeapp.generated.resources.Res

@@ -1,6 +1,7 @@
 package pl.edu.uj.tcs.rchess.view.game
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowState
@@ -14,7 +15,15 @@ import java.awt.Dimension
 fun GameWindow(
     game: ApiGame,
     onCloseRequest: () -> Unit,
+    onFinish: (historyGame: HistoryGame) -> Unit,
+
 ) {
+    LaunchedEffect(game) {
+        if (game !is LiveGame) return@LaunchedEffect
+        val finishedGame = game.controls.observer.finishedGame.await()
+        onFinish(finishedGame)
+    }
+
     Window(
         onCloseRequest = onCloseRequest,
         title = when (game) {

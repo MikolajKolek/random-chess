@@ -39,7 +39,10 @@ fun main() = application {
             game,
             onCloseRequest = {
                 context.navigation.closeGameWindow(index)
-            }
+            },
+            onFinish = { historyGame ->
+                context.navigation.replaceGameWindow(index, historyGame)
+            },
         )
     }
 }

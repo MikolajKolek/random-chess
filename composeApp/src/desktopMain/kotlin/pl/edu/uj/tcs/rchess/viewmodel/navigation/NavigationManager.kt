@@ -2,7 +2,10 @@ package pl.edu.uj.tcs.rchess.viewmodel.navigation
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import pl.edu.uj.tcs.rchess.logger
 import pl.edu.uj.tcs.rchess.server.game.ApiGame
+import pl.edu.uj.tcs.rchess.server.game.HistoryGame
+import pl.edu.uj.tcs.rchess.server.game.LiveGame
 
 class NavigationManager {
     private val _route = mutableStateOf<Route>(Route.GameHistory)
@@ -27,6 +30,17 @@ class NavigationManager {
 
     fun closeGameWindow(index: Int) {
         _gameWindows.removeAt(index)
+    }
+
+    /**
+     * Replaces the [ApiGame] instance associated with the window at [index].
+     * Used when a live game finishes.
+     */
+    fun replaceGameWindow(index: Int, liveGame: HistoryGame) {
+        if (_gameWindows[index] !is LiveGame) {
+            logger.warn { "Previous game replaced in replaceGameForWindow was not a LiveGame" }
+        }
+        _gameWindows[index] = liveGame
     }
 
     fun openNewGameDialog() {
