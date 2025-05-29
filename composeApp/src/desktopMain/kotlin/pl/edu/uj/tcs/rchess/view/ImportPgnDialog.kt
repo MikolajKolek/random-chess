@@ -40,7 +40,7 @@ fun ImportPgnDialog(
     ) {
         Column(
             modifier = Modifier.fillMaxSize().padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             TextField(
                 value = viewModel.pgnInput.value,

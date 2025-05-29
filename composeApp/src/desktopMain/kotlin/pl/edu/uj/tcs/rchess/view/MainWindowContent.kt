@@ -36,7 +36,10 @@ fun MainWindowContent(
 ) {
     RandomChessTheme {
         if (context.navigation.newGameDialogVisible) {
-            NewGameDialog(onCancel = context.navigation::closeNewGameDialog)
+            NewGameDialog(
+                context,
+                onClose = context.navigation::closeNewGameDialog,
+            )
         }
 
         Row(
