@@ -17,13 +17,6 @@ sealed interface GameResult {
                 else -> throw IllegalArgumentException("Invalid db game_result")
             }
         }
-
-        fun fromPgnString(string: String): GameResult = when(string) {
-            "1-0" -> Win(GameWinReason.UNKNOWN, PlayerColor.WHITE)
-            "0-1" -> Win(GameWinReason.UNKNOWN, PlayerColor.BLACK)
-            "1/2-1/2" -> Draw(GameDrawReason.UNKNOWN)
-            else -> throw IllegalArgumentException("Invalid pgn result string")
-        }
     }
 }
 
@@ -37,7 +30,7 @@ data class Win(val winReason: GameWinReason, val winner: PlayerColor) : GameResu
         GameResultTypeRecord(gameEndType = toPgnString(), gameEndReason = winReason.toDbWinReason())
 }
 
-data    class Draw(val drawReason: GameDrawReason) : GameResult {
+data class Draw(val drawReason: GameDrawReason) : GameResult {
     override fun toPgnString(): String = "1/2-1/2"
 
     override fun toDbResult(): GameResultTypeRecord =

@@ -29,4 +29,12 @@ enum class PlayerColor(
             WHITE -> BLACK
             BLACK -> WHITE
         }
+
+    companion object {
+        fun fromPgnWinString(string: String) = when(string) {
+            "1-0" -> WHITE
+            "0-1" -> BLACK
+            else -> throw IllegalArgumentException("Invalid pgn result string")
+        }
+    }
 }

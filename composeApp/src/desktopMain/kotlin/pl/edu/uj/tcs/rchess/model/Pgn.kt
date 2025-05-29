@@ -21,9 +21,30 @@ class Pgn private constructor(pgnGameRegexMatch: MatchResult) {
     init {
         pgnTagStringToTags(pgnGameRegexMatch.groupValues[1]).let { tags ->
             startingPosition = tags["FEN"]?.let { BoardState.fromFen(it) } ?: BoardState.initial
-            moves = pgnMovetextToMoves(pgnGameRegexMatch.groupValues[3])
-            result = tags["Result"]?.let { GameResult.fromPgnString(it) }
-                ?: throw IllegalArgumentException("The PGN does not contain the Result tag")
+            val (moveList, state) = processPgnMovetext(pgnGameRegexMatch.groupValues[3])
+            moves = moveList
+
+            val res = tags["Result"] ?: throw IllegalArgumentException("The PGN does not contain the Result tag")
+            require(res != "*") { "RandomChess does not allow for the importing of ongoing PGN games" }
+            require(res == "1-0" || res == "0-1" || res == "1/2-1/2") { "Invalid pgn result string" }
+
+            if(res == "1/2-1/2")
+                result = Draw(GameDrawReason.UNKNOWN)
+            else {
+                var reason: GameWinReason = when(tags["Termination"]?.lowercase()) {
+                    "abandoned" -> GameWinReason.ABANDONMENT
+                    "death" -> GameWinReason.DEATH
+                    "time forfeit" -> GameWinReason.TIMEOUT
+                    else -> GameWinReason.UNKNOWN
+                }
+
+                val impliedGameOverReason = state.impliedGameOverReason()
+                if(reason == GameWinReason.UNKNOWN && impliedGameOverReason is Win)
+                    reason = impliedGameOverReason.winReason
+
+                result = Win(reason, PlayerColor.fromPgnWinString(res))
+            }
+
             metadata = JsonObject(
                 tags.toMap().filter { it.key != "White" && it.key != "Black" && it.key != "Result" }
                     .mapValues { JsonPrimitive(it.value ) }
@@ -50,7 +71,7 @@ class Pgn private constructor(pgnGameRegexMatch: MatchResult) {
         return map
     }
 
-    private fun pgnMovetextToMoves(movetext: String): List<Move> {
+    private fun processPgnMovetext(movetext: String): Pair<List<Move>, BoardState> {
         val withoutRAV = StringBuilder()
         var ravDepth = 0
         for(c in movetext) {
@@ -85,7 +106,7 @@ class Pgn private constructor(pgnGameRegexMatch: MatchResult) {
             boardState = boardState.applyMove(result.last())
         }
 
-        return result
+        return Pair(result, boardState)
     }
 
     private fun pgnDateToLocalDateTime(date: String): LocalDateTime {
