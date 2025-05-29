@@ -51,7 +51,10 @@ fun ImportPgnDialog(
                 minLines = 3,
             )
 
-            Row {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+            ) {
                 Button(
                     onClick = ::submit,
                 ) {

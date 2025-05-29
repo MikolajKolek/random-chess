@@ -2,11 +2,9 @@ package pl.edu.uj.tcs.rchess.view
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationRail
-import androidx.compose.material3.NavigationRailItem
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -18,22 +16,30 @@ import rchess.composeapp.generated.resources.*
 fun Sidebar(
     currentRoute: Route,
     onNavigate: (Route) -> Unit,
+    onOpenNewGameDialog: () -> Unit,
 ) {
-    NavigationRail {
+    NavigationRail(
+        header = {
+            Spacer(modifier = Modifier.height(16.dp))
+
+            FloatingActionButton(
+                onClick = {
+                    onOpenNewGameDialog()
+                },
+                elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
+            ) {
+                Icon(
+                    painter = painterResource(Res.drawable.icon_start_game),
+                    contentDescription = "New game",
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+    ) {
         Column(
             modifier = Modifier.padding(8.dp)
         ) {
-            NavigationRailItem(
-                icon = {
-                    Icon(
-                        painter = painterResource(Res.drawable.icon_add),
-                        contentDescription = "New game",
-                    )
-                },
-                label = { Text("Play") },
-                selected = currentRoute is Route.NewGame,
-                onClick = { onNavigate(Route.NewGame) }
-            )
             NavigationRailItem(
                 icon = {
                     Icon(

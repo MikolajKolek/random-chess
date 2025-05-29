@@ -8,18 +8,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import pl.edu.uj.tcs.rchess.view.newgame.NewGameDialog
 import pl.edu.uj.tcs.rchess.view.theme.RandomChessTheme
 import pl.edu.uj.tcs.rchess.viewmodel.AppContext
 import pl.edu.uj.tcs.rchess.viewmodel.navigation.Route
 
-// TODO: This is temporary
 @Composable
 fun RouteScreen(
     context: AppContext,
 ) {
     context.navigation.route.let { route ->
         when (route) {
-            is Route.NewGame -> PlaceholderScreen(text = "New game")
             is Route.GameHistory -> GameHistoryScreen(context)
             is Route.RankingList -> PlaceholderScreen(text = "Ranking list")
             is Route.TournamentList -> PlaceholderScreen(text = "Tournament list")
@@ -36,10 +35,18 @@ fun MainWindowContent(
     context: AppContext,
 ) {
     RandomChessTheme {
+        if (context.navigation.newGameDialogVisible) {
+            NewGameDialog(onCancel = context.navigation::closeNewGameDialog)
+        }
+
         Row(
             modifier = Modifier.fillMaxSize(),
         ) {
-            Sidebar(context.navigation.route, context.navigation::navigateTo)
+            Sidebar(
+                context.navigation.route,
+                context.navigation::navigateTo,
+                onOpenNewGameDialog = context.navigation::openNewGameDialog,
+            )
 
             Box(
                 modifier = Modifier.fillMaxSize().widthIn(max = 600.dp),

@@ -9,6 +9,10 @@ class NavigationManager {
     val route: Route
         get() = _route.value
 
+    private val _newGameDialogVisible = mutableStateOf(false)
+    val newGameDialogVisible: Boolean
+        get() = _newGameDialogVisible.value
+
     fun navigateTo(route: Route) {
         _route.value = route
     }
@@ -23,5 +27,13 @@ class NavigationManager {
 
     fun closeGameWindow(index: Int) {
         _gameWindows.removeAt(index)
+    }
+
+    fun openNewGameDialog() {
+        _newGameDialogVisible.value = true
+    }
+
+    fun closeNewGameDialog() {
+        _newGameDialogVisible.value = false
     }
 }
