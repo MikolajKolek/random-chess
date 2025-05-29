@@ -20,6 +20,8 @@ fun GameWinReason.format(winner: PlayerColor): String
         GameWinReason.TIMEOUT -> "${winner.opponent.formatCapitalized()} ran out of time"
         GameWinReason.CHECKMATE -> "Checkmate"
         GameWinReason.RESIGNATION -> "${winner.opponent.formatCapitalized()} resigned"
+        GameWinReason.ABANDONMENT -> "${winner.opponent.formatCapitalized()} abandoned the game"
+        GameWinReason.DEATH -> "\uD83D\uDC80"
     }
 
 fun GameDrawReason.format(): String

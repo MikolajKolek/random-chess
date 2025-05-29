@@ -86,13 +86,13 @@ class LiveGameController(
         }
     }
 
-    suspend fun resign(playerColor: PlayerColor) {
+    suspend fun immediateGameEnd(playerColor: PlayerColor, winReason: GameWinReason) {
         withStateWrapper { gameState ->
             require(gameState.progress is GameProgress.Running) { "The game is not running" }
 
             GameStateChange.GameOverChange(
                 GameProgress.FinishedWithClockInfo(
-                    Win(GameWinReason.RESIGNATION, playerColor.opponent),
+                    Win(winReason, playerColor.opponent),
                     getPlayerClock(gameState, PlayerColor.WHITE).toPausedWithoutMove(),
                     getPlayerClock(gameState, PlayerColor.BLACK).toPausedWithoutMove()
                 )
@@ -148,7 +148,11 @@ class LiveGameController(
         }
 
         override suspend fun resign() {
-            resign(playerColor)
+            immediateGameEnd(playerColor, GameWinReason.RESIGNATION)
+        }
+
+        override suspend fun abandon() {
+            immediateGameEnd(playerColor, GameWinReason.ABANDONMENT)
         }
     }
 }

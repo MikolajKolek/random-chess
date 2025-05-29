@@ -6,7 +6,7 @@ enum class GameDrawReason {
     INSUFFICIENT_MATERIAL,
     THREEFOLD_REPETITION,
     FIFTY_MOVE_RULE,
-    //TODO: if multiplayer games are ever added, this needs to be implemented
+    //TODO: if multiplayer games are ever added, this needs to be implemented here and in the database
     //AGREEMENT,
     STALEMATE;
 

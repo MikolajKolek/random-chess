@@ -4,7 +4,9 @@ enum class GameWinReason {
     UNKNOWN,
     TIMEOUT,
     CHECKMATE,
-    RESIGNATION;
+    RESIGNATION,
+    ABANDONMENT,
+    DEATH;
 
     fun toDbWinReason() = name
 

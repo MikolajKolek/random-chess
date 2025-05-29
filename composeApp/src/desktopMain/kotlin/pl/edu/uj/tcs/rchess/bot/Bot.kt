@@ -36,8 +36,7 @@ class Bot(private val process: Process,
             throwingPlayGame(gameObserver, gameInput)
         } catch (e: Exception) {
             logger.error { "The bot has crashed with the following exception: $e" }
-            //TODO: maybe this shouldn't be a resign but something else so it's clear it's an error
-            gameInput.resign()
+            gameInput.abandon()
         } finally {
             process.destroyForcibly()
         }

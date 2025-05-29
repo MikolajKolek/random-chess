@@ -8,7 +8,7 @@ CREATE DOMAIN "game_result" AS "game_result_type"
         (
             ((VALUE).game_end_type IN ('1-0', '0-1'))
             AND
-            ((VALUE).game_end_reason IN ('UNKNOWN', 'TIMEOUT', 'CHECKMATE', 'RESIGNATION'))
+            ((VALUE).game_end_reason IN ('UNKNOWN', 'TIMEOUT', 'CHECKMATE', 'RESIGNATION', 'ABANDONMENT', 'DEATH'))
         )
         OR
         (

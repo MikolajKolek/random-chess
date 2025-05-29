@@ -16,7 +16,20 @@ interface GameInput {
     suspend fun makeMove(move: Move)
 
     /**
-     * Resigns the game
+     * Resigns the game.
+     *
+     * Resignation is voluntary and only happens because the player chooses to do so.
+     * @see abandon
      */
     suspend fun resign()
+
+    /**
+     * Abandons the game.
+     *
+     * Abandonment can, for example, be used when the player disconnects from the server
+     * or when the bot crashes. This means that it's not usually voluntary, even if the player
+     * may be able to choose to abandon the game, for example, by intentionally disconnecting.
+     * @see resign
+     */
+    suspend fun abandon()
 }
