@@ -6,7 +6,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.PlayerColor
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 class NewGameViewModel(private val context: AppContext): ViewModel() {
     /**
@@ -26,7 +29,13 @@ class NewGameViewModel(private val context: AppContext): ViewModel() {
         try {
             _isLoading.value = true
             withContext(Dispatchers.IO) {
-                val game = context.clientApi.startGameWithBot(startingPlayerColor)
+                val botOpponents = context.clientApi.getBotOpponents()
+                val game = context.clientApi.startGameWithBot(
+                    startingPlayerColor,
+                    // TODO: Use selected opponent and clock settings
+                    botOpponents[0],
+                    ClockSettings(5.minutes, 3.seconds, 5.seconds),
+                )
                 context.navigation.openGameWindow(game)
             }
             onSuccess()
