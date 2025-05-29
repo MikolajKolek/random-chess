@@ -164,9 +164,9 @@ CREATE TABLE "pgn_games"
 
 -- Wartości "id" mogą się powtarzać, ale już pary ("id", "kind") są unikatowe
 CREATE VIEW "games" AS (
-    SELECT "id", 'service' AS "kind", "moves", "creation_date", "result", "metadata" FROM service_games
+    SELECT "id", 'service' AS "kind", "starting_position", "moves", "partial_fens", "creation_date", "result", "metadata" FROM service_games
     UNION ALL
-    SELECT "id", 'pgn' AS "kind", "moves", "creation_date", "result", "metadata" FROM pgn_games
+    SELECT "id", 'pgn' AS "kind", "starting_position", "moves", "partial_fens", "creation_date", "result", "metadata" FROM pgn_games
 );
 
 CREATE VIEW "users_games" AS (
