@@ -22,4 +22,4 @@ data class HistoryServiceGame(
     val service: Service,
     override val blackPlayer: ServiceAccount,
     override val whitePlayer: ServiceAccount,
-) : ServiceGame, HistoryGame
+) : HistoryGame(), ServiceGame

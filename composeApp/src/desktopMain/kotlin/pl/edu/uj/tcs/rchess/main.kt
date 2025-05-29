@@ -1,7 +1,10 @@
 package pl.edu.uj.tcs.rchess
 
 import androidx.compose.runtime.remember
-import androidx.compose.ui.window.*
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowPlacement
+import androidx.compose.ui.window.application
+import androidx.compose.ui.window.rememberWindowState
 import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.addFileSource
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -9,8 +12,7 @@ import pl.edu.uj.tcs.rchess.config.Config
 import pl.edu.uj.tcs.rchess.server.ClientApi
 import pl.edu.uj.tcs.rchess.server.Server
 import pl.edu.uj.tcs.rchess.view.MainWindowContent
-import pl.edu.uj.tcs.rchess.view.game.GameWindowContent
-import pl.edu.uj.tcs.rchess.view.game.LiveGameWindowContent
+import pl.edu.uj.tcs.rchess.view.game.GameWindow
 import pl.edu.uj.tcs.rchess.viewmodel.AppContext
 import java.awt.Dimension
 import java.io.File
@@ -33,31 +35,11 @@ fun main() = application {
     }
 
     context.navigation.gameWindows.forEachIndexed { index, game ->
-        Window(
+        GameWindow(
+            game,
             onCloseRequest = {
                 context.navigation.closeGameWindow(index)
-            },
-            title = "Random Chess history game",
-            state = WindowState(
-                placement = WindowPlacement.Maximized,
-            ),
-        ) {
-            window.minimumSize = Dimension(900, 600)
-
-            GameWindowContent(game)
-        }
-    }
-
-    // TODO: Should use context.navigation in the future
-    Window(
-        onCloseRequest = ::exitApplication,
-        title = "Random Chess live game",
-        state = rememberWindowState(
-            placement = WindowPlacement.Maximized,
-        ),
-    ) {
-        window.minimumSize = Dimension(900, 600)
-
-        LiveGameWindowContent(context)
+            }
+        )
     }
 }

@@ -22,7 +22,7 @@ data class PgnGame(
     override val metadata: Map<String, String>,
     val blackPlayerName: String,
     val whitePlayerName: String,
-) : HistoryGame {
+) : HistoryGame() {
     // TODO: don't do this here maybe
     constructor(resultRow: PgnGamesRecord) : this(
         id = resultRow.id!!,

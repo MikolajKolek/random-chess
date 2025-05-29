@@ -1,0 +1,33 @@
+package pl.edu.uj.tcs.rchess.view.game
+
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowPlacement
+import androidx.compose.ui.window.WindowState
+import pl.edu.uj.tcs.rchess.server.game.ApiGame
+import pl.edu.uj.tcs.rchess.server.game.HistoryGame
+import pl.edu.uj.tcs.rchess.server.game.LiveGame
+import pl.edu.uj.tcs.rchess.view.theme.RandomChessTheme
+import java.awt.Dimension
+
+@Composable
+fun GameWindow(
+    game: ApiGame,
+    onCloseRequest: () -> Unit,
+) {
+    Window(
+        onCloseRequest = onCloseRequest,
+        title = when (game) {
+            is HistoryGame -> "Random Chess history game"
+            is LiveGame -> "Random Chess live game"
+        },
+        state = WindowState(
+            placement = WindowPlacement.Maximized,
+        ),
+    ) {
+        window.minimumSize = Dimension(900, 600)
+        RandomChessTheme {
+            GameWindowContent(game)
+        }
+    }
+}

@@ -5,6 +5,8 @@ import pl.edu.uj.tcs.rchess.model.GameResult
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.state.BoardState
+import pl.edu.uj.tcs.rchess.model.state.GameProgress
+import pl.edu.uj.tcs.rchess.model.state.GameState
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.math.min
@@ -12,14 +14,14 @@ import kotlin.math.min
 /**
  * A game commited to the database
  */
-sealed interface HistoryGame : ApiGame {
-    val id: Int
-    val moves: List<Move>
-    val startingPosition: BoardState
-    val finalPosition: BoardState
-    val creationDate: LocalDateTime
-    val result: GameResult
-    val metadata: Map<String, String>
+sealed class HistoryGame : ApiGame {
+    abstract val id: Int
+    abstract val moves: List<Move>
+    abstract val startingPosition: BoardState
+    abstract val finalPosition: BoardState
+    abstract val creationDate: LocalDateTime
+    abstract val result: GameResult
+    abstract val metadata: Map<String, String>
 
     fun toPgnString(): String = buildString {
         fun appendTag(key: String, value: String) {
@@ -81,5 +83,15 @@ sealed interface HistoryGame : ApiGame {
         }
 
         append(result.toPgnString())
+    }
+
+    val finalGameState: GameState by lazy {
+        GameState.finished(
+            initialBoardState = startingPosition,
+            moves = moves,
+            finishedProgress = GameProgress.Finished(
+                result = result
+            ),
+        )
     }
 }

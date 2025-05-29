@@ -2,6 +2,7 @@ package pl.edu.uj.tcs.rchess.viewmodel.navigation
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import pl.edu.uj.tcs.rchess.server.game.ApiGame
 import pl.edu.uj.tcs.rchess.server.game.HistoryGame
 
 class NavigationManager {
@@ -17,7 +18,7 @@ class NavigationManager {
         _route.value = route
     }
 
-    private val _gameWindows = mutableStateListOf<HistoryGame>()
+    private val _gameWindows = mutableStateListOf<ApiGame>()
     val gameWindows
         get() = _gameWindows.toList()
 

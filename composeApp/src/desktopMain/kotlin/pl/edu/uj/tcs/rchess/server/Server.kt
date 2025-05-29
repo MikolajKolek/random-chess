@@ -24,7 +24,7 @@ import pl.edu.uj.tcs.rchess.server.game.LiveGame
 import pl.edu.uj.tcs.rchess.server.game.PgnGame
 import java.sql.DriverManager
 import java.time.LocalDateTime
-import java.util.*
+import java.util.Optional
 
 class Server(private val config: Config) : ClientApi {
     private val connection = DriverManager.getConnection(
@@ -118,10 +118,12 @@ class Server(private val config: Config) : ClientApi {
     }
 
     override suspend fun startGameWithBot(
-        playerColor: PlayerColor,
+        playerColor: PlayerColor?,
     ): LiveGame {
+        val finalPlayerColor = playerColor ?: listOf(PlayerColor.WHITE, PlayerColor.BLACK).random()
+
         val controls = botGameFactory.createAndStart(
-            playerColor,
+            finalPlayerColor,
             coroutineScope = MainScope()
         )
 
