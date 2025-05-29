@@ -19,20 +19,11 @@ import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
-import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.game.GameInput
-import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import pl.edu.uj.tcs.rchess.model.state.GameState
 import pl.edu.uj.tcs.rchess.view.board.BoardArea
 import pl.edu.uj.tcs.rchess.view.gamesidebar.ExportTab
@@ -55,41 +46,6 @@ fun GameScreen(
 ) {
     val state = rememberGameViewState(gameState, input)
 
-    val boardStateIndex = remember { mutableStateOf(0) }
-    if (boardStateIndex.value >= gameState.boardStates.size) {
-        boardStateIndex.value = gameState.boardStates.size - 1
-    }
-    val boardState = gameState.boardStates[boardStateIndex.value]
-
-    val isInitial = boardStateIndex.value == 0
-    val isCurrent = boardStateIndex.value == gameState.boardStates.size - 1
-
-    var lastBoardStateSize by remember { mutableStateOf(gameState.boardStates.size) }
-    LaunchedEffect(gameState.boardStates.size) {
-        if (boardStateIndex.value == lastBoardStateSize - 1) {
-            boardStateIndex.value = gameState.boardStates.size - 1
-        }
-        lastBoardStateSize = gameState.boardStates.size
-    }
-
-    val coroutineScope = rememberCoroutineScope()
-    var makeMoveLoading by remember { mutableStateOf(false) }
-    fun tryMakeMove(move: Move) {
-        input?.let {
-            if (makeMoveLoading) return
-            makeMoveLoading = true
-            // TODO: Should this happen in the Dispatchers.IO scope?
-            coroutineScope.launch {
-                // TODO: Handle errors, needed in case we introduce a client-server architecture
-                try {
-                    it.makeMove(move)
-                } finally {
-                    makeMoveLoading = false
-                }
-            }
-        }
-    }
-
     Row {
         Row(
             modifier = Modifier
@@ -101,12 +57,10 @@ fun GameScreen(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight(),
-                state = boardState,
+                state = state.boardStateBrowser.current,
                 orientation = state.orientation,
-                moveEnabledForColor = input
-                    ?.takeIf { isCurrent && gameState.progress is GameProgress.Running }
-                    ?.playerColor,
-                onMove = ::tryMakeMove,
+                moveEnabledForColor = state.moveEnabledForColor,
+                onMove = state::makeMove,
                 whiteClock = gameState.getPlayerClock(PlayerColor.WHITE),
                 blackClock = gameState.getPlayerClock(PlayerColor.BLACK),
             )
@@ -166,10 +120,8 @@ fun GameScreen(
                 }
 
                 TooltipIconButton(
-                    enabled = !isInitial,
-                    onClick = {
-                        boardStateIndex.value--
-                    },
+                    enabled = !state.boardStateBrowser.firstSelected,
+                    onClick = state.boardStateBrowser::selectPrev,
                     tooltip = "Previous move",
                 ) {
                     Icon(
@@ -179,10 +131,8 @@ fun GameScreen(
                 }
 
                 TooltipIconButton(
-                    enabled = !isCurrent,
-                    onClick = {
-                        boardStateIndex.value++
-                    },
+                    enabled = !state.boardStateBrowser.lastSelected,
+                    onClick = state.boardStateBrowser::selectNext,
                     tooltip = "Next move",
                 ) {
                     Icon(
@@ -203,26 +153,21 @@ fun GameScreen(
                 when (tab) {
                     Tab.MOVES -> MovesTab(
                         fullMoves = gameState.fullMoves,
-                        boardStateIndex = boardStateIndex.value,
-                        onSelectIndex = { index ->
-                            boardStateIndex.value = index
-                        }
+                        boardStateIndex = state.boardStateBrowser.index,
+                        onSelectIndex = state.boardStateBrowser::select
                     )
-
                     Tab.INFO -> InfoTab()
                     Tab.EXPORT -> ExportTab(
-                        currentBoardState = boardState,
+                        currentBoardState = state.boardStateBrowser.current,
                     )
                 }
             },
             displayProgress = {
                 Progress(
                     gameState,
-                    currentBoardStateSelected = isCurrent,
-                    onSelectCurrent = {
-                        boardStateIndex.value = gameState.boardStates.size - 1
-                    },
-                    waitingForOwnMove = gameState.progress is GameProgress.Running && gameState.currentState.currentTurn == input?.playerColor,
+                    currentBoardStateSelected = state.boardStateBrowser.lastSelected,
+                    onSelectCurrent = state.boardStateBrowser::selectLast,
+                    waitingForOwnMove = state.waitingForOwnMove,
                 )
             },
         )
