@@ -19,7 +19,7 @@ import pl.edu.uj.tcs.rchess.viewmodel.AppContext
 
 @Composable
 fun GameHistoryScreen(context: AppContext) {
-    DataStateScreen(context.gameListViewModel) { games, refresh ->
+    DataStateScreen(context.gameListViewModel, "Loading game list") { games, refresh ->
         var importPgnDialogVisible by remember { mutableStateOf(false) }
 
         if (importPgnDialogVisible) {
