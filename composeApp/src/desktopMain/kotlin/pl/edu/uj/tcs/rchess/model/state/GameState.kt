@@ -4,12 +4,10 @@ import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.SanFullMove
-import kotlin.time.ExperimentalTime
 
 /**
  * Immutable class holding the full state of the game including history and clocks
  */
-@OptIn(ExperimentalTime::class)
 data class GameState(
     val boardStates: List<BoardState>,
 

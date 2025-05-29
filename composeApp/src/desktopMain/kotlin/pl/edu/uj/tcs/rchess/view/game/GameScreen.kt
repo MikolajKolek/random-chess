@@ -1,9 +1,30 @@
 package pl.edu.uj.tcs.rchess.view.game
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PlainTooltip
+import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.VerticalDivider
+import androidx.compose.material3.rememberTooltipState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -14,17 +35,25 @@ import pl.edu.uj.tcs.rchess.model.game.GameInput
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import pl.edu.uj.tcs.rchess.model.state.GameState
 import pl.edu.uj.tcs.rchess.view.board.BoardArea
-import pl.edu.uj.tcs.rchess.view.gamesidebar.*
-import rchess.composeapp.generated.resources.*
+import pl.edu.uj.tcs.rchess.view.gamesidebar.ExportTab
+import pl.edu.uj.tcs.rchess.view.gamesidebar.GameSidebar
+import pl.edu.uj.tcs.rchess.view.gamesidebar.InfoTab
+import pl.edu.uj.tcs.rchess.view.gamesidebar.MovesTab
+import pl.edu.uj.tcs.rchess.view.gamesidebar.Progress
+import pl.edu.uj.tcs.rchess.view.gamesidebar.Tab
+import pl.edu.uj.tcs.rchess.viewmodel.rememberGameViewState
+import rchess.composeapp.generated.resources.Res
+import rchess.composeapp.generated.resources.icon_chevron_next
+import rchess.composeapp.generated.resources.icon_chevron_prev
+import rchess.composeapp.generated.resources.icon_resign
+import rchess.composeapp.generated.resources.icon_swap_vert
 
 @Composable
 fun GameScreen(
     gameState: GameState,
     input: GameInput?,
 ) {
-    val orientation = remember {
-        mutableStateOf(input?.playerColor ?: PlayerColor.WHITE)
-    }
+    val state = rememberGameViewState(gameState, input)
 
     val boardStateIndex = remember { mutableStateOf(0) }
     if (boardStateIndex.value >= gameState.boardStates.size) {
@@ -43,7 +72,6 @@ fun GameScreen(
         lastBoardStateSize = gameState.boardStates.size
     }
 
-    // TODO: Introduce a view model
     val coroutineScope = rememberCoroutineScope()
     var makeMoveLoading by remember { mutableStateOf(false) }
     fun tryMakeMove(move: Move) {
@@ -62,13 +90,6 @@ fun GameScreen(
         }
     }
 
-    fun resign() {
-        coroutineScope.launch {
-            // TODO: Handle errors, needed in case we introduce a client-server architecture
-            input?.resign()
-        }
-    }
-
     Row {
         Row(
             modifier = Modifier
@@ -81,7 +102,7 @@ fun GameScreen(
                     .weight(1f)
                     .fillMaxHeight(),
                 state = boardState,
-                orientation = orientation.value,
+                orientation = state.orientation,
                 moveEnabledForColor = input
                     ?.takeIf { isCurrent && gameState.progress is GameProgress.Running }
                     ?.playerColor,
@@ -120,10 +141,9 @@ fun GameScreen(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                val canResign = input != null && gameState.progress is GameProgress.Running
-                if (canResign) {
+                state.resignation?.let {
                     TooltipIconButton(
-                        onClick = ::resign,
+                        onClick = it::openDialog,
                         tooltip = "Resign",
                     ) {
                         Icon(
@@ -136,9 +156,7 @@ fun GameScreen(
                 }
 
                 TooltipIconButton(
-                    onClick = {
-                        orientation.value = orientation.value.opponent
-                    },
+                    onClick = state::flipOrientation,
                     tooltip = "Rotate board",
                 ) {
                     Icon(
