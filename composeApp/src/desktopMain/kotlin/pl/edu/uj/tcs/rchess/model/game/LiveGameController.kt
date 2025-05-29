@@ -7,11 +7,11 @@ import pl.edu.uj.tcs.rchess.model.*
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 import pl.edu.uj.tcs.rchess.model.state.*
 import pl.edu.uj.tcs.rchess.model.statemachine.StateMachine
-import pl.edu.uj.tcs.rchess.server.ServiceGame
+import pl.edu.uj.tcs.rchess.server.game.HistoryServiceGame
 import pl.edu.uj.tcs.rchess.util.SingleTaskTimer
 import kotlin.time.Duration
 
-class LiveGame(
+class LiveGameController(
     initialBoardState: BoardState = BoardState.initial,
     clockSettings: ClockSettings,
 ) : GameObserver {
@@ -23,7 +23,7 @@ class LiveGame(
         get() = stateMachine.updateFlow
     override val stateFlow
         get() = stateMachine.stateFlow
-    override val finishedGame = CompletableDeferred<ServiceGame>()
+    override val finishedGame = CompletableDeferred<HistoryServiceGame>()
 
     val timer = SingleTaskTimer(Dispatchers.IO)
     init {

@@ -11,11 +11,17 @@ import pl.edu.uj.tcs.rchess.db.keys.SERVICE_GAMES__SERVICE_GAMES_SERVICE_ID_WHIT
 import pl.edu.uj.tcs.rchess.db.tables.references.PGN_GAMES
 import pl.edu.uj.tcs.rchess.db.tables.references.SERVICE_ACCOUNTS
 import pl.edu.uj.tcs.rchess.db.tables.references.SERVICE_GAMES
-import pl.edu.uj.tcs.rchess.model.*
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.fromFen
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
-import pl.edu.uj.tcs.rchess.model.game.PlayerGameControls
+import pl.edu.uj.tcs.rchess.model.GameResult
+import pl.edu.uj.tcs.rchess.model.Move
+import pl.edu.uj.tcs.rchess.model.Pgn
+import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.state.BoardState
+import pl.edu.uj.tcs.rchess.server.game.HistoryGame
+import pl.edu.uj.tcs.rchess.server.game.HistoryServiceGame
+import pl.edu.uj.tcs.rchess.server.game.LiveGame
+import pl.edu.uj.tcs.rchess.server.game.PgnGame
 import java.sql.DriverManager
 import java.time.LocalDateTime
 import java.util.*
@@ -56,7 +62,7 @@ class Server(private val config: Config) : ClientApi {
         return serviceGamesRequest(Optional.empty()) + pgnGamesRequest(Optional.empty())
     }
 
-    override suspend fun getServiceGame(id: Int): ServiceGame {
+    override suspend fun getServiceGame(id: Int): HistoryServiceGame {
         return serviceGamesRequest(Optional.of(id)).firstOrNull() ?: throw IllegalArgumentException(
             "Game with id $id does not exist or is owned by another user"
         )
@@ -113,15 +119,19 @@ class Server(private val config: Config) : ClientApi {
 
     override suspend fun startGameWithBot(
         playerColor: PlayerColor,
-    ): PlayerGameControls {
-        return botGameFactory.createAndStart(
+    ): LiveGame {
+        val controls = botGameFactory.createAndStart(
             playerColor,
             coroutineScope = MainScope()
+        )
+
+        return LiveGame(
+            controls = controls
         )
     }
 
 
-    private fun serviceGamesRequest(id: Optional<Int>): List<ServiceGame> {
+    private fun serviceGamesRequest(id: Optional<Int>): List<HistoryServiceGame> {
         val whiteAccount = SERVICE_ACCOUNTS.`as`("white_account")
         val blackAccount = SERVICE_ACCOUNTS.`as`("black_account")
 
@@ -136,7 +146,7 @@ class Server(private val config: Config) : ClientApi {
             query = query.and(SERVICE_GAMES.ID.eq(id.get()))
 
         return query.fetch { (sg, white, black) ->
-            ServiceGame(
+            HistoryServiceGame(
                 id = sg.id!!,
                 startingPosition = BoardState.fromFen(sg.startingPosition),
                 // TODO: Use data from a generated column in the database

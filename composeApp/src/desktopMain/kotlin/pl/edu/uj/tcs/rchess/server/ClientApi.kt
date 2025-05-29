@@ -1,24 +1,27 @@
 package pl.edu.uj.tcs.rchess.server
 
 import pl.edu.uj.tcs.rchess.model.PlayerColor
-import pl.edu.uj.tcs.rchess.model.game.PlayerGameControls
+import pl.edu.uj.tcs.rchess.server.game.HistoryGame
+import pl.edu.uj.tcs.rchess.server.game.HistoryServiceGame
+import pl.edu.uj.tcs.rchess.server.game.LiveGame
+import pl.edu.uj.tcs.rchess.server.game.PgnGame
 
 interface ClientApi {
     /**
-     * @return A list of all [HistoryGame]s the user has access to
+     * @return A list of all [pl.edu.uj.tcs.rchess.server.game.HistoryGame]s the user has access to
      */
     suspend fun getUserGames(): List<HistoryGame>
 
     /**
      * @param id The ID of the service game
-     * @return A [ServiceGame] from the database with the given ID, if it exists and the user has access to it
+     * @return A [pl.edu.uj.tcs.rchess.server.game.HistoryServiceGame] from the database with the given ID, if it exists and the user has access to it
      * @throws IllegalArgumentException when the game does not exist or the user doesn't have access to it
      */
-    suspend fun getServiceGame(id: Int): ServiceGame
+    suspend fun getServiceGame(id: Int): HistoryServiceGame
 
     /**
      * @param id The ID of the PGN game
-     * @return A [PgnGame] from the database with the given ID, if it exists and the user has access to it
+     * @return A [pl.edu.uj.tcs.rchess.server.game.PgnGame] from the database with the given ID, if it exists and the user has access to it
      * @throws IllegalArgumentException when the game does not exist or the user doesn't have access to it
      */
     suspend fun getPgnGame(id: Int): PgnGame
@@ -46,5 +49,5 @@ interface ClientApi {
     // TODO: Add a parameter for the bot opponent
     suspend fun startGameWithBot(
         playerColor: PlayerColor,
-    ): PlayerGameControls
+    ): LiveGame
 }

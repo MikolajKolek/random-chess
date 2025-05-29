@@ -5,7 +5,7 @@ import org.junit.Assert
 import org.junit.Test
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.fromFen
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
-import pl.edu.uj.tcs.rchess.model.game.LiveGame
+import pl.edu.uj.tcs.rchess.model.game.LiveGameController
 import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import kotlin.time.Duration
@@ -22,7 +22,7 @@ class LiveGameTest {
         initialBoardState: String = BoardState.initial.toFenString(),
         clockSettings: ClockSettings = infiniteClock
     ) {
-        val game = LiveGame(BoardState.fromFen(initialBoardState), clockSettings)
+        val game = LiveGameController(BoardState.fromFen(initialBoardState), clockSettings)
         val whiteInput = game.getGameInput(PlayerColor.WHITE)
         val blackInput = game.getGameInput(PlayerColor.BLACK)
 

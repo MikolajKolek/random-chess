@@ -8,9 +8,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import pl.edu.uj.tcs.rchess.model.PlayerColor
-import pl.edu.uj.tcs.rchess.server.HistoryGame
-import pl.edu.uj.tcs.rchess.server.PgnGame
-import pl.edu.uj.tcs.rchess.server.ServiceGame
+import pl.edu.uj.tcs.rchess.server.game.HistoryGame
+import pl.edu.uj.tcs.rchess.server.game.HistoryServiceGame
+import pl.edu.uj.tcs.rchess.server.game.PgnGame
 import pl.edu.uj.tcs.rchess.view.board.BoardView
 import pl.edu.uj.tcs.rchess.view.shared.ServiceLabel
 
@@ -44,7 +44,7 @@ fun GameHistoryItem(
                 Row {
                     when (game) {
                         is PgnGame -> Text("Game #${game.id}")
-                        is ServiceGame -> Text("Online game")
+                        is HistoryServiceGame -> Text("Online game")
                     }
                 }
 
@@ -56,7 +56,7 @@ fun GameHistoryItem(
                             Text("Black player: ${game.blackPlayerName}")
                         }
 
-                        is ServiceGame -> {
+                        is HistoryServiceGame -> {
                             Text("White player: ${game.whitePlayer.displayName}")
                             Text(" vs ")
                             Text("Black player: ${game.blackPlayer.displayName}")
@@ -72,7 +72,7 @@ fun GameHistoryItem(
                             Text("Manually imported")
                         }
 
-                        is ServiceGame -> {
+                        is HistoryServiceGame -> {
                             Text("Played on ")
                             ServiceLabel(game.service)
                         }

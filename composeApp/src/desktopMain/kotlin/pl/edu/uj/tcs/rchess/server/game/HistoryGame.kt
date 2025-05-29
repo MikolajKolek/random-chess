@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.server
+package pl.edu.uj.tcs.rchess.server.game
 
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 import pl.edu.uj.tcs.rchess.model.GameResult
@@ -9,7 +9,10 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.math.min
 
-sealed interface HistoryGame {
+/**
+ * A game commited to the database
+ */
+sealed interface HistoryGame : ApiGame {
     val id: Int
     val moves: List<Move>
     val startingPosition: BoardState
@@ -30,13 +33,14 @@ sealed interface HistoryGame {
                 strippedMetadata.remove(key)
             }
 
-            if(!metadata.contains(key))
+            if (!metadata.contains(key))
                 appendTag(key, alternative)
         }
 
         appendMetadataTagOr("Event", "?")
         appendMetadataTagOr("Site", "?")
-        appendMetadataTagOr("Date",
+        appendMetadataTagOr(
+            "Date",
             creationDate.format(DateTimeFormatter.ofPattern("yyyy.MM.dd"))
         )
         appendMetadataTagOr("Round", "?")
@@ -44,7 +48,7 @@ sealed interface HistoryGame {
         appendMetadataTagOr("Black", getPlayerName(PlayerColor.BLACK))
         appendMetadataTagOr("Result", result.toPgnString())
 
-        if(!metadata.contains("FEN") && startingPosition.toFenString() != BoardState.initial.toFenString()) {
+        if (!metadata.contains("FEN") && startingPosition.toFenString() != BoardState.initial.toFenString()) {
             appendTag("FEN", startingPosition.toFenString())
         }
 
@@ -52,7 +56,7 @@ sealed interface HistoryGame {
 
         append("\n")
 
-        if(moves.isEmpty()) {
+        if (moves.isEmpty()) {
             append(result.toPgnString())
             return@buildString
         }
@@ -60,16 +64,16 @@ sealed interface HistoryGame {
         var moveIndex = 0
         var fullMoveNumber = 1
         var boardState: BoardState = startingPosition
-        if(startingPosition.currentTurn == PlayerColor.BLACK) {
+        if (startingPosition.currentTurn == PlayerColor.BLACK) {
             append("${fullMoveNumber++}... ${boardState.moveToStandardAlgebraic(moves[0])} ")
             boardState = boardState.applyMove(moves[0])
             moveIndex++
         }
 
-        while(moveIndex <= moves.lastIndex) {
+        while (moveIndex <= moves.lastIndex) {
             append("${fullMoveNumber++}. ")
 
-            for(i in moveIndex..min(moveIndex + 1, moves.lastIndex)) {
+            for (i in moveIndex..min(moveIndex + 1, moves.lastIndex)) {
                 append("${boardState.moveToStandardAlgebraic(moves[i])} ")
                 boardState = boardState.applyMove(moves[i])
                 moveIndex++
@@ -78,6 +82,4 @@ sealed interface HistoryGame {
 
         append(result.toPgnString())
     }
-
-    fun getPlayerName(playerColor: PlayerColor): String
 }

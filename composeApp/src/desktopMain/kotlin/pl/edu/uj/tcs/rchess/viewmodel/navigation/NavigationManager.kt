@@ -2,7 +2,7 @@ package pl.edu.uj.tcs.rchess.viewmodel.navigation
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import pl.edu.uj.tcs.rchess.server.HistoryGame
+import pl.edu.uj.tcs.rchess.server.game.HistoryGame
 
 class NavigationManager {
     private val _route = mutableStateOf<Route>(Route.GameHistory)

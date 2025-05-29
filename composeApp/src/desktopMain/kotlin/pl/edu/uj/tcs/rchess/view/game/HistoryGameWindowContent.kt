@@ -1,10 +1,10 @@
-package pl.edu.uj.tcs.rchess.view
+package pl.edu.uj.tcs.rchess.view.game
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import pl.edu.uj.tcs.rchess.model.state.GameState
-import pl.edu.uj.tcs.rchess.server.HistoryGame
+import pl.edu.uj.tcs.rchess.server.game.HistoryGame
 import pl.edu.uj.tcs.rchess.view.theme.RandomChessTheme
 import kotlin.time.ExperimentalTime
 

@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.view
+package pl.edu.uj.tcs.rchess.view.game
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -20,7 +20,7 @@ fun LiveGameWindowContent(context: AppContext) {
             //  This is temporary.
             //  When a view model is implemented, runBlocking will no longer be used
             runBlocking {
-                context.clientApi.startGameWithBot(PlayerColor.WHITE)
+                context.clientApi.startGameWithBot(PlayerColor.WHITE).controls
             }
         }
 

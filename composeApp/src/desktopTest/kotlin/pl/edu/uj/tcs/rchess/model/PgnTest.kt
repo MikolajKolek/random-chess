@@ -7,7 +7,7 @@ import org.junit.Assert
 import org.junit.Test
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 import pl.edu.uj.tcs.rchess.model.state.BoardState
-import pl.edu.uj.tcs.rchess.server.PgnGame
+import pl.edu.uj.tcs.rchess.server.game.PgnGame
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
@@ -153,7 +153,7 @@ class PgnTest {
             "8/1p1bp2p/5kp1/2p5/pp2K3/7P/2r3P1/5R2 b - - 1 34",
             "8/1p2p2p/5kp1/2p2b2/pp2K3/7P/2r3P1/5R2 w - - 2 35"
         ), boardStateFens(pgn))
-        
+
         Assert.assertEquals("0-1", pgn.result.toPgnString())
         Assert.assertEquals(
             mapOf(

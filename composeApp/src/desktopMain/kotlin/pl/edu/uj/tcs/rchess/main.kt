@@ -8,9 +8,9 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import pl.edu.uj.tcs.rchess.config.Config
 import pl.edu.uj.tcs.rchess.server.ClientApi
 import pl.edu.uj.tcs.rchess.server.Server
-import pl.edu.uj.tcs.rchess.view.GameWindowContent
-import pl.edu.uj.tcs.rchess.view.LiveGameWindowContent
 import pl.edu.uj.tcs.rchess.view.MainWindowContent
+import pl.edu.uj.tcs.rchess.view.game.GameWindowContent
+import pl.edu.uj.tcs.rchess.view.game.LiveGameWindowContent
 import pl.edu.uj.tcs.rchess.viewmodel.AppContext
 import java.awt.Dimension
 import java.io.File

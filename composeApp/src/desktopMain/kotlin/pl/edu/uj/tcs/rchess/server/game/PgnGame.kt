@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.server
+package pl.edu.uj.tcs.rchess.server.game
 
 import kotlinx.serialization.json.Json
 import pl.edu.uj.tcs.rchess.db.tables.records.PgnGamesRecord
@@ -9,6 +9,9 @@ import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.state.BoardState
 import java.time.LocalDateTime
 
+/**
+ * A game imported manually by the user and commited to the database
+ */
 data class PgnGame(
     override val id: Int,
     override val moves: List<Move>,
@@ -20,16 +23,17 @@ data class PgnGame(
     val blackPlayerName: String,
     val whitePlayerName: String,
 ) : HistoryGame {
-    //TODO: don't do this here maybe
+    // TODO: don't do this here maybe
     constructor(resultRow: PgnGamesRecord) : this(
         id = resultRow.id!!,
-        moves = resultRow.moves.map { Move.fromLongAlgebraicNotation(it!!) },
-        startingPosition = BoardState.fromFen(resultRow.startingPosition),
+        moves = resultRow.moves.map { Move.Companion.fromLongAlgebraicNotation(it!!) },
+        startingPosition = BoardState.Companion.fromFen(resultRow.startingPosition),
         // TODO: Use data from a generated column in the database
-        finalPosition = BoardState.initial,
+        finalPosition = BoardState.Companion.initial,
         creationDate = resultRow.creationDate,
-        result = GameResult.fromDbResult(resultRow.result),
-        metadata = resultRow.metadata?.data()?.let { Json.decodeFromString<Map<String, String>>(it) } ?: emptyMap(),
+        result = GameResult.Companion.fromDbResult(resultRow.result),
+        metadata = resultRow.metadata?.data()?.let { Json.Default.decodeFromString<Map<String, String>>(it) }
+            ?: emptyMap(),
         blackPlayerName = resultRow.blackPlayerName,
         whitePlayerName = resultRow.whitePlayerName
     )
