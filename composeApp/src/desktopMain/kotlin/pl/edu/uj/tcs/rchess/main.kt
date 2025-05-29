@@ -42,6 +42,7 @@ fun main() = application {
             },
             onFinish = { historyGame ->
                 context.navigation.replaceGameWindow(index, historyGame)
+                context.gameListViewModel.refresh()
             },
         )
     }
