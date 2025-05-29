@@ -1,6 +1,6 @@
 package pl.edu.uj.tcs.rchess.model
 
-import pl.edu.uj.tcs.rchess.db.udt.records.GameResultTypeRecord
+import pl.edu.uj.tcs.rchess.generated.db.udt.records.GameResultTypeRecord
 
 sealed interface GameResult {
     fun toPgnString(): String

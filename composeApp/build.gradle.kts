@@ -46,6 +46,10 @@ kotlin {
         desktopMain.languageSettings {
             optIn("kotlin.time.ExperimentalTime")
         }
+        desktopMain.kotlin {
+            srcDir("build/generated/db/kotlin")
+        }
+
         @Suppress("unused")
         val desktopTest by getting {
             dependencies {
@@ -76,8 +80,8 @@ jooq {
                 includes = ".*"
             }
             target {
-                packageName = "pl.edu.uj.tcs.rchess.db"
-                directory = "src/desktopMain/kotlin"
+                packageName = "pl.edu.uj.tcs.rchess.generated.db"
+                directory = "build/generated/db/kotlin"
             }
             generate {
                 isKotlinNotNullPojoAttributes = true

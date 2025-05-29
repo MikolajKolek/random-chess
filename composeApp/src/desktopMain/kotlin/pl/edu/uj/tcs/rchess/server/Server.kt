@@ -7,11 +7,11 @@ import org.jooq.SQLDialect
 import org.jooq.impl.DSL
 import pl.edu.uj.tcs.rchess.config.BotType
 import pl.edu.uj.tcs.rchess.config.Config
-import pl.edu.uj.tcs.rchess.db.keys.SERVICE_GAMES__SERVICE_GAMES_SERVICE_ID_BLACK_PLAYER_FKEY
-import pl.edu.uj.tcs.rchess.db.keys.SERVICE_GAMES__SERVICE_GAMES_SERVICE_ID_WHITE_PLAYER_FKEY
-import pl.edu.uj.tcs.rchess.db.tables.references.PGN_GAMES
-import pl.edu.uj.tcs.rchess.db.tables.references.SERVICE_ACCOUNTS
-import pl.edu.uj.tcs.rchess.db.tables.references.SERVICE_GAMES
+import pl.edu.uj.tcs.rchess.generated.db.keys.SERVICE_GAMES__SERVICE_GAMES_SERVICE_ID_BLACK_PLAYER_FKEY
+import pl.edu.uj.tcs.rchess.generated.db.keys.SERVICE_GAMES__SERVICE_GAMES_SERVICE_ID_WHITE_PLAYER_FKEY
+import pl.edu.uj.tcs.rchess.generated.db.tables.references.PGN_GAMES
+import pl.edu.uj.tcs.rchess.generated.db.tables.references.SERVICE_ACCOUNTS
+import pl.edu.uj.tcs.rchess.generated.db.tables.references.SERVICE_GAMES
 import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.fromFen
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
@@ -28,7 +28,7 @@ import pl.edu.uj.tcs.rchess.server.game.LiveGame
 import pl.edu.uj.tcs.rchess.server.game.PgnGame
 import java.sql.DriverManager
 import java.time.LocalDateTime
-import java.util.*
+import java.util.Optional
 
 class Server(private val config: Config) : ClientApi, Database {
     private val connection = DriverManager.getConnection(
