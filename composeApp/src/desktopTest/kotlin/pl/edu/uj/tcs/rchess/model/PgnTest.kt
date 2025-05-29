@@ -879,14 +879,6 @@ class PgnTest {
         ), boardStateFens(pgn))
     }
 
-    /**
-     * If you want to run the external tests, set `runExternalTests=true` in the
-     * local.properties file in `composeApp/` and create a `pgn_database.pgn` file in
-     * desktopTest/ containing example pgn data.
-     *
-     * An example pgn database to use is the first 100k lines of
-     * [this file](https://lichess.org/api/games/user/german11).
-     */
     var runExternalTests: Boolean = false
     init {
         val localProperties = File("local.properties")

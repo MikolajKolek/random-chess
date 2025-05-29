@@ -13,11 +13,27 @@ and [nn-1c0000000000.nnue](https://tests.stockfishchess.org/api/nn/nn-1c00000000
 Then, point the executable field in [composeApp/config.yml](composeApp/config.yml) to your executable,
 and the `EvalFile` field to the nnue. 
 
+# Testing
+
+Some automated tests in `desktopTest/` use large external PGN files. 
+These tests are not run by default, as they are very time-consuming. 
+
+If you want to run the full test suite, add
+```
+runExternalTests=true
+```
+to the `local.properties` file in `composeApp/` and create a `pgn_database.pgn`
+file in `desktopTest/` containing example pgn data.
+
+An example pgn database to use is the first 100k lines of [this file](https://lichess.org/api/games/user/german11).
+
 # Debugging
-To change the log level, create a local.properties file in `composeApp/` and add:
+To change the log level, add:
 ```
 log.level=<LEVEL>
 ```
+to the `local.properties` file in `composeApp/`.
+
 The available levels are `ERROR`, `WARN`, `INFO` (default), `DEBUG` and `TRACE`.
 
 # Licences
