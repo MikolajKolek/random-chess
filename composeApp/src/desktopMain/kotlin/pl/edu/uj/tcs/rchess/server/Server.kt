@@ -62,9 +62,9 @@ class Server(private val config: Config) : ClientApi, Database {
     }
 
 
-    override suspend fun getUserGames(): List<HistoryGame> {
-        return serviceGamesRequest(Optional.empty()) + pgnGamesRequest(Optional.empty())
-    }
+    override suspend fun getUserGames(): List<HistoryGame> =
+        (serviceGamesRequest(Optional.empty()) + pgnGamesRequest(Optional.empty()))
+            .sortedByDescending { it.creationDate }
 
     override suspend fun getServiceGame(id: Int): HistoryServiceGame {
         return serviceGamesRequest(Optional.of(id)).firstOrNull() ?: throw IllegalArgumentException(
