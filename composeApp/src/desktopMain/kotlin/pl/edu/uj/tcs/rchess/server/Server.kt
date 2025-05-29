@@ -160,7 +160,8 @@ class Server(private val config: Config) : ClientApi, Database {
             HistoryServiceGame(
                 id = sg.id!!,
                 startingPosition = BoardState.fromFen(sg.startingPosition),
-                // TODO: Use finalPosition from a generated column in the database
+                // We know that the moves are not null as we verify that in the database, but
+                // because it's done with a check, jooq doesn't realize and makes it nullable
                 moves = sg.moves.map { Move.fromLongAlgebraicNotation(it!!) },
                 creationDate = sg.creationDate,
                 result = GameResult.fromDbResult(sg.result),
@@ -193,7 +194,21 @@ class Server(private val config: Config) : ClientApi, Database {
         if(id.isPresent)
             query = query.and(PGN_GAMES.ID.eq(id.get()))
 
-        return query.fetch().map { PgnGame(it) }
+        return query.fetch().map { resultRow ->
+            PgnGame(
+                id = resultRow.id!!,
+                // We know that the moves are not null as we verify that in the database, but
+                // because it's done with a check, jooq doesn't realize and makes it nullable
+                moves = resultRow.moves.map { Move.fromLongAlgebraicNotation(it!!) },
+                startingPosition = BoardState.fromFen(resultRow.startingPosition),
+                creationDate = resultRow.creationDate,
+                result = GameResult.fromDbResult(resultRow.result),
+                metadata = resultRow.metadata?.data()?.let { Json.Default.decodeFromString<Map<String, String>>(it) }
+                    ?: emptyMap(),
+                blackPlayerName = resultRow.blackPlayerName,
+                whitePlayerName = resultRow.whitePlayerName
+            )
+        }
     }
 
     override suspend fun saveGame(

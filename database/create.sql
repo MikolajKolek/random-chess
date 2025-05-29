@@ -201,7 +201,6 @@ CREATE TABLE "service_games"
 (
     "id"                 SERIAL         PRIMARY KEY,
     -- kolumny wspólne dla "service_games" i "pgn_games"
-    --TODO: DOES THE ARRAY BEING NOT NULL MAKE THE ELEMENTS NOT NULL??
     "moves"              VARCHAR(5)[]   NOT NULL CHECK(array_position(moves, NULL) IS NULL),
     "starting_position"  VARCHAR(100)   NOT NULL,
     "partial_fens"       VARCHAR[]      GENERATED ALWAYS AS (generate_fen_array(starting_position, moves)) STORED, -- FEN pozycji po każdym ruchu od pozycji startowej

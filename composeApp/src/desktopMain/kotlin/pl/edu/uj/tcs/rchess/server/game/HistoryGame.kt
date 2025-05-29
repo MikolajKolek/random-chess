@@ -18,7 +18,7 @@ sealed class HistoryGame : ApiGame {
     abstract val id: Int
     abstract val moves: List<Move>
     abstract val startingPosition: BoardState
-    // TODO: Make abstract an initialize from the database
+    // TODO: Make abstract and initialize from the database
     val finalPosition: BoardState by lazy {
         finalGameState.currentState
     }

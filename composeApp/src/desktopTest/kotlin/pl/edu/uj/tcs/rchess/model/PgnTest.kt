@@ -907,7 +907,6 @@ class PgnTest {
         val generator = ProcessBuilder("python3", fenGeneratorPath, pgnDatabasePath).start()
         val reader = BufferedReader(InputStreamReader(generator.inputStream))
         for(game in games) {
-            //TODO: Replace with a better identifier
             val gameId = game.metadata?.get("GameId")?.jsonPrimitive?.content
             val json: JsonObject = Json.decodeFromString(reader.readLine())
 

@@ -1,8 +1,5 @@
 package pl.edu.uj.tcs.rchess.server.game
 
-import kotlinx.serialization.json.Json
-import pl.edu.uj.tcs.rchess.generated.db.tables.records.PgnGamesRecord
-import pl.edu.uj.tcs.rchess.model.Fen.Companion.fromFen
 import pl.edu.uj.tcs.rchess.model.GameResult
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
@@ -23,20 +20,6 @@ data class PgnGame(
     val blackPlayerName: String,
     val whitePlayerName: String,
 ) : HistoryGame() {
-    // TODO: don't do this here maybe
-    constructor(resultRow: PgnGamesRecord) : this(
-        id = resultRow.id!!,
-        moves = resultRow.moves.map { Move.fromLongAlgebraicNotation(it!!) },
-        startingPosition = BoardState.fromFen(resultRow.startingPosition),
-        // TODO: Use finalPosition from a generated column in the database
-        creationDate = resultRow.creationDate,
-        result = GameResult.fromDbResult(resultRow.result),
-        metadata = resultRow.metadata?.data()?.let { Json.Default.decodeFromString<Map<String, String>>(it) }
-            ?: emptyMap(),
-        blackPlayerName = resultRow.blackPlayerName,
-        whitePlayerName = resultRow.whitePlayerName
-    )
-
     override fun getPlayerName(playerColor: PlayerColor): String =
         when (playerColor) {
             PlayerColor.BLACK -> blackPlayerName
