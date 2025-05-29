@@ -1,5 +1,6 @@
 package pl.edu.uj.tcs.rchess.bot
 
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.takeWhile
 import pl.edu.uj.tcs.rchess.logger
@@ -12,11 +13,15 @@ import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
+import kotlin.random.Random
+import kotlin.random.nextInt
+import kotlin.time.Duration.Companion.milliseconds
 
 class Bot(private val process: Process,
           options: Map<String, String>,
           private val maxDepth: Int?,
-          private val moveTimeMs: Int?
+          private val moveTimeMs: Int?,
+          private val slowdown: Pair<Int, Int>?
 ) {
     private val output: OutputStreamWriter = OutputStreamWriter(process.outputStream)
     private val input: BufferedReader = BufferedReader(InputStreamReader(process.inputStream))
@@ -85,6 +90,9 @@ class Bot(private val process: Process,
                         Move.fromLongAlgebraicNotation(bestMoveMatch.groupValues[1])
                     }
                 }
+
+                if(slowdown != null)
+                    delay(Random.nextInt(slowdown.first..slowdown.second).milliseconds)
 
                 gameInput.makeMove(bestMove)
             }

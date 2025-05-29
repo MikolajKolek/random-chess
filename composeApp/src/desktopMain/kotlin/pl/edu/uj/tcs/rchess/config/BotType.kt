@@ -14,9 +14,10 @@ data class BotType(
     val maxDepth: Int?,
     val moveTimeMs: Int?,
     val serviceAccountId: String,
-    val elo: Int
+    val elo: Int,
+    val slowdown: Pair<Int, Int>?
 ) {
     fun spawnBot(): Bot {
-        return Bot(ProcessBuilder(executable).start(), options, maxDepth, moveTimeMs)
+        return Bot(ProcessBuilder(executable).start(), options, maxDepth, moveTimeMs, slowdown)
     }
 }

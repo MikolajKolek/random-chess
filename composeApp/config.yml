@@ -17,6 +17,7 @@ bots:
     moveTimeMs: 50
     serviceAccountId: "stockfish-easy"
     elo: 800
+    slowdown: [450, 950]
   # Stockfish: Medium
   - executable: "./stockfish"
     options:
@@ -26,6 +27,7 @@ bots:
     moveTimeMs: 150
     serviceAccountId: "stockfish-medium"
     elo: 1400
+    slowdown: [350, 850]
   # Stockfish: Hard
   - executable: "./stockfish"
     options:
@@ -35,6 +37,7 @@ bots:
     moveTimeMs: 300
     serviceAccountId: "stockfish-hard"
     elo: 2000
+    slowdown: [200, 700]
   # Stockfish: Impossible
   - executable: "./stockfish"
     options:
