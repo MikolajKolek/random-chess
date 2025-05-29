@@ -14,7 +14,7 @@ data class HistoryServiceGame(
     override val id: Int,
     override val moves: List<Move>,
     override val startingPosition: BoardState,
-    override val finalPosition: BoardState,
+//    override val finalPosition: BoardState,
     override val creationDate: LocalDateTime,
     override val result: GameResult,
     override val metadata: Map<String, String>,

@@ -151,8 +151,7 @@ class Server(private val config: Config) : ClientApi {
             HistoryServiceGame(
                 id = sg.id!!,
                 startingPosition = BoardState.fromFen(sg.startingPosition),
-                // TODO: Use data from a generated column in the database
-                finalPosition = BoardState.initial,
+                // TODO: Use finalPosition from a generated column in the database
                 moves = sg.moves.map { Move.fromLongAlgebraicNotation(it!!) },
                 creationDate = sg.creationDate,
                 result = GameResult.fromDbResult(sg.result),

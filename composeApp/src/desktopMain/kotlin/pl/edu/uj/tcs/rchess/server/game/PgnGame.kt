@@ -16,7 +16,7 @@ data class PgnGame(
     override val id: Int,
     override val moves: List<Move>,
     override val startingPosition: BoardState,
-    override val finalPosition: BoardState,
+//    override val finalPosition: BoardState,
     override val creationDate: LocalDateTime,
     override val result: GameResult,
     override val metadata: Map<String, String>,
@@ -28,8 +28,7 @@ data class PgnGame(
         id = resultRow.id!!,
         moves = resultRow.moves.map { Move.fromLongAlgebraicNotation(it!!) },
         startingPosition = BoardState.fromFen(resultRow.startingPosition),
-        // TODO: Use data from a generated column in the database
-        finalPosition = BoardState.initial,
+        // TODO: Use finalPosition from a generated column in the database
         creationDate = resultRow.creationDate,
         result = GameResult.fromDbResult(resultRow.result),
         metadata = resultRow.metadata?.data()?.let { Json.Default.decodeFromString<Map<String, String>>(it) }
