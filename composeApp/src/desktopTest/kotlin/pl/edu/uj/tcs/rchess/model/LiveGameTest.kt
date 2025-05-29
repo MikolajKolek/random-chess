@@ -8,7 +8,14 @@ import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 import pl.edu.uj.tcs.rchess.model.game.LiveGameController
 import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
+import pl.edu.uj.tcs.rchess.model.state.GameState
+import pl.edu.uj.tcs.rchess.server.Database
+import pl.edu.uj.tcs.rchess.server.Service
+import pl.edu.uj.tcs.rchess.server.ServiceAccount
+import pl.edu.uj.tcs.rchess.server.game.HistoryServiceGame
+import java.time.LocalDateTime
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 val infiniteClock = ClockSettings(
@@ -17,12 +24,52 @@ val infiniteClock = ClockSettings(
     extraTimeForFirstMove = 0.seconds
 )
 
+class MockDatabase : Database {
+    override suspend fun saveGame(
+        game: GameState,
+        blackPlayerId: String,
+        whitePlayerId: String
+    ): HistoryServiceGame {
+        return HistoryServiceGame(
+            id = 0,
+            moves = game.moves,
+            startingPosition = game.initialState,
+            creationDate = LocalDateTime.now(),
+            result = (game.progress as GameProgress.FinishedWithClockInfo).result,
+            metadata = mapOf(),
+            gameIdInService = null,
+            service = Service.RANDOM_CHESS,
+            blackPlayer = ServiceAccount(
+                service = Service.RANDOM_CHESS,
+                userIdInService = blackPlayerId,
+                displayName = blackPlayerId,
+                isBot = false,
+                isCurrentUser = false
+            ),
+            whitePlayer = ServiceAccount(
+                service = Service.RANDOM_CHESS,
+                userIdInService = whitePlayerId,
+                displayName = whitePlayerId,
+                isBot = false,
+                isCurrentUser = false
+            )
+        )
+    }
+
+}
+
 class LiveGameTest {
     class Wrapper(
         initialBoardState: String = BoardState.initial.toFenString(),
         clockSettings: ClockSettings = infiniteClock
     ) {
-        val game = LiveGameController(BoardState.fromFen(initialBoardState), clockSettings)
+        val game = LiveGameController(
+            initialBoardState = BoardState.fromFen(initialBoardState),
+            database = MockDatabase(),
+            clockSettings = clockSettings,
+            blackPlayerId = "Black player",
+            whitePlayerId = "White player"
+        )
         val whiteInput = game.getGameInput(PlayerColor.WHITE)
         val blackInput = game.getGameInput(PlayerColor.BLACK)
 
@@ -61,11 +108,6 @@ class LiveGameTest {
     fun assertDrawReason(expected: GameDrawReason, actual: GameResult) {
         Assert.assertTrue(actual is Draw)
         Assert.assertEquals(expected, (actual as Draw).drawReason)
-    }
-
-    fun assertWinReason(expected: GameWinReason, actual: GameResult) {
-        Assert.assertTrue(actual is Win)
-        Assert.assertEquals(expected, (actual as Win).winReason)
     }
 
     @Test
@@ -110,7 +152,38 @@ class LiveGameTest {
         Assert.assertEquals(Win(GameWinReason.RESIGNATION, PlayerColor.BLACK), game.getResult())
     }
 
-    //TODO:timeout test
-    // checkmate test
-    // TIMEOUT_VS_INSUFFICIENT_MATERIAL,
+    @Test
+    fun checkmateTest() {
+        val game = Wrapper("k7/7R/8/8/8/8/8/K5R1 w - - 0 1")
+            .move("g1g8")
+
+        Assert.assertEquals(Win(GameWinReason.CHECKMATE, PlayerColor.WHITE), game.getResult())
+    }
+
+    //TODO: timeoutTest and timeoutVsInsufficientMaterialTest can probably be done better
+    @Test
+    fun timeoutTest() {
+        val game = Wrapper(clockSettings = ClockSettings(
+            startingTime = 1.milliseconds,
+            moveIncrease = 0.seconds,
+            extraTimeForFirstMove = 0.seconds
+        ))
+
+        Thread.sleep(100)
+
+        Assert.assertEquals(Win(GameWinReason.TIMEOUT, PlayerColor.BLACK), game.getResult())
+    }
+
+    @Test
+    fun timeoutVsInsufficientMaterialTest() {
+        val game = Wrapper("k7/8/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1", ClockSettings(
+            startingTime = 1.milliseconds,
+            moveIncrease = 0.seconds,
+            extraTimeForFirstMove = 0.seconds
+        ))
+
+        Thread.sleep(100)
+
+        assertDrawReason(GameDrawReason.TIMEOUT_VS_INSUFFICIENT_MATERIAL, game.getResult())
+    }
 }

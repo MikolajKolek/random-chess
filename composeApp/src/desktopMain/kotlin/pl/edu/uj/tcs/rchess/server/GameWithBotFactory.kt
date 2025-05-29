@@ -9,8 +9,6 @@ import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.game.LiveGameController
 import pl.edu.uj.tcs.rchess.model.game.PlayerGameControls
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
 
 /**
  * A class for creating a live game with a bot.
@@ -18,19 +16,21 @@ import kotlin.time.Duration.Companion.seconds
  * Implements the factory pattern.
  */
 class GameWithBotFactory(
-    private val botType: BotType,
+    private val database: Database
 ) {
     fun createAndStart(
         playerColor: PlayerColor,
+        playerServiceAccountId: String,
+        botType: BotType,
+        clockSettings: ClockSettings,
         coroutineScope: CoroutineScope,
     ): PlayerGameControls {
         val liveGame = LiveGameController(
             //TODO: add more clock options
-            clockSettings = ClockSettings(
-                startingTime = 5.minutes,
-                moveIncrease = 3.seconds,
-                extraTimeForFirstMove = 20.seconds
-            ),
+            clockSettings = clockSettings,
+            whitePlayerId = if(playerColor == PlayerColor.WHITE) playerServiceAccountId else botType.serviceAccountId,
+            blackPlayerId = if(playerColor == PlayerColor.BLACK) playerServiceAccountId else botType.serviceAccountId,
+            database = database,
         )
 
         val playerGameInput = liveGame.getGameInput(playerColor = playerColor)

@@ -963,7 +963,7 @@ class PgnTest {
                 id = 0, // Unused data
                 moves = importGame.moves,
                 startingPosition = importGame.startingPosition,
-                finalPosition = BoardState.initial, // Unused data
+                //finalPosition = BoardState.initial, // Unused data
                 creationDate = LocalDateTime.now(), // Unused data
                 result = importGame.result,
                 metadata = Json.decodeFromJsonElement<Map<String, String>>(importGame.metadata!!),
