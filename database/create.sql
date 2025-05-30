@@ -153,6 +153,35 @@ END;
 $$
 LANGUAGE plpgsql IMMUTABLE;
 
+-- Funkcja usuwa figurę z danego pola w board.
+CREATE OR REPLACE FUNCTION remove_piece(
+    board VARCHAR,
+    square VARCHAR(2)
+) RETURNS VARCHAR AS
+$$
+DECLARE
+    id INTEGER := square_to_id(square);
+BEGIN
+    RETURN substr(board, 1, id-1)||'e'||substr(board, id+1, length(board)-id);
+END;
+$$
+LANGUAGE plpgsql IMMUTABLE;
+
+-- Funkcja dodaje figurę do danego pola w board.
+CREATE OR REPLACE FUNCTION place_piece(
+    board VARCHAR,
+    square VARCHAR(2),
+    piece VARCHAR
+) RETURNS VARCHAR AS
+$$
+DECLARE
+    id INTEGER := square_to_id(square);
+BEGIN
+    RETURN substr(board, 1, id-1)||piece||substr(board, id+1, length(board)-id);
+END;
+$$
+LANGUAGE plpgsql IMMUTABLE;
+
 -- Funkcja aplikująca ruch do partial FEN
 CREATE OR REPLACE FUNCTION apply_move(
     fen VARCHAR,
@@ -160,6 +189,7 @@ CREATE OR REPLACE FUNCTION apply_move(
 ) RETURNS VARCHAR AS
 $$
 DECLARE
+    board VARCHAR := fen_to_board(split_part(fen, ' ', 1));
 BEGIN
     RETURN fen||move; -- TODO: Zaimplementować dodawanie ruchu do FEN w bazie
 END;
