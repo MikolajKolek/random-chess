@@ -336,6 +336,10 @@ INSERT INTO game_services(name) VALUES
     ('lichess.org');
 
 INSERT INTO users(email, password_hash) VALUES
+    ('test@randomchess.com', 'empty');
+UPDATE service_accounts SET display_name = 'Admin' WHERE user_id = 1;
+
+/*INSERT INTO users(email, password_hash) VALUES
     ('test@[1.1.1.1]', '1234'),
     ('email.test@gmail.com', '0000'),
     ('test2.user@interia.pl', '1111'),
@@ -352,7 +356,7 @@ INSERT INTO service_accounts("user_id", "service_id", "user_id_in_service", "is_
     (NULL, 2, 'chess_com_user', FALSE, 'chess_com_user_not_in_service'),
     (NULL, 3, 'lichess_user', FALSE, 'lichess_user_not_in_service'),
     (NULL, 2, 'chess_com_bot', TRUE, 'chess_com_bot'),
-    (NULL, 1, 'internal_bot', TRUE, 'bot_1');
+    (NULL, 1, 'internal_bot', TRUE, 'bot_1');*/
 
 /*INSERT INTO service_games("moves", "creation_date", "result", "metadata", "service_id", "game_id_in_service", white_player, black_player) VALUES
     (

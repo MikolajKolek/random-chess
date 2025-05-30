@@ -1,4 +1,4 @@
-defaultUser: 4
+defaultUser: 1
 
 database:
   host: localhost
