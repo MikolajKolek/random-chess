@@ -25,7 +25,6 @@ import org.jetbrains.compose.resources.painterResource
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.state.GameState
 import pl.edu.uj.tcs.rchess.view.board.BoardArea
-import pl.edu.uj.tcs.rchess.view.gamesidebar.ExportTab
 import pl.edu.uj.tcs.rchess.view.gamesidebar.GameSidebar
 import pl.edu.uj.tcs.rchess.view.gamesidebar.InfoTab
 import pl.edu.uj.tcs.rchess.view.gamesidebar.MovesTab
@@ -153,8 +152,7 @@ fun GameScreen(
                         boardStateIndex = boardStateBrowser.index,
                         onSelectIndex = boardStateBrowser::select
                     )
-                    Tab.INFO -> InfoTab()
-                    Tab.EXPORT -> ExportTab(
+                    Tab.INFO -> InfoTab(
                         currentBoardState = boardStateBrowser.current,
                     )
                 }
