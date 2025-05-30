@@ -176,15 +176,16 @@ class Server(private val config: Config) : ClientApi, Database {
         return query.fetch { (sg, white, black) ->
             HistoryServiceGame(
                 id = sg.id!!,
-                startingPosition = BoardState.fromFen(sg.startingPosition),
                 // We know that the moves are not null as we verify that in the database, but
                 // because it's done with a check, jooq doesn't realize and makes it nullable
                 moves = sg.moves.map { Move.fromLongAlgebraicNotation(it!!) },
+                startingPosition = BoardState.fromFen(sg.startingPosition),
+                finalPosition = BoardState.fromFen(sg.partialFens!!.last()!!, true),
+                opening = openingByGameId(sg.id!!),
                 creationDate = sg.creationDate,
                 result = GameResult.fromDbResult(sg.result),
                 metadata = sg.metadata?.data()?.let { json -> Json.decodeFromString<Map<String, String>>(json) }
                     ?: emptyMap(),
-                opening = null, // TODO: Implement
                 gameIdInService = sg.gameIdInService,
                 service = Service.fromId(sg.serviceId),
                 blackPlayer = ServiceAccount(
@@ -219,15 +220,25 @@ class Server(private val config: Config) : ClientApi, Database {
                 // because it's done with a check, jooq doesn't realize and makes it nullable
                 moves = resultRow.moves.map { Move.fromLongAlgebraicNotation(it!!) },
                 startingPosition = BoardState.fromFen(resultRow.startingPosition),
+                finalPosition = BoardState.fromFen(resultRow.partialFens!!.last()!!, true),
+                opening = openingByGameId(resultRow.id!!),
                 creationDate = resultRow.creationDate,
                 result = GameResult.fromDbResult(resultRow.result),
                 metadata = resultRow.metadata?.data()?.let { Json.Default.decodeFromString<Map<String, String>>(it) }
                     ?: emptyMap(),
-                opening = null, // TODO: Implement
                 blackPlayerName = resultRow.blackPlayerName,
                 whitePlayerName = resultRow.whitePlayerName
             )
         }
+    }
+
+    //TODO: to nie będzie tak działać, będzie join, this is just for testing
+    private fun openingByGameId(gameId: Int): Opening {
+        return Opening(
+            eco = "A00",
+            name = "Test opening",
+            position = BoardState.initial
+        )
     }
 
     override suspend fun saveGame(

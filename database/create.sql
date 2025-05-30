@@ -57,6 +57,7 @@ CREATE TABLE "service_accounts"
     "user_id"            INT          NULL REFERENCES users ("id") ON DELETE SET NULL,
     "service_id"         INT          NOT NULL REFERENCES game_services ("id"),
     "user_id_in_service" VARCHAR      NOT NULL,
+    "token"              VARCHAR      NULL,
     "display_name"       VARCHAR(256) NOT NULL,
     "is_bot"             BOOL         NOT NULL,
     PRIMARY KEY ("service_id", "user_id_in_service"),
@@ -68,6 +69,9 @@ CREATE TABLE "service_accounts"
         ("service_id" != 1) OR
         ((is_bot = TRUE) AND (user_id IS NULL)) OR
         ((is_bot = FALSE) AND ((user_id::varchar = user_id_in_service) OR (user_id IS NULL)))
+    ),
+    CONSTRAINT "valid_token" CHECK (
+        ("token" IS NULL) = ("service_id" =  1 OR "user_id" IS NULL)
     )
 );
 

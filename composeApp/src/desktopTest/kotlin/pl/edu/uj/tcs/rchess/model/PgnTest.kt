@@ -7,6 +7,7 @@ import org.junit.Assert
 import org.junit.Test
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 import pl.edu.uj.tcs.rchess.model.state.BoardState
+import pl.edu.uj.tcs.rchess.server.Opening
 import pl.edu.uj.tcs.rchess.server.game.PgnGame
 import java.io.BufferedReader
 import java.io.File
@@ -972,6 +973,8 @@ class PgnTest {
             val historyGame = PgnGame(
                 id = 0, // Unused data
                 moves = importGame.moves,
+                finalPosition = BoardState.initial,
+                opening = Opening("A00", "Placeholder", BoardState.initial),
                 startingPosition = importGame.startingPosition,
                 //finalPosition = BoardState.initial, // Unused data
                 creationDate = LocalDateTime.now(), // Unused data
@@ -982,7 +985,7 @@ class PgnTest {
             )
             var game: Pgn? = null
             try {
-                val pgnString = historyGame.toPgnString()
+                val pgnString = historyGame.pgnString
                 game = Pgn(pgnString)
             } catch(e: Exception) {
                 fail("Failed to re-import PGN: ${e.message}\nMetadata: ${importGame.metadata}")

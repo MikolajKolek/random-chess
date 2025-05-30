@@ -10,6 +10,7 @@ import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import pl.edu.uj.tcs.rchess.model.state.GameState
 import pl.edu.uj.tcs.rchess.server.Database
+import pl.edu.uj.tcs.rchess.server.Opening
 import pl.edu.uj.tcs.rchess.server.Service
 import pl.edu.uj.tcs.rchess.server.ServiceAccount
 import pl.edu.uj.tcs.rchess.server.game.HistoryServiceGame
@@ -33,6 +34,8 @@ class MockDatabase : Database {
         return HistoryServiceGame(
             id = 0,
             moves = game.moves,
+            finalPosition = BoardState.initial,
+            opening = Opening("A00", "Test", BoardState.initial),
             startingPosition = game.initialState,
             creationDate = LocalDateTime.now(),
             result = (game.progress as GameProgress.FinishedWithClockInfo).result,

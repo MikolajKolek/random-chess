@@ -19,14 +19,11 @@ sealed class HistoryGame : ApiGame {
     abstract val id: Int
     abstract val moves: List<Move>
     abstract val startingPosition: BoardState
-    // TODO: Make abstract and initialize from the database
-    val finalPosition: BoardState by lazy {
-        finalGameState.currentState
-    }
+    abstract val finalPosition: BoardState
+    abstract val opening: Opening
     abstract val creationDate: LocalDateTime
     abstract val result: GameResult
     abstract val metadata: Map<String, String>
-    abstract val opening: Opening?
 
     /**
      * Constructs the PGN metadata header for this game header.
@@ -64,7 +61,7 @@ sealed class HistoryGame : ApiGame {
         appendMetadataTagOr("White", getPlayerName(PlayerColor.WHITE))
         appendMetadataTagOr("Black", getPlayerName(PlayerColor.BLACK))
         overrideTag("Result", result.toPgnString())
-        opening?.let {
+        opening.let {
             overrideTag("Opening", it.name)
             overrideTag("ECO", it.eco)
         }

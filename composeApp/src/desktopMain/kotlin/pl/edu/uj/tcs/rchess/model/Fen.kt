@@ -7,7 +7,7 @@ import pl.edu.uj.tcs.rchess.model.state.BoardState
 /**
  * A class handling Forsyth-Edwards notation.
  */
-class Fen private constructor(fenData: String) {
+class Fen private constructor(fenData: String, partial: Boolean = false) {
     val boardState : List<String>
     val color : Char
     val castling : String
@@ -17,7 +17,10 @@ class Fen private constructor(fenData: String) {
 
     init {
         val segments: List<String> = fenData.split(" ")
-        require(segments.size == 6) { "FEN must contain six segments - it contains ${segments.size}." }
+        if(partial)
+            require(segments.size == 4) { "Partial FEN must contain four segments - it contains ${segments.size}." }
+        else
+            require(segments.size == 6) { "FEN must contain six segments - it contains ${segments.size}." }
 
 
         boardState = segments[0].split("/")
@@ -64,21 +67,26 @@ class Fen private constructor(fenData: String) {
             require(square.rank == 2 || square.rank == 5) { "En passant square is invalid." }
         }
 
-
-        halfmoveCounter = segments[4].let { counter ->
-            counter.forEach { require(it.isDigit()) { "Halfmove counter must contain only digits."} }
-            require(counter.length <= 3) { "Halfmove counter too large." }
-            counter.toInt()
+        if(partial) {
+            halfmoveCounter = 0
+            fullmoveNumber = 1
         }
-        require(halfmoveCounter >= 0) { "Halfmove counter must not be negative." }
+        else {
+            halfmoveCounter = segments[4].let { counter ->
+                counter.forEach { require(it.isDigit()) { "Halfmove counter must contain only digits."} }
+                require(counter.length <= 3) { "Halfmove counter too large." }
+                counter.toInt()
+            }
+            require(halfmoveCounter >= 0) { "Halfmove counter must not be negative." }
 
 
-        fullmoveNumber = segments[5].let { number ->
-            number.forEach { require(it.isDigit()) { "Fullmove number must contain only digits."} }
-            require(number.length <= 3) { "Fullmove number too large." }
-            number.toInt()
+            fullmoveNumber = segments[5].let { number ->
+                number.forEach { require(it.isDigit()) { "Fullmove number must contain only digits."} }
+                require(number.length <= 3) { "Fullmove number too large." }
+                number.toInt()
+            }
+            require(fullmoveNumber >= 0) { "Fullmove number must not be negative." }
         }
-        require(fullmoveNumber >= 0) { "Fullmove number must not be negative." }
     }
 
     companion object {
@@ -137,9 +145,10 @@ class Fen private constructor(fenData: String) {
 
         /**
          * Extension method on [BoardState] to create a new instance from a FEN string.
+         * @param partial Whether the fen string is in partial fen format or not.
          */
-        fun BoardState.Companion.fromFen(fenString: String): BoardState {
-            val fen = Fen(fenString)
+        fun BoardState.Companion.fromFen(fenString: String, partial: Boolean = false): BoardState {
+            val fen = Fen(fenString, partial)
 
             val newBoard = MutableBoard.empty()
             for(row in 7 downTo 0) {
