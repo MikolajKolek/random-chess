@@ -416,10 +416,7 @@ CREATE VIEW "users_games" AS (
 
 CREATE OR REPLACE FUNCTION detect_opening(
     partial_fens VARCHAR[]
-) RETURNS TABLE(
-    eco CHAR(3),
-    name VARCHAR(256)
-) AS
+) RETURNS INTEGER AS
 $$
 DECLARE
     my_partial_fen VARCHAR;
@@ -430,20 +427,19 @@ BEGIN
             FROM openings o
             WHERE o.partial_fen=my_partial_fen
         ) THEN
-            RETURN QUERY
-            SELECT o.eco, o.name
-            FROM openings o
-            WHERE o.partial_fen = my_partial_fen
-            LIMIT 1;
+            RETURN (SELECT o.id FROM openings o WHERE o.partial_fen=my_partial_fen LIMIT 1);
         END IF;
     END LOOP;
-    RETURN QUERY SELECT 'A00'::CHAR(3) AS eco, 'Unknown'::VARCHAR(256) AS name;
+    RETURN NULL;
 END;
 $$
 LANGUAGE plpgsql;
 
 CREATE VIEW games_openings AS (
-    SELECT g.*, dop.eco, dop.name
+    SELECT g.id AS game_id, CASE
+        WHEN (dop IS NULL) THEN NULL
+        ELSE dop
+    END AS opening_id
     FROM games g, LATERAL detect_opening(partial_fens) dop
 );
 
