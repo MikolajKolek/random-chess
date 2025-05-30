@@ -3,6 +3,7 @@ package pl.edu.uj.tcs.rchess.server.game
 import pl.edu.uj.tcs.rchess.model.GameResult
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.state.BoardState
+import pl.edu.uj.tcs.rchess.server.Opening
 import pl.edu.uj.tcs.rchess.server.Service
 import pl.edu.uj.tcs.rchess.server.ServiceAccount
 import java.time.LocalDateTime
@@ -18,6 +19,7 @@ data class HistoryServiceGame(
     override val creationDate: LocalDateTime,
     override val result: GameResult,
     override val metadata: Map<String, String>,
+    override val opening: Opening?,
     val gameIdInService: String?,
     val service: Service,
     override val blackPlayer: ServiceAccount,

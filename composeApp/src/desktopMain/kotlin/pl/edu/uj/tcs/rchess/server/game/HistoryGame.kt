@@ -8,6 +8,7 @@ import pl.edu.uj.tcs.rchess.model.SanFullMove
 import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import pl.edu.uj.tcs.rchess.model.state.GameState
+import pl.edu.uj.tcs.rchess.server.Opening
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -25,6 +26,7 @@ sealed class HistoryGame : ApiGame {
     abstract val creationDate: LocalDateTime
     abstract val result: GameResult
     abstract val metadata: Map<String, String>
+    abstract val opening: Opening?
 
     /**
      * Constructs the PGN metadata header for this game header.
@@ -47,6 +49,10 @@ sealed class HistoryGame : ApiGame {
             if (!metadata.contains(key))
                 appendTag(key, alternative)
         }
+        fun overrideTag(key: String, value: String?) {
+            value?.let { appendTag(key, it) }
+            strippedMetadata.remove(key)
+        }
 
         appendMetadataTagOr("Event", "?")
         appendMetadataTagOr("Site", "?")
@@ -57,9 +63,16 @@ sealed class HistoryGame : ApiGame {
         appendMetadataTagOr("Round", "?")
         appendMetadataTagOr("White", getPlayerName(PlayerColor.WHITE))
         appendMetadataTagOr("Black", getPlayerName(PlayerColor.BLACK))
-        appendMetadataTagOr("Result", result.toPgnString())
+        overrideTag("Result", result.toPgnString())
+        opening?.let {
+            overrideTag("Opening", it.name)
+            overrideTag("ECO", it.eco)
+        }
 
-        if (!metadata.contains("FEN") && startingPosition.toFenString() != BoardState.initial.toFenString()) {
+        if (startingPosition.toFenString() == BoardState.initial.toFenString()) {
+            overrideTag("SetUp", "0")
+        } else {
+            overrideTag("SetUp", "1")
             appendTag("FEN", startingPosition.toFenString())
         }
 

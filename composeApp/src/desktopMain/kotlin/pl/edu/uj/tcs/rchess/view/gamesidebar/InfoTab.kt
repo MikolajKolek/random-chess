@@ -21,7 +21,7 @@ fun InfoTab(
 ) {
     Column(
         modifier = Modifier
-            .padding(8.dp)
+            .padding(16.dp)
             .verticalScroll(rememberScrollState())
             .then(modifier),
     ) {

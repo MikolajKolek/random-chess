@@ -4,6 +4,7 @@ import pl.edu.uj.tcs.rchess.model.GameResult
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.state.BoardState
+import pl.edu.uj.tcs.rchess.server.Opening
 import java.time.LocalDateTime
 
 /**
@@ -17,6 +18,7 @@ data class PgnGame(
     override val creationDate: LocalDateTime,
     override val result: GameResult,
     override val metadata: Map<String, String>,
+    override val opening: Opening?,
     val blackPlayerName: String,
     val whitePlayerName: String,
 ) : HistoryGame() {

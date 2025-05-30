@@ -184,6 +184,7 @@ class Server(private val config: Config) : ClientApi, Database {
                 result = GameResult.fromDbResult(sg.result),
                 metadata = sg.metadata?.data()?.let { json -> Json.decodeFromString<Map<String, String>>(json) }
                     ?: emptyMap(),
+                opening = null, // TODO: Implement
                 gameIdInService = sg.gameIdInService,
                 service = Service.fromId(sg.serviceId),
                 blackPlayer = ServiceAccount(
@@ -222,6 +223,7 @@ class Server(private val config: Config) : ClientApi, Database {
                 result = GameResult.fromDbResult(resultRow.result),
                 metadata = resultRow.metadata?.data()?.let { Json.Default.decodeFromString<Map<String, String>>(it) }
                     ?: emptyMap(),
+                opening = null, // TODO: Implement
                 blackPlayerName = resultRow.blackPlayerName,
                 whitePlayerName = resultRow.whitePlayerName
             )
