@@ -232,12 +232,13 @@ class Server(private val config: Config) : ClientApi, Database {
         }
     }
 
-    //TODO: to nie będzie tak działać, będzie join, this is just for testing
+    // TODO: implement, this is a placeholder.
+    //  The proper solution will use a database join.
     private fun openingByGameId(gameId: Int): Opening {
         return Opening(
-            eco = "A00",
-            name = "Test opening",
-            position = BoardState.initial
+            name = "Bishop's opening",
+            eco = "C23",
+            position = BoardState.fromFen("rnbqkbnr/pppp1ppp/8/4p3/2B1P3/8/PPPP1PPP/RNBQK1NR b KQkq - 1 2")
         )
     }
 
