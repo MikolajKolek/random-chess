@@ -1,14 +1,15 @@
 package pl.edu.uj.tcs.rchess.view.board
 
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.jetbrains.compose.resources.painterResource
 import pl.edu.uj.tcs.rchess.model.PlayerColor
+import pl.edu.uj.tcs.rchess.model.pieces.King
 import pl.edu.uj.tcs.rchess.model.state.ClockState
 import kotlin.time.Duration
 
@@ -41,26 +42,26 @@ fun Duration.formatHuman() =
         }
     }
 
-/**
- * @param isSelf
- */
 @Composable
 fun PlayerBar(
     modifier: Modifier = Modifier,
     color: PlayerColor,
-    name: String?,
-    isSelf: Boolean,
+    name: String,
     clockState: ClockState?,
 ) {
     Row(
         modifier = Modifier.height(PlayerBar.height).then(modifier)
     ) {
-        Text(color.unicodeSymbol)
+        Image(
+            modifier = Modifier.size(32.dp),
+            painter = painterResource(King(color).icon),
+            contentDescription = null,
+        )
 
-        Text(name ?: when (color) {
-            PlayerColor.WHITE -> "White player"
-            PlayerColor.BLACK -> "Black player"
-        })
+        Text(
+            text = name,
+            modifier = Modifier.padding(start = 12.dp),
+        )
 
         Spacer(
             modifier = Modifier.weight(1f)

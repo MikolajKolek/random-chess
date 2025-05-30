@@ -13,7 +13,6 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.state.BoardState
-import pl.edu.uj.tcs.rchess.model.state.ClockState
 
 @Composable
 @Preview
@@ -23,8 +22,10 @@ fun BoardArea(
     orientation: PlayerColor,
     moveEnabledForColor: PlayerColor? = null,
     onMove: (Move) -> Unit = {},
-    whiteClock: ClockState?,
-    blackClock: ClockState?,
+    drawPlayerBar: @Composable (
+        modifier: Modifier,
+        color: PlayerColor,
+    ) -> Unit,
 ) {
     BoxWithConstraints(
         modifier = Modifier
@@ -80,27 +81,13 @@ fun BoardArea(
 
         val boardSize = 8 * pieceSize
 
-        @Composable
-        fun ScopedPlayerBar(playerColor: PlayerColor) {
-            PlayerBar(
-                modifier = Modifier.width(boardSize),
-                color = playerColor,
-                name = null,
-                isSelf = playerColor == moveEnabledForColor,
-                clockState = when (playerColor) {
-                    PlayerColor.WHITE -> whiteClock
-                    PlayerColor.BLACK -> blackClock
-                },
-            )
-        }
-
         Column(
             modifier = Modifier
                 .width(boardSize + 2 * labelsPadding)
                 .height(boardSize + 2 * labelsPadding + 2 * PlayerBar.height),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            ScopedPlayerBar(orientation.opponent)
+            drawPlayerBar(Modifier.width(boardSize), orientation.opponent)
             FileLabelRow()
             Row(
                 modifier = Modifier.fillMaxWidth().height(boardSize),
@@ -118,7 +105,7 @@ fun BoardArea(
                 RankLabelColumn()
             }
             FileLabelRow()
-            ScopedPlayerBar(orientation)
+            drawPlayerBar(Modifier.width(boardSize), orientation)
         }
     }
 }
