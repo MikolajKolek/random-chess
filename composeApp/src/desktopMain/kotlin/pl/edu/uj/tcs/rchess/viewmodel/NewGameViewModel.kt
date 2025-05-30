@@ -26,6 +26,8 @@ class NewGameViewModel(private val context: AppContext): ViewModel() {
      */
     var startingPlayerColor by mutableStateOf<PlayerColor?>(null)
 
+    var clockSettings: ClockSettings = ClockSettings(5.minutes, 3.seconds)
+
     /**
      * Indicates if all the form elements are set correctly and it's possible to submit
      */
@@ -48,7 +50,7 @@ class NewGameViewModel(private val context: AppContext): ViewModel() {
                 val game = context.clientApi.startGameWithBot(
                     startingPlayerColor,
                     opponent,
-                    ClockSettings(5.minutes, 3.seconds, 5.seconds),
+                    clockSettings,
                 )
                 context.navigation.openGameWindow(game)
             }
