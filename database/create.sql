@@ -328,7 +328,7 @@ DECLARE
     last_fen VARCHAR := start;
     elem VARCHAR(5);
 BEGIN
-    result_fen_array := array_append(result_fen_array, starting_position);
+    result_fen_array := array_append(result_fen_array, start);
     FOREACH elem IN ARRAY moves
     LOOP
         last_fen := apply_move(last_fen, elem);
@@ -410,10 +410,38 @@ CREATE VIEW "users_games" AS (
     FROM pgn_games pg
 );
 
--- TODO: stworzyć view, który na podstawie tabeli openings i kolumny moves w tabeli games przypisuje każdej grze opening
-/*CREATE VIEW games_openings AS (
+CREATE OR REPLACE FUNCTION detect_opening(
+    partial_fens VARCHAR[]
+) RETURNS TABLE(
+    eco CHAR(3),
+    name VARCHAR(256)
+) AS
+$$
+DECLARE
+    my_partial_fen VARCHAR;
+BEGIN
+    FOREACH my_partial_fen IN ARRAY partial_fens LOOP
+        IF EXISTS(
+            SELECT *
+            FROM openings o
+            WHERE o.partial_fen=my_partial_fen
+        ) THEN
+            RETURN QUERY
+            SELECT o.eco, o.name
+            FROM openings o
+            WHERE o.partial_fen = my_partial_fen
+            LIMIT 1;
+        END IF;
+    END LOOP;
+    RETURN QUERY SELECT 'A00' AS eco, 'Unknown' AS name;
+END;
+$$
+LANGUAGE plpgsql;
 
-);*/
+CREATE VIEW games_openings AS (
+    SELECT g.*, dop.eco, dop.name
+    FROM games g, LATERAL detect_opening(partial_fens) dop
+);
 
 
 -- Poniższe triggery sprawiają, że service_account użytkownika w naszym serwisie
