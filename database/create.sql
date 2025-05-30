@@ -433,7 +433,7 @@ BEGIN
             LIMIT 1;
         END IF;
     END LOOP;
-    RETURN QUERY SELECT 'A00' AS eco, 'Unknown' AS name;
+    RETURN QUERY SELECT 'A00'::CHAR(3) AS eco, 'Unknown'::VARCHAR(256) AS name;
 END;
 $$
 LANGUAGE plpgsql;
