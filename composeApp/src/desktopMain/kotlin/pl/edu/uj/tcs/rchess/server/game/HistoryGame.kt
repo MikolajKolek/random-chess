@@ -26,66 +26,69 @@ sealed class HistoryGame : ApiGame {
     abstract val result: GameResult
     abstract val metadata: Map<String, String>
 
-    fun toPgnString(): String = buildString {
-        fun appendTag(key: String, value: String) {
-            append("[$key \"$value\"]\n")
-        }
-
-        val strippedMetadata = metadata.toMutableMap()
-        fun appendMetadataTagOr(key: String, alternative: String) {
-            metadata[key]?.let {
-                appendTag(key, it)
-                strippedMetadata.remove(key)
+    val pgnString: String by lazy {
+        buildString {
+            fun appendTag(key: String, value: String) {
+                append("[$key \"$value\"]\n")
             }
 
-            if (!metadata.contains(key))
-                appendTag(key, alternative)
-        }
+            val strippedMetadata = metadata.toMutableMap()
+            fun appendMetadataTagOr(key: String, alternative: String) {
+                metadata[key]?.let {
+                    appendTag(key, it)
+                    strippedMetadata.remove(key)
+                }
 
-        appendMetadataTagOr("Event", "?")
-        appendMetadataTagOr("Site", "?")
-        appendMetadataTagOr(
-            "Date",
-            creationDate.format(DateTimeFormatter.ofPattern("yyyy.MM.dd"))
-        )
-        appendMetadataTagOr("Round", "?")
-        appendMetadataTagOr("White", getPlayerName(PlayerColor.WHITE))
-        appendMetadataTagOr("Black", getPlayerName(PlayerColor.BLACK))
-        appendMetadataTagOr("Result", result.toPgnString())
+                if (!metadata.contains(key))
+                    appendTag(key, alternative)
+            }
 
-        if (!metadata.contains("FEN") && startingPosition.toFenString() != BoardState.initial.toFenString()) {
-            appendTag("FEN", startingPosition.toFenString())
-        }
+            appendMetadataTagOr("Event", "?")
+            appendMetadataTagOr("Site", "?")
+            appendMetadataTagOr(
+                "Date",
+                creationDate.format(DateTimeFormatter.ofPattern("yyyy.MM.dd"))
+            )
+            appendMetadataTagOr("Round", "?")
+            appendMetadataTagOr("White", getPlayerName(PlayerColor.WHITE))
+            appendMetadataTagOr("Black", getPlayerName(PlayerColor.BLACK))
+            appendMetadataTagOr("Result", result.toPgnString())
 
-        strippedMetadata.forEach { appendTag(it.key, it.value) }
+            if (!metadata.contains("FEN") && startingPosition.toFenString() != BoardState.initial.toFenString()) {
+                appendTag("FEN", startingPosition.toFenString())
+            }
 
-        append("\n")
+            strippedMetadata.forEach { appendTag(it.key, it.value) }
 
-        if (moves.isEmpty()) {
-            append(result.toPgnString())
-            return@buildString
-        }
+            append("\n")
 
-        var moveIndex = 0
-        var fullMoveNumber = 1
-        var boardState: BoardState = startingPosition
-        if (startingPosition.currentTurn == PlayerColor.BLACK) {
-            append("${fullMoveNumber++}... ${boardState.moveToStandardAlgebraic(moves[0])} ")
-            boardState = boardState.applyMove(moves[0])
-            moveIndex++
-        }
+            if (moves.isEmpty()) {
+                append(result.toPgnString())
+                return@buildString
+            }
 
-        while (moveIndex <= moves.lastIndex) {
-            append("${fullMoveNumber++}. ")
-
-            for (i in moveIndex..min(moveIndex + 1, moves.lastIndex)) {
-                append("${boardState.moveToStandardAlgebraic(moves[i])} ")
-                boardState = boardState.applyMove(moves[i])
+            // TODO: Use GameState.fullMoves
+            var moveIndex = 0
+            var fullMoveNumber = 1
+            var boardState: BoardState = startingPosition
+            if (startingPosition.currentTurn == PlayerColor.BLACK) {
+                append("${fullMoveNumber++}... ${boardState.moveToStandardAlgebraic(moves[0])} ")
+                boardState = boardState.applyMove(moves[0])
                 moveIndex++
             }
-        }
 
-        append(result.toPgnString())
+            while (moveIndex <= moves.lastIndex) {
+                append("${fullMoveNumber++}. ")
+
+                for (i in moveIndex..min(moveIndex + 1, moves.lastIndex)) {
+                    append("${boardState.moveToStandardAlgebraic(moves[i])} ")
+                    boardState = boardState.applyMove(moves[i])
+                    moveIndex++
+                }
+            }
+
+            append(result.toPgnString())
+        }
     }
 
     val finalGameState: GameState by lazy {

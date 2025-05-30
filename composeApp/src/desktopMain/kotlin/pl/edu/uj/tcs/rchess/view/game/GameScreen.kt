@@ -23,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
 import pl.edu.uj.tcs.rchess.model.PlayerColor
-import pl.edu.uj.tcs.rchess.model.state.GameState
 import pl.edu.uj.tcs.rchess.view.board.BoardArea
 import pl.edu.uj.tcs.rchess.view.gamesidebar.GameSidebar
 import pl.edu.uj.tcs.rchess.view.gamesidebar.InfoTab
@@ -39,7 +38,6 @@ import rchess.composeapp.generated.resources.icon_swap_vert
 
 @Composable
 fun GameScreen(
-    gameState: GameState,
     windowState: GameWindowState,
 ) = windowState.run {
     Row {
@@ -154,6 +152,7 @@ fun GameScreen(
                     )
                     Tab.INFO -> InfoTab(
                         currentBoardState = boardStateBrowser.current,
+                        game = game,
                     )
                 }
             },
