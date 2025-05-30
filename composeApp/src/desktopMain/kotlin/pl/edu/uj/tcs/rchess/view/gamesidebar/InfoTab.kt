@@ -28,12 +28,14 @@ fun InfoTab(
         ExportField(
             label = "FEN after current move",
             value = currentBoardState.toFenString(),
+            downloadEnabled = false,
         )
 
         (game as? HistoryGame)?.let { historyGame ->
             ExportField(
                 label = "PGN",
-                value = historyGame.pgnString
+                value = historyGame.pgnString,
+                downloadEnabled = true,
             )
         }
     }
