@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
-import androidx.compose.ui.window.WindowState
+import androidx.compose.ui.window.rememberWindowState
 import pl.edu.uj.tcs.rchess.server.game.ApiGame
 import pl.edu.uj.tcs.rchess.server.game.HistoryGame
 import pl.edu.uj.tcs.rchess.server.game.LiveGame
@@ -17,7 +17,6 @@ fun GameWindow(
     game: ApiGame,
     onCloseRequest: () -> Unit,
     onFinish: (historyGame: HistoryGame) -> Unit,
-
 ) {
     Window(
         onCloseRequest = onCloseRequest,
@@ -25,7 +24,7 @@ fun GameWindow(
             is HistoryGame -> "Random Chess history game"
             is LiveGame -> "Random Chess live game"
         },
-        state = WindowState(
+        state = rememberWindowState(
             placement = WindowPlacement.Maximized,
         ),
     ) {
