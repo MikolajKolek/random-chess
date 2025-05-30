@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
@@ -35,59 +36,59 @@ fun GameHistoryScreen(context: AppContext) {
             )
         }
 
-        if (games.isEmpty()) {
-            Column {
-                Text("No games found")
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = padding),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = padding),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.End),
+            ) {
+                TextButton(onClick = refresh) {
+                    Icon(
+                        painter = painterResource(Res.drawable.icon_refresh),
+                        contentDescription = "Refresh",
+                        modifier = Modifier.padding(end = 8.dp),
+                    )
+
+                    Text("Refresh")
+                }
+
                 Button(onClick = { importPgnDialogVisible = true }) {
                     Text("Import game")
                 }
-                Button(onClick = refresh) {
-                    Text("Refresh")
-                }
             }
-        } else {
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = padding),
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = padding),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.End),
+
+            if (games.isEmpty()) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.CenterVertically),
                 ) {
-                    TextButton(onClick = refresh) {
-                        Icon(
-                            painter = painterResource(Res.drawable.icon_refresh),
-                            contentDescription = "Refresh",
-                            modifier = Modifier.padding(end = 8.dp),
-                        )
+                    Text("No games imported yet", style = typography.displaySmall)
+                    Text("Link a game service account or import a game manually", style = typography.bodyMedium)
+                }
+                return@DataStateScreen
+            }
 
-                        Text("Refresh")
-                    }
-
-                    Button(onClick = { importPgnDialogVisible = true }) {
-                        Text("Import game")
-                    }
+            // This layout is begging for a scrollbar, but as of May 2025
+            // the Jetpack Compose team has yet to implement them.
+            /// https://developer.android.com/jetpack/androidx/compose-roadmap
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth().weight(1f),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                items(games) { game ->
+                    GameHistoryItem(
+                        modifier = Modifier.fillMaxWidth(),
+                        game = game,
+                        onClick = {
+                            context.navigation.openGameWindow(game)
+                        }
+                    )
                 }
 
-                // This layout is begging for a scrollbar, but as of May 2025
-                // the Jetpack Compose team has yet to implement them.
-                /// https://developer.android.com/jetpack/androidx/compose-roadmap
-                LazyColumn(
-                    modifier = Modifier.fillMaxWidth().weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    items(games) { game ->
-                        GameHistoryItem(
-                            modifier = Modifier.fillMaxWidth(),
-                            game = game,
-                            onClick = {
-                                context.navigation.openGameWindow(game)
-                            }
-                        )
-                    }
-
-                    item {
-                        Spacer(modifier = Modifier.height(padding + 16.dp))
-                    }
+                item {
+                    Spacer(modifier = Modifier.height(padding + 16.dp))
                 }
             }
         }
