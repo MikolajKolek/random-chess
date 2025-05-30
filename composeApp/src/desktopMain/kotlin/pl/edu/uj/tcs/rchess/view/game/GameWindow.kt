@@ -2,6 +2,8 @@ package pl.edu.uj.tcs.rchess.view.game
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
@@ -26,6 +28,7 @@ fun GameWindow(
         },
         state = rememberWindowState(
             placement = WindowPlacement.Maximized,
+            size = DpSize(1200.dp, 800.dp)
         ),
     ) {
         window.minimumSize = Dimension(900, 600)

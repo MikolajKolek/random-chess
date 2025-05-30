@@ -1,11 +1,6 @@
 package pl.edu.uj.tcs.rchess.view
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -13,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogWindow
 import androidx.compose.ui.window.WindowPosition
@@ -43,8 +39,13 @@ fun ImportPgnDialog(
     DialogWindow(
         title = "Import PGN",
         onCloseRequest = { onCancel() },
-        state = rememberDialogState(position = WindowPosition(Alignment.Center)),
+        state = rememberDialogState(
+            position = WindowPosition(Alignment.Center),
+            size = DpSize(400.dp, 500.dp)
+        ),
     ) {
+        window.minimumSize = java.awt.Dimension(300, 200)
+
         if (viewModel.isLoading) {
             Loading(text = "Importing")
             return@DialogWindow

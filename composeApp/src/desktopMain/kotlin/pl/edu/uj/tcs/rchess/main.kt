@@ -1,6 +1,8 @@
 package pl.edu.uj.tcs.rchess
 
 import androidx.compose.runtime.remember
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
@@ -22,7 +24,10 @@ private val clientApi: ClientApi = Server(config)
 val logger = KotlinLogging.logger("RandomChess")
 
 fun main() = application {
-    val state = rememberWindowState(placement = WindowPlacement.Maximized)
+    val state = rememberWindowState(
+        placement = WindowPlacement.Maximized,
+        size = DpSize(900.dp, 800.dp)
+    )
     val context = remember { AppContext(clientApi) }
 
     Window(
@@ -30,7 +35,7 @@ fun main() = application {
         state = state,
         title = "Random Chess",
     ) {
-        window.minimumSize = Dimension(800, 600)
+        window.minimumSize = Dimension(700, 600)
         MainWindowContent(context)
     }
 
