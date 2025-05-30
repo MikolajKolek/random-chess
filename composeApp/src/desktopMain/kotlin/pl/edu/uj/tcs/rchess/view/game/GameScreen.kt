@@ -138,6 +138,7 @@ fun GameScreen(
                     Tab.INFO -> InfoTab(
                         currentBoardState = boardStateBrowser.current,
                         game = game,
+                        orientation = orientation,
                     )
                 }
             },
