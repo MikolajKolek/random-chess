@@ -1,10 +1,6 @@
 package pl.edu.uj.tcs.rchess.viewmodel
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 
 interface SyncedListBrowser<T> {
     val current: T
@@ -27,15 +23,17 @@ interface SyncedListBrowser<T> {
  */
 @Composable
 fun <T> rememberListBrowser(list: List<T>): SyncedListBrowser<T> {
-    var prevListSize by remember { mutableStateOf(list.size) }
-    var index by remember { mutableStateOf(list.size - 1) }
+    require(list.isNotEmpty()) { "The list must not be empty" }
+
+    var prevLastIndex by remember { mutableStateOf(list.lastIndex) }
+    var index by remember { mutableStateOf(list.lastIndex) }
 
     if (index < 0) index = 0
-    // The list size just increased and previously the last element was selected
-    if (list.size > prevListSize && index == prevListSize - 1) index = list.size - 1
-    if (index >= list.size) index = list.size - 1
+    // The list size just increased, and previously the last element was selected
+    if (list.lastIndex > prevLastIndex && index == prevLastIndex) index = list.lastIndex
+    if (index > list.lastIndex) index = list.lastIndex
 
-    prevListSize = list.size
+    prevLastIndex = list.lastIndex
 
     return object : SyncedListBrowser<T> {
         override val current = list[index]
@@ -44,10 +42,10 @@ fun <T> rememberListBrowser(list: List<T>): SyncedListBrowser<T> {
 
         override val firstSelected = index == 0
 
-        override val lastSelected = index == list.size - 1
+        override val lastSelected = index == list.lastIndex
 
         override fun select(value: Int) {
-            index = value.coerceIn(0, list.size-1)
+            index = value.coerceIn(0, list.lastIndex)
         }
 
         override fun selectPrev() = select(index - 1)
@@ -56,6 +54,6 @@ fun <T> rememberListBrowser(list: List<T>): SyncedListBrowser<T> {
 
         override fun selectFirst() = select(0)
 
-        override fun selectLast() = select(list.size - 1)
+        override fun selectLast() = select(list.lastIndex)
     }
 }
