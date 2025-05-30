@@ -136,7 +136,7 @@ CREATE OR REPLACE FUNCTION square_to_id(
 $$
 DECLARE
 BEGIN
-    RETURN (ascii('h')-ascii(substr(square, 1, 1)))*9+substr(square, 2, 1)::integer;
+    RETURN (substr(square, 2, 1)::integer-1)*9+(ascii('h')-ascii(substr(square, 1, 1)))+1;
 END;
 $$
 LANGUAGE plpgsql IMMUTABLE;
@@ -148,26 +148,25 @@ CREATE OR REPLACE FUNCTION id_to_square(
 $$
 DECLARE
 BEGIN
-    return chr((ascii('h')-(id/9)))||(id%9)::char;
+    RETURN chr(ascii('h')-(id%9-1))||((id/9)+1)::char;
 END;
 $$
 LANGUAGE plpgsql IMMUTABLE;
 
--- Funkcja usuwa figurę z danego pola w board.
-CREATE OR REPLACE FUNCTION remove_piece(
+-- Funckcja zwraca figurę na danym polu
+CREATE OR REPLACE FUNCTION get_piece_at(
     board VARCHAR,
     square VARCHAR(2)
-) RETURNS VARCHAR AS
+) RETURNS CHAR AS
 $$
 DECLARE
-    id INTEGER := square_to_id(square);
 BEGIN
-    RETURN substr(board, 1, id-1)||'e'||substr(board, id+1, length(board)-id);
+    RETURN substr(board, square_to_id(square), 1);
 END;
 $$
 LANGUAGE plpgsql IMMUTABLE;
 
--- Funkcja dodaje figurę do danego pola w board.
+-- Funkcja dodaje figurę do danego pola w board (lub usuwa po przekazaniu 'e')
 CREATE OR REPLACE FUNCTION place_piece(
     board VARCHAR,
     square VARCHAR(2),
@@ -182,6 +181,30 @@ END;
 $$
 LANGUAGE plpgsql IMMUTABLE;
 
+-- Funkcja która usuwa daną literkę z ciągu znaków - w celu modyfikacji castling rights.
+CREATE OR REPLACE FUNCTION remove_letter(
+    str VARCHAR,
+    letter CHAR
+) RETURNS VARCHAR AS
+$$
+DECLARE
+    new_str VARCHAR := '';
+    i INTEGER := 1;
+BEGIN
+    WHILE(i <= length(str)) LOOP
+        IF(substr(str, i, 1) != letter) THEN
+            new_str := new_str||substr(str, i, 1);
+        END IF;
+        i := i+1;
+    END LOOP;
+    IF(new_str = '') THEN
+        RETURN '-';
+    END IF;
+    RETURN new_str;
+END;
+$$
+LANGUAGE plpgsql IMMUTABLE;
+
 -- Funkcja aplikująca ruch do partial FEN
 CREATE OR REPLACE FUNCTION apply_move(
     fen VARCHAR,
@@ -190,8 +213,105 @@ CREATE OR REPLACE FUNCTION apply_move(
 $$
 DECLARE
     board VARCHAR := fen_to_board(split_part(fen, ' ', 1));
+    newBoard VARCHAR;
+    piece CHAR;
+    from_square VARCHAR(2) = substr(move, 1, 2);
+    to_square VARCHAR(2) = substr(move, 3, 2);
+    color CHAR := split_part(fen, ' ', 2);
+    castling_rights VARCHAR := split_part(fen, ' ', 3);
+    en_passant VARCHAR := split_part(fen, ' ', 4);
+    promote_piece CHAR;
 BEGIN
-    RETURN fen||move; -- TODO: Zaimplementować dodawanie ruchu do FEN w bazie
+    -- Aplikowanie ruchu
+    newBoard := board;
+    piece := get_piece_at(newBoard, from_square);
+    newBoard := place_piece(newBoard, from_square, 'e');
+    newBoard := place_piece(newBoard, to_square, piece);
+
+    -- Zmiana koloru przy ruchu
+    IF(color = 'w') THEN
+        color := 'b';
+    ELSE
+        color := 'w';
+    END IF;
+
+    -- Promocja
+    IF(length(move) = 5) THEN
+        promote_piece := substr(move, 5, 1);
+        IF(piece = LOWER(piece)) THEN
+            newBoard := place_piece(newBoard, to_square, LOWER(promote_piece));
+        ELSE
+            newBoard := place_piece(newBoard, to_square, UPPER(promote_piece));
+        END IF;
+    END IF;
+
+    -- Capturing en passant
+    IF(LOWER(piece) = 'p') THEN
+        IF(to_square = en_passant) THEN
+            IF(substr(move, 1, 1) != substr(move, 3, 1)) THEN
+                IF(piece = LOWER(piece)) THEN
+                    newBoard := place_piece(newBoard, id_to_square(square_to_id(to_square)+9));
+                ELSE
+                    newBoard := place_piece(newBoard, id_to_square(square_to_id(to_square)-9));
+                END IF;
+            END IF;
+        END IF;
+    END IF;
+
+    -- Replacing rook in castling and castling rights in king move
+    IF(LOWER(piece) = 'k') THEN
+        IF(from_square = 'e8') THEN
+            castling_rights := remove_letter(castling_rights, 'k');
+            castling_rights := remove_letter(castling_rights, 'q');
+            IF(to_square = 'c8') THEN
+                newBoard := place_piece(newBoard, 'a8', 'e');
+                newBoard := place_piece(newBoard, 'd8', 'r');
+            END IF;
+            IF(to_square = 'g8') THEN
+                newBoard := place_piece(newBoard, 'h8', 'e');
+                newBoard := place_piece(newBoard, 'f8', 'r');
+            END IF;
+        END IF;
+        IF(from_square = 'e1') THEN
+            castling_rights := remove_letter(castling_rights, 'K');
+            castling_rights := remove_letter(castling_rights, 'Q');
+            IF(to_square = 'c1') THEN
+                newBoard := place_piece(newBoard, 'a1', 'e');
+                newBoard := place_piece(newBoard, 'd1', 'R');
+            END IF;
+            IF(to_square = 'g1') THEN
+                newBoard := place_piece(newBoard, 'h1', 'e');
+                newBoard := place_piece(newBoard, 'f1', 'R');
+            END IF;
+        END IF;
+    END IF;
+
+    -- Removing castling rights on rook move
+    IF(from_square = 'a1' OR to_square = 'a1') THEN
+        castling_rights := remove_letter(castling_rights, 'Q');
+    END IF;
+    IF(from_square = 'a8' OR to_square = 'a8') THEN
+        castling_rights := remove_letter(castling_rights, 'K');
+    END IF;
+    IF(from_square = 'h1' OR to_square = 'h1') THEN
+        castling_rights := remove_letter(castling_rights, 'q');
+    END IF;
+    IF(from_square = 'h8' OR to_square = 'h8') THEN
+        castling_rights := remove_letter(castling_rights, 'k');
+    END IF;
+
+    -- On first move add en passant square
+    IF(LOWER(piece) = 'p') THEN
+        en_passant := '-';
+        IF(substr(move, 2, 1) = '2' AND substr(move, 4, 1) = '4') THEN
+            en_passant := id_to_square(square_to_id(substr(move, 1, 2))+9);
+        END IF;
+        IF(substr(move, 2, 1) = '7' AND substr(move, 4, 1) = '5') THEN
+            en_passant := id_to_square(square_to_id(substr(move, 1, 2))-9);
+        END IF;
+    END IF;
+
+    RETURN board_to_fen(newBoard)||' '||color||' '||castling_rights||' '||en_passant;
 END;
 $$
 LANGUAGE plpgsql IMMUTABLE;
