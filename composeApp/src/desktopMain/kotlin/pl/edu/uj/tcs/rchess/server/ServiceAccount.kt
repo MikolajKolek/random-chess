@@ -1,8 +1,7 @@
 package pl.edu.uj.tcs.rchess.server
 
 /**
- * Data class representing a service account. These objects are only created in response to a client's request
- * and are not used internally by the server for any other uses.
+ * Data class representing a service account.
  *
  * @param service The service the account belongs to.
  * @param userIdInService The user ID of the account in the service.

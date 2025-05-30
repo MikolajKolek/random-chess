@@ -1,6 +1,8 @@
 package pl.edu.uj.tcs.rchess.server
 
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.serialization.json.Json
 import org.jooq.JSONB
 import org.jooq.SQLDialect
@@ -12,13 +14,9 @@ import pl.edu.uj.tcs.rchess.generated.db.keys.SERVICE_GAMES__SERVICE_GAMES_SERVI
 import pl.edu.uj.tcs.rchess.generated.db.tables.references.PGN_GAMES
 import pl.edu.uj.tcs.rchess.generated.db.tables.references.SERVICE_ACCOUNTS
 import pl.edu.uj.tcs.rchess.generated.db.tables.references.SERVICE_GAMES
-import pl.edu.uj.tcs.rchess.model.ClockSettings
+import pl.edu.uj.tcs.rchess.model.*
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.fromFen
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
-import pl.edu.uj.tcs.rchess.model.GameResult
-import pl.edu.uj.tcs.rchess.model.Move
-import pl.edu.uj.tcs.rchess.model.Pgn
-import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import pl.edu.uj.tcs.rchess.model.state.GameState
@@ -26,9 +24,10 @@ import pl.edu.uj.tcs.rchess.server.game.HistoryGame
 import pl.edu.uj.tcs.rchess.server.game.HistoryServiceGame
 import pl.edu.uj.tcs.rchess.server.game.LiveGame
 import pl.edu.uj.tcs.rchess.server.game.PgnGame
+import pl.edu.uj.tcs.rchess.util.tryWithLock
 import java.sql.DriverManager
 import java.time.LocalDateTime
-import java.util.Optional
+import java.util.*
 
 class Server(private val config: Config) : ClientApi, Database {
     private val connection = DriverManager.getConnection(
@@ -39,6 +38,12 @@ class Server(private val config: Config) : ClientApi, Database {
     private val dsl = DSL.using(connection, SQLDialect.POSTGRES)
     private val botOpponents: Map<BotOpponent, BotType>
     private val botGameFactory = GameWithBotFactory(this)
+
+    private val syncMutex = Mutex()
+    override val databaseState = MutableStateFlow(ClientApi.DatabaseState(
+        updatesAvailable = false,
+        synchronizing = false
+    ))
 
     init {
         val botServiceAccounts = dsl.selectFrom(SERVICE_ACCOUNTS)
@@ -59,10 +64,12 @@ class Server(private val config: Config) : ClientApi, Database {
                 botType.elo,
                 serviceAccountRecord.userIdInService,) to botType
             }.associate { it }
+
+        requestResyncImpl()
     }
 
 
-    override suspend fun getUserGames(): List<HistoryGame> =
+    override suspend fun getUserGames(refreshAvailableUpdates: Boolean): List<HistoryGame> =
         (serviceGamesRequest(Optional.empty()) + pgnGamesRequest(Optional.empty()))
             .sortedByDescending { it.creationDate }
 
@@ -140,6 +147,16 @@ class Server(private val config: Config) : ClientApi, Database {
         return LiveGame(
             controls = controls
         )
+    }
+
+    override suspend fun requestResync() {
+        requestResyncImpl()
+    }
+
+    fun requestResyncImpl() {
+        syncMutex.tryWithLock {
+
+        }
     }
 
     private fun serviceGamesRequest(id: Optional<Int>): List<HistoryServiceGame> {
