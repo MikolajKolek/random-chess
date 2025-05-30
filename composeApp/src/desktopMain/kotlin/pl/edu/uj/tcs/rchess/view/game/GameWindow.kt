@@ -22,21 +22,6 @@ fun GameWindow(
     onFinish: (historyGame: HistoryGame) -> Unit,
 
 ) {
-    LaunchedEffect(game) {
-        if (game !is LiveGame) return@LaunchedEffect
-        val finishedGame = game.controls.observer.finishedGame.await()
-        onFinish(finishedGame)
-    }
-
-    val gameState by when (game) {
-        is HistoryGame -> derivedStateOf { game.finalGameState }
-        is LiveGame -> {
-            game.controls.observer.stateFlow.collectAsStateWithLifecycle()
-        }
-    }
-    val input = (game as? LiveGame)?.controls?.input
-    val windowState = rememberGameWindowState(gameState, input)
-
     Window(
         onCloseRequest = onCloseRequest,
         title = when (game) {
@@ -47,6 +32,21 @@ fun GameWindow(
             placement = WindowPlacement.Maximized,
         ),
     ) {
+        LaunchedEffect(game) {
+            if (game !is LiveGame) return@LaunchedEffect
+            val finishedGame = game.controls.observer.finishedGame.await()
+            onFinish(finishedGame)
+        }
+
+        val gameState by when (game) {
+            is HistoryGame -> derivedStateOf { game.finalGameState }
+            is LiveGame -> {
+                game.controls.observer.stateFlow.collectAsStateWithLifecycle()
+            }
+        }
+        val input = (game as? LiveGame)?.controls?.input
+        val windowState = rememberGameWindowState(gameState, input)
+
         window.minimumSize = Dimension(900, 600)
         RandomChessTheme {
             GameScreen(gameState, windowState)
