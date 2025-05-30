@@ -13,6 +13,7 @@ import pl.edu.uj.tcs.rchess.server.game.HistoryServiceGame
 import pl.edu.uj.tcs.rchess.server.game.PgnGame
 import pl.edu.uj.tcs.rchess.view.board.BoardView
 import pl.edu.uj.tcs.rchess.view.shared.ServiceLabel
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun GameHistoryItem(
@@ -78,7 +79,7 @@ fun GameHistoryItem(
                         }
                     }
 
-                    Text(" at ${game.creationDate}")
+                    Text(" at ${game.creationDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}")
                 }
             }
         }
