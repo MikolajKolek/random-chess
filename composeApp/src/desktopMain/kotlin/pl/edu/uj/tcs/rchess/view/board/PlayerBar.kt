@@ -2,7 +2,7 @@ package pl.edu.uj.tcs.rchess.view.board
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -13,35 +13,52 @@ import pl.edu.uj.tcs.rchess.model.pieces.King
 import pl.edu.uj.tcs.rchess.model.state.ClockState
 import kotlin.time.Duration
 
+data class DisplayedTime(
+    val clock: Duration,
+    val extra: Duration,
+)
+
 @Composable
-fun remainingTime(clockState: ClockState): Duration {
-    var remainingTime by remember { mutableStateOf(clockState.remainingTimeOnClock()) }
+fun remainingTime(clockState: ClockState): DisplayedTime {
+    fun getDisplayedTime() = DisplayedTime(
+        clock = clockState.remainingTimeOnClock(),
+        extra = clockState.remainingExtraTime(),
+    )
+
+    var remainingTime by remember { mutableStateOf(getDisplayedTime()) }
 
     LaunchedEffect(clockState) {
-        remainingTime = clockState.remainingTimeOnClock()
+        remainingTime = getDisplayedTime()
         if (clockState is ClockState.Running) {
             while (true) {
                 withFrameNanos {
-                    remainingTime = clockState.remainingTimeOnClock()
+                    remainingTime = getDisplayedTime()
                 }
             }
         }
     }
 
-    return maxOf(remainingTime, Duration.ZERO)
+    return remainingTime
 }
 
-fun Duration.formatHuman() =
+fun Duration.formatHuman(alwaysShowMinutes: Boolean = true) =
     toComponents { hours, minutes, seconds, nanoseconds ->
         val centisecond = nanoseconds / 10_000_000
 
-        if (hours > 0) {
-            "%d:%02d:%02d.%02d".format(hours, minutes, seconds, centisecond)
-        } else {
-            "%d:%02d.%02d".format(minutes, seconds, centisecond)
+        when {
+            hours > 0 -> {
+                "%d:%02d:%02d.%02d".format(hours, minutes, seconds, centisecond)
+            }
+            minutes > 0 || alwaysShowMinutes -> {
+                "%d:%02d.%02d".format(minutes, seconds, centisecond)
+            }
+            else -> {
+                "%02d.%02d".format(seconds, centisecond)
+            }
         }
     }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayerBar(
     modifier: Modifier = Modifier,
@@ -71,9 +88,23 @@ fun PlayerBar(
             val remainingTime = remainingTime(clockState)
 
             Text(
-                remainingTime.formatHuman(),
+                remainingTime.clock.formatHuman(),
                 fontSize = 20.sp
             )
+
+            remainingTime.extra.takeIf { it > Duration.ZERO }?.let {
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                    tooltip = { PlainTooltip { Text("Additional time before first move") } },
+                    state = rememberTooltipState()
+                ) {
+                    Text(
+                        "+${it.formatHuman(alwaysShowMinutes = false)}",
+                        fontSize = 16.sp,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
+            }
         }
     }
 }
