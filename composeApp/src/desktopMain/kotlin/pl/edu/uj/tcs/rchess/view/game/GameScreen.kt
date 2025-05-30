@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
+import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import pl.edu.uj.tcs.rchess.view.board.BoardArea
 import pl.edu.uj.tcs.rchess.view.board.PlayerBar
 import pl.edu.uj.tcs.rchess.view.gamesidebar.*
@@ -38,6 +39,7 @@ fun GameScreen(
                         color = color,
                         name = game.getPlayerName(color),
                         clockState = gameState.getPlayerClock(color),
+                        isWinner = color == (gameState.progress as? GameProgress.Finished)?.result?.winner
                     )
                 },
             )

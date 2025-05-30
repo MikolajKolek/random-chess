@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.painterResource
@@ -65,6 +66,7 @@ fun PlayerBar(
     color: PlayerColor,
     name: String,
     clockState: ClockState?,
+    isWinner: Boolean,
 ) {
     Row(
         modifier = Modifier.height(PlayerBar.height).then(modifier)
@@ -79,6 +81,14 @@ fun PlayerBar(
             text = name,
             modifier = Modifier.padding(start = 12.dp),
         )
+
+        if (isWinner) {
+            Text(
+                text = "winner",
+                modifier = Modifier.padding(start = 16.dp),
+                fontWeight = Bold,
+            )
+        }
 
         Spacer(
             modifier = Modifier.weight(1f)
