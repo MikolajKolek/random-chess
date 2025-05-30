@@ -136,7 +136,7 @@ CREATE OR REPLACE FUNCTION square_to_id(
 $$
 DECLARE
 BEGIN
-    RETURN (substr(square, 2, 1)::integer-1)*9+(ascii('h')-ascii(substr(square, 1, 1)))+1;
+    RETURN (8-substr(square, 2, 1)::integer)*9+ascii(substr(square, 1, 1))-ascii('a')+1;
 END;
 $$
 LANGUAGE plpgsql IMMUTABLE;
@@ -148,7 +148,7 @@ CREATE OR REPLACE FUNCTION id_to_square(
 $$
 DECLARE
 BEGIN
-    RETURN chr(ascii('h')-(id%9-1))||((id/9)+1)::char;
+    RETURN chr(ascii('a')+(id%9-1))||(8-id/9)::char;
 END;
 $$
 LANGUAGE plpgsql IMMUTABLE;
@@ -291,23 +291,23 @@ BEGIN
         castling_rights := remove_letter(castling_rights, 'Q');
     END IF;
     IF(from_square = 'a8' OR to_square = 'a8') THEN
-        castling_rights := remove_letter(castling_rights, 'K');
+        castling_rights := remove_letter(castling_rights, 'q');
     END IF;
     IF(from_square = 'h1' OR to_square = 'h1') THEN
-        castling_rights := remove_letter(castling_rights, 'q');
+        castling_rights := remove_letter(castling_rights, 'K');
     END IF;
     IF(from_square = 'h8' OR to_square = 'h8') THEN
         castling_rights := remove_letter(castling_rights, 'k');
     END IF;
 
     -- On first move add en passant square
+    en_passant := '-';
     IF(LOWER(piece) = 'p') THEN
-        en_passant := '-';
         IF(substr(move, 2, 1) = '2' AND substr(move, 4, 1) = '4') THEN
-            en_passant := id_to_square(square_to_id(substr(move, 1, 2))+9);
+            en_passant := substr(move, 1, 1)||'3';
         END IF;
         IF(substr(move, 2, 1) = '7' AND substr(move, 4, 1) = '5') THEN
-            en_passant := id_to_square(square_to_id(substr(move, 1, 2))-9);
+            en_passant := substr(move, 1, 1)||'6';
         END IF;
     END IF;
 
@@ -324,7 +324,8 @@ CREATE OR REPLACE FUNCTION generate_fen_array(
 $$
 DECLARE
     result_fen_array VARCHAR[] := '{}';
-    last_fen VARCHAR := starting_position;
+    start VARCHAR := array_to_string(trim_array(string_to_array(starting_position, ' '), 2), ' ');
+    last_fen VARCHAR := start;
     elem VARCHAR(5);
 BEGIN
     result_fen_array := array_append(result_fen_array, starting_position);
@@ -507,6 +508,20 @@ INSERT INTO service_accounts("user_id", "service_id", "user_id_in_service", "is_
     (NULL, 3, 'lichess_user', FALSE, 'lichess_user_not_in_service'),
     (NULL, 2, 'chess_com_bot', TRUE, 'chess_com_bot'),
     (NULL, 1, 'internal_bot', TRUE, 'bot_1');*/
+
+/* New example game to be added
+INSERT INTO service_games("moves", "starting_position", "creation_date", "result", "metadata", "service_id", "game_id_in_service", white_player, black_player) VALUES
+    (
+        ARRAY['e2e4', 'e5e7'],
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        '2025-04-24T16:02:54Z',
+        'black_won',
+        '{"TimeControl": "30+3"}',
+        3,
+        'zGsFNtCE',
+        'test2_lc_id',
+        'lichess_user'
+    );*/
 
 /*INSERT INTO service_games("moves", "creation_date", "result", "metadata", "service_id", "game_id_in_service", white_player, black_player) VALUES
     (
