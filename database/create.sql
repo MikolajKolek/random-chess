@@ -250,9 +250,9 @@ BEGIN
         IF(to_square = en_passant) THEN
             IF(substr(move, 1, 1) != substr(move, 3, 1)) THEN
                 IF(piece = LOWER(piece)) THEN
-                    newBoard := place_piece(newBoard, id_to_square(square_to_id(to_square)+9));
+                    newBoard := place_piece(newBoard, id_to_square(square_to_id(to_square)+9), 'e');
                 ELSE
-                    newBoard := place_piece(newBoard, id_to_square(square_to_id(to_square)-9));
+                    newBoard := place_piece(newBoard, id_to_square(square_to_id(to_square)-9), 'e');
                 END IF;
             END IF;
         END IF;
