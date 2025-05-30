@@ -48,7 +48,7 @@ data class GameState(
      * List of full moves in SAN notation.
      *
      * Only the first move can be a [SanFullMove.InitialBlackMove].
-     * The last full move can be a [SanFullMove.FinalWhiteMove].
+     * The last full move can have a null black move.
      */
     val fullMoves: List<SanFullMove> by lazy {
         buildList {
@@ -60,14 +60,14 @@ data class GameState(
                     assert(whiteMove == null) { "The game state contains two consecutive white moves" }
                     whiteMove = halfMove
                 } else if (whiteMove != null) {
-                    add(SanFullMove.FullMove(moveNumber++, whiteMove, halfMove))
+                    add(SanFullMove.WithWhiteMove(moveNumber++, whiteMove, halfMove))
                     whiteMove = null
                 } else {
                     assert(moveNumber == 1) { "The game state contains two consecutive black moves" }
                     add(SanFullMove.InitialBlackMove(moveNumber++, halfMove))
                 }
             }
-            if (whiteMove != null) add(SanFullMove.FinalWhiteMove(moveNumber, whiteMove))
+            if (whiteMove != null) add(SanFullMove.WithWhiteMove(moveNumber, whiteMove, null))
         }
     }
 

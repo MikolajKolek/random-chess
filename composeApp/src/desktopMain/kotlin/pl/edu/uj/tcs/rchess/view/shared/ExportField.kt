@@ -13,8 +13,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ClipEntry
-import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.runBlocking
 
@@ -42,7 +42,7 @@ fun ExportField(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
         ) {
-            val clipboardManager = LocalClipboard.current
+            val clipboardManager = LocalClipboardManager.current
 
             if (downloadEnabled) {
                 Button(
@@ -58,7 +58,7 @@ fun ExportField(
             Button(
                 onClick = {
                     runBlocking {
-                        clipboardManager.setClipEntry(ClipEntry(value))
+                        clipboardManager.setText(AnnotatedString(value))
                     }
                 }
             ) {

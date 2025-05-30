@@ -6,14 +6,10 @@ package pl.edu.uj.tcs.rchess.model
  * Implemented as a sealed class to represent the fact
  * that at most one of the half-moves can be null.
  */
-sealed class SanFullMove(
-    val number: Int,
-    val white: HalfMove?,
-    val black: HalfMove?,
-) {
-    init {
-        require(white != null || black != null)
-    }
+sealed interface SanFullMove {
+    val number: Int
+    val white: HalfMove?
+    val black: HalfMove?
 
     class HalfMove(
         /**
@@ -24,18 +20,15 @@ sealed class SanFullMove(
     )
 
     class InitialBlackMove(
-        number: Int,
-        black: HalfMove
-    ): SanFullMove(number,null, black)
+        override val number: Int,
+        override val black: HalfMove,
+    ): SanFullMove {
+        override val white: Nothing? = null
+    }
 
-    class FullMove(
-        number: Int,
-        white: HalfMove,
-        black: HalfMove,
-    ) : SanFullMove(number, white, black)
-
-    class FinalWhiteMove(
-        number: Int,
-        white: HalfMove,
-    ) : SanFullMove(number, white, null)
+    class WithWhiteMove(
+        override val number: Int,
+        override val white: HalfMove,
+        override val black: HalfMove?,
+    ) : SanFullMove
 }
