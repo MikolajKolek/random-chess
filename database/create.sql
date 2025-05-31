@@ -888,7 +888,7 @@ INSERT INTO service_games(moves, starting_position, creation_date, result, metad
         CURRENT_TIMESTAMP,
         '(0-1,TIMEOUT)',
         NULL,
-        NULL,
+        '(1 minute, 1 second)',
         TRUE,
         NULL,
         1,
