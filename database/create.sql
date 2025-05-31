@@ -67,6 +67,7 @@ CREATE TABLE "game_services"
     "name" VARCHAR(256) UNIQUE NOT NULL
 );
 INSERT INTO game_services("id", "name") VALUES (1, 'Random Chess');
+SELECT setval('game_services_id_seq', 1, true);
 
 
 -- Dla każdego użytkownika istnieje dokładnie jeden service_account z service_id naszego serwisu (1)
@@ -544,7 +545,8 @@ CREATE TABLE rankings(
 
 
 CREATE TABLE elo_history(
-    "service_id"            INT         NOT NULL    REFERENCES "game_services" ("id"),
+    "service_id"            INT         NOT NULL    REFERENCES "game_services" ("id")
+        CHECK ("service_id" = 1),
     "user_id_in_service"    VARCHAR     NOT NULL,
     "ranking_id"            INT         NOT NULL    REFERENCES "rankings" ("id"),
     "game_id"               INT         NOT NULL    REFERENCES "service_games" ("id"),
@@ -562,10 +564,15 @@ SELECT
 FROM "service_games"
 CROSS JOIN "rankings"
 WHERE
--- TODO: Filter by correct clock settings
+    "service_games"."is_ranked" AND
+    ("service_games"."clock")."starting_time" IS NOT NULL AND
+    ("service_games"."clock")."move_increase" IS NOT NULL AND
+    (
+        ("service_games"."clock")."starting_time" +
+        "rankings"."extra_move_multiplier" * ("service_games"."clock")."move_increase"
+    ) BETWEEN "rankings"."playtime_min" AND "rankings"."playtime_max"
 -- TODO: Check for bots and include_bots
--- TODO: Check if the game is rated
-TRUE;
+;
 
 -- TODO: Implement
 CREATE VIEW current_ranking AS(
