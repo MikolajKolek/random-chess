@@ -835,6 +835,32 @@ CREATE OR REPLACE TRIGGER service_game_prevent_updates
 EXECUTE FUNCTION prevent_significant_game_changes();
 
 
+CREATE OR REPLACE FUNCTION check_invalid_elo_history()
+RETURNS trigger
+LANGUAGE plpgsql
+AS
+$$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM games_rankings
+        WHERE
+            games_rankings.game_id = NEW.game_id AND
+            games_rankings.ranking_id = NEW.ranking_id
+    ) THEN
+        RAISE EXCEPTION 'Elo history entry for game % and ranking % is not valid',
+            games_rankings.game_id, games_rankings.ranking_id;
+    END IF;
+
+    RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE TRIGGER elo_history_prevent_invalid
+    BEFORE INSERT OR UPDATE ON elo_history
+    FOR EACH ROW
+EXECUTE FUNCTION check_invalid_elo_history();
+
 -- Przykładowe dane:
 INSERT INTO game_services(name) VALUES
     ('chess.com'),
