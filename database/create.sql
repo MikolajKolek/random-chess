@@ -705,12 +705,23 @@ CREATE OR REPLACE PROCEDURE recalculate_ranking(ranking_id int)
 LANGUAGE plpgsql
 AS
 $$
+DECLARE
+    game_id INT;
 BEGIN
+    SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+
     DELETE FROM elo_history
     WHERE elo_history.ranking_id = recalculate_ranking.ranking_id;
 
-    -- TODO: Implement ranking recreation
-    RAISE EXCEPTION 'Not implemented';
+    FOR game_id IN
+        SELECT service_games.id
+        FROM service_games
+        INNER JOIN games_rankings ON (service_games.id = games_rankings.game_id)
+        WHERE games_rankings.ranking_id = recalculate_ranking.ranking_id
+        ORDER BY creation_date ASC
+    LOOP
+        CALL update_ranking_after_game(game_id, ranking_id);
+    END LOOP;
 END;
 $$;
 
