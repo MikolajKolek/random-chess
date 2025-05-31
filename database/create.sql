@@ -539,6 +539,7 @@ CREATE TABLE rankings(
     "extra_move_multiplier" INT         NOT NULL    CHECK ("extra_move_multiplier" >= 0),
     "starting_elo"          INT         NOT NULL    CHECK ("starting_elo" > 0),
     "include_bots"          BOOLEAN     NOT NULL,
+    "k_factor"              NUMERIC     NOT NULL,
 
     CONSTRAINT "playtime_valid" CHECK ("playtime_min" <= "playtime_max")
 );
@@ -584,7 +585,6 @@ WHERE
         (white_accounts."is_bot" = FALSE AND black_accounts."is_bot" = FALSE)
     );
 
--- TODO: Implement
 CREATE VIEW current_ranking AS(
     SELECT sa.service_id, sa.user_id_in_service, r.id AS "ranking_id", COALESCE(eh.elo, r.starting_elo) AS "elo"
     FROM service_accounts sa
@@ -596,8 +596,92 @@ CREATE VIEW current_ranking AS(
     LIMIT 1
 );
 
--- );
+CREATE PROCEDURE update_elo_after_game(
+    service_game_id INT,
+    ranking_id_to_update INT
+) AS
+$$
+DECLARE
+    -- Variable names taken from https://en.wikipedia.org/wiki/Elo_rating_system#Mathematical_details
+    game_end_type VARCHAR;
+    current_black_elo NUMERIC;
+    current_white_elo NUMERIC;
+    k_factor NUMERIC;
+    black_score NUMERIC;
+    white_score NUMERIC;
+    Q_black NUMERIC;
+    Q_white NUMERIC;
+    expected_black_value NUMERIC;
+    expected_white_value NUMERIC;
+BEGIN
+    IF service_game_id IS NULL OR ranking_id_to_update IS NULL THEN
+        RETURN;
+    END IF;
 
+    SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+    SELECT cr_black.elo, cr_white.elo, (sg.result).game_end_type
+    INTO current_black_elo, current_white_elo, game_end_type
+    FROM service_games sg
+    JOIN service_accounts sa_black ON(
+        sg.service_id = sa_black.service_id AND
+        sg.black_player = sa_black.user_id_in_service
+    )
+    JOIN current_ranking cr_black ON(
+        sa_black.service_id = cr_black.service_id AND
+        sa_black.user_id_in_service = cr_black.user_id_in_service AND
+        cr_black.ranking_id = ranking_id_to_update
+    )
+    JOIN service_accounts sa_white ON(
+        sg.service_id = sa_white.service_id AND
+        sg.black_player = sa_white.user_id_in_service
+    )
+    JOIN current_ranking cr_white ON(
+        sa_white.service_id = cr_white.service_id AND
+        sa_white.user_id_in_service = cr_white.user_id_in_service AND
+        cr_white.ranking_id = ranking_id_to_update
+    )
+    WHERE sg.id = service_game_id;
+
+    k_factor := (SELECT k_factor FROM rankings WHERE id = ranking_id_to_update);
+
+    IF game_end_type = '1/2-1/2' THEN
+        black_score := 0.5;
+        white_score := 0.5;
+    ELSE
+        IF game_end_type = '1-0' THEN
+            black_score := 0;
+            white_score := 1;
+        ELSE
+            black_score := 1;
+            white_score := 0;
+        END IF;
+    END IF;
+
+    Q_black := 10^(current_black_elo / 400);
+    Q_white := 10^(current_white_elo / 400);
+
+    expected_black_value := Q_black / (Q_black + Q_white);
+    expected_white_value := Q_white / (Q_black + Q_white);
+
+    INSERT INTO elo_history(service_id, user_id_in_service, ranking_id, game_id, elo) VALUES
+        (
+             1,
+             (SELECT black_player FROM service_games WHERE id = service_game_id),
+             ranking_id,
+             service_game_id,
+             current_black_elo + k_factor * (black_score - expected_black_value)
+        ),
+        (
+            1,
+            (SELECT white_player FROM service_games WHERE id = service_game_id),
+            ranking_id,
+            service_game_id,
+            current_white_elo + k_factor * (white_score - expected_white_value)
+        );
+END;
+$$
+LANGUAGE plpgsql;
 
 -- Przykładowe dane:
 INSERT INTO game_services(name) VALUES
