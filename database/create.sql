@@ -574,33 +574,39 @@ INNER JOIN "service_accounts" black_accounts ON (
 CROSS JOIN "rankings"
 WHERE
     "service_games"."is_ranked" AND
-    ("service_games"."clock")."starting_time" IS NOT NULL AND
-    ("service_games"."clock")."move_increase" IS NOT NULL AND
-    (
-        ("service_games"."clock")."starting_time" +
-        "rankings"."extra_move_multiplier" * ("service_games"."clock")."move_increase"
-    ) >= "rankings"."playtime_min" AND
-    (
-        "rankings"."playtime_max" IS NULL OR
-        (
-            ("service_games"."clock")."starting_time" +
-            "rankings"."extra_move_multiplier" * ("service_games"."clock")."move_increase"
-        ) <= "rankings"."playtime_max"
-    ) AND
-    (
-        "rankings"."include_bots" OR
-        (white_accounts."is_bot" = FALSE AND black_accounts."is_bot" = FALSE)
-    );
+    -- ("service_games"."clock")."starting_time" IS NOT NULL AND
+    -- ("service_games"."clock")."move_increase" IS NOT NULL AND
+    -- (
+    --     ("service_games"."clock")."starting_time" +
+    --     "rankings"."extra_move_multiplier" * ("service_games"."clock")."move_increase"
+    -- ) >= "rankings"."playtime_min" AND
+    -- (
+    --     "rankings"."playtime_max" IS NULL OR
+    --     (
+    --         ("service_games"."clock")."starting_time" +
+    --         "rankings"."extra_move_multiplier" * ("service_games"."clock")."move_increase"
+    --     ) <= "rankings"."playtime_max"
+    -- ) AND
+    -- (
+    --     "rankings"."include_bots" OR
+    --     (white_accounts."is_bot" = FALSE AND black_accounts."is_bot" = FALSE)
+    -- )
+TRUE
+;
 
 CREATE VIEW current_ranking AS(
-    SELECT sa.service_id, sa.user_id_in_service, r.id AS "ranking_id", COALESCE(eh.elo, r.starting_elo) AS "elo"
+    SELECT
+        DISTINCT ON (sa.service_id, sa.user_id_in_service, r.id)
+        sa.service_id,
+        sa.user_id_in_service,
+        r.id AS "ranking_id",
+        COALESCE(eh.elo, r.starting_elo) AS "elo"
     FROM service_accounts sa
     CROSS JOIN rankings r
     LEFT JOIN elo_history eh ON (r.id = eh.ranking_id AND sa.user_id_in_service = eh.user_id_in_service)
     LEFT JOIN service_games sg ON (eh.game_id = sg.id)
     WHERE (sa.service_id = 1) AND (r.include_bots OR NOT sa.is_bot)
-    ORDER BY sg.creation_date DESC
-    LIMIT 1
+    ORDER BY sa.service_id, sa.user_id_in_service, r.id, sg.creation_date DESC
 );
 
 CREATE PROCEDURE update_ranking_after_game(
