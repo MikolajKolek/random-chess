@@ -67,7 +67,7 @@ CREATE TABLE "game_services"
     "id"   SERIAL       PRIMARY KEY,
     "name" VARCHAR(256) UNIQUE NOT NULL
 );
-INSERT INTO game_services(name) VALUES ('Random Chess');
+INSERT INTO game_services("id", "name") VALUES (1, 'Random Chess');
 
 
 -- Dla każdego użytkownika istnieje dokładnie jeden service_account z service_id naszego serwisu (1)
@@ -91,7 +91,7 @@ CREATE TABLE "service_accounts"
         ((is_bot = FALSE) AND ((user_id::varchar = user_id_in_service) OR (user_id IS NULL)))
     ),
     CONSTRAINT "valid_token" CHECK (
-        ("token" IS NULL) = ("service_id" =  1 OR "user_id" IS NULL)
+        ("token" IS NULL) = ("service_id" = 1 OR "user_id" IS NULL)
     )
 );
 
