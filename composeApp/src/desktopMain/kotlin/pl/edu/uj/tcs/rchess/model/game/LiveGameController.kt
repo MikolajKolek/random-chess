@@ -134,6 +134,7 @@ class LiveGameController(
 
         if(updatedState.progress is GameProgress.FinishedWithClockInfo) {
             timer.stop()
+            //TODO: this should spawn in an unconnected coroutine somewhere in the db scope
             finishedGame.complete(database.saveGame(updatedState, blackPlayerId, whitePlayerId))
         }
 

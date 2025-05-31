@@ -254,6 +254,7 @@ class Server(private val config: Config) : ClientApi, Database {
             .set(SERVICE_GAMES.STARTING_POSITION, game.initialState.toFenString())
             .set(SERVICE_GAMES.CREATION_DATE, LocalDateTime.now())
             .set(SERVICE_GAMES.RESULT, game.progress.result.toDbResult())
+            .set(SERVICE_GAMES.IS_RANKED, true)
             .set(SERVICE_GAMES.SERVICE_ID, Service.RANDOM_CHESS.id)
             .set(SERVICE_GAMES.BLACK_PLAYER, blackPlayerId)
             .set(SERVICE_GAMES.WHITE_PLAYER, whitePlayerId)
