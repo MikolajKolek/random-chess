@@ -56,7 +56,6 @@ CREATE TABLE "users"
     "id"                SERIAL          PRIMARY KEY,
     "email"             VARCHAR         UNIQUE NOT NULL,
     "password_hash"     VARCHAR         NOT NULL,
-    "elo"               NUMERIC         NOT NULL DEFAULT 1500,
     -- Regex pochodzi z https://emailregex.com/
     CHECK (email ~* '(?:[a-z0-9!#$%&''''*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&''''*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])')
 );
@@ -549,6 +548,7 @@ CREATE TABLE elo_history(
     "user_id_in_service"    VARCHAR     NOT NULL,
     "ranking_id"            INT         NOT NULL    REFERENCES "rankings" ("id"),
     "game_id"               INT         NOT NULL    REFERENCES "service_games" ("id"),
+    "elo"                   NUMERIC     NOT NULL,
 
     FOREIGN KEY ("service_id", "user_id_in_service")
         REFERENCES "service_accounts" ("service_id", "user_id_in_service")
@@ -568,7 +568,16 @@ WHERE
 TRUE;
 
 -- TODO: Implement
--- CREATE VIEW current_ranking(
+CREATE VIEW current_ranking AS(
+    SELECT sa.service_id, sa.user_id_in_service, r.id AS "ranking_id", COALESCE(eh.elo, r.starting_elo) AS "elo"
+    FROM service_accounts sa
+    CROSS JOIN rankings r
+    LEFT JOIN elo_history eh ON (r.id = eh.ranking_id AND sa.user_id_in_service = eh.user_id_in_service)
+    LEFT JOIN service_games sg ON (eh.game_id = sg.id)
+    WHERE (sa.service_id = 1) AND (r.include_bots OR NOT sa.is_bot)
+    ORDER BY sg.creation_date DESC
+    LIMIT 1
+);
 
 -- );
 
