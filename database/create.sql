@@ -538,6 +538,7 @@ CREATE TABLE rankings(
     "playtime_max"          INTERVAL    NOT NULL    CHECK ("playtime_max" >= '0 seconds'::INTERVAL),
     "extra_move_multiplier" INT         NOT NULL    CHECK ("extra_move_multiplier" >= 0),
     "starting_elo"          INT         NOT NULL    CHECK ("starting_elo" > 0),
+    "include_bots"          BOOLEAN     NOT NULL,
 
     CONSTRAINT "playtime_valid" CHECK ("playtime_min" <= "playtime_max")
 );
@@ -553,10 +554,20 @@ CREATE TABLE elo_history(
         REFERENCES "service_accounts" ("service_id", "user_id_in_service")
 );
 
--- CREATE VIEW games_rankings(
+-- Table mapping games from service_games to the rankings in which the game is rated
+CREATE VIEW games_rankings AS
+SELECT
+    "service_games"."id" AS "game_id",
+    "rankings"."id" AS "ranking_id"
+FROM "service_games"
+CROSS JOIN "rankings"
+WHERE
+-- TODO: Filter by correct clock settings
+-- TODO: Check for bots and include_bots
+-- TODO: Check if the game is rated
+TRUE;
 
--- );
-
+-- TODO: Implement
 -- CREATE VIEW current_ranking(
 
 -- );
