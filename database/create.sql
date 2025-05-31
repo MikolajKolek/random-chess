@@ -619,7 +619,7 @@ DECLARE
     game_end_type VARCHAR;
     current_black_elo NUMERIC;
     current_white_elo NUMERIC;
-    k_factor NUMERIC;
+    k_factor_var NUMERIC;
     black_score NUMERIC;
     white_score NUMERIC;
     Q_black NUMERIC;
@@ -631,7 +631,7 @@ BEGIN
         RETURN;
     END IF;
 
-    SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+    --TODO: fix SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
     SELECT cr_black.elo, cr_white.elo, (sg.result).game_end_type
     INTO current_black_elo, current_white_elo, game_end_type
@@ -656,7 +656,7 @@ BEGIN
     )
     WHERE sg.id = service_game_id;
 
-    k_factor := (SELECT k_factor FROM rankings WHERE id = ranking_id_to_update);
+    k_factor_var := (SELECT k_factor FROM rankings WHERE id = ranking_id_to_update);
 
     IF game_end_type = '1/2-1/2' THEN
         black_score := 0.5;
@@ -681,16 +681,16 @@ BEGIN
         (
              1,
              (SELECT black_player FROM service_games WHERE id = service_game_id),
-             ranking_id,
+             ranking_id_to_update,
              service_game_id,
-             current_black_elo + k_factor * (black_score - expected_black_value)
+             current_black_elo + k_factor_var * (black_score - expected_black_value)
         ),
         (
             1,
             (SELECT white_player FROM service_games WHERE id = service_game_id),
-            ranking_id,
+            ranking_id_to_update,
             service_game_id,
-            current_white_elo + k_factor * (white_score - expected_white_value)
+            current_white_elo + k_factor_var * (white_score - expected_white_value)
         );
 END;
 $$
@@ -768,14 +768,14 @@ BEGIN
         FROM games_rankings
         WHERE games_rankings.game_id = NEW.id
     LOOP
-        CALL update_ranking_after_game(NEW.game_id, ranking_id);
+        CALL update_ranking_after_game(NEW.id, ranking_id);
     END LOOP;
     RETURN NEW;
 END;
 $$;
 
-CREATE OR REPLACE TRIGGER games_insert_update_rankings
-    AFTER INSERT ON rankings
+CREATE OR REPLACE TRIGGER service_games_insert_update_rankings
+    AFTER INSERT ON service_games
     FOR EACH ROW
 EXECUTE PROCEDURE update_rankings_on_game_insert();
 
