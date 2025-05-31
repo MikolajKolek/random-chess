@@ -1,3 +1,6 @@
+# This is an example configuration file
+# Copy this file to config.yml, which git ignores
+
 defaultUser: 1
 
 database:
@@ -9,40 +12,40 @@ database:
 
 bots:
   # Stockfish: Easy
-  - executable: "./stockfish"
+  - executable: "../local/stockfish"
     options:
       "Skill Level": -9
-      "EvalFile": "./nn-1c0000000000.nnue"
+      "EvalFile": "../local/nn-1c0000000000.nnue"
     maxDepth: 5
     moveTimeMs: 50
     serviceAccountId: "stockfish-easy"
     elo: 800
     slowdown: [450, 950]
   # Stockfish: Medium
-  - executable: "./stockfish"
+  - executable: "../local/stockfish"
     options:
       "Skill Level": -1
-      "EvalFile": "./nn-1c0000000000.nnue"
+      "EvalFile": "../local/nn-1c0000000000.nnue"
     maxDepth: 5
     moveTimeMs: 150
     serviceAccountId: "stockfish-medium"
     elo: 1400
     slowdown: [350, 850]
   # Stockfish: Hard
-  - executable: "./stockfish"
+  - executable: "../local/stockfish"
     options:
       "Skill Level": 7
-      "EvalFile": "./nn-1c0000000000.nnue"
+      "EvalFile": "../local/nn-1c0000000000.nnue"
     maxDepth: 5
     moveTimeMs: 300
     serviceAccountId: "stockfish-hard"
     elo: 2000
     slowdown: [200, 700]
   # Stockfish: Impossible
-  - executable: "./stockfish"
+  - executable: "../local/stockfish"
     options:
       "Skill Level": 20
-      "EvalFile": "./nn-1c0000000000.nnue"
+      "EvalFile": "../local/nn-1c0000000000.nnue"
     maxDepth: 22
     moveTimeMs: 1000
     serviceAccountId: "stockfish-impossible"

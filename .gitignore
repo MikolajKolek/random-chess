@@ -17,4 +17,5 @@ captures
 !*.xcworkspace/contents.xcworkspacedata
 **/xcshareddata/WorkspaceSettings.xcsettings
 
-composeApp/src/desktopMain/kotlin/pl/edu/uj/tcs/rchess/db
+/local
+/composeApp/config.yml
