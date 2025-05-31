@@ -562,6 +562,14 @@ SELECT
     "service_games"."id" AS "game_id",
     "rankings"."id" AS "ranking_id"
 FROM "service_games"
+INNER JOIN "service_accounts" white_accounts ON (
+    white_accounts."service_id" = "service_games"."service_id" AND
+    white_accounts."user_id_in_service" = "service_games"."white_player"
+)
+INNER JOIN "service_accounts" black_accounts ON (
+    black_accounts."service_id" = "service_games"."service_id" AND
+    black_accounts."user_id_in_service" = "service_games"."black_player"
+)
 CROSS JOIN "rankings"
 WHERE
     "service_games"."is_ranked" AND
@@ -570,9 +578,11 @@ WHERE
     (
         ("service_games"."clock")."starting_time" +
         "rankings"."extra_move_multiplier" * ("service_games"."clock")."move_increase"
-    ) BETWEEN "rankings"."playtime_min" AND "rankings"."playtime_max"
--- TODO: Check for bots and include_bots
-;
+    ) BETWEEN "rankings"."playtime_min" AND "rankings"."playtime_max" AND
+    (
+        "rankings"."include_bots" OR
+        (white_accounts."is_bot" = FALSE AND black_accounts."is_bot" = FALSE)
+    );
 
 -- TODO: Implement
 CREATE VIEW current_ranking AS(
