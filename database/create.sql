@@ -647,7 +647,7 @@ BEGIN
     )
     JOIN service_accounts sa_white ON(
         sg.service_id = sa_white.service_id AND
-        sg.black_player = sa_white.user_id_in_service
+        sg.white_player = sa_white.user_id_in_service
     )
     JOIN current_ranking cr_white ON(
         sa_white.service_id = cr_white.service_id AND
@@ -877,6 +877,13 @@ INSERT INTO users(email, password_hash) VALUES
     ('test2@randomchess.com', 'empty2');;
 UPDATE service_accounts SET display_name = 'Admin' WHERE user_id = 1;
 
+INSERT INTO service_accounts("user_id", "service_id", "user_id_in_service", "is_bot", "display_name") VALUES
+    (NULL, 1, 'stockfish-easy', TRUE, 'Stockfish (Easy)'),
+    (NULL, 1, 'stockfish-medium', TRUE, 'Stockfish (Medium)'),
+    (NULL, 1, 'stockfish-hard', TRUE, 'Stockfish (Hard)'),
+    (NULL, 1, 'stockfish-impossible', TRUE, 'Stockfish (Impossible)');
+
+
 INSERT INTO rankings("playtime_min", "playtime_max", "extra_move_multiplier", "starting_elo", "include_bots", "k_factor") VALUES
     (
         '0 seconds'::interval,
@@ -890,7 +897,7 @@ INSERT INTO rankings("playtime_min", "playtime_max", "extra_move_multiplier", "s
 INSERT INTO service_games(moves, starting_position, creation_date, result, metadata, clock, is_ranked, game_id_in_service, service_id, white_player, black_player) VALUES
     (
         '{e2e4,d7d6,g1f3,g8f6,b1c3,g7g6,d2d4,f8g7,a1b1,e8g8,h2h3,c7c5,d4d5,d8a5,c1d2,f6d7,c3b5,a5a2,b5c7,g7b2,c7a8,b8a6,f1d3,a6b4,d2b4,c5b4,a8c7,a7a6,e1f1,b2c3,f1e2,a2a5,c7e6,f7e6,d5e6,d7c5,b1a1,c3a1,d1a1,a5a1,h1a1,c8e6,f3d4,e6d7,a1b1,a6a5,d4b3,a5a4,b3c5,d6c5,d3c4,g8g7,e2e3,g7f6,f2f3,f6e5,f3f4,f8f4,e3e2,f4e4,e2f3,e4c4,b1e1,e5f6,e1f1,c4c2,f3e4,d7f5}',
-        '''rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
         CURRENT_TIMESTAMP,
         '(0-1,TIMEOUT)',
         NULL,
@@ -900,6 +907,21 @@ INSERT INTO service_games(moves, starting_position, creation_date, result, metad
         1,
         1,
         2
+    );
+
+INSERT INTO service_games(moves, starting_position, creation_date, result, metadata, clock, is_ranked, game_id_in_service, service_id, white_player, black_player) VALUES
+    (
+        '{}',
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        CURRENT_TIMESTAMP,
+        '(0-1,TIMEOUT)',
+        NULL,
+        '(1 minute, 1 second)',
+        TRUE,
+        NULL,
+        1,
+        1,
+        'stockfish-impossible'
     );
 
 /*INSERT INTO users(email, password_hash) VALUES
@@ -1015,9 +1037,3 @@ INSERT INTO openings("eco", "name", "partial_fen") VALUES
     ('C44','Scotch Game: Scotch Gambit, Dubois Réti Defense','r1bqkb1r/pppp1ppp/2n2n2/8/2BpP3/5N2/PPP2PPP/RNBQK2R w KQkq -'), -- np. 1. e4 e5 2. Nf3 Nc6 3. d4 exd4 4. Bc4 Nf6
     ('E68','King''s Indian Defense: Fianchetto Variation, Classical Variation','r1bq1rk1/pppn1pbp/3p1np1/4p3/2PPP3/2N2NP1/PP3PBP/R1BQ1RK1 b - -'); -- np. 1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. Nf3 d6 5. g3 O-O 6. Bg2 Nbd7 7. O-O e5 8. e4
 -- Dodanie 20 wariantów pierwszego ruchu do bazy zapewni, że każda niepusta partia będzie mieć jakiś przypisany debiut
-
-INSERT INTO service_accounts("user_id", "service_id", "user_id_in_service", "is_bot", "display_name") VALUES
-    (NULL, 1, 'stockfish-easy', TRUE, 'Stockfish (Easy)'),
-    (NULL, 1, 'stockfish-medium', TRUE, 'Stockfish (Medium)'),
-    (NULL, 1, 'stockfish-hard', TRUE, 'Stockfish (Hard)'),
-    (NULL, 1, 'stockfish-impossible', TRUE, 'Stockfish (Impossible)');
