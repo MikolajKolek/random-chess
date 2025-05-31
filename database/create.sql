@@ -715,7 +715,7 @@ $$
 DECLARE
     game_id INT;
 BEGIN
-    SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+    --TODO: fix SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
 
     DELETE FROM elo_history
     WHERE elo_history.ranking_id = recalculate_ranking.ranking_id;
