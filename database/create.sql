@@ -535,13 +535,13 @@ EXECUTE FUNCTION prevent_default_service_deletion();
 CREATE TABLE rankings(
     "id"                    SERIAL      PRIMARY KEY,
     "playtime_min"          INTERVAL    NOT NULL    CHECK ("playtime_min" >= '0 seconds'::INTERVAL),
-    "playtime_max"          INTERVAL    NOT NULL    CHECK ("playtime_max" >= '0 seconds'::INTERVAL),
+    "playtime_max"          INTERVAL    NULL        CHECK ("playtime_max" >= '0 seconds'::INTERVAL),
     "extra_move_multiplier" INT         NOT NULL    CHECK ("extra_move_multiplier" >= 0),
     "starting_elo"          INT         NOT NULL    CHECK ("starting_elo" > 0),
     "include_bots"          BOOLEAN     NOT NULL,
     "k_factor"              NUMERIC     NOT NULL,
 
-    CONSTRAINT "playtime_valid" CHECK ("playtime_min" <= "playtime_max")
+    CONSTRAINT "playtime_valid" CHECK ("playtime_max" IS NULL OR "playtime_min" <= "playtime_max")
 );
 
 
@@ -579,7 +579,14 @@ WHERE
     (
         ("service_games"."clock")."starting_time" +
         "rankings"."extra_move_multiplier" * ("service_games"."clock")."move_increase"
-    ) BETWEEN "rankings"."playtime_min" AND "rankings"."playtime_max" AND
+    ) >= "rankings"."playtime_min" AND
+    (
+        "rankings"."playtime_max" IS NULL OR
+        (
+            ("service_games"."clock")."starting_time" +
+            "rankings"."extra_move_multiplier" * ("service_games"."clock")."move_increase"
+        ) <= "rankings"."playtime_max"
+    ) AND
     (
         "rankings"."include_bots" OR
         (white_accounts."is_bot" = FALSE AND black_accounts."is_bot" = FALSE)
