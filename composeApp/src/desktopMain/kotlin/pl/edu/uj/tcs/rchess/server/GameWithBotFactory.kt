@@ -23,12 +23,14 @@ class GameWithBotFactory(
         playerServiceAccountId: String,
         botType: BotType,
         clockSettings: ClockSettings,
+        isRanked: Boolean,
         coroutineScope: CoroutineScope,
     ): PlayerGameControls {
         val liveGame = LiveGameController(
             clockSettings = clockSettings,
             whitePlayerId = if(playerColor == PlayerColor.WHITE) playerServiceAccountId else botType.serviceAccountId,
             blackPlayerId = if(playerColor == PlayerColor.BLACK) playerServiceAccountId else botType.serviceAccountId,
+            isRanked = isRanked,
             database = database,
         )
 

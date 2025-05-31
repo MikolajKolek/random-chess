@@ -29,7 +29,8 @@ class MockDatabase : Database {
     override suspend fun saveGame(
         game: GameState,
         blackPlayerId: String,
-        whitePlayerId: String
+        whitePlayerId: String,
+        isRanked: Boolean,
     ): HistoryServiceGame {
         return HistoryServiceGame(
             id = 0,
@@ -71,7 +72,8 @@ class LiveGameTest {
             database = MockDatabase(),
             clockSettings = clockSettings,
             blackPlayerId = "Black player",
-            whitePlayerId = "White player"
+            whitePlayerId = "White player",
+            isRanked = false,
         )
         val whiteInput = game.getGameInput(PlayerColor.WHITE)
         val blackInput = game.getGameInput(PlayerColor.BLACK)

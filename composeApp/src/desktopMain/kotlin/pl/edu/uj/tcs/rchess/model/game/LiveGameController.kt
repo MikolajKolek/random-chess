@@ -17,6 +17,7 @@ class LiveGameController(
     clockSettings: ClockSettings,
     val whitePlayerId: String,
     val blackPlayerId: String,
+    private val isRanked: Boolean,
     private val database: Database
 ) : GameObserver {
     val stateMachine: StateMachine<GameState, GameStateChange> =
@@ -135,7 +136,7 @@ class LiveGameController(
         if(updatedState.progress is GameProgress.FinishedWithClockInfo) {
             timer.stop()
             //TODO: this should spawn in an unconnected coroutine somewhere in the db scope
-            finishedGame.complete(database.saveGame(updatedState, blackPlayerId, whitePlayerId))
+            finishedGame.complete(database.saveGame(updatedState, blackPlayerId, whitePlayerId, isRanked))
         }
 
         return updatedState

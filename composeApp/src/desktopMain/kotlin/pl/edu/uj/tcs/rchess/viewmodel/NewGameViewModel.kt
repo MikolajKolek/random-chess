@@ -26,7 +26,9 @@ class NewGameViewModel(private val context: AppContext): ViewModel() {
      */
     var startingPlayerColor by mutableStateOf<PlayerColor?>(null)
 
-    var clockSettings: ClockSettings = ClockSettings(5.minutes, 3.seconds)
+    var clockSettings: ClockSettings by mutableStateOf(ClockSettings(5.minutes, 3.seconds))
+
+    var isRanked by mutableStateOf(true)
 
     /**
      * Indicates if all the form elements are set correctly and it's possible to submit
@@ -51,6 +53,7 @@ class NewGameViewModel(private val context: AppContext): ViewModel() {
                     startingPlayerColor,
                     opponent,
                     clockSettings,
+                    isRanked,
                 )
                 context.navigation.openGameWindow(game)
             }

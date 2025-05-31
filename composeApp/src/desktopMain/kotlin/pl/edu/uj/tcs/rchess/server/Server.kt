@@ -131,7 +131,8 @@ class Server(private val config: Config) : ClientApi, Database {
     override suspend fun startGameWithBot(
         playerColor: PlayerColor?,
         botOpponent: BotOpponent,
-        clockSettings: ClockSettings
+        clockSettings: ClockSettings,
+        isRanked: Boolean,
     ): LiveGame {
         val finalPlayerColor = playerColor ?: listOf(PlayerColor.WHITE, PlayerColor.BLACK).random()
 
@@ -141,6 +142,7 @@ class Server(private val config: Config) : ClientApi, Database {
             botType = botOpponents[botOpponent]
                 ?: throw IllegalArgumentException("The provided bot opponent does not exist"),
             clockSettings = clockSettings,
+            isRanked = isRanked,
             coroutineScope = MainScope()
         )
 
@@ -245,7 +247,8 @@ class Server(private val config: Config) : ClientApi, Database {
     override suspend fun saveGame(
         game: GameState,
         blackPlayerId: String,
-        whitePlayerId: String
+        whitePlayerId: String,
+        isRanked: Boolean,
     ): HistoryServiceGame {
         require(game.progress is GameProgress.Finished) { "The game is not finished" }
 
@@ -254,7 +257,7 @@ class Server(private val config: Config) : ClientApi, Database {
             .set(SERVICE_GAMES.STARTING_POSITION, game.initialState.toFenString())
             .set(SERVICE_GAMES.CREATION_DATE, LocalDateTime.now())
             .set(SERVICE_GAMES.RESULT, game.progress.result.toDbResult())
-            .set(SERVICE_GAMES.IS_RANKED, true)
+            .set(SERVICE_GAMES.IS_RANKED, isRanked)
             .set(SERVICE_GAMES.SERVICE_ID, Service.RANDOM_CHESS.id)
             .set(SERVICE_GAMES.BLACK_PLAYER, blackPlayerId)
             .set(SERVICE_GAMES.WHITE_PLAYER, whitePlayerId)

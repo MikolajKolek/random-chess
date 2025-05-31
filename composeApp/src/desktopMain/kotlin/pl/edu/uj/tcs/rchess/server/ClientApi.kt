@@ -61,7 +61,8 @@ interface ClientApi {
     suspend fun startGameWithBot(
         playerColor: PlayerColor?,
         botOpponent: BotOpponent,
-        clockSettings: ClockSettings
+        clockSettings: ClockSettings,
+        isRanked: Boolean,
     ): LiveGame
 
     /**

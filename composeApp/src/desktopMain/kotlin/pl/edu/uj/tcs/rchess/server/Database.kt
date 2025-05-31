@@ -13,6 +13,7 @@ interface Database {
     suspend fun saveGame(
         game: GameState,
         blackPlayerId: String,
-        whitePlayerId: String
+        whitePlayerId: String,
+        isRanked: Boolean,
     ): HistoryServiceGame
 }

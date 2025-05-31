@@ -1,36 +1,10 @@
 package pl.edu.uj.tcs.rchess.view.newgame
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType
-import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpSize
@@ -212,6 +186,33 @@ fun NewGameDialog(
                                 ),
                                 onClick = { viewModel.startingPlayerColor = choice },
                                 selected = viewModel.startingPlayerColor == choice,
+                                label = { Text(label) }
+                            )
+                        }
+                    }
+
+                    Text(
+                            "Include in rankings",
+                        modifier = Modifier.padding(top = 16.dp, bottom = 4.dp),
+                        style = MaterialTheme.typography.labelLarge,
+                    )
+
+                    SingleChoiceSegmentedButtonRow(
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        val rankedChoices = listOf(
+                            true to "Ranked",
+                            false to "Unranked",
+                        )
+
+                        rankedChoices.forEachIndexed { index, (choice, label) ->
+                            SegmentedButton(
+                                shape = SegmentedButtonDefaults.itemShape(
+                                    index = index,
+                                    count = rankedChoices.size
+                                ),
+                                onClick = { viewModel.isRanked = choice },
+                                selected = viewModel.isRanked == choice,
                                 label = { Text(label) }
                             )
                         }
