@@ -764,6 +764,7 @@ BEGIN
     LOOP
         CALL update_ranking_after_game(NEW.game_id, ranking_id);
     END LOOP;
+    RETURN NEW;
 END;
 $$;
 
@@ -818,6 +819,8 @@ BEGIN
     IF OLD.is_ranked <> NEW.is_ranked THEN
         RAISE EXCEPTION 'Modifying is_ranked in a service game is forbidden - tried to modify game %', OLD.id;
     END IF;
+
+    RETURN NEW;
 END;
 $$;
 
