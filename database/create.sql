@@ -4,7 +4,7 @@ CREATE TYPE "game_result_type" AS (
 );
 
 CREATE DOMAIN "game_result" AS "game_result_type"
-    CONSTRAINT "game_result_valid" CHECK(
+    CHECK(
         (
             ((VALUE).game_end_type IN ('1-0', '0-1'))
             AND
@@ -17,6 +17,26 @@ CREATE DOMAIN "game_result" AS "game_result_type"
             ((VALUE).game_end_reason IN ('UNKNOWN', 'TIMEOUT_VS_INSUFFICIENT_MATERIAL', 'INSUFFICIENT_MATERIAL', 'THREEFOLD_REPETITION', 'FIFTY_MOVE_RULE', 'STALEMATE'))
         )
     );
+
+CREATE TYPE "clock_settings_type" AS (
+	"starting_time" INTERVAL,
+	"move_increase" INTERVAL
+);
+
+CREATE DOMAIN "clock_settings" AS "clock_settings_type"
+	CHECK(
+        (
+            ((VALUE)."starting_time" IS NULL) AND
+            ((VALUE)."move_increase" IS NULL)
+        )
+        OR (
+            ((VALUE)."starting_time" IS NOT NULL) AND
+            ((VALUE)."move_increase" IS NOT NULL) AND
+            ((VALUE)."starting_time" >= INTERVAL '0 seconds') AND
+            ((VALUE)."move_increase" >= INTERVAL '0 seconds')
+        )
+	);
+
 
 -- Tabelę openings możemy bazować np. na https://github.com/lichess-org/chess-openings
 CREATE TABLE "openings"
@@ -74,6 +94,7 @@ CREATE TABLE "service_accounts"
         ("token" IS NULL) = ("service_id" =  1 OR "user_id" IS NULL)
     )
 );
+
 
 -- Funkcja parsująca szachownicę z FEN na format łatwiejszy do modyfikacji
 CREATE OR REPLACE FUNCTION fen_to_board(
@@ -354,24 +375,26 @@ LANGUAGE plpgsql IMMUTABLE;
 
 CREATE TABLE "service_games"
 (
-    "id"                 SERIAL         PRIMARY KEY,
+    "id"                 SERIAL             PRIMARY KEY,
     -- kolumny wspólne dla "service_games" i "pgn_games"
-    "moves"              VARCHAR(5)[]   NOT NULL CHECK(array_position(moves, NULL) IS NULL),
-    "starting_position"  VARCHAR(100)   NOT NULL,
-    "partial_fens"       VARCHAR[]      GENERATED ALWAYS AS (generate_fen_array(starting_position, moves)) STORED, -- FEN pozycji po każdym ruchu od pozycji startowej
-    "creation_date"      TIMESTAMP      NOT NULL, -- data rozegrania partii
-    "result"             GAME_RESULT    NOT NULL,
-    "metadata"           JSONB          NULL,
+    "moves"              VARCHAR(5)[]       NOT NULL CHECK(array_position(moves, NULL) IS NULL),
+    "starting_position"  VARCHAR(100)       NOT NULL,
+    "partial_fens"       VARCHAR[]          GENERATED ALWAYS AS (generate_fen_array(starting_position, moves)) STORED, -- FEN pozycji po każdym ruchu od pozycji startowej
+    "creation_date"      TIMESTAMP          NOT NULL, -- data rozegrania partii
+    "result"             GAME_RESULT        NOT NULL,
+    "metadata"           JSONB              NULL,
+    "clock"              "clock_settings"   NULL,
+    "is_ranked"          BOOLEAN            NOT NULL,
     -- kolumny występujące tylko w "service_games"
-    "game_id_in_service" VARCHAR        NULL,
-    "service_id"         INT            NOT NULL    REFERENCES "game_services" ("id"),
-    "white_player"       VARCHAR        NOT NULL,
-    "black_player"       VARCHAR        NOT NULL,
+    "game_id_in_service" VARCHAR            NULL,
+    "service_id"         INT                NOT NULL    REFERENCES "game_services" ("id"),
+    "white_player"       VARCHAR            NOT NULL,
+    "black_player"       VARCHAR            NOT NULL,
     -- Partie rozegrane w naszym serwisie mają "game_id_in_service" ustawione na NULL,
-    -- a w innych serwisach zawsze mają ustawioną wartość.
+    -- a w innych serwisach zawsze mają ustawioną wartość oraz nie liczą się do rankingów.
     CHECK (CASE
         WHEN "service_id" = 1 THEN "game_id_in_service" IS NULL
-        ELSE "game_id_in_service" IS NOT NULL
+        ELSE ("game_id_in_service" IS NOT NULL AND "is_ranked" = FALSE)
     END),
 
     UNIQUE ("game_id_in_service", "service_id"),
@@ -391,6 +414,7 @@ CREATE TABLE "pgn_games"
     "creation_date"     TIMESTAMP       NOT NULL, -- data zaimportowania partii
     "result"            GAME_RESULT     NOT NULL,
     "metadata"          JSONB           NULL,
+    "clock"              "clock_settings"   NULL,
     -- kolumny występujące tylko w "pgn_games"
     "owner_id"          INT             NOT NULL    REFERENCES "users" ("id") ON DELETE CASCADE,
     "black_player_name" VARCHAR         NOT NULL,
