@@ -537,7 +537,7 @@ CREATE TABLE rankings(
     "playtime_min"          INTERVAL    NOT NULL    CHECK ("playtime_min" >= '0 seconds'::INTERVAL),
     "playtime_max"          INTERVAL    NULL        CHECK ("playtime_max" >= '0 seconds'::INTERVAL),
     "extra_move_multiplier" INT         NOT NULL    CHECK ("extra_move_multiplier" >= 0),
-    "starting_elo"          INT         NOT NULL    CHECK ("starting_elo" > 0),
+    "starting_elo"          NUMERIC     NOT NULL    CHECK ("starting_elo" > 0),
     "include_bots"          BOOLEAN     NOT NULL,
     "k_factor"              NUMERIC     NOT NULL,
 
