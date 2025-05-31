@@ -1,6 +1,4 @@
-import pl.edu.uj.tcs.rchess.model.GameDrawReason
-import pl.edu.uj.tcs.rchess.model.GameWinReason
-import pl.edu.uj.tcs.rchess.model.PlayerColor
+import pl.edu.uj.tcs.rchess.model.*
 
 fun PlayerColor.formatLowercase(): String
     = when (this) {
@@ -33,3 +31,13 @@ fun GameDrawReason.format(): String
         GameDrawReason.FIFTY_MOVE_RULE -> "Fifty move rule"
         GameDrawReason.STALEMATE -> "Stalemate"
     }
+
+fun GameResult.formatResult() = when (this) {
+    is Win -> "${winner.formatCapitalized()} won"
+    is Draw -> "Draw"
+}
+
+fun GameResult.formatReason() = when (this) {
+    is Win -> winReason.format(winner)
+    is Draw -> drawReason.format()
+}

@@ -1,17 +1,17 @@
 package pl.edu.uj.tcs.rchess.view.board
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.jetbrains.compose.resources.painterResource
 import pl.edu.uj.tcs.rchess.model.PlayerColor
-import pl.edu.uj.tcs.rchess.model.pieces.King
 import pl.edu.uj.tcs.rchess.model.state.ClockState
+import pl.edu.uj.tcs.rchess.view.shared.PlayerName
 import kotlin.time.Duration
 
 data class DisplayedTime(
@@ -71,24 +71,7 @@ fun PlayerBar(
     Row(
         modifier = Modifier.height(PlayerBar.height).then(modifier)
     ) {
-        Image(
-            modifier = Modifier.size(32.dp),
-            painter = painterResource(King(color).icon),
-            contentDescription = null,
-        )
-
-        Text(
-            text = name,
-            modifier = Modifier.padding(start = 12.dp),
-        )
-
-        if (isWinner) {
-            Text(
-                text = "winner",
-                modifier = Modifier.padding(start = 16.dp),
-                fontWeight = Bold,
-            )
-        }
+        PlayerName(name = name, color = color, isWinner = isWinner)
 
         Spacer(
             modifier = Modifier.weight(1f)

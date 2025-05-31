@@ -13,12 +13,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import format
-import formatCapitalized
-import pl.edu.uj.tcs.rchess.model.Draw
+import formatReason
+import formatResult
 import pl.edu.uj.tcs.rchess.model.GameResult
 import pl.edu.uj.tcs.rchess.model.PlayerColor
-import pl.edu.uj.tcs.rchess.model.Win
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import pl.edu.uj.tcs.rchess.model.state.GameState
 import pl.edu.uj.tcs.rchess.util.runIf
@@ -46,23 +44,15 @@ private fun ProgressRow(
 }
 
 @Composable
-fun ProgressFinished(result: GameResult) {
-    when (result) {
-        is Draw -> {
-            ProgressRow("Draw", result.drawReason.format())
-        }
-
-        is Win -> {
-            ProgressRow(
-                "${result.winner.formatCapitalized()} won",
-                result.winReason.format(result.winner)
-            )
-        }
-    }
+private fun ProgressFinished(result: GameResult) {
+    ProgressRow(
+        result.formatResult(),
+        result.formatReason(),
+    )
 }
 
 @Composable
-fun ProgressRunning(
+private fun ProgressRunning(
     currentTurn: PlayerColor,
 ) {
     ProgressRow(
