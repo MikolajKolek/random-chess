@@ -596,7 +596,7 @@ CREATE VIEW current_ranking AS(
     LIMIT 1
 );
 
-CREATE PROCEDURE update_elo_after_game(
+CREATE PROCEDURE update_ranking_after_game(
     service_game_id INT,
     ranking_id_to_update INT
 ) AS
@@ -679,6 +679,24 @@ BEGIN
             service_game_id,
             current_white_elo + k_factor * (white_score - expected_white_value)
         );
+END;
+$$
+LANGUAGE plpgsql;
+
+CREATE PROCEDURE update_elo_after_game(
+    service_game_id INT
+) AS
+$$
+DECLARE
+    ranking_id INT;
+BEGIN
+    FOR ranking_id IN
+        SELECT gr.ranking_id
+        FROM games_rankings gr
+        WHERE gr.game_id = service_game_id
+    LOOP
+        CALL update_ranking_after_game(service_game_id, ranking_id);
+    END LOOP;
 END;
 $$
 LANGUAGE plpgsql;
