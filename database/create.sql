@@ -772,6 +772,66 @@ CREATE OR REPLACE TRIGGER games_insert_update_rankings
     FOR EACH ROW
 EXECUTE PROCEDURE update_rankings_on_game_insert();
 
+
+CREATE OR REPLACE FUNCTION prevent_game_deletion()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS
+$$
+BEGIN
+    RAISE EXCEPTION 'Deleting service games is forbidden - tried to delete game %', OLD.id;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION prevent_significant_game_changes()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS
+$$
+BEGIN
+    IF (OLD.result).game_end_type <> (NEW.result).game_end_type THEN
+        RAISE EXCEPTION 'Modifying game_end_type in a service game is forbidden - tried to modify game %', OLD.id;
+    END IF;
+
+    IF
+        (OLD.clock).starting_time IS NULL <> (NEW.clock).starting_time IS NULL OR
+        (
+            (NEW.clock).starting_time IS NOT NULL AND
+            OLD.clock <> NEW.clock
+        )
+    THEN
+        RAISE EXCEPTION 'Modifying clock in a service game is forbidden - tried to modify game %', OLD.id;
+    END IF;
+
+    IF OLD.white_player <> NEW.white_player THEN
+        RAISE EXCEPTION 'Modifying white_player in a service game is forbidden - tried to modify game %', OLD.id;
+    END IF;
+
+    IF OLD.white_player <> NEW.black_player THEN
+        RAISE EXCEPTION 'Modifying black_player in a service game is forbidden - tried to modify game %', OLD.id;
+    END IF;
+
+    IF OLD.service_id <> NEW.service_id THEN
+        RAISE EXCEPTION 'Modifying service_id in a service game is forbidden - tried to modify game %', OLD.id;
+    END IF;
+
+    IF OLD.is_ranked <> NEW.is_ranked THEN
+        RAISE EXCEPTION 'Modifying is_ranked in a service game is forbidden - tried to modify game %', OLD.id;
+    END IF;
+END;
+$$;
+
+CREATE OR REPLACE TRIGGER service_game_prevent_deletion
+    BEFORE DELETE ON service_games
+    FOR EACH ROW
+EXECUTE FUNCTION prevent_game_deletion();
+
+CREATE OR REPLACE TRIGGER service_game_prevent_updates
+    BEFORE UPDATE ON service_games
+    FOR EACH ROW
+EXECUTE FUNCTION prevent_significant_game_changes();
+
+
 -- Przykładowe dane:
 INSERT INTO game_services(name) VALUES
     ('chess.com'),
