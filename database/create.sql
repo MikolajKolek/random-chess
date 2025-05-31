@@ -508,6 +508,35 @@ CREATE OR REPLACE TRIGGER service_accounts_delete_prevent_for_default_service
 EXECUTE FUNCTION prevent_default_service_deletion();
 
 
+CREATE TABLE rankings(
+    "id"                    SERIAL      PRIMARY KEY,
+    "playtime_min"          INTERVAL    NOT NULL    CHECK ("playtime_min" >= '0 seconds'::INTERVAL),
+    "playtime_max"          INTERVAL    NOT NULL    CHECK ("playtime_max" >= '0 seconds'::INTERVAL),
+    "extra_move_multiplier" INT         NOT NULL    CHECK ("extra_move_multiplier" >= 0),
+    "starting_elo"          INT         NOT NULL    CHECK ("starting_elo" > 0),
+
+    CONSTRAINT "playtime_valid" CHECK ("playtime_min" <= "playtime_max")
+);
+
+
+CREATE TABLE elo_history(
+    "service_id"            INT         NOT NULL    REFERENCES "game_services" ("id"),
+    "user_id_in_service"    VARCHAR     NOT NULL,
+    "ranking_id"            INT         NOT NULL    REFERENCES "rankings" ("id"),
+    "game_id"               INT         NOT NULL    REFERENCES "service_games" ("id"),
+
+    FOREIGN KEY ("service_id", "user_id_in_service")
+        REFERENCES "service_accounts" ("service_id", "user_id_in_service")
+);
+
+-- CREATE VIEW games_rankings(
+
+-- );
+
+-- CREATE VIEW current_ranking(
+
+-- );
+
 
 -- Przykładowe dane:
 INSERT INTO game_services(name) VALUES
