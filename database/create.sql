@@ -683,6 +683,36 @@ END;
 $$
 LANGUAGE plpgsql;
 
+CREATE OR REPLACE PROCEDURE recalculate_ranking(ranking_id int)
+LANGUAGE plpgsql
+AS
+$$
+BEGIN
+    DELETE FROM elo_history
+    WHERE elo_history.ranking_id = recalculate_ranking.ranking_id;
+
+    -- TODO: Implement ranking recreation
+    RAISE EXCEPTION 'Not implemented';
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION recalculate_ranking_on_update()
+RETURNS trigger
+LANGUAGE plpgsql
+AS
+$$
+BEGIN
+    CALL recalculate_ranking(NEW.id);
+    RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE TRIGGER rankings_insert_update_recalculate
+    AFTER INSERT OR UPDATE ON rankings
+    FOR EACH ROW
+EXECUTE PROCEDURE recalculate_ranking_on_update();
+
+
 -- Przykładowe dane:
 INSERT INTO game_services(name) VALUES
     ('chess.com'),
