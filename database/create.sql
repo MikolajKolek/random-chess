@@ -742,6 +742,29 @@ CREATE OR REPLACE TRIGGER rankings_insert_update_recalculate
 EXECUTE PROCEDURE recalculate_ranking_on_update();
 
 
+CREATE OR REPLACE FUNCTION update_rankings_on_game_insert()
+RETURNS trigger
+LANGUAGE plpgsql
+AS
+$$
+DECLARE
+    ranking_id INT;
+BEGIN
+    FOR ranking_id IN
+        SELECT games_rankings.ranking_id
+        FROM games_rankings
+        WHERE games_rankings.game_id = NEW.id
+    LOOP
+        CALL update_ranking_after_game(NEW.game_id, ranking_id);
+    END LOOP;
+END;
+$$;
+
+CREATE OR REPLACE TRIGGER games_insert_update_rankings
+    AFTER INSERT ON rankings
+    FOR EACH ROW
+EXECUTE PROCEDURE update_rankings_on_game_insert();
+
 -- Przykładowe dane:
 INSERT INTO game_services(name) VALUES
     ('chess.com'),
