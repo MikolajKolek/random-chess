@@ -867,8 +867,34 @@ INSERT INTO game_services(name) VALUES
     ('lichess.org');
 
 INSERT INTO users(email, password_hash) VALUES
-    ('test@randomchess.com', 'empty');
+    ('test@randomchess.com', 'empty'),
+    ('test2@randomchess.com', 'empty2');;
 UPDATE service_accounts SET display_name = 'Admin' WHERE user_id = 1;
+
+INSERT INTO rankings("playtime_min", "playtime_max", "extra_move_multiplier", "starting_elo", "include_bots", "k_factor") VALUES
+    (
+        '0 seconds'::interval,
+        '10000 days'::interval,
+        0,
+        800,
+        TRUE,
+        40
+    );
+
+INSERT INTO service_games(moves, starting_position, creation_date, result, metadata, clock, is_ranked, game_id_in_service, service_id, white_player, black_player) VALUES
+    (
+        '{e2e4,d7d6,g1f3,g8f6,b1c3,g7g6,d2d4,f8g7,a1b1,e8g8,h2h3,c7c5,d4d5,d8a5,c1d2,f6d7,c3b5,a5a2,b5c7,g7b2,c7a8,b8a6,f1d3,a6b4,d2b4,c5b4,a8c7,a7a6,e1f1,b2c3,f1e2,a2a5,c7e6,f7e6,d5e6,d7c5,b1a1,c3a1,d1a1,a5a1,h1a1,c8e6,f3d4,e6d7,a1b1,a6a5,d4b3,a5a4,b3c5,d6c5,d3c4,g8g7,e2e3,g7f6,f2f3,f6e5,f3f4,f8f4,e3e2,f4e4,e2f3,e4c4,b1e1,e5f6,e1f1,c4c2,f3e4,d7f5}',
+        '''rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        CURRENT_TIMESTAMP,
+        '(0-1,TIMEOUT)',
+        NULL,
+        NULL,
+        TRUE,
+        NULL,
+        1,
+        1,
+        2
+    );
 
 /*INSERT INTO users(email, password_hash) VALUES
     ('test@[1.1.1.1]', '1234'),
