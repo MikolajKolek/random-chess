@@ -869,6 +869,148 @@ CREATE OR REPLACE TRIGGER elo_history_prevent_invalid
     FOR EACH ROW
 EXECUTE FUNCTION check_invalid_elo_history();
 
+CREATE TABLE "swiss_tournaments"
+(
+    "tournament_id"     SERIAL      PRIMARY KEY,
+    "round_count"       INTEGER     NOT NULL        CHECK ( round_count > 0 ), -- Swiss tournaments have a fixed round count
+    "starting_position" VARCHAR     NOT NULL DEFAULT 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+    "is_ranked"         BOOLEAN     NOT NULL DEFAULT TRUE
+);
+
+CREATE TABLE "tournaments_games"
+(
+    "tournament_id"     INTEGER     NOT NULL    REFERENCES swiss_tournaments(tournament_id) ON DELETE CASCADE,
+    "game_id"           INTEGER     NOT NULL    REFERENCES service_games(id),
+    "round"             INTEGER     NOT NULL    CHECK ( round > 0 )
+);
+
+CREATE TABLE "tournaments_players"
+(
+    "tournament_id"     INTEGER     NOT NULL    REFERENCES swiss_tournaments(tournament_id) ON DELETE CASCADE,
+    "user_id"           INTEGER     NULL        --REFERENCES service_accounts(user_id_in_service) ON DELETE SET NULL -- Is this correct? Likely done via trigger.
+);
+
+-- Ranking value requirement placed on a tournament
+CREATE TABLE "tournaments_ranking_reqs"
+(
+    "tournament_id"     INTEGER     NOT NULL    REFERENCES swiss_tournaments(tournament_id) ON DELETE CASCADE,
+    "ranking_type"      INTEGER     NOT NULL    REFERENCES rankings(id) ON DELETE CASCADE,
+    "required_value"    INTEGER     NOT NULL    CHECK ( required_value > 0 )
+);
+
+-- Number of rated games in certain ranking placed on a tournament
+CREATE TABLE "tournaments_ranked_games_reqs"
+(
+    "tournament_id"     INTEGER     NOT NULL    REFERENCES swiss_tournaments(tournament_id) ON DELETE CASCADE,
+    "ranking_type"      INTEGER     NOT NULL    REFERENCES rankings(id) DEFAULT 0, -- 0 is the global ranking
+    "game_count"        INTEGER     NOT NULL    CHECK ( game_count > 0 )
+);
+
+CREATE VIEW "tournaments_reqs" AS
+(
+    SELECT tournament_id, ranking_type, game_count, null AS required_value
+    FROM tournaments_ranked_games_reqs
+    UNION ALL
+    SELECT tournament_id, ranking_type, null AS game_count, required_value
+    FROM tournaments_ranking_reqs
+);
+
+CREATE VIEW "swiss_tournaments_players_points" AS
+(
+    SELECT st.tournament_id, tp.user_id, tg.round, 0 AS points, 0 AS performance_rating -- TODO: Calculate points and performance rating given using tournament games for each round.
+    FROM swiss_tournaments st
+         JOIN tournaments_players tp USING(tournament_id)
+         JOIN tournaments_games tg USING(tournament_id)
+    GROUP BY st.tournament_id, tp.user_id, tg.round
+);
+
+CREATE VIEW "swiss_tournaments_round_standings" AS
+(
+    SELECT st.tournament_id, tg.round
+    FROM swiss_tournaments st
+         JOIN tournaments_players tp USING(tournament_id)
+         JOIN tournaments_games tg USING(tournament_id)
+         JOIN swiss_tournaments_players_points stpp on st.tournament_id = stpp.tournament_id AND stpp.round = tg.round
+    ORDER BY stpp.points, stpp.performance_rating
+);
+
+-- Poniższy trigger sprawdza wszelkie przypadki niepoprawnych wpisów w tournaments_games
+CREATE OR REPLACE FUNCTION check_tournament_game_validity()
+    RETURNS TRIGGER AS
+$$
+DECLARE
+    tournament_data RECORD;
+    game_data RECORD;
+    white_player_id VARCHAR := NULL;
+    black_player_id VARCHAR := NULL;
+BEGIN
+    tournament_data := (
+        SELECT *
+        FROM swiss_tournaments st
+        WHERE st.tournament_id = NEW.tournament_id
+    );
+    game_data := (
+        SELECT *
+        FROM service_games sg
+        WHERE sg.id = NEW.game_id AND sg.service_id = 1
+    );
+    IF(game_data IS NULL) THEN RAISE EXCEPTION 'Game not found in local games.'; END IF;
+    IF(tournament_data IS NULL) THEN RAISE EXCEPTION 'Invalid tournament'; END IF;
+    IF(tournament_data.round_count < NEW.round) THEN RAISE EXCEPTION 'Round exceeds maximum defined by the tournament'; END IF;
+    IF(tournament_data.is_ranked != game_data.is_ranked) THEN RAISE EXCEPTION 'Game and tournament ranking mismatch'; END IF;
+    IF(tournament_data.starting_position != game_data.starting_position) THEN
+        RAISE EXCEPTION 'Game and tournament starting position mismatch. Tournament has % and game has %', tournament_data.starting_position, game_data.starting_position;
+    END IF;
+    white_player_id := (
+        SELECT sa.user_id_in_service
+        FROM service_accounts sa
+        WHERE sa.user_id_in_service = game_data.white_player AND sa.service_id = 1
+    );
+    black_player_id := (
+        SELECT sa.user_id_in_service
+        FROM service_accounts sa
+        WHERE sa.user_id_in_service = game_data.black_player AND sa.service_id = 1
+    );
+    IF(white_player_id IS NULL OR black_player_id IS NULL) THEN RAISE EXCEPTION 'Player not found among local accounts'; END IF;
+    IF NOT EXISTS (
+        SELECT user_id
+        FROM tournaments_players tp
+        WHERE tp.user_id = white_player_id
+    ) THEN RAISE EXCEPTION 'White player does not participate in the tournament.'; END IF;
+    IF NOT EXISTS (
+        SELECT user_id
+        FROM tournaments_players tp
+        WHERE tp.user_id = black_player_id
+    ) THEN RAISE EXCEPTION 'Black player does not participate in the tournament.'; END IF;
+    RETURN NEW;
+END;
+$$
+    LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER check_tournament_game_validity BEFORE INSERT OR UPDATE ON tournaments_games
+    FOR EACH ROW EXECUTE PROCEDURE check_tournament_game_validity();
+
+CREATE OR REPLACE FUNCTION check_tournament_player_validity()
+    RETURNS TRIGGER AS
+$$
+DECLARE
+    player_data RECORD;
+BEGIN
+    player_data := (
+        SELECT *
+        FROM service_accounts sa
+        WHERE sa.user_id_in_service=NEW.user_id AND sa.service_id = 1
+    );
+    IF(player_data IS NULL) THEN RAISE EXCEPTION 'Player not found in local service accounts.'; END IF;
+    -- TODO: Verify that the player fulfills all requirements placed on the tournaments.
+    RETURN NEW;
+END;
+$$
+    LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER check_tournament_player_validity BEFORE INSERT OR UPDATE ON tournaments_players
+    FOR EACH ROW EXECUTE PROCEDURE check_tournament_player_validity();
+
 -- Przykładowe dane:
 INSERT INTO game_services(name) VALUES
     ('chess.com'),
