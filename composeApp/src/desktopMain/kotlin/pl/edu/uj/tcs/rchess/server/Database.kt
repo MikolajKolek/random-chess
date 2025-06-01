@@ -1,5 +1,6 @@
 package pl.edu.uj.tcs.rchess.server
 
+import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.state.GameState
 import pl.edu.uj.tcs.rchess.server.game.HistoryServiceGame
 
@@ -15,5 +16,6 @@ interface Database {
         blackPlayerId: String,
         whitePlayerId: String,
         isRanked: Boolean,
+        clockSettings: ClockSettings,
     ): HistoryServiceGame
 }

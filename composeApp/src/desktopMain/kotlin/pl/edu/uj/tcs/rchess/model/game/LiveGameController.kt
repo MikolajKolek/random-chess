@@ -14,7 +14,7 @@ import kotlin.time.Duration
 
 class LiveGameController(
     initialBoardState: BoardState = BoardState.initial,
-    clockSettings: ClockSettings,
+    private val clockSettings: ClockSettings,
     val whitePlayerId: String,
     val blackPlayerId: String,
     private val isRanked: Boolean,
@@ -52,7 +52,7 @@ class LiveGameController(
                     move, GameProgress.FinishedWithClockInfo(
                         it,
                         getPlayerClock(gameState, PlayerColor.WHITE).toPausedAfterMove(),
-                        getPlayerClock(gameState, PlayerColor.BLACK).toPausedAfterMove()
+                        getPlayerClock(gameState, PlayerColor.BLACK).toPausedAfterMove(),
                     )
                 )
             }
@@ -81,7 +81,7 @@ class LiveGameController(
             GameStateChange.MoveChange(
                 move, GameProgress.Running(
                     startedClock,
-                    pausedClock
+                    pausedClock,
                 )
             )
         }
@@ -136,7 +136,13 @@ class LiveGameController(
         if(updatedState.progress is GameProgress.FinishedWithClockInfo) {
             timer.stop()
             //TODO: this should spawn in an unconnected coroutine somewhere in the db scope
-            finishedGame.complete(database.saveGame(updatedState, blackPlayerId, whitePlayerId, isRanked))
+            finishedGame.complete(database.saveGame(
+                updatedState,
+                blackPlayerId,
+                whitePlayerId,
+                isRanked,
+                clockSettings,
+            ))
         }
 
         return updatedState

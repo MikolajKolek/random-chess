@@ -12,6 +12,7 @@ import pl.edu.uj.tcs.rchess.config.Config
 import pl.edu.uj.tcs.rchess.generated.db.keys.SERVICE_GAMES__SERVICE_GAMES_SERVICE_ID_BLACK_PLAYER_FKEY
 import pl.edu.uj.tcs.rchess.generated.db.keys.SERVICE_GAMES__SERVICE_GAMES_SERVICE_ID_WHITE_PLAYER_FKEY
 import pl.edu.uj.tcs.rchess.generated.db.tables.references.PGN_GAMES
+import pl.edu.uj.tcs.rchess.generated.db.tables.references.RANKINGS
 import pl.edu.uj.tcs.rchess.generated.db.tables.references.SERVICE_ACCOUNTS
 import pl.edu.uj.tcs.rchess.generated.db.tables.references.SERVICE_GAMES
 import pl.edu.uj.tcs.rchess.model.*
@@ -28,6 +29,7 @@ import pl.edu.uj.tcs.rchess.util.tryWithLock
 import java.sql.DriverManager
 import java.time.LocalDateTime
 import java.util.*
+import kotlin.time.toKotlinDuration
 
 class Server(private val config: Config) : ClientApi, Database {
     private val connection = DriverManager.getConnection(
@@ -147,7 +149,8 @@ class Server(private val config: Config) : ClientApi, Database {
         )
 
         return LiveGame(
-            controls = controls
+            controls = controls,
+            clockSettings = clockSettings,
         )
     }
 
@@ -155,9 +158,9 @@ class Server(private val config: Config) : ClientApi, Database {
         requestResyncImpl()
     }
 
-    fun requestResyncImpl() {
+    private fun requestResyncImpl() {
         syncMutex.tryWithLock {
-
+            // TODO: Implement
         }
     }
 
@@ -203,7 +206,8 @@ class Server(private val config: Config) : ClientApi, Database {
                     white.displayName,
                     white.isBot,
                     white.userId == config.defaultUser
-                )
+                ),
+                clockSettings = sg.clock?.toModel()
             )
         }
     }
@@ -229,7 +233,8 @@ class Server(private val config: Config) : ClientApi, Database {
                 metadata = resultRow.metadata?.data()?.let { Json.Default.decodeFromString<Map<String, String>>(it) }
                     ?: emptyMap(),
                 blackPlayerName = resultRow.blackPlayerName,
-                whitePlayerName = resultRow.whitePlayerName
+                whitePlayerName = resultRow.whitePlayerName,
+                clockSettings = resultRow.clock?.toModel(),
             )
         }
     }
@@ -249,6 +254,7 @@ class Server(private val config: Config) : ClientApi, Database {
         blackPlayerId: String,
         whitePlayerId: String,
         isRanked: Boolean,
+        clockSettings: ClockSettings,
     ): HistoryServiceGame {
         require(game.progress is GameProgress.Finished) { "The game is not finished" }
 
@@ -261,6 +267,7 @@ class Server(private val config: Config) : ClientApi, Database {
             .set(SERVICE_GAMES.SERVICE_ID, Service.RANDOM_CHESS.id)
             .set(SERVICE_GAMES.BLACK_PLAYER, blackPlayerId)
             .set(SERVICE_GAMES.WHITE_PLAYER, whitePlayerId)
+            .set(SERVICE_GAMES.CLOCK, clockSettings.toDbRecord())
             .returningResult(SERVICE_GAMES.ID)
             .fetchOne()?.getValue(SERVICE_GAMES.ID)
             ?: throw IllegalStateException("Failed to save game to the database")

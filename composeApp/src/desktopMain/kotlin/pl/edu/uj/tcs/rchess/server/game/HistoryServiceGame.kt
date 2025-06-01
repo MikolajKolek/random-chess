@@ -1,5 +1,6 @@
 package pl.edu.uj.tcs.rchess.server.game
 
+import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.GameResult
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.state.BoardState
@@ -24,4 +25,5 @@ data class HistoryServiceGame(
     val service: Service,
     override val blackPlayer: ServiceAccount,
     override val whitePlayer: ServiceAccount,
+    override val clockSettings: ClockSettings?,
 ) : HistoryGame(), ServiceGame

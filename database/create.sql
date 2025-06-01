@@ -384,12 +384,12 @@ CREATE TABLE "service_games"
     "result"             GAME_RESULT        NOT NULL,
     "metadata"           JSONB              NULL,
     "clock"              "clock_settings"   NULL,
-    "is_ranked"          BOOLEAN            NOT NULL,
     -- kolumny występujące tylko w "service_games"
     "game_id_in_service" VARCHAR            NULL,
     "service_id"         INT                NOT NULL    REFERENCES "game_services" ("id"),
     "white_player"       VARCHAR            NOT NULL,
     "black_player"       VARCHAR            NOT NULL,
+    "is_ranked"          BOOLEAN            NOT NULL,
     -- Partie rozegrane w naszym serwisie mają "game_id_in_service" ustawione na NULL,
     -- a w innych serwisach zawsze mają ustawioną wartość oraz nie liczą się do rankingów.
     CHECK (CASE
@@ -424,9 +424,9 @@ CREATE TABLE "pgn_games"
 
 -- Wartości "id" mogą się powtarzać, ale już pary ("id", "kind") są unikatowe
 CREATE VIEW "games" AS (
-    SELECT "id", 'service' AS "kind", "starting_position", "moves", "partial_fens", "creation_date", "result", "metadata" FROM service_games
+    SELECT "id", 'service' AS "kind", "starting_position", "moves", "partial_fens", "creation_date", "result", "metadata", "clock" FROM service_games
     UNION ALL
-    SELECT "id", 'pgn' AS "kind", "starting_position", "moves", "partial_fens", "creation_date", "result", "metadata" FROM pgn_games
+    SELECT "id", 'pgn' AS "kind", "starting_position", "moves", "partial_fens", "creation_date", "result", "metadata", "clock" FROM pgn_games
 );
 
 CREATE VIEW "users_games" AS (

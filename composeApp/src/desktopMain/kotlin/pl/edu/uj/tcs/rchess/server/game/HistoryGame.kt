@@ -113,7 +113,7 @@ sealed class HistoryGame : ApiGame {
             initialBoardState = startingPosition,
             moves = moves,
             finishedProgress = GameProgress.Finished(
-                result = result
+                result = result,
             ),
         )
     }

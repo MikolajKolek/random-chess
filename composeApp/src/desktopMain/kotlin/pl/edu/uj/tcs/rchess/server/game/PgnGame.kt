@@ -1,5 +1,6 @@
 package pl.edu.uj.tcs.rchess.server.game
 
+import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.GameResult
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
@@ -21,6 +22,7 @@ data class PgnGame(
     override val metadata: Map<String, String>,
     val blackPlayerName: String,
     val whitePlayerName: String,
+    override val clockSettings: ClockSettings?,
 ) : HistoryGame() {
     override fun getPlayerName(playerColor: PlayerColor): String =
         when (playerColor) {

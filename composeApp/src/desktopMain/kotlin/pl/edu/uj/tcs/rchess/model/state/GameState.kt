@@ -72,12 +72,15 @@ data class GameState(
     }
 
     companion object {
-        fun starting(initialBoardState: BoardState, clockSettings: ClockSettings) = GameState(
+        fun starting(
+            initialBoardState: BoardState,
+            clockSettings: ClockSettings,
+        ) = GameState(
             boardStates = listOf(initialBoardState),
             moves = emptyList(),
             progress = GameProgress.Running(
                 currentPlayerClock = ClockState.RunningBeforeFirstMove(clockSettings),
-                otherPlayerClock = ClockState.PausedBeforeFirstMove(clockSettings)
+                otherPlayerClock = ClockState.PausedBeforeFirstMove(clockSettings),
             ),
         )
 
