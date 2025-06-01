@@ -534,6 +534,7 @@ EXECUTE FUNCTION prevent_default_service_deletion();
 
 CREATE TABLE rankings(
     "id"                    SERIAL      PRIMARY KEY,
+    "name"                  VARCHAR     NOT NULL,
     "playtime_min"          INTERVAL    NOT NULL    CHECK ("playtime_min" >= '0 seconds'::INTERVAL),
     "playtime_max"          INTERVAL    NULL        CHECK ("playtime_max" >= '0 seconds'::INTERVAL),
     "extra_move_multiplier" INT         NOT NULL    CHECK ("extra_move_multiplier" >= 0),
@@ -884,9 +885,10 @@ INSERT INTO service_accounts("user_id", "service_id", "user_id_in_service", "is_
     (NULL, 1, 'stockfish-impossible', TRUE, 'Stockfish (Impossible)');
 
 
-INSERT INTO rankings("playtime_min", "playtime_max", "extra_move_multiplier", "starting_elo", "include_bots", "k_factor") VALUES
+INSERT INTO rankings("playtime_min", "name", "playtime_max", "extra_move_multiplier", "starting_elo", "include_bots", "k_factor") VALUES
     (
         '0 seconds'::interval,
+        'Global ranking',
         '10000 days'::interval,
         0,
         800,
