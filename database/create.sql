@@ -871,10 +871,11 @@ EXECUTE FUNCTION check_invalid_elo_history();
 
 CREATE TABLE "swiss_tournaments"
 (
-    "tournament_id"     SERIAL      PRIMARY KEY,
-    "round_count"       INTEGER     NOT NULL        CHECK ( round_count > 0 ), -- Swiss tournaments have a fixed round count
-    "starting_position" VARCHAR     NOT NULL DEFAULT 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
-    "is_ranked"         BOOLEAN     NOT NULL DEFAULT TRUE
+    "tournament_id"     SERIAL              PRIMARY KEY,
+    "round_count"       INTEGER             NOT NULL        CHECK ( round_count > 0 ), -- Swiss tournaments have a fixed round count
+    "starting_position" VARCHAR             NOT NULL DEFAULT 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+    "is_ranked"         BOOLEAN             NOT NULL DEFAULT TRUE,
+    "time_control"      "clock_settings"    NOT NULL
 );
 
 CREATE TABLE "tournaments_games"
@@ -961,6 +962,8 @@ BEGIN
     IF(tournament_data.starting_position != game_data.starting_position) THEN
         RAISE EXCEPTION 'Game and tournament starting position mismatch. Tournament has % and game has %', tournament_data.starting_position, game_data.starting_position;
     END IF;
+    IF((tournament_data.time_control)."starting_time" != (game_data.clock)."starting_time") THEN RAISE EXCEPTION 'Time control mismatch'; END IF;
+    IF((tournament_data.time_control)."move_increase" != (game_data.clock)."move_increase") THEN RAISE EXCEPTION 'Time control increment mismatch'; END IF;
     white_player_id := (
         SELECT sa.user_id_in_service
         FROM service_accounts sa
