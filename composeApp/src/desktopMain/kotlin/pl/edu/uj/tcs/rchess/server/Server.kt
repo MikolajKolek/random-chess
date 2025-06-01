@@ -21,9 +21,11 @@ import pl.edu.uj.tcs.rchess.generated.db.tables.references.PGN_GAMES
 import pl.edu.uj.tcs.rchess.generated.db.tables.references.RANKINGS
 import pl.edu.uj.tcs.rchess.generated.db.tables.references.SERVICE_ACCOUNTS
 import pl.edu.uj.tcs.rchess.generated.db.tables.references.SERVICE_GAMES
-import pl.edu.uj.tcs.rchess.model.*
+import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.fromFen
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
+import pl.edu.uj.tcs.rchess.model.Pgn
+import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import pl.edu.uj.tcs.rchess.model.state.GameState
@@ -47,9 +49,10 @@ class Server(private val config: Config) : ClientApi, Database {
     private val syncMutex = Mutex()
     override val databaseState = MutableStateFlow(
         ClientApi.DatabaseState(
-        updatesAvailable = false,
-        synchronizing = false
-    ))
+            updatesAvailable = false,
+            synchronizing = false
+        )
+    )
 
     init {
         val botServiceAccounts = dsl.selectFrom(SERVICE_ACCOUNTS)
@@ -58,18 +61,19 @@ class Server(private val config: Config) : ClientApi, Database {
             .fetch()
 
         botOpponents = config.bots
-            .associateWith {
-                botType -> botServiceAccounts.firstOrNull { sa -> sa.userIdInService == botType.serviceAccountId }
+            .associateWith { botType ->
+                botServiceAccounts.singleOrNull { sa -> sa.userIdInService == botType.serviceAccountId }
                     ?: throw IllegalStateException(
                         "Bot with id ${botType.serviceAccountId} does not exist in the database"
                     )
             }
-            .map { (botType, serviceAccountRecord) -> BotOpponent(
-                serviceAccountRecord.displayName,
-                botType.description,
-                botType.elo,
-                serviceAccountRecord.userIdInService,
-            ) to botType
+            .map { (botType, serviceAccountRecord) ->
+                BotOpponent(
+                    serviceAccountRecord.displayName,
+                    botType.description,
+                    botType.elo,
+                    serviceAccountRecord.userIdInService,
+                ) to botType
             }.associate { it }
 
         requestResyncImpl()
@@ -80,35 +84,34 @@ class Server(private val config: Config) : ClientApi, Database {
         (serviceGamesRequest(Optional.empty()) + pgnGamesRequest(Optional.empty()))
             .sortedByDescending { it.creationDate }
 
-    override suspend fun getServiceGame(id: Int): HistoryServiceGame {
-        return serviceGamesRequest(Optional.of(id)).firstOrNull() ?: throw IllegalArgumentException(
+    override suspend fun getServiceGame(id: Int): HistoryServiceGame =
+        serviceGamesRequest(Optional.of(id)).singleOrNull() ?: throw IllegalArgumentException(
             "Game with id $id does not exist or is owned by another user"
         )
-    }
 
-    override suspend fun getPgnGame(id: Int): PgnGame {
-        return pgnGamesRequest(Optional.of(id)).firstOrNull() ?: throw IllegalArgumentException(
-           "Game with id $id does not exist or is owned by another user"
+    override suspend fun getPgnGame(id: Int): PgnGame =
+        pgnGamesRequest(Optional.of(id)).singleOrNull() ?: throw IllegalArgumentException(
+            "Game with id $id does not exist or is owned by another user"
         )
-    }
 
     override suspend fun addPgnGames(fullPgn: String): List<Int> {
         val result = mutableListOf<Int>()
         val pgnList = Pgn.fromPgnDatabase(fullPgn)
         dsl.transaction { transaction ->
-            for(pgn in pgnList) {
-                result.add(transaction.dsl().insertInto(PGN_GAMES)
-                    .set(PGN_GAMES.MOVES, pgn.moves.map { it.toLongAlgebraicNotation() }.toTypedArray())
-                    .set(PGN_GAMES.STARTING_POSITION, pgn.startingPosition.toFenString())
-                    .set(PGN_GAMES.CREATION_DATE, LocalDateTime.now())
-                    .set(PGN_GAMES.RESULT, pgn.result.toDbResult())
-                    .set(PGN_GAMES.METADATA, JSONB.jsonb(Json.encodeToString(pgn.metadata)))
-                    .set(PGN_GAMES.OWNER_ID, config.defaultUser)
-                    .set(PGN_GAMES.BLACK_PLAYER_NAME, pgn.blackPlayerName)
-                    .set(PGN_GAMES.WHITE_PLAYER_NAME, pgn.whitePlayerName)
-                    .returningResult(PGN_GAMES.ID)
-                    .fetchOne()?.getValue(PGN_GAMES.ID)
-                    ?: throw IllegalStateException("Failed to insert PGN into database")
+            for (pgn in pgnList) {
+                result.add(
+                    transaction.dsl().insertInto(PGN_GAMES)
+                        .set(PGN_GAMES.MOVES, pgn.moves.map { it.toLongAlgebraicNotation() }.toTypedArray())
+                        .set(PGN_GAMES.STARTING_POSITION, pgn.startingPosition.toFenString())
+                        .set(PGN_GAMES.CREATION_DATE, LocalDateTime.now())
+                        .set(PGN_GAMES.RESULT, pgn.result.toDbResult())
+                        .set(PGN_GAMES.METADATA, JSONB.jsonb(Json.encodeToString(pgn.metadata)))
+                        .set(PGN_GAMES.OWNER_ID, config.defaultUser)
+                        .set(PGN_GAMES.BLACK_PLAYER_NAME, pgn.blackPlayerName)
+                        .set(PGN_GAMES.WHITE_PLAYER_NAME, pgn.whitePlayerName)
+                        .returningResult(PGN_GAMES.ID)
+                        .fetchOne()?.getValue(PGN_GAMES.ID)
+                        ?: throw IllegalStateException("Failed to insert PGN into database")
                 )
             }
         }
@@ -120,7 +123,7 @@ class Server(private val config: Config) : ClientApi, Database {
         return dsl.selectFrom(SERVICE_ACCOUNTS)
             .where(SERVICE_ACCOUNTS.USER_ID.eq(config.defaultUser))
             .and(SERVICE_ACCOUNTS.SERVICE_ID.eq(Service.RANDOM_CHESS.id))
-            .fetch().firstOrNull()?.let {
+            .fetchOne()?.let {
                 ServiceAccount(
                     Service.RANDOM_CHESS,
                     it.userIdInService,
@@ -131,9 +134,8 @@ class Server(private val config: Config) : ClientApi, Database {
             } ?: throw IllegalStateException("The system account does not exist")
     }
 
-    override suspend fun getBotOpponents(): List<BotOpponent> {
-        return botOpponents.keys.toList().sortedBy { it.elo }
-    }
+    override suspend fun getBotOpponents(): List<BotOpponent> =
+        botOpponents.keys.toList().sortedBy { it.elo }
 
     override suspend fun startGameWithBot(
         playerColor: PlayerColor?,
@@ -188,42 +190,23 @@ class Server(private val config: Config) : ClientApi, Database {
             .from(SERVICE_GAMES)
             .join(whiteAccount).onKey(SERVICE_GAMES__SERVICE_GAMES_SERVICE_ID_WHITE_PLAYER_FKEY)
             .join(blackAccount).onKey(SERVICE_GAMES__SERVICE_GAMES_SERVICE_ID_BLACK_PLAYER_FKEY)
-            .where(blackAccount.USER_ID.eq(config.defaultUser)
-                .or(whiteAccount.USER_ID.eq(config.defaultUser)))
+            .where(
+                blackAccount.USER_ID.eq(config.defaultUser)
+                    .or(whiteAccount.USER_ID.eq(config.defaultUser))
+            )
 
-        if(id.isPresent)
+        if (id.isPresent)
             query = query.and(SERVICE_GAMES.ID.eq(id.get()))
 
-        return query.fetch { (sg, white, black) ->
-            HistoryServiceGame(
-                id = sg.id!!,
-                // We know that the moves are not null as we verify that in the database, but
-                // because it's done with a check, jooq doesn't realize and makes it nullable
-                moves = sg.moves.map { Move.fromLongAlgebraicNotation(it!!) },
-                startingPosition = BoardState.fromFen(sg.startingPosition),
-                finalPosition = BoardState.fromFen(sg.partialFens!!.last()!!, true),
-                opening = openingByGameId(sg.id!!),
-                creationDate = sg.creationDate,
-                result = GameResult.fromDbResult(sg.result),
-                metadata = sg.metadata?.data()?.let { json -> Json.decodeFromString<Map<String, String>>(json) }
-                    ?: emptyMap(),
-                gameIdInService = sg.gameIdInService,
-                service = Service.fromId(sg.serviceId),
-                blackPlayer = ServiceAccount(
-                    Service.fromId(black.serviceId),
-                    black.userIdInService,
-                    black.displayName,
-                    black.isBot,
-                    black.userId == config.defaultUser
+        return query.fetch { (serviceGame, white, black) ->
+            serviceGame.toModel(
+                white = white.toModel(
+                    isCurrentUser = white.userId == config.defaultUser
                 ),
-                whitePlayer = ServiceAccount(
-                    Service.fromId(white.serviceId),
-                    white.userIdInService,
-                    white.displayName,
-                    white.isBot,
-                    white.userId == config.defaultUser
+                black = black.toModel(
+                    isCurrentUser = black.userId == config.defaultUser
                 ),
-                clockSettings = sg.clock?.toModel()
+                opening = openingByGameId(serviceGame.id!!),
             )
         }
     }
@@ -232,25 +215,12 @@ class Server(private val config: Config) : ClientApi, Database {
         var query = dsl.selectFrom(PGN_GAMES)
             .where(PGN_GAMES.OWNER_ID.eq(config.defaultUser))
 
-        if(id.isPresent)
+        if (id.isPresent)
             query = query.and(PGN_GAMES.ID.eq(id.get()))
 
         return query.fetch().map { resultRow ->
-            PgnGame(
-                id = resultRow.id!!,
-                // We know that the moves are not null as we verify that in the database, but
-                // because it's done with a check, jooq doesn't realize and makes it nullable
-                moves = resultRow.moves.map { Move.fromLongAlgebraicNotation(it!!) },
-                startingPosition = BoardState.fromFen(resultRow.startingPosition),
-                finalPosition = BoardState.fromFen(resultRow.partialFens!!.last()!!, true),
+            resultRow.toModel(
                 opening = openingByGameId(resultRow.id!!),
-                creationDate = resultRow.creationDate,
-                result = GameResult.fromDbResult(resultRow.result),
-                metadata = resultRow.metadata?.data()?.let { Json.Default.decodeFromString<Map<String, String>>(it) }
-                    ?: emptyMap(),
-                blackPlayerName = resultRow.blackPlayerName,
-                whitePlayerName = resultRow.whitePlayerName,
-                clockSettings = resultRow.clock?.toModel(),
             )
         }
     }
@@ -289,6 +259,7 @@ class Server(private val config: Config) : ClientApi, Database {
             ?: throw IllegalStateException("Failed to save game to the database")
 
         return serviceGamesRequest(Optional.of(id))
-            .firstOrNull() ?: throw IllegalStateException("The inserted ")
+            .singleOrNull()
+            ?: throw IllegalStateException("The game that was just inserted does not exist in the database")
     }
 }
