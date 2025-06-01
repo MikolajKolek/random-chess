@@ -13,7 +13,7 @@ import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
 import java.time.LocalDateTime
-import java.util.Properties
+import java.util.*
 
 class PgnTest {
     @Test
@@ -981,7 +981,8 @@ class PgnTest {
                 result = importGame.result,
                 metadata = Json.decodeFromJsonElement<Map<String, String>>(importGame.metadata!!),
                 blackPlayerName = importGame.blackPlayerName,
-                whitePlayerName = importGame.whitePlayerName
+                whitePlayerName = importGame.whitePlayerName,
+                clockSettings = null,
             )
             var game: Pgn? = null
             try {

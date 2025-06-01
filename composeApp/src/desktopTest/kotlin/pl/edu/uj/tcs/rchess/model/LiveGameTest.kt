@@ -31,6 +31,7 @@ class MockDatabase : Database {
         blackPlayerId: String,
         whitePlayerId: String,
         isRanked: Boolean,
+        clockSettings: ClockSettings,
     ): HistoryServiceGame {
         return HistoryServiceGame(
             id = 0,
@@ -56,7 +57,8 @@ class MockDatabase : Database {
                 displayName = whitePlayerId,
                 isBot = false,
                 isCurrentUser = false
-            )
+            ),
+            clockSettings = clockSettings,
         )
     }
 
