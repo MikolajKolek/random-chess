@@ -55,12 +55,12 @@ fun Sidebar(
                 icon = {
                     Icon(
                         painter = painterResource(Res.drawable.icon_ranking),
-                        contentDescription = "Ranking",
+                        contentDescription = "Rankings",
                     )
                 },
                 label = { Text("Ranking") },
-                selected = currentRoute is Route.RankingList || currentRoute is Route.Ranking,
-                onClick = { onNavigate(Route.RankingList) }
+                selected = currentRoute is Route.Rankings || currentRoute is Route.Ranking,
+                onClick = { onNavigate(Route.Rankings) }
             )
             NavigationRailItem(
                 icon = {

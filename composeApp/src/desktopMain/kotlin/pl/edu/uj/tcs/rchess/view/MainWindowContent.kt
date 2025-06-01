@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import pl.edu.uj.tcs.rchess.view.newgame.NewGameDialog
+import pl.edu.uj.tcs.rchess.view.rankings.RankingsScreen
 import pl.edu.uj.tcs.rchess.view.shared.PlaceholderScreen
 import pl.edu.uj.tcs.rchess.view.theme.RandomChessTheme
 import pl.edu.uj.tcs.rchess.viewmodel.AppContext
@@ -22,7 +23,7 @@ fun RouteScreen(
     context.navigation.route.let { route ->
         when (route) {
             is Route.GameHistory -> GameHistoryScreen(context)
-            is Route.RankingList -> PlaceholderScreen(text = "Ranking list")
+            is Route.Rankings -> RankingsScreen(context)
             is Route.TournamentList -> PlaceholderScreen(text = "Tournament list")
             is Route.Account -> PlaceholderScreen(text = "Account")
             is Route.Ranking -> PlaceholderScreen(text = "Ranking ${route.rankingId}")
