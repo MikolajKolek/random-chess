@@ -7,7 +7,9 @@ kotlinx-coroutines = "1.10.2"
 kotlinx-serialization-json = "1.8.1"
 hoplite = "2.9.0"
 jooq = "3.20.4"
-postgresql = "42.7.5"
+r2dbc = "1.0.0.RELEASE"
+jdbc-postgresql = "42.7.5"
+r2dbc-postgresql = "1.0.7.RELEASE"
 logback = "1.5.18"
 kotlin-logging = "7.0.3"
 
@@ -25,7 +27,11 @@ hoplite-yaml = { module = "com.sksamuel.hoplite:hoplite-yaml", version.ref = "ho
 jooq = { module = "org.jooq:jooq", version.ref = "jooq" }
 jooq-meta = { module = "org.jooq:jooq-meta", version.ref = "jooq" }
 jooq-codegen = { module = "org.jooq:jooq-codegen", version.ref = "jooq" }
-postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
+jooq-kotlin = { module = "org.jooq:jooq-kotlin", version.ref = "jooq" }
+jooq-kotlin-coroutines = { module = "org.jooq:jooq-kotlin-coroutines", version.ref = "jooq" }
+r2dbc-spi = { module = "io.r2dbc:r2dbc-spi", version.ref = "r2dbc" }
+r2dbc-postgresql = { module = "org.postgresql:r2dbc-postgresql", version.ref = "r2dbc-postgresql" }
+jdbc-postgresql = { module = "org.postgresql:postgresql", version.ref = "jdbc-postgresql" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 kotlin-logging = { module = 'io.github.oshai:kotlin-logging-jvm', version.ref = "kotlin-logging" }
 

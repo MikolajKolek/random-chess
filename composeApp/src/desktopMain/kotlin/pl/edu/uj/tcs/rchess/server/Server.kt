@@ -1,12 +1,20 @@
 package pl.edu.uj.tcs.rchess.server
 
+import io.r2dbc.spi.ConnectionFactories
+import io.r2dbc.spi.ConnectionFactoryOptions
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.serialization.json.Json
 import org.jooq.JSONB
 import org.jooq.SQLDialect
 import org.jooq.impl.DSL
+import org.jooq.kotlin.coroutines.transactionCoroutine
 import pl.edu.uj.tcs.rchess.api.ClientApi
 import pl.edu.uj.tcs.rchess.api.entity.*
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryGame
@@ -32,15 +40,18 @@ import pl.edu.uj.tcs.rchess.model.state.GameState
 import pl.edu.uj.tcs.rchess.server.Serialization.toDbType
 import pl.edu.uj.tcs.rchess.server.Serialization.toModel
 import pl.edu.uj.tcs.rchess.util.tryWithLock
-import java.sql.DriverManager
+import reactor.core.publisher.Flux
 import java.time.LocalDateTime
 import java.util.*
 
 class Server(private val config: Config) : ClientApi, Database {
-    private val connection = DriverManager.getConnection(
-        "jdbc:postgresql://${config.database.host}:${config.database.port}/${config.database.database}",
-        config.database.user,
-        config.database.password
+    private val connection = ConnectionFactories.get(
+        ConnectionFactoryOptions
+            .parse("r2dbc:postgresql://${config.database.host}:${config.database.port}/${config.database.database}")
+            .mutate()
+            .option(ConnectionFactoryOptions.USER, config.database.user)
+            .option(ConnectionFactoryOptions.PASSWORD, config.database.password)
+            .build()
     )
     private val dsl = DSL.using(connection, SQLDialect.POSTGRES)
     private val botOpponents: Map<BotOpponent, BotType>
@@ -55,10 +66,12 @@ class Server(private val config: Config) : ClientApi, Database {
     )
 
     init {
-        val botServiceAccounts = dsl.selectFrom(SERVICE_ACCOUNTS)
-            .where(SERVICE_ACCOUNTS.IS_BOT.eq(true))
-            .and(SERVICE_ACCOUNTS.SERVICE_ID.eq(Service.RANDOM_CHESS.id))
-            .fetch()
+        val botServiceAccounts = runBlocking {
+            Flux.from(dsl.selectFrom(SERVICE_ACCOUNTS)
+                .where(SERVICE_ACCOUNTS.IS_BOT.eq(true))
+                .and(SERVICE_ACCOUNTS.SERVICE_ID.eq(Service.RANDOM_CHESS.id))
+            ).asFlow().toList()
+        }
 
         botOpponents = config.bots
             .associateWith { botType ->
@@ -97,7 +110,7 @@ class Server(private val config: Config) : ClientApi, Database {
     override suspend fun addPgnGames(fullPgn: String): List<Int> {
         val result = mutableListOf<Int>()
         val pgnList = Pgn.fromPgnDatabase(fullPgn)
-        dsl.transaction { transaction ->
+        dsl.transactionCoroutine { transaction ->
             for (pgn in pgnList) {
                 result.add(
                     transaction.dsl().insertInto(PGN_GAMES)
@@ -110,7 +123,7 @@ class Server(private val config: Config) : ClientApi, Database {
                         .set(PGN_GAMES.BLACK_PLAYER_NAME, pgn.blackPlayerName)
                         .set(PGN_GAMES.WHITE_PLAYER_NAME, pgn.whitePlayerName)
                         .returningResult(PGN_GAMES.ID)
-                        .fetchOne()?.getValue(PGN_GAMES.ID)
+                        .awaitFirst()?.getValue(PGN_GAMES.ID)
                         ?: throw IllegalStateException("Failed to insert PGN into database")
                 )
             }
@@ -123,7 +136,7 @@ class Server(private val config: Config) : ClientApi, Database {
         return dsl.selectFrom(SERVICE_ACCOUNTS)
             .where(SERVICE_ACCOUNTS.USER_ID.eq(config.defaultUser))
             .and(SERVICE_ACCOUNTS.SERVICE_ID.eq(Service.RANDOM_CHESS.id))
-            .fetchOne()?.let {
+            .awaitFirst()?.let {
                 ServiceAccount(
                     Service.RANDOM_CHESS,
                     it.userIdInService,
@@ -162,14 +175,14 @@ class Server(private val config: Config) : ClientApi, Database {
     }
 
     override suspend fun getRankings(): List<Ranking> {
-        return dsl
-            .selectFrom(RANKINGS)
-            .orderBy(
-                RANKINGS.INCLUDE_BOTS.asc(),
-                RANKINGS.PLAYTIME_MIN.asc(),
-                RANKINGS.PLAYTIME_MAX.asc().nullsFirst(),
-            )
-            .fetch { it.toModel() }
+        return Flux.from(
+            dsl.selectFrom(RANKINGS)
+                .orderBy(
+                    RANKINGS.INCLUDE_BOTS.asc(),
+                    RANKINGS.PLAYTIME_MIN.asc(),
+                    RANKINGS.PLAYTIME_MAX.asc().nullsFirst(),
+                )
+        ).asFlow().map { it.toModel() }.toList()
     }
 
     override suspend fun requestResync() {
@@ -182,7 +195,7 @@ class Server(private val config: Config) : ClientApi, Database {
         }
     }
 
-    private fun serviceGamesRequest(id: Optional<Int>): List<HistoryServiceGame> {
+    private suspend fun serviceGamesRequest(id: Optional<Int>): List<HistoryServiceGame> {
         val whiteAccount = SERVICE_ACCOUNTS.`as`("white_account")
         val blackAccount = SERVICE_ACCOUNTS.`as`("black_account")
 
@@ -198,7 +211,7 @@ class Server(private val config: Config) : ClientApi, Database {
         if (id.isPresent)
             query = query.and(SERVICE_GAMES.ID.eq(id.get()))
 
-        return query.fetch { (serviceGame, white, black) ->
+        return Flux.from(query).asFlow().map { (serviceGame, white, black) ->
             serviceGame.toModel(
                 white = white.toModel(
                     isCurrentUser = white.userId == config.defaultUser
@@ -208,21 +221,21 @@ class Server(private val config: Config) : ClientApi, Database {
                 ),
                 opening = openingByGameId(serviceGame.id!!),
             )
-        }
+        }.toList()
     }
 
-    private fun pgnGamesRequest(id: Optional<Int>): List<PgnGame> {
+    private suspend fun pgnGamesRequest(id: Optional<Int>): List<PgnGame> {
         var query = dsl.selectFrom(PGN_GAMES)
             .where(PGN_GAMES.OWNER_ID.eq(config.defaultUser))
 
         if (id.isPresent)
             query = query.and(PGN_GAMES.ID.eq(id.get()))
 
-        return query.fetch().map { resultRow ->
+        return Flux.from(query).asFlow().map { resultRow ->
             resultRow.toModel(
                 opening = openingByGameId(resultRow.id!!),
             )
-        }
+        }.toList()
     }
 
     // TODO: implement, this is a placeholder.
@@ -255,7 +268,7 @@ class Server(private val config: Config) : ClientApi, Database {
             .set(SERVICE_GAMES.WHITE_PLAYER, whitePlayerId)
             .set(SERVICE_GAMES.CLOCK, clockSettings.toDbType())
             .returningResult(SERVICE_GAMES.ID)
-            .fetchOne()?.getValue(SERVICE_GAMES.ID)
+            .awaitFirst()?.getValue(SERVICE_GAMES.ID)
             ?: throw IllegalStateException("Failed to save game to the database")
 
         return serviceGamesRequest(Optional.of(id))

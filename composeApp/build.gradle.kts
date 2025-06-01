@@ -34,7 +34,12 @@ kotlin {
             implementation(libs.jooq)
             implementation(libs.jooq.meta)
             implementation(libs.jooq.codegen)
-            implementation(libs.postgresql)
+            implementation(libs.jooq.kotlin)
+            implementation(libs.jooq.kotlin.coroutines)
+            implementation(libs.r2dbc.spi)
+
+            implementation(libs.jdbc.postgresql)
+            implementation(libs.r2dbc.postgresql)
 
             implementation(libs.logback)
             implementation(libs.kotlin.logging)
@@ -61,7 +66,7 @@ kotlin {
 }
 
 dependencies {
-    jooqCodegen(libs.postgresql)
+    jooqCodegen(libs.jdbc.postgresql)
 }
 
 jooq {
