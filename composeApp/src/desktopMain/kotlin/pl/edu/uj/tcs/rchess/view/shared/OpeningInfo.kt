@@ -25,7 +25,8 @@ fun OpeningInfo(
         modifier = modifier,
     ) {
         Text(
-            buildAnnotatedString {
+            modifier = Modifier.padding(bottom = 8.dp),
+            text = buildAnnotatedString {
                 withLink(LinkAnnotation.Url(url = openingUrl)) {
                     append(opening.eco)
                 }
@@ -35,10 +36,10 @@ fun OpeningInfo(
         )
 
         OutlinedCard(
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+            modifier = Modifier.fillMaxWidth().aspectRatio(1f),
         ) {
             BoxWithConstraints(
-                modifier = Modifier.fillMaxSize().aspectRatio(1f)
+                modifier = Modifier.fillMaxSize(),
             ) {
                 BoardView(
                     pieceSize = minWidth / 8,

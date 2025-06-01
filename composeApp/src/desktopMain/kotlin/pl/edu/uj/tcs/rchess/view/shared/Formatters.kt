@@ -1,4 +1,5 @@
 import pl.edu.uj.tcs.rchess.model.*
+import pl.edu.uj.tcs.rchess.server.Service
 
 fun PlayerColor.formatLowercase(): String
     = when (this) {
@@ -40,4 +41,12 @@ fun GameResult.formatResult() = when (this) {
 fun GameResult.formatReason() = when (this) {
     is Win -> winReason.format(winner)
     is Draw -> drawReason.format()
+}
+
+fun Service?.format() = when (this) {
+    null -> "Imported"
+    Service.RANDOM_CHESS -> "Random Chess"
+    Service.CHESS_COM -> "Chess.com"
+    Service.LICHESS -> "Lichess"
+    Service.UNKNOWN -> "Unknown"
 }

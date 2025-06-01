@@ -1,14 +1,12 @@
 package pl.edu.uj.tcs.rchess.view
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import format
 import formatReason
 import formatResult
 import pl.edu.uj.tcs.rchess.model.PlayerColor
@@ -16,10 +14,11 @@ import pl.edu.uj.tcs.rchess.server.game.HistoryGame
 import pl.edu.uj.tcs.rchess.server.game.HistoryServiceGame
 import pl.edu.uj.tcs.rchess.server.game.PgnGame
 import pl.edu.uj.tcs.rchess.view.board.BoardView
+import pl.edu.uj.tcs.rchess.view.shared.OpeningInfo
 import pl.edu.uj.tcs.rchess.view.shared.PlayerName
-import pl.edu.uj.tcs.rchess.view.shared.ServiceLabel
 import java.time.format.DateTimeFormatter
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GameHistoryItem(
     modifier: Modifier = Modifier,
@@ -69,7 +68,7 @@ fun GameHistoryItem(
                         }
                         append(game.creationDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                     },
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodySmall,
                 )
 
                 Row(
@@ -77,14 +76,47 @@ fun GameHistoryItem(
                 ) {
                     when (game) {
                         is PgnGame -> {
-                            Text("Manually imported as #${game.id}")
+                            Text(
+                                "Manually imported as #${game.id}",
+                                style = MaterialTheme.typography.bodySmall,
+                            )
                         }
 
                         is HistoryServiceGame -> {
-                            Text("Played on ")
-                            ServiceLabel(game.service)
+                            Text(
+                                "in ${game.service.format()}",
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+//                            ServiceLabel(game.service)
                         }
                     }
+                }
+
+                Spacer(Modifier.weight(1f))
+
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberRichTooltipPositionProvider(),
+                    tooltip = { RichTooltip(
+                        title = {
+                            Text(
+                                "Opening",
+                                style = MaterialTheme.typography.labelSmall,
+                            )
+                        },
+                    ) {
+                        OpeningInfo(
+                            modifier = Modifier.width(200.dp),
+                            opening = game.opening
+                        )
+                    } },
+                    state = rememberTooltipState(
+                        isPersistent = true,
+                    ),
+                ) {
+                    Text(
+                        "${game.opening.eco}: ${game.opening.name}",
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
                 }
             }
         }
