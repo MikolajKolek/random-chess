@@ -27,13 +27,12 @@ import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import pl.edu.uj.tcs.rchess.model.state.GameState
-import pl.edu.uj.tcs.rchess.server.Serialization.toDbRecord
+import pl.edu.uj.tcs.rchess.server.Serialization.toDbType
 import pl.edu.uj.tcs.rchess.server.Serialization.toModel
 import pl.edu.uj.tcs.rchess.util.tryWithLock
 import java.sql.DriverManager
 import java.time.LocalDateTime
 import java.util.*
-import kotlin.time.toKotlinDuration
 
 class Server(private val config: Config) : ClientApi, Database {
     private val connection = DriverManager.getConnection(
@@ -161,16 +160,14 @@ class Server(private val config: Config) : ClientApi, Database {
     }
 
     override suspend fun getRankings(): List<Ranking> {
-        return dsl.selectFrom(RANKINGS).fetch { resultRow ->
-            Ranking(
-                id = resultRow.id!!,
-                name = resultRow.name,
-                playtimeMin = resultRow.playtimeMin.toDuration().toKotlinDuration(),
-                playtimeMax = resultRow.playtimeMax?.toDuration()?.toKotlinDuration(),
-                extraMoveMultiplier = resultRow.extraMoveMultiplier,
-                includeBots = resultRow.includeBots
+        return dsl
+            .selectFrom(RANKINGS)
+            .orderBy(
+                RANKINGS.INCLUDE_BOTS.asc(),
+                RANKINGS.PLAYTIME_MIN.asc(),
+                RANKINGS.PLAYTIME_MAX.asc().nullsFirst(),
             )
-        }
+            .fetch { it.toModel() }
     }
 
     override suspend fun requestResync() {
@@ -286,7 +283,7 @@ class Server(private val config: Config) : ClientApi, Database {
             .set(SERVICE_GAMES.SERVICE_ID, Service.RANDOM_CHESS.id)
             .set(SERVICE_GAMES.BLACK_PLAYER, blackPlayerId)
             .set(SERVICE_GAMES.WHITE_PLAYER, whitePlayerId)
-            .set(SERVICE_GAMES.CLOCK, clockSettings.toDbRecord())
+            .set(SERVICE_GAMES.CLOCK, clockSettings.toDbType())
             .returningResult(SERVICE_GAMES.ID)
             .fetchOne()?.getValue(SERVICE_GAMES.ID)
             ?: throw IllegalStateException("Failed to save game to the database")

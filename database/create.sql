@@ -535,8 +535,10 @@ EXECUTE FUNCTION prevent_default_service_deletion();
 CREATE TABLE rankings(
     "id"                    SERIAL      PRIMARY KEY,
     "name"                  VARCHAR     NOT NULL,
+    -- Inclusive:
     "playtime_min"          INTERVAL    NOT NULL    CHECK ("playtime_min" >= '0 seconds'::INTERVAL),
-    "playtime_max"          INTERVAL    NULL        CHECK ("playtime_max" >= '0 seconds'::INTERVAL),
+    -- Exclusive:
+    "playtime_max"          INTERVAL    NULL        CHECK ("playtime_max" > '0 seconds'::INTERVAL),
     "extra_move_multiplier" INT         NOT NULL    CHECK ("extra_move_multiplier" >= 0),
     "starting_elo"          NUMERIC     NOT NULL    CHECK ("starting_elo" > 0),
     "include_bots"          BOOLEAN     NOT NULL,
@@ -575,24 +577,23 @@ INNER JOIN "service_accounts" black_accounts ON (
 CROSS JOIN "rankings"
 WHERE
     "service_games"."is_ranked" AND
-    -- ("service_games"."clock")."starting_time" IS NOT NULL AND
-    -- ("service_games"."clock")."move_increase" IS NOT NULL AND
-    -- (
-    --     ("service_games"."clock")."starting_time" +
-    --     "rankings"."extra_move_multiplier" * ("service_games"."clock")."move_increase"
-    -- ) >= "rankings"."playtime_min" AND
-    -- (
-    --     "rankings"."playtime_max" IS NULL OR
-    --     (
-    --         ("service_games"."clock")."starting_time" +
-    --         "rankings"."extra_move_multiplier" * ("service_games"."clock")."move_increase"
-    --     ) <= "rankings"."playtime_max"
-    -- ) AND
-    -- (
-    --     "rankings"."include_bots" OR
-    --     (white_accounts."is_bot" = FALSE AND black_accounts."is_bot" = FALSE)
-    -- )
-TRUE
+    ("service_games"."clock")."starting_time" IS NOT NULL AND
+    ("service_games"."clock")."move_increase" IS NOT NULL AND
+    (
+        ("service_games"."clock")."starting_time" +
+        "rankings"."extra_move_multiplier" * ("service_games"."clock")."move_increase"
+    ) >= "rankings"."playtime_min" AND
+    (
+        "rankings"."playtime_max" IS NULL OR
+        (
+            ("service_games"."clock")."starting_time" +
+            "rankings"."extra_move_multiplier" * ("service_games"."clock")."move_increase"
+        ) < "rankings"."playtime_max"
+    ) AND
+    (
+        "rankings"."include_bots" OR
+        (white_accounts."is_bot" = FALSE AND black_accounts."is_bot" = FALSE)
+    )
 ;
 
 CREATE VIEW current_ranking AS(
@@ -885,12 +886,84 @@ INSERT INTO service_accounts("user_id", "service_id", "user_id_in_service", "is_
     (NULL, 1, 'stockfish-impossible', TRUE, 'Stockfish (Impossible)');
 
 
-INSERT INTO rankings("playtime_min", "name", "playtime_max", "extra_move_multiplier", "starting_elo", "include_bots", "k_factor") VALUES
+INSERT INTO rankings("name", "playtime_min", "playtime_max", "extra_move_multiplier", "starting_elo", "include_bots", "k_factor") VALUES
     (
-        '0 seconds'::interval,
         'Global ranking',
-        '10000 days'::interval,
+        '0 seconds'::interval,
+        NULL,
         0,
+        800,
+        TRUE,
+        40
+    ),
+    (
+        'Bullet',
+        '0 seconds'::interval,
+        '3 minutes'::interval,
+        60,
+        800,
+        FALSE,
+        40
+    ),
+    (
+        'Bullet with bots',
+        '0 seconds'::interval,
+        '3 minutes'::interval,
+        60,
+        800,
+        TRUE,
+        40
+    ),
+    (
+        'Blitz',
+        '3 minutes'::interval,
+        '10 minutes'::interval,
+        60,
+        800,
+        FALSE,
+        40
+    ),
+    (
+        'Blitz with bots',
+        '3 minutes'::interval,
+        '10 minutes'::interval,
+        60,
+        800,
+        TRUE,
+        40
+    ),
+    (
+        'Rapid',
+        '10 minutes'::interval,
+        '60 minutes'::interval,
+        60,
+        800,
+        FALSE,
+        40
+    ),
+    (
+        'Rapid with bots',
+        '10 minutes'::interval,
+        '60 minutes'::interval,
+        60,
+        800,
+        TRUE,
+        40
+    ),
+    (
+        'Classical',
+        '1 hour'::interval,
+        '24 hours'::interval,
+        60,
+        800,
+        FALSE,
+        40
+    ),
+    (
+        'Classical with bots',
+        '1 hour'::interval,
+        '24 hours'::interval,
+        60,
         800,
         TRUE,
         40
