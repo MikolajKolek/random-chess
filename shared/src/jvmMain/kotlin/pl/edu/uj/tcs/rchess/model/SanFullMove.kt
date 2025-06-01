@@ -13,7 +13,7 @@ sealed interface SanFullMove {
 
     class HalfMove(
         /**
-         * The position of this move in the [GameState.moves] list
+         * The position of this move in the [pl.edu.uj.tcs.rchess.model.state.GameState.moves] list
          */
         val moveIndex: Int,
         val san: String,
