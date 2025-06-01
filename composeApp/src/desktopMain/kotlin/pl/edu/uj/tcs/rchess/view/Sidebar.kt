@@ -19,6 +19,7 @@ fun Sidebar(
     onOpenNewGameDialog: () -> Unit,
 ) {
     NavigationRail(
+        containerColor = MaterialTheme.colorScheme.surface,
         header = {
             Spacer(modifier = Modifier.height(16.dp))
 

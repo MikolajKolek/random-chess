@@ -29,7 +29,7 @@ fun GameHistoryItem(
         modifier = modifier,
         onClick = onClick,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+//            containerColor = MaterialTheme.colorScheme.surfaceContainer,
         ),
     ) {
         Row(
