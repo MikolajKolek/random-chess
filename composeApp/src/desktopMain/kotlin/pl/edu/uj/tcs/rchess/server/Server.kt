@@ -154,6 +154,19 @@ class Server(private val config: Config) : ClientApi, Database {
         )
     }
 
+    override suspend fun getRankings(): List<Ranking> {
+        return dsl.selectFrom(RANKINGS).fetch { resultRow ->
+            Ranking(
+                id = resultRow.id!!,
+                name = resultRow.name,
+                playtimeMin = resultRow.playtimeMin.toDuration().toKotlinDuration(),
+                playtimeMax = resultRow.playtimeMax?.toDuration()?.toKotlinDuration(),
+                extraMoveMultiplier = resultRow.extraMoveMultiplier,
+                includeBots = resultRow.includeBots
+            )
+        }
+    }
+
     override suspend fun requestResync() {
         requestResyncImpl()
     }

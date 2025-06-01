@@ -66,6 +66,11 @@ interface ClientApi {
     ): LiveGame
 
     /**
+     * @return A list of all [Ranking]s the user can view.
+     */
+    suspend fun getRankings(): List<Ranking>
+
+    /**
      * Requests a resync of data from external services to the database.
      *
      * If this function is called a second time before the first request finishes processing, the second call is ignored.
