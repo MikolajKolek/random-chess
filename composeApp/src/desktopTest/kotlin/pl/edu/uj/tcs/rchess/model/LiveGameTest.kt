@@ -3,6 +3,10 @@ package pl.edu.uj.tcs.rchess.model
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Test
+import pl.edu.uj.tcs.rchess.api.entity.Opening
+import pl.edu.uj.tcs.rchess.api.entity.Service
+import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
+import pl.edu.uj.tcs.rchess.api.entity.game.HistoryServiceGame
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.fromFen
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 import pl.edu.uj.tcs.rchess.model.game.LiveGameController
@@ -10,10 +14,6 @@ import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import pl.edu.uj.tcs.rchess.model.state.GameState
 import pl.edu.uj.tcs.rchess.server.Database
-import pl.edu.uj.tcs.rchess.server.Opening
-import pl.edu.uj.tcs.rchess.server.Service
-import pl.edu.uj.tcs.rchess.server.ServiceAccount
-import pl.edu.uj.tcs.rchess.server.game.HistoryServiceGame
 import java.time.LocalDateTime
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds

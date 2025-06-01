@@ -9,10 +9,10 @@ import androidx.compose.ui.unit.dp
 import format
 import formatReason
 import formatResult
+import pl.edu.uj.tcs.rchess.api.entity.game.HistoryGame
+import pl.edu.uj.tcs.rchess.api.entity.game.HistoryServiceGame
+import pl.edu.uj.tcs.rchess.api.entity.game.PgnGame
 import pl.edu.uj.tcs.rchess.model.PlayerColor
-import pl.edu.uj.tcs.rchess.server.game.HistoryGame
-import pl.edu.uj.tcs.rchess.server.game.HistoryServiceGame
-import pl.edu.uj.tcs.rchess.server.game.PgnGame
 import pl.edu.uj.tcs.rchess.view.board.BoardView
 import pl.edu.uj.tcs.rchess.view.shared.OpeningInfo
 import pl.edu.uj.tcs.rchess.view.shared.PlayerName

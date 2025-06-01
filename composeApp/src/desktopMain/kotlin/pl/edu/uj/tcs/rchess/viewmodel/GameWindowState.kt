@@ -1,22 +1,16 @@
 package pl.edu.uj.tcs.rchess.viewmodel
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
+import pl.edu.uj.tcs.rchess.api.entity.game.ApiGame
+import pl.edu.uj.tcs.rchess.api.entity.game.HistoryGame
+import pl.edu.uj.tcs.rchess.api.entity.game.LiveGame
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import pl.edu.uj.tcs.rchess.model.state.GameState
-import pl.edu.uj.tcs.rchess.server.game.ApiGame
-import pl.edu.uj.tcs.rchess.server.game.HistoryGame
-import pl.edu.uj.tcs.rchess.server.game.LiveGame
 
 /**
  * Used as the state and business logic management mechanism for [GameScreen]

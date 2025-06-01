@@ -4,7 +4,7 @@ import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import format
-import pl.edu.uj.tcs.rchess.server.Service
+import pl.edu.uj.tcs.rchess.api.entity.Service
 
 @Composable
 fun ServiceLabel(service: Service?) {

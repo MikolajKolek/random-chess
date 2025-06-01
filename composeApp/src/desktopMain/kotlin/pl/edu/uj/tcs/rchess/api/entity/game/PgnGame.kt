@@ -1,18 +1,17 @@
-package pl.edu.uj.tcs.rchess.server.game
+package pl.edu.uj.tcs.rchess.api.entity.game
 
+import pl.edu.uj.tcs.rchess.api.entity.Opening
 import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.GameResult
 import pl.edu.uj.tcs.rchess.model.Move
+import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.state.BoardState
-import pl.edu.uj.tcs.rchess.server.Opening
-import pl.edu.uj.tcs.rchess.server.Service
-import pl.edu.uj.tcs.rchess.server.ServiceAccount
 import java.time.LocalDateTime
 
 /**
- * A service game commited to the database
+ * A game imported manually by the user and commited to the database
  */
-data class HistoryServiceGame(
+data class PgnGame(
     override val id: Int,
     override val moves: List<Move>,
     override val startingPosition: BoardState,
@@ -21,9 +20,13 @@ data class HistoryServiceGame(
     override val creationDate: LocalDateTime,
     override val result: GameResult,
     override val metadata: Map<String, String>,
-    val gameIdInService: String?,
-    val service: Service,
-    override val blackPlayer: ServiceAccount,
-    override val whitePlayer: ServiceAccount,
+    val blackPlayerName: String,
+    val whitePlayerName: String,
     override val clockSettings: ClockSettings?,
-) : HistoryGame(), ServiceGame
+) : HistoryGame() {
+    override fun getPlayerName(playerColor: PlayerColor): String =
+        when (playerColor) {
+            PlayerColor.BLACK -> blackPlayerName
+            PlayerColor.WHITE -> whitePlayerName
+        }
+}

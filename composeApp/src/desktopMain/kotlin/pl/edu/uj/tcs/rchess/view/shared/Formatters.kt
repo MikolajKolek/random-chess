@@ -1,5 +1,5 @@
+import pl.edu.uj.tcs.rchess.api.entity.Service
 import pl.edu.uj.tcs.rchess.model.*
-import pl.edu.uj.tcs.rchess.server.Service
 
 fun PlayerColor.formatLowercase(): String
     = when (this) {

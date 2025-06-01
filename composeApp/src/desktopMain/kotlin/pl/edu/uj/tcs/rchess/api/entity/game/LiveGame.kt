@@ -1,9 +1,9 @@
-package pl.edu.uj.tcs.rchess.server.game
+package pl.edu.uj.tcs.rchess.api.entity.game
 
+import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
 import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.game.PlayerGameControls
-import pl.edu.uj.tcs.rchess.server.ServiceAccount
 
 data class LiveGame(
 //    override val blackPlayer: ServiceAccount,

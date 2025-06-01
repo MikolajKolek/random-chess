@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.server
+package pl.edu.uj.tcs.rchess.api.entity
 
 /**
  * Data class representing a service account.

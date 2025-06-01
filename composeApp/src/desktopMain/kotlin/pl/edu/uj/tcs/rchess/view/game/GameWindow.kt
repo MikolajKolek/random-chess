@@ -7,9 +7,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
-import pl.edu.uj.tcs.rchess.server.game.ApiGame
-import pl.edu.uj.tcs.rchess.server.game.HistoryGame
-import pl.edu.uj.tcs.rchess.server.game.LiveGame
+import pl.edu.uj.tcs.rchess.api.entity.game.ApiGame
+import pl.edu.uj.tcs.rchess.api.entity.game.HistoryGame
+import pl.edu.uj.tcs.rchess.api.entity.game.LiveGame
 import pl.edu.uj.tcs.rchess.view.theme.RandomChessTheme
 import pl.edu.uj.tcs.rchess.viewmodel.rememberGameWindowState
 import java.awt.Dimension

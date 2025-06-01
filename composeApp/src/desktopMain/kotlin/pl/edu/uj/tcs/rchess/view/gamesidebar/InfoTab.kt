@@ -8,11 +8,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import pl.edu.uj.tcs.rchess.api.entity.game.ApiGame
+import pl.edu.uj.tcs.rchess.api.entity.game.HistoryGame
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.state.BoardState
-import pl.edu.uj.tcs.rchess.server.game.ApiGame
-import pl.edu.uj.tcs.rchess.server.game.HistoryGame
 import pl.edu.uj.tcs.rchess.view.shared.ExportField
 import pl.edu.uj.tcs.rchess.view.shared.OpeningInfo
 

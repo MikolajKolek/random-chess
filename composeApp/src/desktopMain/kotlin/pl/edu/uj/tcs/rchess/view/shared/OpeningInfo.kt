@@ -9,8 +9,8 @@ import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
+import pl.edu.uj.tcs.rchess.api.entity.Opening
 import pl.edu.uj.tcs.rchess.model.PlayerColor
-import pl.edu.uj.tcs.rchess.server.Opening
 import pl.edu.uj.tcs.rchess.view.board.BoardView
 
 @Composable

@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.server.game
+package pl.edu.uj.tcs.rchess.api.entity.game
 
 import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.PlayerColor

@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.server
+package pl.edu.uj.tcs.rchess.api.entity
 
 /**
  * A data class describing a bot users in our service can play games with

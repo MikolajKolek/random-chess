@@ -7,6 +7,12 @@ import kotlinx.serialization.json.Json
 import org.jooq.JSONB
 import org.jooq.SQLDialect
 import org.jooq.impl.DSL
+import pl.edu.uj.tcs.rchess.api.ClientApi
+import pl.edu.uj.tcs.rchess.api.entity.*
+import pl.edu.uj.tcs.rchess.api.entity.game.HistoryGame
+import pl.edu.uj.tcs.rchess.api.entity.game.HistoryServiceGame
+import pl.edu.uj.tcs.rchess.api.entity.game.LiveGame
+import pl.edu.uj.tcs.rchess.api.entity.game.PgnGame
 import pl.edu.uj.tcs.rchess.config.BotType
 import pl.edu.uj.tcs.rchess.config.Config
 import pl.edu.uj.tcs.rchess.generated.db.keys.SERVICE_GAMES__SERVICE_GAMES_SERVICE_ID_BLACK_PLAYER_FKEY
@@ -21,10 +27,8 @@ import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import pl.edu.uj.tcs.rchess.model.state.GameState
-import pl.edu.uj.tcs.rchess.server.game.HistoryGame
-import pl.edu.uj.tcs.rchess.server.game.HistoryServiceGame
-import pl.edu.uj.tcs.rchess.server.game.LiveGame
-import pl.edu.uj.tcs.rchess.server.game.PgnGame
+import pl.edu.uj.tcs.rchess.server.Serialization.toDbRecord
+import pl.edu.uj.tcs.rchess.server.Serialization.toModel
 import pl.edu.uj.tcs.rchess.util.tryWithLock
 import java.sql.DriverManager
 import java.time.LocalDateTime
@@ -42,7 +46,8 @@ class Server(private val config: Config) : ClientApi, Database {
     private val botGameFactory = GameWithBotFactory(this)
 
     private val syncMutex = Mutex()
-    override val databaseState = MutableStateFlow(ClientApi.DatabaseState(
+    override val databaseState = MutableStateFlow(
+        ClientApi.DatabaseState(
         updatesAvailable = false,
         synchronizing = false
     ))
@@ -64,7 +69,8 @@ class Server(private val config: Config) : ClientApi, Database {
                 serviceAccountRecord.displayName,
                 botType.description,
                 botType.elo,
-                serviceAccountRecord.userIdInService,) to botType
+                serviceAccountRecord.userIdInService,
+            ) to botType
             }.associate { it }
 
         requestResyncImpl()

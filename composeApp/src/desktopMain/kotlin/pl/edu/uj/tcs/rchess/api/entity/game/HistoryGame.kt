@@ -1,5 +1,6 @@
-package pl.edu.uj.tcs.rchess.server.game
+package pl.edu.uj.tcs.rchess.api.entity.game
 
+import pl.edu.uj.tcs.rchess.api.entity.Opening
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 import pl.edu.uj.tcs.rchess.model.GameResult
 import pl.edu.uj.tcs.rchess.model.Move
@@ -8,7 +9,6 @@ import pl.edu.uj.tcs.rchess.model.SanFullMove
 import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import pl.edu.uj.tcs.rchess.model.state.GameState
-import pl.edu.uj.tcs.rchess.server.Opening
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 

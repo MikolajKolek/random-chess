@@ -5,9 +5,9 @@ import com.sksamuel.hoplite.addFileSource
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Test
+import pl.edu.uj.tcs.rchess.api.ClientApi
 import pl.edu.uj.tcs.rchess.config.Config
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
-import pl.edu.uj.tcs.rchess.server.ClientApi
 import pl.edu.uj.tcs.rchess.server.Server
 import java.io.File
 

@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.server
+package pl.edu.uj.tcs.rchess.api.entity
 
 enum class Service(val id: Int) {
     UNKNOWN(0),

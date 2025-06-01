@@ -3,12 +3,12 @@ package pl.edu.uj.tcs.rchess.model.game
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import pl.edu.uj.tcs.rchess.api.entity.game.HistoryServiceGame
 import pl.edu.uj.tcs.rchess.model.*
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 import pl.edu.uj.tcs.rchess.model.state.*
 import pl.edu.uj.tcs.rchess.model.statemachine.StateMachine
 import pl.edu.uj.tcs.rchess.server.Database
-import pl.edu.uj.tcs.rchess.server.game.HistoryServiceGame
 import pl.edu.uj.tcs.rchess.util.SingleTaskTimer
 import kotlin.time.Duration
 

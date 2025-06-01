@@ -1,21 +1,24 @@
-package pl.edu.uj.tcs.rchess.server
+package pl.edu.uj.tcs.rchess.api
 
 import kotlinx.coroutines.flow.StateFlow
+import pl.edu.uj.tcs.rchess.api.entity.BotOpponent
+import pl.edu.uj.tcs.rchess.api.entity.Ranking
+import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
+import pl.edu.uj.tcs.rchess.api.entity.game.HistoryGame
+import pl.edu.uj.tcs.rchess.api.entity.game.HistoryServiceGame
+import pl.edu.uj.tcs.rchess.api.entity.game.LiveGame
+import pl.edu.uj.tcs.rchess.api.entity.game.PgnGame
 import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.PlayerColor
-import pl.edu.uj.tcs.rchess.server.game.HistoryGame
-import pl.edu.uj.tcs.rchess.server.game.HistoryServiceGame
-import pl.edu.uj.tcs.rchess.server.game.LiveGame
-import pl.edu.uj.tcs.rchess.server.game.PgnGame
 
 interface ClientApi {
     /**
-     * A [StateFlow] indicating the current state of database synchronization.
+     * A [kotlinx.coroutines.flow.StateFlow] indicating the current state of database synchronization.
      */
     val databaseState: StateFlow<DatabaseState>
 
     /**
-     * @return A list of all [pl.edu.uj.tcs.rchess.server.game.HistoryGame]s the user has access to
+     * @return A list of all [pl.edu.uj.tcs.rchess.api.entity.game.HistoryGame]s the user has access to
      * @param refreshAvailableUpdates If true, this sets [DatabaseState.updatesAvailable] to `false` in the
      * [databaseState] flow.
      */
@@ -23,14 +26,14 @@ interface ClientApi {
 
     /**
      * @param id The ID of the service game
-     * @return A [pl.edu.uj.tcs.rchess.server.game.HistoryServiceGame] from the database with the given ID, if it exists and the user has access to it
+     * @return A [pl.edu.uj.tcs.rchess.api.entity.game.HistoryServiceGame] from the database with the given ID, if it exists and the user has access to it
      * @throws IllegalArgumentException when the game does not exist or the user doesn't have access to it
      */
     suspend fun getServiceGame(id: Int): HistoryServiceGame
 
     /**
      * @param id The ID of the PGN game
-     * @return A [pl.edu.uj.tcs.rchess.server.game.PgnGame] from the database with the given ID, if it exists and the user has access to it
+     * @return A [pl.edu.uj.tcs.rchess.api.entity.game.PgnGame] from the database with the given ID, if it exists and the user has access to it
      * @throws IllegalArgumentException when the game does not exist or the user doesn't have access to it
      */
     suspend fun getPgnGame(id: Int): PgnGame
@@ -43,12 +46,12 @@ interface ClientApi {
     suspend fun addPgnGames(fullPgn: String): List<Int>
 
     /**
-     * @return The system [ServiceAccount] of the user
+     * @return The system [pl.edu.uj.tcs.rchess.api.entity.ServiceAccount] of the user
      */
     suspend fun getSystemAccount(): ServiceAccount
 
     /**
-     * @return A list of [BotOpponent]s the user can start a game with
+     * @return A list of [pl.edu.uj.tcs.rchess.api.entity.BotOpponent]s the user can start a game with
      */
     suspend fun getBotOpponents(): List<BotOpponent>
 
@@ -66,7 +69,7 @@ interface ClientApi {
     ): LiveGame
 
     /**
-     * @return A list of all [Ranking]s the user can view.
+     * @return A list of all [pl.edu.uj.tcs.rchess.api.entity.Ranking]s the user can view.
      */
     suspend fun getRankings(): List<Ranking>
 
