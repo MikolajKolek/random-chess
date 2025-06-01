@@ -1,12 +1,10 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jooq.meta.jaxb.MatcherTransformType
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinSerialization)
-    alias(libs.plugins.jooqCodegen)
 }
 
 kotlin {
@@ -16,6 +14,12 @@ kotlin {
         val desktopMain by getting
 
         commonMain.dependencies {
+            implementation(projects.shared)
+            implementation(projects.server)
+
+            implementation(libs.logback)
+            implementation(libs.kotlin.logging)
+
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
@@ -25,24 +29,6 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.viewmodel.compose)
             implementation(libs.androidx.lifecycle.runtime.compose)
-
-            implementation(libs.kotlinx.serialization.json)
-
-            implementation(libs.hoplite)
-            implementation(libs.hoplite.yaml)
-
-            implementation(libs.jooq)
-            implementation(libs.jooq.meta)
-            implementation(libs.jooq.codegen)
-            implementation(libs.jooq.kotlin)
-            implementation(libs.jooq.kotlin.coroutines)
-            implementation(libs.r2dbc.spi)
-
-            implementation(libs.jdbc.postgresql)
-            implementation(libs.r2dbc.postgresql)
-
-            implementation(libs.logback)
-            implementation(libs.kotlin.logging)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -51,59 +37,12 @@ kotlin {
         desktopMain.languageSettings {
             optIn("kotlin.time.ExperimentalTime")
         }
-        desktopMain.kotlin {
-            srcDir("build/generated/db/kotlin")
-        }
 
         @Suppress("unused")
         val desktopTest by getting {
             dependencies {
                 implementation(compose.desktop.uiTestJUnit4)
                 implementation(compose.desktop.currentOs)
-            }
-        }
-    }
-}
-
-dependencies {
-    jooqCodegen(libs.jdbc.postgresql)
-}
-
-jooq {
-    configuration {
-        jdbc {
-            driver = "org.postgresql.Driver"
-            url = "jdbc:postgresql://localhost:5432/random_chess"
-            user = "random_chess"
-            password = "random_chess"
-        }
-        generator {
-            name = "org.jooq.codegen.KotlinGenerator"
-            database {
-                name = "org.jooq.meta.postgres.PostgresDatabase"
-                inputSchema = "public"
-                includes = ".*"
-            }
-            target {
-                packageName = "pl.edu.uj.tcs.rchess.generated.db"
-                directory = "build/generated/db/kotlin"
-            }
-            generate {
-                isKotlinNotNullPojoAttributes = true
-                isKotlinNotNullRecordAttributes = true
-                isKotlinNotNullInterfaceAttributes = true
-            }
-            strategy {
-                matchers {
-                    enums {
-                        enum_ {
-                            enumClass {
-                                transform = MatcherTransformType.PASCAL
-                                expression = "db_$0"
-                            }
-                        }
-                    }
-                }
             }
         }
     }
@@ -120,5 +59,3 @@ compose.desktop {
         }
     }
 }
-
-tasks["compileKotlinDesktop"].dependsOn("jooqCodegen")

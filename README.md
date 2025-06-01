@@ -2,13 +2,13 @@
 A chess app with functionality for saving, analyzing and playing games.
 
 # Getting started
-Copy the config file from `composeApp/config.yml.example` to `composeApp/config.yml`.
+Copy the config file from `local/config.yml.example` to `local/config.yml`.
 
 You also must have Stockfish downloaded, so the bot games can work.
 Download [the Stockfish executable](https://stockfishchess.org/download/) for your platform
 and [nn-1c0000000000.nnue](https://tests.stockfishchess.org/api/nn/nn-1c0000000000.nnue).
 You can put them in the [local](local) directory.
-Then, point the executable field in [composeApp/config.yml](composeApp/config.yml) to your executable,
+Then, point the executable field in [local/config.yml](local/config.yml) to your executable,
 and the `EvalFile` field to the nnue.
 
 Before building the app, you must have postgresql installed and running on your machine with the appropriate schema.
@@ -20,24 +20,26 @@ This task uses jooq to generate sources for the database schema,
 so you must have the database running and up to date when building.
 
 # Testing
-Some automated tests in `desktopTest/` use large external PGN files. 
+If you want to run all the automated tests, run `gradle allTests`.
+
+Some automated tests in `shared/src/jvmTest/` use large external PGN files. 
 These tests are not run by default, as they are very time-consuming. 
 
 If you want to run the full test suite, add
 ```
 runExternalTests=true
 ```
-to the `local.properties` file in `composeApp/` and create a `pgn_database.pgn`
-file in `desktopTest/` containing example pgn data.
+to the `local.properties` file in `local/` and create a `pgn_database.pgn`
+file in `local/` containing example pgn data.
 
-An example pgn database to use is the first 100k lines of [this file](https://lichess.org/api/games/user/german11).
+An example pgn database to use is approximately the first 100k lines of [this file](https://lichess.org/api/games/user/german11).
 
 # Debugging
 To change the log level, add:
 ```
 log.level=<LEVEL>
 ```
-to the `local.properties` file in `composeApp/`.
+to the `local.properties` file in `local/`.
 
 The available levels are `ERROR`, `WARN`, `INFO` (default), `DEBUG` and `TRACE`.
 

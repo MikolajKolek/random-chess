@@ -99,9 +99,11 @@ fun Progress(
                 background(color)
             }
     ) {
-        when (gameState.progress) {
-            is GameProgress.Finished -> ProgressFinished(gameState.progress.result)
-            is GameProgress.Running -> ProgressRunning(gameState.currentState.currentTurn)
+        gameState.progress.let {
+            when (it) {
+                is GameProgress.Finished -> ProgressFinished(it.result)
+                is GameProgress.Running -> ProgressRunning(gameState.currentState.currentTurn)
+            }
         }
     }
 }

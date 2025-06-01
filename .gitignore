@@ -4,7 +4,6 @@
 **/build/
 xcuserdata
 !src/**/build/
-local.properties
 .idea
 .DS_Store
 captures
@@ -16,6 +15,3 @@ captures
 !*.xcodeproj/project.xcworkspace/
 !*.xcworkspace/contents.xcworkspacedata
 **/xcshareddata/WorkspaceSettings.xcsettings
-
-/local
-/composeApp/config.yml
