@@ -444,6 +444,7 @@ CREATE OR REPLACE FUNCTION detect_opening(
 $$
 DECLARE
     my_partial_fen VARCHAR;
+    opening_id INTEGER := NULL;
 BEGIN
     FOREACH my_partial_fen IN ARRAY partial_fens LOOP
         IF EXISTS(
@@ -451,10 +452,10 @@ BEGIN
             FROM openings o
             WHERE o.partial_fen=my_partial_fen
         ) THEN
-            RETURN (SELECT o.id FROM openings o WHERE o.partial_fen=my_partial_fen LIMIT 1);
+            opening_id := (SELECT o.id FROM openings o WHERE o.partial_fen=my_partial_fen LIMIT 1);
         END IF;
     END LOOP;
-    RETURN NULL;
+    RETURN opening_id;
 END;
 $$
 LANGUAGE plpgsql;
