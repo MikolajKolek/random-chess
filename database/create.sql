@@ -450,9 +450,13 @@ BEGIN
         IF EXISTS(
             SELECT *
             FROM openings o
-            WHERE o.partial_fen=my_partial_fen
+            WHERE REGEXP_REPLACE(o.partial_fen,'\s[^\s]+$','','g') = REGEXP_REPLACE(my_partial_fen,'\s[^\s]+$','','g')
         ) THEN
-            opening_id := (SELECT o.id FROM openings o WHERE o.partial_fen=my_partial_fen LIMIT 1);
+            opening_id := (SELECT o.id
+                FROM openings o
+                WHERE REGEXP_REPLACE(o.partial_fen,'\s[^\s]+$','','g') = REGEXP_REPLACE(my_partial_fen,'\s[^\s]+$','','g')
+                LIMIT 1
+            );
         END IF;
     END LOOP;
     RETURN opening_id;
