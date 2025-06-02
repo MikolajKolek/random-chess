@@ -11,6 +11,7 @@ jdbc-postgresql = "42.7.5"
 r2dbc-postgresql = "1.0.7.RELEASE"
 logback = "1.5.18"
 kotlin-logging = "7.0.3"
+composeHotReload = "1.0.0-alpha10"
 
 [libraries]
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
@@ -36,6 +37,7 @@ kotlin-logging = { module = 'io.github.oshai:kotlin-logging-jvm', version.ref = 
 [plugins]
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+composeHotReload = { id = "org.jetbrains.compose.hot-reload", version.ref = "composeHotReload"}
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
