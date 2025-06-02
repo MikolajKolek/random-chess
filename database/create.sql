@@ -450,11 +450,13 @@ BEGIN
         IF EXISTS(
             SELECT *
             FROM openings o
-            WHERE REGEXP_REPLACE(o.partial_fen,'\s[^\s]+$','','g') = REGEXP_REPLACE(my_partial_fen,'\s[^\s]+$','','g')
+            WHERE split_part(o.partial_fen, ' ', 1)||' '||split_part(o.partial_fen, ' ', 2)||split_part(o.partial_fen, ' ', 3)
+            =split_part(my_partial_fen, ' ', 1)||' '||split_part(my_partial_fen, ' ', 2)||split_part(my_partial_fen, ' ', 3)
         ) THEN
             opening_id := (SELECT o.id
                 FROM openings o
-                WHERE REGEXP_REPLACE(o.partial_fen,'\s[^\s]+$','','g') = REGEXP_REPLACE(my_partial_fen,'\s[^\s]+$','','g')
+                WHERE split_part(o.partial_fen, ' ', 1)||' '||split_part(o.partial_fen, ' ', 2)||split_part(o.partial_fen, ' ', 3)
+                =split_part(my_partial_fen, ' ', 1)||' '||split_part(my_partial_fen, ' ', 2)||split_part(my_partial_fen, ' ', 3)
                 LIMIT 1
             );
         END IF;
