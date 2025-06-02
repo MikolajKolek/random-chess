@@ -90,7 +90,7 @@ internal object Serialization {
         // because it's done with a check, jooq doesn't realize and makes it nullable
         moves = moves.map { Move.fromLongAlgebraicNotation(it!!) },
         startingPosition = BoardState.fromFen(startingPosition),
-        finalPosition = BoardState.fromFen(partialFens!!.last()!!, true),
+        finalPosition = BoardState.fromFen((partialFens!!.last() + " -"), true),
         opening = opening,
         creationDate = creationDate,
         result = GameResult.fromDbResult(result),
@@ -111,7 +111,7 @@ internal object Serialization {
         // because it's done with a check, jooq doesn't realize and makes it nullable
         moves = moves.map { Move.fromLongAlgebraicNotation(it!!) },
         startingPosition = BoardState.fromFen(startingPosition),
-        finalPosition = BoardState.fromFen(partialFens!!.last()!!, true),
+        finalPosition = BoardState.fromFen((partialFens!!.last() + " -"), true),
         opening = opening,
         creationDate = creationDate,
         result = GameResult.fromDbResult(result),
