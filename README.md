@@ -3,7 +3,7 @@ A chess app with functionality for saving, analyzing and playing games.
 
 # Getting started
 Copy the config file from [local/config.example.yml](local/config.example.yml) to:
-- on Linux: `~/.config/rchess/config.yml`
+- on Linux: `~/.local/share/rchess/config.yml`
 - on Windows: `%APPDATA%/rchess/config.yml`
 - on macOS: `~/Library/Application Support/rchess/config.yml`
 
