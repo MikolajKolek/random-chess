@@ -9,7 +9,7 @@ import pl.edu.uj.tcs.rchess.bot.Bot
  */
 internal data class BotType(
     val description: String?,
-    val executable: String,
+    val executable: ExecutableName,
     val options: Map<String, String>,
     val maxDepth: Int?,
     val moveTimeMs: Int?,
@@ -18,6 +18,6 @@ internal data class BotType(
     val slowdown: Pair<Int, Int>?
 ) {
     fun spawnBot(): Bot {
-        return Bot(ProcessBuilder(executable).start(), options, maxDepth, moveTimeMs, slowdown)
+        return Bot(ProcessBuilder(executable.value).start(), options, maxDepth, moveTimeMs, slowdown)
     }
 }

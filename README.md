@@ -2,13 +2,16 @@
 A chess app with functionality for saving, analyzing and playing games.
 
 # Getting started
-Copy the config file from `local/config.yml.example` to `local/config.yml`.
+Copy the config file from [local/config.example.yml](local/config.example.yml) to:
+- on Linux: `~/.config/rchess/config.yml`
+- on Windows: `%APPDATA%/rchess/config.yml`
+- on macOS: `~/Library/Application Support/rchess/config.yml`
 
 You also must have Stockfish downloaded, so the bot games can work.
 Download [the Stockfish executable](https://stockfishchess.org/download/) for your platform
 and [nn-1c0000000000.nnue](https://tests.stockfishchess.org/api/nn/nn-1c0000000000.nnue).
-You can put them in the [local](local) directory.
-Then, point the executable field in [local/config.yml](local/config.yml) to your executable,
+You can put them in the same directory as the config.
+Then, point the executable field in `config.yml` to your executable,
 and the `EvalFile` field to the nnue.
 
 Before building the app, you must have postgresql installed and running on your machine with the appropriate schema.

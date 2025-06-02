@@ -1,7 +1,5 @@
 package pl.edu.uj.tcs.rchess.server
 
-import com.sksamuel.hoplite.ConfigLoaderBuilder
-import com.sksamuel.hoplite.addFileSource
 import io.r2dbc.spi.ConnectionFactories
 import io.r2dbc.spi.ConnectionFactoryOptions
 import kotlinx.coroutines.MainScope
@@ -27,7 +25,7 @@ import pl.edu.uj.tcs.rchess.api.entity.game.HistoryServiceGame
 import pl.edu.uj.tcs.rchess.api.entity.game.LiveGame
 import pl.edu.uj.tcs.rchess.api.entity.game.PgnGame
 import pl.edu.uj.tcs.rchess.config.BotType
-import pl.edu.uj.tcs.rchess.config.Config
+import pl.edu.uj.tcs.rchess.config.ConfigLoader
 import pl.edu.uj.tcs.rchess.generated.db.keys.SERVICE_GAMES__SERVICE_GAMES_SERVICE_ID_BLACK_PLAYER_FKEY
 import pl.edu.uj.tcs.rchess.generated.db.keys.SERVICE_GAMES__SERVICE_GAMES_SERVICE_ID_WHITE_PLAYER_FKEY
 import pl.edu.uj.tcs.rchess.generated.db.tables.references.*
@@ -42,12 +40,11 @@ import pl.edu.uj.tcs.rchess.server.Serialization.toDbType
 import pl.edu.uj.tcs.rchess.server.Serialization.toModel
 import pl.edu.uj.tcs.rchess.util.tryWithLock
 import reactor.core.publisher.Flux
-import java.io.File
 import java.time.LocalDateTime
 import java.util.*
 
 class Server() : ClientApi, Database {
-    private val config: Config = ConfigLoaderBuilder.default().addFileSource(File("config.yml")).build().loadConfigOrThrow()
+    private val config = ConfigLoader.loadConfig()
     private val connection = ConnectionFactories.get(
         ConnectionFactoryOptions
             .parse("r2dbc:postgresql://${config.database.host}:${config.database.port}/${config.database.database}")

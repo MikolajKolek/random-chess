@@ -1,5 +1,11 @@
 # This is an example configuration file
-# Copy this file to config.yml, which git ignores
+#
+# Copy this file to:
+# - on Linux: ~/.config/rchess/config.yml
+# - on Windows: %APPDATA%/rchess/config.yml
+# - on macOS: ~/Library/Application Support/rchess/config.yml
+#
+# Paths are relative to this file
 
 defaultUser: 1
 
@@ -12,40 +18,40 @@ database:
 
 bots:
   # Stockfish: Easy
-  - executable: "../local/stockfish"
+  - executable: "./stockfish"
     options:
       "Skill Level": -9
-      "EvalFile": "../local/nn-1c0000000000.nnue"
+      "EvalFile": "./nn-1c0000000000.nnue"
     maxDepth: 5
     moveTimeMs: 50
     serviceAccountId: "stockfish-easy"
     elo: 800
     slowdown: [450, 950]
   # Stockfish: Medium
-  - executable: "../local/stockfish"
+  - executable: "./stockfish"
     options:
       "Skill Level": -1
-      "EvalFile": "../local/nn-1c0000000000.nnue"
+      "EvalFile": "./nn-1c0000000000.nnue"
     maxDepth: 5
     moveTimeMs: 150
     serviceAccountId: "stockfish-medium"
     elo: 1400
     slowdown: [350, 850]
   # Stockfish: Hard
-  - executable: "../local/stockfish"
+  - executable: "./stockfish"
     options:
       "Skill Level": 7
-      "EvalFile": "../local/nn-1c0000000000.nnue"
+      "EvalFile": "./nn-1c0000000000.nnue"
     maxDepth: 5
     moveTimeMs: 300
     serviceAccountId: "stockfish-hard"
     elo: 2000
     slowdown: [200, 700]
   # Stockfish: Impossible
-  - executable: "../local/stockfish"
+  - executable: "./stockfish"
     options:
       "Skill Level": 20
-      "EvalFile": "../local/nn-1c0000000000.nnue"
+      "EvalFile": "./nn-1c0000000000.nnue"
     maxDepth: 22
     moveTimeMs: 1000
     serviceAccountId: "stockfish-impossible"
