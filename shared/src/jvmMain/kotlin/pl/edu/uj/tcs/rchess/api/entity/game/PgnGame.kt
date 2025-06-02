@@ -16,7 +16,7 @@ data class PgnGame(
     override val moves: List<Move>,
     override val startingPosition: BoardState,
     override val finalPosition: BoardState,
-    override val opening: Opening,
+    override val opening: Opening?,
     override val creationDate: LocalDateTime,
     override val result: GameResult,
     override val metadata: Map<String, String>,

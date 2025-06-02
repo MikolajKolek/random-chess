@@ -18,7 +18,10 @@ import org.jooq.SQLDialect
 import org.jooq.impl.DSL
 import org.jooq.kotlin.coroutines.transactionCoroutine
 import pl.edu.uj.tcs.rchess.api.ClientApi
-import pl.edu.uj.tcs.rchess.api.entity.*
+import pl.edu.uj.tcs.rchess.api.entity.BotOpponent
+import pl.edu.uj.tcs.rchess.api.entity.Ranking
+import pl.edu.uj.tcs.rchess.api.entity.Service
+import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryGame
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryServiceGame
 import pl.edu.uj.tcs.rchess.api.entity.game.LiveGame
@@ -27,16 +30,11 @@ import pl.edu.uj.tcs.rchess.config.BotType
 import pl.edu.uj.tcs.rchess.config.Config
 import pl.edu.uj.tcs.rchess.generated.db.keys.SERVICE_GAMES__SERVICE_GAMES_SERVICE_ID_BLACK_PLAYER_FKEY
 import pl.edu.uj.tcs.rchess.generated.db.keys.SERVICE_GAMES__SERVICE_GAMES_SERVICE_ID_WHITE_PLAYER_FKEY
-import pl.edu.uj.tcs.rchess.generated.db.tables.references.PGN_GAMES
-import pl.edu.uj.tcs.rchess.generated.db.tables.references.RANKINGS
-import pl.edu.uj.tcs.rchess.generated.db.tables.references.SERVICE_ACCOUNTS
-import pl.edu.uj.tcs.rchess.generated.db.tables.references.SERVICE_GAMES
+import pl.edu.uj.tcs.rchess.generated.db.tables.references.*
 import pl.edu.uj.tcs.rchess.model.ClockSettings
-import pl.edu.uj.tcs.rchess.model.Fen.Companion.fromFen
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 import pl.edu.uj.tcs.rchess.model.Pgn
 import pl.edu.uj.tcs.rchess.model.PlayerColor
-import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import pl.edu.uj.tcs.rchess.model.state.GameState
 import pl.edu.uj.tcs.rchess.server.Serialization.toDbResult
@@ -204,10 +202,20 @@ class Server() : ClientApi, Database {
         val whiteAccount = SERVICE_ACCOUNTS.`as`("white_account")
         val blackAccount = SERVICE_ACCOUNTS.`as`("black_account")
 
-        var query = dsl.select(SERVICE_GAMES, whiteAccount, blackAccount)
-            .from(SERVICE_GAMES)
+        var query = dsl.select(
+                SERVICE_GAMES,
+                whiteAccount,
+                blackAccount,
+                GAMES_OPENINGS,
+                OPENINGS
+            ).from(SERVICE_GAMES)
             .join(whiteAccount).onKey(SERVICE_GAMES__SERVICE_GAMES_SERVICE_ID_WHITE_PLAYER_FKEY)
             .join(blackAccount).onKey(SERVICE_GAMES__SERVICE_GAMES_SERVICE_ID_BLACK_PLAYER_FKEY)
+            .join(GAMES_OPENINGS).on(
+                SERVICE_GAMES.ID.eq(GAMES_OPENINGS.GAME_ID)
+                    .and(GAMES_OPENINGS.KIND.eq("service"))
+            )
+            .leftJoin(OPENINGS).on(GAMES_OPENINGS.OPENING_ID.eq(OPENINGS.ID))
             .where(
                 blackAccount.USER_ID.eq(config.defaultUser)
                     .or(whiteAccount.USER_ID.eq(config.defaultUser))
@@ -216,7 +224,7 @@ class Server() : ClientApi, Database {
         if (id.isPresent)
             query = query.and(SERVICE_GAMES.ID.eq(id.get()))
 
-        return Flux.from(query).asFlow().map { (serviceGame, white, black) ->
+        return Flux.from(query).asFlow().map { (serviceGame, white, black, _, opening) ->
             serviceGame.toModel(
                 white = white.toModel(
                     isCurrentUser = white.userId == config.defaultUser
@@ -224,33 +232,29 @@ class Server() : ClientApi, Database {
                 black = black.toModel(
                     isCurrentUser = black.userId == config.defaultUser
                 ),
-                opening = openingByGameId(serviceGame.id!!),
+                opening = opening.toModel()
             )
         }.toList()
     }
 
     private suspend fun pgnGamesRequest(id: Optional<Int>): List<PgnGame> {
-        var query = dsl.selectFrom(PGN_GAMES)
+        var query = dsl.select(PGN_GAMES, GAMES_OPENINGS, OPENINGS)
+            .from(PGN_GAMES)
+            .join(GAMES_OPENINGS).on(
+                PGN_GAMES.ID.eq(GAMES_OPENINGS.GAME_ID)
+                    .and(GAMES_OPENINGS.KIND.eq("pgn"))
+            )
+            .leftJoin(OPENINGS).on(GAMES_OPENINGS.OPENING_ID.eq(OPENINGS.ID))
             .where(PGN_GAMES.OWNER_ID.eq(config.defaultUser))
 
         if (id.isPresent)
             query = query.and(PGN_GAMES.ID.eq(id.get()))
 
-        return Flux.from(query).asFlow().map { resultRow ->
-            resultRow.toModel(
-                opening = openingByGameId(resultRow.id!!),
+        return Flux.from(query).asFlow().map { (pgnGame, _, opening) ->
+            pgnGame.toModel(
+                opening = opening.toModel()
             )
         }.toList()
-    }
-
-    // TODO: implement, this is a placeholder.
-    //  The proper solution will use a database join.
-    private fun openingByGameId(gameId: Int): Opening {
-        return Opening(
-            name = "Bishop's opening",
-            eco = "C23",
-            position = BoardState.fromFen("rnbqkbnr/pppp1ppp/8/4p3/2B1P3/8/PPPP1PPP/RNBQK1NR b KQkq - 1 2")
-        )
     }
 
     override suspend fun saveGame(

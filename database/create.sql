@@ -461,7 +461,7 @@ $$
 LANGUAGE plpgsql;
 
 CREATE VIEW games_openings AS (
-    SELECT g.id AS game_id, CASE
+    SELECT g.id AS game_id, g.kind AS kind, CASE
         WHEN (dop IS NULL) THEN NULL
         ELSE dop
     END AS opening_id

@@ -8,6 +8,7 @@ import pl.edu.uj.tcs.rchess.api.entity.Service
 import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryServiceGame
 import pl.edu.uj.tcs.rchess.api.entity.game.PgnGame
+import pl.edu.uj.tcs.rchess.generated.db.tables.records.OpeningsRecord
 import pl.edu.uj.tcs.rchess.generated.db.tables.records.PgnGamesRecord
 import pl.edu.uj.tcs.rchess.generated.db.tables.records.RankingsRecord
 import pl.edu.uj.tcs.rchess.generated.db.tables.records.ServiceAccountsRecord
@@ -82,7 +83,7 @@ internal object Serialization {
     fun ServiceGamesRecord.toModel(
         white: ServiceAccount,
         black: ServiceAccount,
-        opening: Opening,
+        opening: Opening?,
     ) = HistoryServiceGame(
         id = id!!,
         // We know that the moves are not null as we verify that in the database, but
@@ -103,7 +104,7 @@ internal object Serialization {
     )
 
     fun PgnGamesRecord.toModel(
-        opening: Opening,
+        opening: Opening?,
     ) = PgnGame(
         id = id!!,
         // We know that the moves are not null as we verify that in the database, but
@@ -120,6 +121,14 @@ internal object Serialization {
         whitePlayerName = whitePlayerName,
         clockSettings = clock?.toModel(),
     )
+
+    fun OpeningsRecord.toModel() = id?.let {
+        Opening(
+            eco = eco,
+            name = name,
+            position = BoardState.fromFen(partialFen, true)
+        )
+    }
 
     fun GameResult.Companion.fromDbResult(result: GameResultTypeRecord): GameResult {
         return when (result.gameEndType) {
