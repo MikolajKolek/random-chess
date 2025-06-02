@@ -94,29 +94,31 @@ fun GameHistoryItem(
 
                 Spacer(Modifier.weight(1f))
 
-                TooltipBox(
-                    positionProvider = TooltipDefaults.rememberRichTooltipPositionProvider(),
-                    tooltip = { RichTooltip(
-                        title = {
-                            Text(
-                                "Opening",
-                                style = MaterialTheme.typography.labelSmall,
+                game.opening?.let {
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberRichTooltipPositionProvider(),
+                        tooltip = { RichTooltip(
+                            title = {
+                                Text(
+                                    "Opening",
+                                    style = MaterialTheme.typography.labelSmall,
+                                )
+                            },
+                        ) {
+                            OpeningInfo(
+                                modifier = Modifier.width(200.dp),
+                                opening = it
                             )
-                        },
+                        } },
+                        state = rememberTooltipState(
+                            isPersistent = true,
+                        ),
                     ) {
-                        OpeningInfo(
-                            modifier = Modifier.width(200.dp),
-                            opening = game.opening
+                        Text(
+                            "${it.eco}: ${it.name}",
+                            style = MaterialTheme.typography.bodyMedium,
                         )
-                    } },
-                    state = rememberTooltipState(
-                        isPersistent = true,
-                    ),
-                ) {
-                    Text(
-                        "${game.opening.eco}: ${game.opening.name}",
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
+                    }
                 }
             }
         }

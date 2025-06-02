@@ -20,7 +20,7 @@ sealed class HistoryGame : ApiGame {
     abstract val moves: List<Move>
     abstract val startingPosition: BoardState
     abstract val finalPosition: BoardState
-    abstract val opening: Opening
+    abstract val opening: Opening?
     abstract val creationDate: LocalDateTime
     abstract val result: GameResult
     abstract val metadata: Map<String, String>
@@ -61,7 +61,7 @@ sealed class HistoryGame : ApiGame {
         appendMetadataTagOr("White", getPlayerName(PlayerColor.WHITE))
         appendMetadataTagOr("Black", getPlayerName(PlayerColor.BLACK))
         overrideTag("Result", result.toPgnString())
-        opening.let {
+        opening?.let {
             overrideTag("Opening", it.name)
             overrideTag("ECO", it.eco)
         }
