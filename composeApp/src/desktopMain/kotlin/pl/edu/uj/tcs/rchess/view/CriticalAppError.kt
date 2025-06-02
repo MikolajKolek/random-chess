@@ -19,7 +19,7 @@ import pl.edu.uj.tcs.rchess.view.theme.RandomChessTheme
 import rchess.composeapp.generated.resources.Res
 import rchess.composeapp.generated.resources.icon_error
 
-fun startInitialErrorApp(error: Exception) = application {
+fun showCriticalAppError(error: Exception, duringServerStartup: Boolean) = application {
     Window(
         onCloseRequest = ::exitApplication,
         state = rememberWindowState(
@@ -51,7 +51,11 @@ fun startInitialErrorApp(error: Exception) = application {
                         verticalArrangement = Arrangement.Center,
                     ) {
                         Text(
-                            text = "Error loading the server",
+                            text = if (duringServerStartup) {
+                                "Error starting the server"
+                            } else {
+                                "The application encountered a critical error"
+                            },
                             style = MaterialTheme.typography.headlineSmall,
                         )
 
