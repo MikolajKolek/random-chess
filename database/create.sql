@@ -244,7 +244,6 @@ DECLARE
     to_square VARCHAR(2) = substr(move, 3, 2);
     color CHAR := split_part(fen, ' ', 2);
     castling_rights VARCHAR := split_part(fen, ' ', 3);
-    en_passant VARCHAR := split_part(fen, ' ', 4);
     promote_piece CHAR;
 BEGIN
     -- Aplikowanie ruchu
@@ -272,7 +271,7 @@ BEGIN
 
     -- Capturing en passant
     IF(LOWER(piece) = 'p') THEN
-        IF(to_square = en_passant) THEN
+        IF(get_piece_at(board, to_square)='e') THEN
             IF(substr(move, 1, 1) != substr(move, 3, 1)) THEN
                 IF(piece = LOWER(piece)) THEN
                     newBoard := place_piece(newBoard, id_to_square(square_to_id(to_square)-9), 'e');
@@ -325,18 +324,7 @@ BEGIN
         castling_rights := remove_letter(castling_rights, 'k');
     END IF;
 
-    -- On first move add en passant square
-    en_passant := '-';
-    IF(LOWER(piece) = 'p') THEN
-        IF(substr(move, 2, 1) = '2' AND substr(move, 4, 1) = '4') THEN
-            en_passant := substr(move, 1, 1)||'3';
-        END IF;
-        IF(substr(move, 2, 1) = '7' AND substr(move, 4, 1) = '5') THEN
-            en_passant := substr(move, 1, 1)||'6';
-        END IF;
-    END IF;
-
-    RETURN board_to_fen(newBoard)||' '||color||' '||castling_rights||' '||en_passant;
+    RETURN board_to_fen(newBoard)||' '||color||' '||castling_rights;
 END;
 $$
 LANGUAGE plpgsql IMMUTABLE;
@@ -349,7 +337,7 @@ CREATE OR REPLACE FUNCTION generate_fen_array(
 $$
 DECLARE
     result_fen_array VARCHAR[] := '{}';
-    start VARCHAR := array_to_string(trim_array(string_to_array(starting_position, ' '), 2), ' ');
+    start VARCHAR := array_to_string(trim_array(string_to_array(starting_position, ' '), 3), ' ');
     last_fen VARCHAR := start;
     elem VARCHAR(5);
 BEGIN
@@ -450,13 +438,11 @@ BEGIN
         IF EXISTS(
             SELECT *
             FROM openings o
-            WHERE split_part(o.partial_fen, ' ', 1)||' '||split_part(o.partial_fen, ' ', 2)||split_part(o.partial_fen, ' ', 3)
-            =split_part(my_partial_fen, ' ', 1)||' '||split_part(my_partial_fen, ' ', 2)||split_part(my_partial_fen, ' ', 3)
+            WHERE my_partial_fen||' -'=o.partial_fen
         ) THEN
             opening_id := (SELECT o.id
                 FROM openings o
-                WHERE split_part(o.partial_fen, ' ', 1)||' '||split_part(o.partial_fen, ' ', 2)||split_part(o.partial_fen, ' ', 3)
-                =split_part(my_partial_fen, ' ', 1)||' '||split_part(my_partial_fen, ' ', 2)||split_part(my_partial_fen, ' ', 3)
+                WHERE my_partial_fen||' -'=o.partial_fen
                 LIMIT 1
             );
         END IF;
