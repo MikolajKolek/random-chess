@@ -1247,7 +1247,7 @@ INSERT INTO pgn_games("moves", "creation_date", "result", "metadata", "owner_id"
         'Veselin Topalov'
     );*/
 
-INSERT INTO openings("eco", "name", "partial_fen") VALUES
+/*INSERT INTO openings("eco", "name", "partial_fen") VALUES
     ('D11','Slav Defense: Modern Line','rnbqkbnr/pp2pppp/2p5/3p4/2PP4/5N2/PP2PPPP/RNBQKB1R b KQkq -'), -- np. 1. d4 d5 2. c4 c6 3. Nf3
     ('B00','King''s Pawn Game','rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq -'), -- np. 1. e4
     ('A00','Polish Opening: Symmetrical Variation','rnbqkbnr/p1pppppp/8/1p6/1P6/8/P1PPPPPP/RNBQKBNR w KQkq -'), -- np. 1. b4 b5
@@ -1257,3 +1257,4 @@ INSERT INTO openings("eco", "name", "partial_fen") VALUES
     ('C44','Scotch Game: Scotch Gambit, Dubois Réti Defense','r1bqkb1r/pppp1ppp/2n2n2/8/2BpP3/5N2/PPP2PPP/RNBQK2R w KQkq -'), -- np. 1. e4 e5 2. Nf3 Nc6 3. d4 exd4 4. Bc4 Nf6
     ('E68','King''s Indian Defense: Fianchetto Variation, Classical Variation','r1bq1rk1/pppn1pbp/3p1np1/4p3/2PPP3/2N2NP1/PP3PBP/R1BQ1RK1 b - -'); -- np. 1. d4 Nf6 2. c4 g6 3. Nc3 Bg7 4. Nf3 d6 5. g3 O-O 6. Bg2 Nbd7 7. O-O e5 8. e4
 -- Dodanie 20 wariantów pierwszego ruchu do bazy zapewni, że każda niepusta partia będzie mieć jakiś przypisany debiut
+*/
