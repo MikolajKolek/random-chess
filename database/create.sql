@@ -428,11 +428,13 @@ CREATE VIEW "users_games" AS (
 
 CREATE OR REPLACE FUNCTION detect_opening(
     partial_fens VARCHAR[]
-) RETURNS INTEGER AS
+) RETURNS RECORD AS
 $$
 DECLARE
     my_partial_fen VARCHAR;
     opening_id INTEGER := NULL;
+    move_no INTEGER := 0;
+    ret_val RECORD := NULL;
 BEGIN
     FOREACH my_partial_fen IN ARRAY partial_fens LOOP
         IF EXISTS(
@@ -445,19 +447,18 @@ BEGIN
                 WHERE my_partial_fen||' -'=o.partial_fen
                 LIMIT 1
             );
+            SELECT opening_id, move_no INTO ret_val;
         END IF;
+        move_no := move_no + 1;
     END LOOP;
-    RETURN opening_id;
+    RETURN ret_val;
 END;
 $$
 LANGUAGE plpgsql;
 
 CREATE VIEW games_openings AS (
-    SELECT g.id AS game_id, g.kind AS kind, CASE
-        WHEN (dop IS NULL) THEN NULL
-        ELSE dop
-    END AS opening_id
-    FROM games g, LATERAL detect_opening(partial_fens) dop
+    SELECT g.id AS game_id, g.kind AS kind, opening_id, move_no
+    FROM games g, LATERAL detect_opening(partial_fens) AS (opening_id INTEGER, move_no INTEGER)
 );
 
 
