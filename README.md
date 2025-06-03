@@ -7,6 +7,11 @@ Copy the config file from [local/config.example.yml](local/config.example.yml) t
 - on Windows: `%APPDATA%/rchess/config.yml`
 - on macOS: `~/Library/Application Support/rchess/config.yml`
 
+Opening detection requires data from the openings database.
+Clone [the openings database](https://github.com/lichess-org/chess-openings).
+Run `make` there after downloading the `chess` python package and run the script [database/prepare_openings.py](database/prepare_openings.py) inside `.../chess-openings/dist`.
+Ultimately, place the resulting `openings.sql` file within [local](local).
+
 You also must have Stockfish downloaded, so the bot games can work.
 Download [the Stockfish executable](https://stockfishchess.org/download/) for your platform
 and [nn-1c0000000000.nnue](https://tests.stockfishchess.org/api/nn/nn-1c0000000000.nnue).
