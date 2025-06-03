@@ -1,8 +1,9 @@
 package pl.edu.uj.tcs.rchess.view.gamesidebar
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,6 +16,7 @@ import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.view.shared.ExportField
 import pl.edu.uj.tcs.rchess.view.shared.OpeningInfo
+import pl.edu.uj.tcs.rchess.view.shared.ScrollableColumn
 
 @Composable
 fun InfoTab(
@@ -23,11 +25,9 @@ fun InfoTab(
     game: ApiGame,
     orientation: PlayerColor,
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
-            .then(modifier),
+    ScrollableColumn(
+        modifier = Modifier.fillMaxWidth().then(modifier),
+        leftPadding = false,
     ) {
         Column(
             modifier = Modifier

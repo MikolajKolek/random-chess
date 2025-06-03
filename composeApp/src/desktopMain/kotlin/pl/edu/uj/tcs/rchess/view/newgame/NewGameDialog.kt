@@ -1,8 +1,6 @@
 package pl.edu.uj.tcs.rchess.view.newgame
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,6 +18,7 @@ import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.util.runIf
 import pl.edu.uj.tcs.rchess.view.datastate.DataStateScreen
 import pl.edu.uj.tcs.rchess.view.shared.Loading
+import pl.edu.uj.tcs.rchess.view.shared.ScrollableColumn
 import pl.edu.uj.tcs.rchess.viewmodel.AppContext
 import pl.edu.uj.tcs.rchess.viewmodel.NewGameViewModel
 import rchess.composeapp.generated.resources.Res
@@ -69,12 +68,12 @@ fun NewGameDialog(
                         style = MaterialTheme.typography.labelLarge,
                     )
 
-                    Column(
+                    ScrollableColumn(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .weight(1f)
-                            .verticalScroll(rememberScrollState()),
+                            .weight(1f),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
+                        leftPadding = true,
                     ) {
                         opponentList.forEach { opponent ->
                             OutlinedCard(
