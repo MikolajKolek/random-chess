@@ -229,7 +229,7 @@ class Server() : ClientApi, Database {
                 black = black.toModel(
                     isCurrentUser = black.userId == config.defaultUser
                 ),
-                opening = opening.toModel()
+                opening = opening.toModel(),
             )
         }.toList()
     }

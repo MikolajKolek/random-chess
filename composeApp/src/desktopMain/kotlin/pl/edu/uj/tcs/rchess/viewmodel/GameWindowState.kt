@@ -6,6 +6,7 @@ import kotlinx.coroutines.launch
 import pl.edu.uj.tcs.rchess.api.entity.game.ApiGame
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryGame
 import pl.edu.uj.tcs.rchess.api.entity.game.LiveGame
+import pl.edu.uj.tcs.rchess.api.entity.game.ServiceGame
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.state.BoardState
@@ -64,7 +65,11 @@ fun rememberGameWindowState(game: ApiGame): GameWindowState {
     }
     val input = (game as? LiveGame)?.controls?.input
 
-    val orientation = remember { mutableStateOf(input?.playerColor ?: PlayerColor.WHITE) }
+    val orientation = remember { mutableStateOf(
+        input?.playerColor
+                ?: (game as? ServiceGame)?.userPlayedAs
+                ?: PlayerColor.WHITE
+    ) }
     val makeMoveLoading = remember { mutableStateOf(false) }
     val boardStateBrowser = rememberListBrowser(gameState.boardStates)
 

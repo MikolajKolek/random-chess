@@ -8,22 +8,11 @@ import pl.edu.uj.tcs.rchess.api.entity.Service
 import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryServiceGame
 import pl.edu.uj.tcs.rchess.api.entity.game.PgnGame
-import pl.edu.uj.tcs.rchess.generated.db.tables.records.OpeningsRecord
-import pl.edu.uj.tcs.rchess.generated.db.tables.records.PgnGamesRecord
-import pl.edu.uj.tcs.rchess.generated.db.tables.records.RankingsRecord
-import pl.edu.uj.tcs.rchess.generated.db.tables.records.ServiceAccountsRecord
-import pl.edu.uj.tcs.rchess.generated.db.tables.records.ServiceGamesRecord
+import pl.edu.uj.tcs.rchess.generated.db.tables.records.*
 import pl.edu.uj.tcs.rchess.generated.db.udt.records.ClockSettingsTypeRecord
 import pl.edu.uj.tcs.rchess.generated.db.udt.records.GameResultTypeRecord
-import pl.edu.uj.tcs.rchess.model.ClockSettings
-import pl.edu.uj.tcs.rchess.model.Draw
+import pl.edu.uj.tcs.rchess.model.*
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.fromFen
-import pl.edu.uj.tcs.rchess.model.GameDrawReason
-import pl.edu.uj.tcs.rchess.model.GameResult
-import pl.edu.uj.tcs.rchess.model.GameWinReason
-import pl.edu.uj.tcs.rchess.model.Move
-import pl.edu.uj.tcs.rchess.model.PlayerColor
-import pl.edu.uj.tcs.rchess.model.Win
 import pl.edu.uj.tcs.rchess.model.state.BoardState
 import kotlin.time.Duration
 import kotlin.time.toJavaDuration
@@ -100,7 +89,7 @@ internal object Serialization {
         service = Service.fromId(serviceId),
         blackPlayer = white,
         whitePlayer = black,
-        clockSettings = clock?.toModel()
+        clockSettings = clock?.toModel(),
     )
 
     fun PgnGamesRecord.toModel(

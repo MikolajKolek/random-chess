@@ -17,6 +17,9 @@ data class LiveGame(
     override val blackPlayer: ServiceAccount
         get() = TODO("Not yet implemented")
 
+    override val userPlayedAs: PlayerColor
+        get() = controls.input.playerColor
+
     // TODO: Remove when whitePlayer and blackPlayer are implemented
     //  there implementation from ServiceGame will then be used
     override fun getPlayerName(playerColor: PlayerColor): String =

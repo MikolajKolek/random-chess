@@ -10,9 +10,14 @@ sealed interface ServiceGame: ApiGame {
     val blackPlayer: ServiceAccount
     val whitePlayer: ServiceAccount
 
+    fun getPlayer(color: PlayerColor): ServiceAccount = when (color) {
+        PlayerColor.WHITE -> whitePlayer
+        PlayerColor.BLACK -> blackPlayer
+    }
+
+    val userPlayedAs: PlayerColor?
+        get() = PlayerColor.entries.singleOrNull { getPlayer(it).isCurrentUser }
+
     override fun getPlayerName(playerColor: PlayerColor): String =
-        when (playerColor) {
-            PlayerColor.BLACK -> blackPlayer.displayName
-            PlayerColor.WHITE -> whitePlayer.displayName
-        }
+        getPlayer(playerColor).displayName
 }
