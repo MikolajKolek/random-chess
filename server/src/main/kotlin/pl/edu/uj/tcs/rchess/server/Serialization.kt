@@ -5,6 +5,8 @@ import org.jooq.types.YearToSecond
 import pl.edu.uj.tcs.rchess.api.entity.Opening
 import pl.edu.uj.tcs.rchess.api.entity.Ranking
 import pl.edu.uj.tcs.rchess.api.entity.Service
+import pl.edu.uj.tcs.rchess.api.entity.Service.UNKNOWN
+import pl.edu.uj.tcs.rchess.api.entity.Service.entries
 import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryServiceGame
 import pl.edu.uj.tcs.rchess.api.entity.game.PgnGame
@@ -62,7 +64,7 @@ internal object Serialization {
     fun ServiceAccountsRecord.toModel(
         isCurrentUser: Boolean,
     ) = ServiceAccount(
-        Service.fromId(serviceId),
+        Service.fromDbId(serviceId),
         userIdInService,
         displayName,
         isBot,
@@ -86,9 +88,9 @@ internal object Serialization {
         metadata = metadata?.data()?.let { json -> Json.decodeFromString<Map<String, String>>(json) }
             ?: emptyMap(),
         gameIdInService = gameIdInService,
-        service = Service.fromId(serviceId),
-        blackPlayer = white,
-        whitePlayer = black,
+        service = Service.fromDbId(serviceId),
+        blackPlayer = black,
+        whitePlayer = white,
         clockSettings = clock?.toModel(),
     )
 
@@ -134,4 +136,14 @@ internal object Serialization {
             is Draw -> GameResultTypeRecord(gameEndType = toPgnString(), gameEndReason = drawReason.toDbWinReason())
         }
     }
+
+    fun Service.toDbId() = when(this) {
+        UNKNOWN -> throw IllegalArgumentException("Cannot convert UNKNOWN to db id")
+        Service.RANDOM_CHESS -> 1
+        Service.CHESS_COM -> 2
+        Service.LICHESS -> 3
+    }
+
+    fun Service.Companion.fromDbId(id: Int): Service =
+        entries.filter { it != UNKNOWN }.find { it.toDbId() == id } ?: UNKNOWN
 }

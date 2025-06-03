@@ -35,6 +35,7 @@ import pl.edu.uj.tcs.rchess.model.Pgn
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import pl.edu.uj.tcs.rchess.model.state.GameState
+import pl.edu.uj.tcs.rchess.server.Serialization.toDbId
 import pl.edu.uj.tcs.rchess.server.Serialization.toDbResult
 import pl.edu.uj.tcs.rchess.server.Serialization.toDbType
 import pl.edu.uj.tcs.rchess.server.Serialization.toModel
@@ -69,7 +70,7 @@ class Server() : ClientApi, Database {
         val botServiceAccounts = runBlocking {
             Flux.from(dsl.selectFrom(SERVICE_ACCOUNTS)
                 .where(SERVICE_ACCOUNTS.IS_BOT.eq(true))
-                .and(SERVICE_ACCOUNTS.SERVICE_ID.eq(Service.RANDOM_CHESS.id))
+                .and(SERVICE_ACCOUNTS.SERVICE_ID.eq(Service.RANDOM_CHESS.toDbId()))
             ).asFlow().toList()
         }
 
@@ -132,20 +133,8 @@ class Server() : ClientApi, Database {
         return result
     }
 
-    override suspend fun getSystemAccount(): ServiceAccount {
-        return dsl.selectFrom(SERVICE_ACCOUNTS)
-            .where(SERVICE_ACCOUNTS.USER_ID.eq(config.defaultUser))
-            .and(SERVICE_ACCOUNTS.SERVICE_ID.eq(Service.RANDOM_CHESS.id))
-            .awaitFirst()?.let {
-                ServiceAccount(
-                    Service.RANDOM_CHESS,
-                    it.userIdInService,
-                    it.displayName,
-                    it.isBot,
-                    true
-                )
-            } ?: throw IllegalStateException("The system account does not exist")
-    }
+    override suspend fun getSystemAccount(): ServiceAccount =
+        serviceAccountById(config.defaultUser.toString(), Service.RANDOM_CHESS)
 
     override suspend fun getBotOpponents(): List<BotOpponent> =
         botOpponents.keys.toList().sortedBy { it.elo }
@@ -171,6 +160,12 @@ class Server() : ClientApi, Database {
         return LiveGame(
             controls = controls,
             clockSettings = clockSettings,
+            whitePlayer =
+                if(finalPlayerColor == PlayerColor.WHITE) getSystemAccount()
+                else serviceAccountById(botOpponent.serviceAccountId, Service.RANDOM_CHESS),
+            blackPlayer =
+                if(finalPlayerColor == PlayerColor.BLACK) getSystemAccount()
+                else serviceAccountById(botOpponent.serviceAccountId, Service.RANDOM_CHESS)
         )
     }
 
@@ -270,7 +265,7 @@ class Server() : ClientApi, Database {
             .set(SERVICE_GAMES.CREATION_DATE, LocalDateTime.now())
             .set(SERVICE_GAMES.RESULT, progress.result.toDbResult())
             .set(SERVICE_GAMES.IS_RANKED, isRanked)
-            .set(SERVICE_GAMES.SERVICE_ID, Service.RANDOM_CHESS.id)
+            .set(SERVICE_GAMES.SERVICE_ID, Service.RANDOM_CHESS.toDbId())
             .set(SERVICE_GAMES.BLACK_PLAYER, blackPlayerId)
             .set(SERVICE_GAMES.WHITE_PLAYER, whitePlayerId)
             .set(SERVICE_GAMES.CLOCK, clockSettings.toDbType())
@@ -281,5 +276,21 @@ class Server() : ClientApi, Database {
         return serviceGamesRequest(Optional.of(id))
             .singleOrNull()
             ?: throw IllegalStateException("The game that was just inserted does not exist in the database")
+    }
+
+    private suspend fun serviceAccountById(userId: String, service: Service): ServiceAccount {
+        return dsl.selectFrom(SERVICE_ACCOUNTS)
+            .where(SERVICE_ACCOUNTS.USER_ID_IN_SERVICE.eq(userId))
+            .and(SERVICE_ACCOUNTS.SERVICE_ID.eq(service.toDbId()))
+            .awaitFirst()?.let {
+                ServiceAccount(
+                    service,
+                    it.userIdInService,
+                    it.displayName,
+                    it.isBot,
+                    (userId == config.defaultUser.toString())
+                            && (service == Service.RANDOM_CHESS)
+                )
+            } ?: throw IllegalStateException("The requested service account does not exist")
     }
 }
