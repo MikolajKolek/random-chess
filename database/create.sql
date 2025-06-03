@@ -186,6 +186,7 @@ CREATE OR REPLACE FUNCTION get_piece_at(
 $$
 DECLARE
 BEGIN
+    IF(substr(square, 1, 1) < 'a' OR substr(square, 1, 1) > 'h') THEN RETURN 'e'; END IF;
     RETURN substr(board, square_to_id(square), 1);
 END;
 $$
@@ -244,6 +245,7 @@ DECLARE
     to_square VARCHAR(2) = substr(move, 3, 2);
     color CHAR := split_part(fen, ' ', 2);
     castling_rights VARCHAR := split_part(fen, ' ', 3);
+    en_passant VARCHAR := split_part(fen, ' ', 4);
     promote_piece CHAR;
 BEGIN
     -- Aplikowanie ruchu
@@ -324,7 +326,23 @@ BEGIN
         castling_rights := remove_letter(castling_rights, 'k');
     END IF;
 
-    RETURN board_to_fen(newBoard)||' '||color||' '||castling_rights;
+    en_passant := '-';
+    IF(LOWER(piece) = 'p') THEN
+        IF(substr(move, 2, 1) = '2' AND substr(move, 4, 1) = '4') THEN
+            IF(get_piece_at(newBoard, (chr(ascii(substr(move, 1, 1))-1)||'3')::VARCHAR) != 'p'
+                AND get_piece_at(newBoard, (chr(ascii(substr(move, 1, 1))+1)||'3')::VARCHAR) != 'p') THEN
+                en_passant := substr(move, 1, 1)||'3';
+            END IF;
+        END IF;
+        IF(substr(move, 2, 1) = '7' AND substr(move, 4, 1) = '5') THEN
+            IF(get_piece_at(newBoard, (chr(ascii(substr(move, 1, 1))-1)||'5')::VARCHAR) != 'P'
+                AND get_piece_at(newBoard, (chr(ascii(substr(move, 1, 1))+1)||'5')::VARCHAR) != 'P') THEN
+                en_passant := substr(move, 1, 1)||'6';
+            END IF;
+        END IF;
+    END IF;
+
+    RETURN board_to_fen(newBoard)||' '||color||' '||castling_rights||' '||en_passant;
 END;
 $$
 LANGUAGE plpgsql IMMUTABLE;
@@ -337,7 +355,7 @@ CREATE OR REPLACE FUNCTION generate_fen_array(
 $$
 DECLARE
     result_fen_array VARCHAR[] := '{}';
-    start VARCHAR := array_to_string(trim_array(string_to_array(starting_position, ' '), 3), ' ');
+    start VARCHAR := array_to_string(trim_array(string_to_array(starting_position, ' '), 2), ' ');
     last_fen VARCHAR := start;
     elem VARCHAR(5);
 BEGIN
@@ -440,11 +458,11 @@ BEGIN
         IF EXISTS(
             SELECT *
             FROM openings o
-            WHERE my_partial_fen||' -'=o.partial_fen
+            WHERE my_partial_fen=o.partial_fen
         ) THEN
             opening_id := (SELECT o.id
                 FROM openings o
-                WHERE my_partial_fen||' -'=o.partial_fen
+                WHERE my_partial_fen=o.partial_fen
                 LIMIT 1
             );
             SELECT opening_id, move_no INTO ret_val;
