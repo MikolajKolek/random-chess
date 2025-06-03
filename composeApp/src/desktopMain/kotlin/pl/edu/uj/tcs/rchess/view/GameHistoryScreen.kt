@@ -1,8 +1,11 @@
 package pl.edu.uj.tcs.rchess.view
 
+import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.typography
@@ -70,25 +73,34 @@ fun GameHistoryScreen(context: AppContext) {
                 return@DataStateScreen
             }
 
-            // This layout is begging for a scrollbar, but as of May 2025
-            // the Jetpack Compose team has yet to implement them.
-            /// https://developer.android.com/jetpack/androidx/compose-roadmap
-            LazyColumn(
+            val scrollState = rememberLazyListState()
+            Row(
                 modifier = Modifier.fillMaxWidth().weight(1f),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(games) { game ->
-                    GameHistoryItem(
-                        modifier = Modifier.fillMaxWidth(),
-                        game = game,
-                        onClick = {
-                            context.navigation.openGameWindow(game)
-                        }
-                    )
-                }
+                LazyColumn(
+                    modifier = Modifier.fillMaxHeight().weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    state = scrollState,
+                ) {
+                    items(games) { game ->
+                        GameHistoryItem(
+                            modifier = Modifier.fillMaxWidth(),
+                            game = game,
+                            onClick = {
+                                context.navigation.openGameWindow(game)
+                            }
+                        )
+                    }
 
-                item {
-                    Spacer(modifier = Modifier.height(padding + 16.dp))
+                    item {
+                        Spacer(modifier = Modifier.height(padding + 16.dp))
+                    }
+                }
+                if (scrollState.canScrollForward || scrollState.canScrollBackward) {
+                    VerticalScrollbar(
+                        modifier = Modifier.fillMaxHeight().padding(start = 8.dp),
+                        adapter = rememberScrollbarAdapter(scrollState)
+                    )
                 }
             }
         }
