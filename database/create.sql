@@ -1137,6 +1137,24 @@ INSERT INTO service_games(moves, starting_position, creation_date, result, metad
         'stockfish-impossible'
     );
 
+-- Gambit name length stress-test
+-- Queen's Pawn Game: Accelerated London System, Steinitz Countergambit, Morris Countergambit Accepted
+INSERT INTO service_games(moves, starting_position, creation_date, result, metadata, clock, is_ranked, game_id_in_service, service_id, white_player, black_player) VALUES
+    (
+        '{}',
+        'rnbqkbnr/pp2pppp/8/2p5/3PpB2/8/PPP2PPP/RN1QKBNR w KQkq - 0 1',
+        CURRENT_TIMESTAMP,
+        '(0-1,TIMEOUT)',
+        NULL,
+        '(1 minute, 1 second)',
+        TRUE,
+        NULL,
+        1,
+        1,
+        'stockfish-impossible'
+    );
+
+
 /*INSERT INTO users(email, password_hash) VALUES
     ('test@[1.1.1.1]', '1234'),
     ('email.test@gmail.com', '0000'),
