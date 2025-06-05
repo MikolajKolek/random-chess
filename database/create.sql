@@ -329,14 +329,14 @@ BEGIN
     en_passant := '-';
     IF(LOWER(piece) = 'p') THEN
         IF(substr(move, 2, 1) = '2' AND substr(move, 4, 1) = '4') THEN
-            IF(get_piece_at(newBoard, (chr(ascii(substr(move, 1, 1))-1)||'3')::VARCHAR) != 'p'
-                AND get_piece_at(newBoard, (chr(ascii(substr(move, 1, 1))+1)||'3')::VARCHAR) != 'p') THEN
+            IF(get_piece_at(board, (chr(ascii(substr(move, 1, 1))-1)||'4')::VARCHAR) = 'p'
+                OR get_piece_at(board, (chr(ascii(substr(move, 1, 1))+1)||'4')::VARCHAR) = 'p') THEN
                 en_passant := substr(move, 1, 1)||'3';
             END IF;
         END IF;
         IF(substr(move, 2, 1) = '7' AND substr(move, 4, 1) = '5') THEN
-            IF(get_piece_at(newBoard, (chr(ascii(substr(move, 1, 1))-1)||'5')::VARCHAR) != 'P'
-                AND get_piece_at(newBoard, (chr(ascii(substr(move, 1, 1))+1)||'5')::VARCHAR) != 'P') THEN
+            IF(get_piece_at(board, (chr(ascii(substr(move, 1, 1))-1)||'5')::VARCHAR) = 'P'
+                OR get_piece_at(board, (chr(ascii(substr(move, 1, 1))+1)||'5')::VARCHAR) = 'P') THEN
                 en_passant := substr(move, 1, 1)||'6';
             END IF;
         END IF;
