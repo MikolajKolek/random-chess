@@ -30,6 +30,13 @@ fun GameScreen(
                 .background(MaterialTheme.colorScheme.background)
                 .onPointerEvent(PointerEventType.Scroll) {
                     val change = it.changes.first()
+                    // This works a bit wired on touchpads,
+                    // because the scroll direction is not accounting for natural scrolling
+                    // - users expect that moving two fingers up scrolls the view down.
+                    // The scroll direction is thus inverted on touchpads compared to mouse input.
+                    //
+                    // Unfortunately, both mouse and touchpad input have [PointerType] == [Mouse],
+                    // so we cannot distinguish them.
                     val delta = change.scrollDelta.y.toInt()
                     windowState.boardStateBrowser.selectDelta(delta)
                 },
