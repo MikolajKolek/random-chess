@@ -3,6 +3,7 @@ package pl.edu.uj.tcs.rchess.api.entity.game
 import pl.edu.uj.tcs.rchess.api.entity.Opening
 import pl.edu.uj.tcs.rchess.api.entity.Service
 import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
+import pl.edu.uj.tcs.rchess.api.entity.ranking.RankingUpdate
 import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.GameResult
 import pl.edu.uj.tcs.rchess.model.Move
@@ -26,4 +27,5 @@ data class HistoryServiceGame(
     override val blackPlayer: ServiceAccount,
     override val whitePlayer: ServiceAccount,
     override val clockSettings: ClockSettings?,
+    val rankingUpdates: List<RankingUpdate>
 ) : HistoryGame(), ServiceGame

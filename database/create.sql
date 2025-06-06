@@ -594,12 +594,24 @@ CREATE TABLE rankings(
 
 
 CREATE TABLE elo_history(
+    "id"                    SERIAL      PRIMARY KEY,
     "service_id"            INT         NOT NULL    REFERENCES "game_services" ("id")
         CHECK ("service_id" = 1),
     "user_id_in_service"    VARCHAR     NOT NULL,
     "ranking_id"            INT         NOT NULL    REFERENCES "rankings" ("id"),
     "game_id"               INT         NOT NULL    REFERENCES "service_games" ("id"),
     "elo"                   NUMERIC     NOT NULL,
+    "previous_entry"        INT         NULL,
+
+    -- Make sure that a single elo history entry is not the previous entry more than once
+    UNIQUE NULLS NOT DISTINCT ("service_id", "user_id_in_service", "ranking_id", "previous_entry"),
+
+    -- A single game can only influence a player's elo once
+    UNIQUE("service_id", "user_id_in_service", "ranking_id", "game_id"),
+
+    UNIQUE("service_id", "user_id_in_service", "ranking_id", "id"),
+    FOREIGN KEY("service_id", "user_id_in_service", "ranking_id", "previous_entry")
+        REFERENCES "elo_history"("service_id", "user_id_in_service", "ranking_id", "id"),
 
     FOREIGN KEY ("service_id", "user_id_in_service")
         REFERENCES "service_accounts" ("service_id", "user_id_in_service")
@@ -643,7 +655,7 @@ WHERE
 
 
 CREATE FUNCTION ranking_at_timestamp(t TIMESTAMP)
-    RETURNS TABLE(service_id INT, user_id_in_service VARCHAR, ranking_id INT, elo NUMERIC)
+    RETURNS TABLE(service_id INT, user_id_in_service VARCHAR, ranking_id INT, elo NUMERIC, elo_history_id INT)
 AS
 $$
 BEGIN
@@ -652,7 +664,8 @@ BEGIN
         sa.service_id,
         sa.user_id_in_service,
         r.id AS "ranking_id",
-        COALESCE(eh.elo, r.starting_elo) AS "elo"
+        COALESCE(eh.elo, r.starting_elo) AS "elo",
+        "eh".id AS "elo_history_id"
     FROM service_accounts sa
     CROSS JOIN rankings r
     LEFT JOIN elo_history eh ON (r.id = eh.ranking_id AND sa.user_id_in_service = eh.user_id_in_service)
@@ -664,7 +677,7 @@ $$
 LANGUAGE plpgsql;
 
 CREATE FUNCTION ranking_with_placement_at_timestamp(t TIMESTAMP, ranking INT)
-    RETURNS TABLE(placement INT, service_id INT, user_id_in_service VARCHAR, ranking_id INT, elo INT)
+    RETURNS TABLE(placement INT, service_id INT, user_id_in_service VARCHAR, ranking_id INT, elo INT, elo_history_id INT)
 AS
 $$
 BEGIN
@@ -673,7 +686,8 @@ BEGIN
         rt.service_id,
         rt.user_id_in_service,
         rt.ranking_id,
-        rt.elo::int
+        rt.elo::int,
+        rt.elo_history_id
     FROM ranking_at_timestamp(t) rt
     WHERE rt.ranking_id = ranking
     ORDER BY rt.elo::int DESC;
@@ -696,6 +710,8 @@ DECLARE
     game_end_type VARCHAR;
     current_black_elo NUMERIC;
     current_white_elo NUMERIC;
+    previous_black_entry INT;
+    previous_white_entry INT;
     k_factor_var NUMERIC;
     black_score NUMERIC;
     white_score NUMERIC;
@@ -710,8 +726,8 @@ BEGIN
 
     --TODO: fix SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
-    SELECT cr_black.elo, cr_white.elo, (sg.result).game_end_type
-    INTO current_black_elo, current_white_elo, game_end_type
+    SELECT cr_black.elo, cr_white.elo, cr_black.elo_history_id, cr_white.elo_history_id, (sg.result).game_end_type
+    INTO current_black_elo, current_white_elo, previous_black_entry, previous_white_entry, game_end_type
     FROM service_games sg
     JOIN service_accounts sa_black ON(
         sg.service_id = sa_black.service_id AND
@@ -754,20 +770,22 @@ BEGIN
     expected_black_value := Q_black / (Q_black + Q_white);
     expected_white_value := Q_white / (Q_black + Q_white);
 
-    INSERT INTO elo_history(service_id, user_id_in_service, ranking_id, game_id, elo) VALUES
+    INSERT INTO elo_history(service_id, user_id_in_service, ranking_id, game_id, elo, previous_entry) VALUES
         (
              1,
              (SELECT black_player FROM service_games WHERE id = service_game_id),
              ranking_id_to_update,
              service_game_id,
-             current_black_elo + k_factor_var * (black_score - expected_black_value)
+             current_black_elo + k_factor_var * (black_score - expected_black_value),
+             previous_black_entry
         ),
         (
             1,
             (SELECT white_player FROM service_games WHERE id = service_game_id),
             ranking_id_to_update,
             service_game_id,
-            current_white_elo + k_factor_var * (white_score - expected_white_value)
+            current_white_elo + k_factor_var * (white_score - expected_white_value),
+            previous_white_entry
         );
 END;
 $$

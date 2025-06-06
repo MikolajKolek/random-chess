@@ -1,6 +1,7 @@
 package pl.edu.uj.tcs.rchess.server
 
 import kotlinx.serialization.json.Json
+import org.jooq.Record4
 import org.jooq.types.YearToSecond
 import pl.edu.uj.tcs.rchess.api.entity.*
 import pl.edu.uj.tcs.rchess.api.entity.Service.UNKNOWN
@@ -9,8 +10,10 @@ import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryGame
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryServiceGame
 import pl.edu.uj.tcs.rchess.api.entity.game.PgnGame
+import pl.edu.uj.tcs.rchess.api.entity.ranking.EloUpdate
 import pl.edu.uj.tcs.rchess.api.entity.ranking.Ranking
 import pl.edu.uj.tcs.rchess.api.entity.ranking.RankingSpot
+import pl.edu.uj.tcs.rchess.api.entity.ranking.RankingUpdate
 import pl.edu.uj.tcs.rchess.generated.db.tables.records.*
 import pl.edu.uj.tcs.rchess.generated.db.udt.records.ClockSettingsTypeRecord
 import pl.edu.uj.tcs.rchess.generated.db.udt.records.GameResultTypeRecord
@@ -62,6 +65,7 @@ internal object Serialization {
         includeBots = includeBots
     )
 
+    //TODO: Change isCurrentUser to currentUserId
     fun ServiceAccountsRecord.toModel(
         isCurrentUser: Boolean,
     ) = ServiceAccount(
@@ -72,51 +76,10 @@ internal object Serialization {
         isCurrentUser,
     )
 
-    fun ServiceGamesRecord.toModel(
-        white: ServiceAccount,
-        black: ServiceAccount,
-        opening: Opening?,
-    ) = HistoryServiceGame(
-        id = id!!,
-        // We know that the moves are not null as we verify that in the database, but
-        // because it's done with a check, jooq doesn't realize and makes it nullable
-        moves = moves.map { Move.fromLongAlgebraicNotation(it!!) },
-        startingPosition = BoardState.fromFen(startingPosition),
-        finalPosition = BoardState.fromFen(partialFens!!.last()!!, true),
-        opening = opening,
-        creationDate = creationDate,
-        result = GameResult.fromDbResult(result),
-        metadata = metadata?.data()?.let { json -> Json.decodeFromString<Map<String, String>>(json) }
-            ?: emptyMap(),
-        gameIdInService = gameIdInService,
-        service = Service.fromDbId(serviceId),
-        blackPlayer = black,
-        whitePlayer = white,
-        clockSettings = clock?.toModel(),
-    )
-
-    fun PgnGamesRecord.toModel(
-        opening: Opening?,
-    ) = PgnGame(
-        id = id!!,
-        // We know that the moves are not null as we verify that in the database, but
-        // because it's done with a check, jooq doesn't realize and makes it nullable
-        moves = moves.map { Move.fromLongAlgebraicNotation(it!!) },
-        startingPosition = BoardState.fromFen(startingPosition),
-        finalPosition = BoardState.fromFen(partialFens!!.last()!!, true),
-        opening = opening,
-        creationDate = creationDate,
-        result = GameResult.fromDbResult(result),
-        metadata = metadata?.data()?.let { Json.Default.decodeFromString<Map<String, String>>(it) }
-            ?: emptyMap(),
-        blackPlayer = PlayerDetails.Simple(blackPlayerName),
-        whitePlayer = PlayerDetails.Simple(whitePlayerName),
-        clockSettings = clock?.toModel(),
-    )
-
     fun GamesRecord.toModel(
         white: ServiceAccountsRecord?,
         black: ServiceAccountsRecord?,
+        rankingUpdates: org.jooq.Result<Record4<Int, Int?, String?, RankingsRecord>>?,
         currentUserId: Int,
         opening: Opening?,
     ): HistoryGame = when(kind) {
@@ -138,7 +101,23 @@ internal object Serialization {
             whitePlayer = white!!.toModel(
                 white.userId == currentUserId
             ),
-            clockSettings = clock?.toModel()
+            clockSettings = clock?.toModel(),
+            rankingUpdates = rankingUpdates?.groupBy { (_, _, _, ranking) -> ranking.toModel() }
+                ?.map { (ranking, updates) ->
+                    RankingUpdate(
+                        ranking = ranking,
+                        blackEloUpdate = updates.find { (_, _, userIdInService, _) ->
+                                userIdInService == black.userIdInService
+                            }?.let { (currentElo, previousElo, _, _) ->
+                                EloUpdate(newElo = currentElo, oldElo = previousElo!!)
+                            },
+                        whiteEloUpdate = updates.find { (_, _, userIdInService, _) ->
+                                userIdInService == white.userIdInService
+                            }?.let { (currentElo, previousElo, _, _) ->
+                                EloUpdate(newElo = currentElo, oldElo = previousElo!!)
+                            }
+                    )
+                } ?: emptyList()
         )
         "pgn" -> PgnGame(
             id = id!!,
