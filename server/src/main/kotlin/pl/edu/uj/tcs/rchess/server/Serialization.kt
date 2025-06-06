@@ -2,12 +2,9 @@ package pl.edu.uj.tcs.rchess.server
 
 import kotlinx.serialization.json.Json
 import org.jooq.types.YearToSecond
-import pl.edu.uj.tcs.rchess.api.entity.Opening
-import pl.edu.uj.tcs.rchess.api.entity.Ranking
-import pl.edu.uj.tcs.rchess.api.entity.Service
+import pl.edu.uj.tcs.rchess.api.entity.*
 import pl.edu.uj.tcs.rchess.api.entity.Service.UNKNOWN
 import pl.edu.uj.tcs.rchess.api.entity.Service.entries
-import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryServiceGame
 import pl.edu.uj.tcs.rchess.api.entity.game.PgnGame
 import pl.edu.uj.tcs.rchess.generated.db.tables.records.*
@@ -108,8 +105,8 @@ internal object Serialization {
         result = GameResult.fromDbResult(result),
         metadata = metadata?.data()?.let { Json.Default.decodeFromString<Map<String, String>>(it) }
             ?: emptyMap(),
-        blackPlayerName = blackPlayerName,
-        whitePlayerName = whitePlayerName,
+        blackPlayer = PlayerDetails.Simple(blackPlayerName),
+        whitePlayer = PlayerDetails.Simple(whitePlayerName),
         clockSettings = clock?.toModel(),
     )
 

@@ -45,7 +45,7 @@ fun GameHistoryItem(
             Column(
                 modifier = Modifier.fillMaxHeight(),
             ) {
-                PlayerName(Modifier.weight(1f), game.getPlayerName(PlayerColor.BLACK), PlayerColor.BLACK)
+                PlayerName(Modifier.weight(1f), game.blackPlayer, PlayerColor.BLACK)
                 Column(
                     modifier = Modifier.weight(2f).padding(start = 8.dp),
                     verticalArrangement = Arrangement.Center,
@@ -53,7 +53,7 @@ fun GameHistoryItem(
                     Text(game.result.formatResult(), style = MaterialTheme.typography.bodyMedium)
                     Text(game.result.formatReason(), style = MaterialTheme.typography.bodySmall)
                 }
-                PlayerName(Modifier.weight(1f), game.getPlayerName(PlayerColor.WHITE), PlayerColor.WHITE)
+                PlayerName(Modifier.weight(1f), game.whitePlayer, PlayerColor.WHITE)
             }
 
             Column(

@@ -1,5 +1,6 @@
 package pl.edu.uj.tcs.rchess.api.entity.game
 
+import pl.edu.uj.tcs.rchess.api.entity.PlayerDetails
 import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 
@@ -8,6 +9,8 @@ import pl.edu.uj.tcs.rchess.model.PlayerColor
  */
 sealed interface ApiGame {
     val clockSettings: ClockSettings?
+    val whitePlayer: PlayerDetails
+    val blackPlayer: PlayerDetails
 
-    fun getPlayerName(playerColor: PlayerColor): String
+    fun getPlayer(color: PlayerColor): PlayerDetails
 }

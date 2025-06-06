@@ -4,7 +4,6 @@ import pl.edu.uj.tcs.rchess.api.entity.Opening
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 import pl.edu.uj.tcs.rchess.model.GameResult
 import pl.edu.uj.tcs.rchess.model.Move
-import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.SanFullMove
 import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
@@ -58,8 +57,8 @@ sealed class HistoryGame : ApiGame {
             creationDate.format(DateTimeFormatter.ofPattern("yyyy.MM.dd"))
         )
         appendMetadataTagOr("Round", "?")
-        appendMetadataTagOr("White", getPlayerName(PlayerColor.WHITE))
-        appendMetadataTagOr("Black", getPlayerName(PlayerColor.BLACK))
+        appendMetadataTagOr("White", whitePlayer.displayName)
+        appendMetadataTagOr("Black", blackPlayer.displayName)
         overrideTag("Result", result.toPgnString())
         opening?.let {
             overrideTag("Opening", it.name)

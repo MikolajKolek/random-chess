@@ -12,7 +12,7 @@ package pl.edu.uj.tcs.rchess.api.entity
 data class ServiceAccount(
     val service: Service,
     val userIdInService: String,
-    val displayName: String,
+    override val displayName: String,
     val isBot: Boolean,
     val isCurrentUser: Boolean
-)
+): PlayerDetails

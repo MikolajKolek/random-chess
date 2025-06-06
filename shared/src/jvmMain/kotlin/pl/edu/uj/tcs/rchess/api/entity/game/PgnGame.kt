@@ -1,6 +1,7 @@
 package pl.edu.uj.tcs.rchess.api.entity.game
 
 import pl.edu.uj.tcs.rchess.api.entity.Opening
+import pl.edu.uj.tcs.rchess.api.entity.PlayerDetails
 import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.GameResult
 import pl.edu.uj.tcs.rchess.model.Move
@@ -20,13 +21,13 @@ data class PgnGame(
     override val creationDate: LocalDateTime,
     override val result: GameResult,
     override val metadata: Map<String, String>,
-    val blackPlayerName: String,
-    val whitePlayerName: String,
+    override val blackPlayer: PlayerDetails.Simple,
+    override val whitePlayer: PlayerDetails.Simple,
     override val clockSettings: ClockSettings?,
 ) : HistoryGame() {
-    override fun getPlayerName(playerColor: PlayerColor): String =
-        when (playerColor) {
-            PlayerColor.BLACK -> blackPlayerName
-            PlayerColor.WHITE -> whitePlayerName
+    override fun getPlayer(color: PlayerColor): PlayerDetails.Simple =
+        when (color) {
+            PlayerColor.BLACK -> blackPlayer
+            PlayerColor.WHITE -> whitePlayer
         }
 }

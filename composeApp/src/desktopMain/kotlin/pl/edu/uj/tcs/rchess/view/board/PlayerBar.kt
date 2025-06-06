@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import formatHuman
+import pl.edu.uj.tcs.rchess.api.entity.PlayerDetails
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.state.ClockState
 import pl.edu.uj.tcs.rchess.view.shared.PlayerName
@@ -48,14 +49,14 @@ fun remainingTime(clockState: ClockState): DisplayedTime {
 fun PlayerBar(
     modifier: Modifier = Modifier,
     color: PlayerColor,
-    name: String,
+    player: PlayerDetails,
     clockState: ClockState?,
     isWinner: Boolean,
 ) {
     Row(
         modifier = Modifier.height(PlayerBar.height).then(modifier),
     ) {
-        PlayerName(name = name, color = color, isWinner = isWinner)
+        PlayerName(player = player, color = color, isWinner = isWinner)
 
         Spacer(
             modifier = Modifier.weight(1f)

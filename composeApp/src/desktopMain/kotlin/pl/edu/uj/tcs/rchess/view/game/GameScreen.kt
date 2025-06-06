@@ -53,7 +53,7 @@ fun GameScreen(
                     PlayerBar(
                         modifier = modifier,
                         color = color,
-                        name = game.getPlayerName(color),
+                        player = game.getPlayer(color),
                         clockState = gameState.getPlayerClock(color),
                         isWinner = color == (gameState.progress as? GameProgress.Finished)?.result?.winner
                     )

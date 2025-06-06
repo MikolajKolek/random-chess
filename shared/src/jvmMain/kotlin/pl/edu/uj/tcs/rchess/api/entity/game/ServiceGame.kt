@@ -7,17 +7,15 @@ import pl.edu.uj.tcs.rchess.model.PlayerColor
  * Any game played online in a service (Random Chess or an external service)
  */
 sealed interface ServiceGame: ApiGame {
-    val blackPlayer: ServiceAccount
-    val whitePlayer: ServiceAccount
+    override val blackPlayer: ServiceAccount
+    override val whitePlayer: ServiceAccount
 
-    fun getPlayer(color: PlayerColor): ServiceAccount = when (color) {
-        PlayerColor.WHITE -> whitePlayer
-        PlayerColor.BLACK -> blackPlayer
-    }
+    override fun getPlayer(color: PlayerColor): ServiceAccount =
+        when (color) {
+            PlayerColor.BLACK -> blackPlayer
+            PlayerColor.WHITE -> whitePlayer
+        }
 
     val userPlayedAs: PlayerColor?
         get() = PlayerColor.entries.singleOrNull { getPlayer(it).isCurrentUser }
-
-    override fun getPlayerName(playerColor: PlayerColor): String =
-        getPlayer(playerColor).displayName
 }
