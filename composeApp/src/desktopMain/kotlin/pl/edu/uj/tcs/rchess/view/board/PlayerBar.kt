@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import formatHuman
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.state.ClockState
 import pl.edu.uj.tcs.rchess.view.shared.PlayerName
@@ -42,23 +43,6 @@ fun remainingTime(clockState: ClockState): DisplayedTime {
     return remainingTime
 }
 
-fun Duration.formatHuman(alwaysShowMinutes: Boolean = true) =
-    toComponents { hours, minutes, seconds, nanoseconds ->
-        val centisecond = nanoseconds / 10_000_000
-
-        when {
-            hours > 0 -> {
-                "%d:%02d:%02d.%02d".format(hours, minutes, seconds, centisecond)
-            }
-            minutes > 0 || alwaysShowMinutes -> {
-                "%d:%02d.%02d".format(minutes, seconds, centisecond)
-            }
-            else -> {
-                "%02d.%02d".format(seconds, centisecond)
-            }
-        }
-    }
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayerBar(
@@ -69,7 +53,7 @@ fun PlayerBar(
     isWinner: Boolean,
 ) {
     Row(
-        modifier = Modifier.height(PlayerBar.height).then(modifier)
+        modifier = Modifier.height(PlayerBar.height).then(modifier),
     ) {
         PlayerName(name = name, color = color, isWinner = isWinner)
 

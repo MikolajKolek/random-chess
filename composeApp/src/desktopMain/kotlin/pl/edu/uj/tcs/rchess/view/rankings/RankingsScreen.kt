@@ -5,10 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ListItem
 import androidx.compose.material3.Card
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -26,10 +23,9 @@ fun RankingsScreen(context: AppContext) {
                 modifier = Modifier.widthIn(max = 400.dp)
             ) {
                 items(rankings) { ranking ->
-                    @OptIn(ExperimentalMaterialApi::class)
-                    ListItem {
-                        Text(ranking.name)
-                    }
+                    RankingListItem(ranking, onClick = {
+                        // TODO: Handle
+                    })
                 }
             }
 
