@@ -1,7 +1,6 @@
 package pl.edu.uj.tcs.rchess.viewmodel
 
 import androidx.compose.runtime.*
-import pl.edu.uj.tcs.rchess.util.withPrev
 
 interface SyncedListBrowser<T> {
     val current: T
@@ -25,17 +24,18 @@ interface SyncedListBrowser<T> {
 @Composable
 fun <T> rememberListBrowser(listState: State<List<T>>): SyncedListBrowser<T> {
     var index by remember { mutableStateOf(listState.value.lastIndex) }
+    var prevLastIndex by remember { mutableStateOf(listState.value.lastIndex) }
 
     LaunchedEffect(listState) {
         snapshotFlow { listState.value }
-            .withPrev()
-            .collect { (prev, current) ->
-                require(current.isNotEmpty()) { "The list must not be empty" }
-                index = index.coerceIn(0, current.lastIndex)
-                if (prev != null && current.lastIndex >= prev.lastIndex && index == prev.lastIndex) {
+            .collect { list ->
+                require(list.isNotEmpty()) { "The list must not be empty" }
+                index = index.coerceIn(0, list.lastIndex)
+                if (index == prevLastIndex && list.lastIndex > prevLastIndex) {
                     // The list size just increased, and previously the last element was selected
-                    index = current.lastIndex
+                    index = list.lastIndex
                 }
+                prevLastIndex = list.lastIndex
             }
     }
 

@@ -70,7 +70,7 @@ fun GameWindow(
         title = when (game) {
             is HistoryGame -> "Random Chess history game"
             is LiveGame -> "Random Chess live game"
-        } + " ${windowState.boardStateBrowser.index}/${windowState.gameState.boardStates.lastIndex}",
+        },
         state = rememberWindowState(
             placement = WindowPlacement.Maximized,
             size = DpSize(1200.dp, 800.dp)
