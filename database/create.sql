@@ -981,7 +981,7 @@ CREATE TABLE "tournaments_games"
 CREATE TABLE "tournaments_players"
 (
     "tournament_id"     INTEGER     NOT NULL    REFERENCES swiss_tournaments(tournament_id) ON DELETE CASCADE,
-    "user_id"           INTEGER     NULL,        --REFERENCES service_accounts(user_id_in_service) ON DELETE SET NULL,
+    "user_id_in_service" VARCHAR,        --REFERENCES service_accounts(user_id_in_service) ON DELETE SET NULL,
     -- TODO: Likely must add the same hack foreign key as in elo_history
     "byes"              INTEGER     NOT NULL    DEFAULT 0
 );
@@ -1014,11 +1014,25 @@ CREATE VIEW "tournaments_reqs" AS
 
 CREATE VIEW "swiss_tournaments_players_points" AS
 (
-    SELECT st.tournament_id, tp.user_id, tg.round, 0 AS points, 0 AS performance_rating -- TODO: Calculate points and performance rating given using tournament games for each round.
+    SELECT st.tournament_id, tp.user_id_in_service, tg.round,
+           (
+               (SELECT COUNT(*)
+                FROM service_games sg
+                WHERE sg.service_id = 1
+                    AND (sg.white_player = tp.user_id_in_service AND (sg.result).game_end_type = '1-0')
+                    OR (sg.black_player = tp.user_id_in_service AND (sg.result).game_end_type = '0-1')
+           )+(
+                (SELECT COUNT(*)
+                FROM service_games sg
+                WHERE sg.service_id = 1
+                    AND (sg.white_player = tp.user_id_in_service OR sg.black_player = tp.user_id_in_service)
+                    AND (sg.result).game_end_type = '1/2-1/2')
+           )::numeric/2 + tp.byes
+    ) AS points, 0 AS performance_rating -- TODO: Calculate performance rating given using tournament games for each round.
     FROM swiss_tournaments st
          JOIN tournaments_players tp USING(tournament_id)
          JOIN tournaments_games tg USING(tournament_id)
-    GROUP BY st.tournament_id, tp.user_id, tg.round
+    GROUP BY st.tournament_id, tp.user_id_in_service, tg.round, tp.byes
 );
 
 CREATE VIEW "swiss_tournaments_round_standings" AS
@@ -1104,7 +1118,7 @@ BEGIN
         WHERE sa.user_id_in_service=NEW.user_id AND sa.service_id = 1
     );
     IF(player_data IS NULL) THEN RAISE EXCEPTION 'Player not found in local service accounts.'; END IF;
-    
+
     -- Check all requirements for ranking minimum
     FOR ranking_restriction IN (SELECT * FROM tournaments_ranking_reqs trq WHERE NEW.tournament_id=trq.tournament_id) LOOP
         req_val = (
