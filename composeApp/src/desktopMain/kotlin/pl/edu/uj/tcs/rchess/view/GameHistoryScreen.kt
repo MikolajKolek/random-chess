@@ -59,7 +59,7 @@ fun GameHistoryScreen(context: AppContext) {
                     )
                 }
 
-                databaseState.updatesAvailable -> {
+                databaseState.updatesAvailable && !context.gameHistoryViewModel.initialLoading -> {
                     Text(
                         "Refresh to see latest changes",
                         style = typography.bodySmall,

@@ -10,7 +10,7 @@ import pl.edu.uj.tcs.rchess.util.logger
 import pl.edu.uj.tcs.rchess.utils.waitUntil
 import kotlin.random.Random
 import kotlin.random.nextInt
-import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Duration.Companion.milliseconds
 
 class GameHistoryViewModel(
     private val clientApi: ClientApi,
@@ -33,7 +33,7 @@ class GameHistoryViewModel(
                 _loading = true
 
                 // TODO: Remove debug code
-                delay(3.seconds)
+                delay(500.milliseconds)
                 if (Random.nextInt(0..<100) < 25) {
                     throw Exception("Debug exception")
                 }
@@ -63,6 +63,9 @@ class GameHistoryViewModel(
 
     val loading: Boolean
         get() = _loading
+
+    val initialLoading: Boolean
+        get() = _list.isEmpty() && _loading
 
     fun refresh() {
         runBlocking {
