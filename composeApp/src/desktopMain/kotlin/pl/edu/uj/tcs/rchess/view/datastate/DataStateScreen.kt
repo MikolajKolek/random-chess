@@ -1,8 +1,10 @@
 package pl.edu.uj.tcs.rchess.view.datastate
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import pl.edu.uj.tcs.rchess.view.shared.Loading
 import pl.edu.uj.tcs.rchess.viewmodel.datastate.DataState
 import pl.edu.uj.tcs.rchess.viewmodel.datastate.DataStateViewModel
@@ -17,7 +19,11 @@ fun <T> DataStateScreen(
 
     when (val stateCopy = state) {
         is DataState.Loading -> Loading(text = dataLoadingMessage)
-        is DataState.Error -> ErrorScreen(stateCopy.error, onRefresh = viewModel::refresh)
+        is DataState.Error -> ErrorScreen(
+            modifier = Modifier.fillMaxSize(),
+            stateCopy.error,
+            onRetry = viewModel::refresh,
+        )
         is DataState.Success -> content(stateCopy.data, viewModel::refresh)
     }
 }

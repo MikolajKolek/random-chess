@@ -36,11 +36,11 @@ class NavigationManager {
      * Replaces the [ApiGame] instance associated with the window at [index].
      * Used when a live game finishes.
      */
-    fun replaceGameWindow(index: Int, liveGame: HistoryGame) {
+    fun replaceGameWindow(index: Int, historyGame: HistoryGame) {
         if (_gameWindows[index] !is LiveGame) {
             logger.warn { "Previous game replaced in replaceGameForWindow was not a LiveGame" }
         }
-        _gameWindows[index] = liveGame
+        _gameWindows[index] = historyGame
     }
 
     fun openNewGameDialog() {
