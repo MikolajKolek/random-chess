@@ -4,7 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
@@ -14,6 +17,7 @@ import pl.edu.uj.tcs.rchess.view.gamesidebar.*
 import pl.edu.uj.tcs.rchess.viewmodel.GameWindowState
 import rchess.composeapp.generated.resources.*
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun GameScreen(
     windowState: GameWindowState,
@@ -23,7 +27,12 @@ fun GameScreen(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
-                .background(MaterialTheme.colorScheme.background),
+                .background(MaterialTheme.colorScheme.background)
+                .onPointerEvent(PointerEventType.Scroll) {
+                    val change = it.changes.first()
+                    val delta = change.scrollDelta.y.toInt()
+                    windowState.boardStateBrowser.selectDelta(delta)
+                },
         ) {
             BoardArea(
                 modifier = Modifier

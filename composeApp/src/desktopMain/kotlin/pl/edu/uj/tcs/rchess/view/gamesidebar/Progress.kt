@@ -91,7 +91,7 @@ fun Progress(
                         targetValue = Color.White,
                         initialValue = MaterialTheme.colorScheme.primaryContainer,
                         animationSpec = infiniteRepeatable(
-                            animation = tween(500, delayMillis = 500, easing = EaseInOut),
+                            animation = tween(350, delayMillis = 300, easing = EaseInOut),
                             repeatMode = RepeatMode.Reverse,
                         ),
                     ).value

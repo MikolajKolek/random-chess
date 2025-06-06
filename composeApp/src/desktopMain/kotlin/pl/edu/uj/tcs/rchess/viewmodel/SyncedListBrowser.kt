@@ -9,6 +9,7 @@ interface SyncedListBrowser<T> {
     val lastSelected: Boolean
 
     fun select(value: Int)
+    fun selectDelta(delta: Int)
     fun selectPrev()
     fun selectNext()
     fun selectFirst()
@@ -56,9 +57,11 @@ fun <T> rememberListBrowser(listState: State<List<T>>): SyncedListBrowser<T> {
             index = value.coerceIn(0, listState.value.lastIndex)
         }
 
-        override fun selectPrev() = select(index - 1)
+        override fun selectDelta(delta: Int) = select(index + delta)
 
-        override fun selectNext() = select(index + 1)
+        override fun selectPrev() = selectDelta(-1)
+
+        override fun selectNext() = selectDelta(+1)
 
         override fun selectFirst() = select(0)
 
