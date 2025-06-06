@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.api.entity
+package pl.edu.uj.tcs.rchess.api.entity.ranking
 
 import kotlin.time.Duration
 

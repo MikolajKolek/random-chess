@@ -19,10 +19,11 @@ import org.jooq.impl.DSL.noCondition
 import org.jooq.kotlin.coroutines.transactionCoroutine
 import pl.edu.uj.tcs.rchess.api.ClientApi
 import pl.edu.uj.tcs.rchess.api.entity.BotOpponent
-import pl.edu.uj.tcs.rchess.api.entity.Ranking
+import pl.edu.uj.tcs.rchess.api.entity.ranking.Ranking
 import pl.edu.uj.tcs.rchess.api.entity.Service
 import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
 import pl.edu.uj.tcs.rchess.api.entity.game.*
+import pl.edu.uj.tcs.rchess.api.entity.ranking.RankingSpot
 import pl.edu.uj.tcs.rchess.config.BotType
 import pl.edu.uj.tcs.rchess.config.ConfigLoader
 import pl.edu.uj.tcs.rchess.generated.db.keys.SERVICE_GAMES__SERVICE_GAMES_SERVICE_ID_BLACK_PLAYER_FKEY
@@ -242,7 +243,7 @@ class Server() : ClientApi, Database {
         )
     }
 
-    override suspend fun getRankings(): List<Ranking> {
+    override suspend fun getRankingsList(): List<Ranking> {
         return Flux.from(
             dsl.selectFrom(RANKINGS)
                 .orderBy(
@@ -251,6 +252,52 @@ class Server() : ClientApi, Database {
                     RANKINGS.PLAYTIME_MAX.asc().nullsFirst(),
                 )
         ).asFlow().map { it.toModel() }.toList()
+    }
+
+    override suspend fun getRankingPlacements(settings: ClientApi.RankingRequestSettings): List<RankingSpot> {
+        var conditions = noCondition()
+
+        settings.after?.let {
+            conditions = RANKING_WITH_PLACEMENT_AT_TIMESTAMP.PLACEMENT.greaterThan(it.placement).or(
+                RANKING_WITH_PLACEMENT_AT_TIMESTAMP.PLACEMENT.eq(it.placement).and(
+                    SERVICE_ACCOUNTS.DISPLAY_NAME.greaterThan(it.serviceAccount.displayName).or(
+                        SERVICE_ACCOUNTS.DISPLAY_NAME.eq(it.serviceAccount.displayName).and(
+                            SERVICE_ACCOUNTS.USER_ID_IN_SERVICE
+                                .greaterThan(it.serviceAccount.userIdInService)
+                        )
+                    )
+                )
+            )
+        }
+
+        val query = dsl.select(RANKING_WITH_PLACEMENT_AT_TIMESTAMP, SERVICE_ACCOUNTS)
+            .from(
+                RANKING_WITH_PLACEMENT_AT_TIMESTAMP(
+                    settings.atTimestamp,
+                    settings.ranking.id
+                )
+            )
+            .join(SERVICE_ACCOUNTS).on(
+                RANKING_WITH_PLACEMENT_AT_TIMESTAMP.SERVICE_ID
+                    .eq(SERVICE_ACCOUNTS.SERVICE_ID)
+                    .and(
+                        RANKING_WITH_PLACEMENT_AT_TIMESTAMP.USER_ID_IN_SERVICE
+                            .eq(SERVICE_ACCOUNTS.USER_ID_IN_SERVICE)
+                    )
+            )
+            .where(conditions)
+            .orderBy(
+                RANKING_WITH_PLACEMENT_AT_TIMESTAMP.PLACEMENT.asc(),
+                SERVICE_ACCOUNTS.DISPLAY_NAME.asc(),
+                SERVICE_ACCOUNTS.USER_ID_IN_SERVICE.asc()
+            )
+            .limit(settings.length)
+
+        return Flux.from(query).asFlow().map { (entry, account) ->
+            entry.toModel(
+                serviceAccount = account.toModel(isCurrentUser = account.userId == config.defaultUser)
+            )
+        }.toList()
     }
 
     override suspend fun requestResync() {

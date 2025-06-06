@@ -9,7 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import formatHumanSetting
 import org.jetbrains.compose.resources.painterResource
-import pl.edu.uj.tcs.rchess.api.entity.Ranking
+import pl.edu.uj.tcs.rchess.api.entity.ranking.Ranking
 import pl.edu.uj.tcs.rchess.util.runIf
 import rchess.composeapp.generated.resources.Res
 import rchess.composeapp.generated.resources.icon_robot
@@ -22,9 +22,7 @@ fun RankingListItem(
     selected: Boolean,
     onClick: () -> Unit,
 ) {
-    // TODO: This will no longer be needed when playtimeMax becomes not null
-    //  and infinite durations are represented as Duration.INFINITE
-    val playtimeMax = ranking.playtimeMax ?: Duration.INFINITE
+    val playtimeMax = ranking.playtimeMax
 
     Card(
         modifier = Modifier.then(modifier),

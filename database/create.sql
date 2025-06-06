@@ -641,8 +641,13 @@ WHERE
     )
 ;
 
-CREATE VIEW current_ranking AS(
-    SELECT
+
+CREATE FUNCTION ranking_at_timestamp(t TIMESTAMP)
+    RETURNS TABLE(service_id INT, user_id_in_service VARCHAR, ranking_id INT, elo NUMERIC)
+AS
+$$
+BEGIN
+    RETURN QUERY SELECT
         DISTINCT ON (sa.service_id, sa.user_id_in_service, r.id)
         sa.service_id,
         sa.user_id_in_service,
@@ -652,8 +657,33 @@ CREATE VIEW current_ranking AS(
     CROSS JOIN rankings r
     LEFT JOIN elo_history eh ON (r.id = eh.ranking_id AND sa.user_id_in_service = eh.user_id_in_service)
     LEFT JOIN service_games sg ON (eh.game_id = sg.id)
-    WHERE (sa.service_id = 1) AND (r.include_bots OR NOT sa.is_bot)
-    ORDER BY sa.service_id, sa.user_id_in_service, r.id, sg.creation_date DESC
+    WHERE (sa.service_id = 1) AND (r.include_bots OR NOT sa.is_bot) AND (sg.creation_date <= t OR sg IS NULL)
+    ORDER BY sa.service_id, sa.user_id_in_service, r.id, sg.creation_date DESC;
+END;
+$$
+LANGUAGE plpgsql;
+
+CREATE FUNCTION ranking_with_placement_at_timestamp(t TIMESTAMP, ranking INT)
+    RETURNS TABLE(placement INT, service_id INT, user_id_in_service VARCHAR, ranking_id INT, elo INT)
+AS
+$$
+BEGIN
+    RETURN QUERY SELECT
+        (rank() over (ORDER BY rt.elo::int DESC))::int,
+        rt.service_id,
+        rt.user_id_in_service,
+        rt.ranking_id,
+        rt.elo::int
+    FROM ranking_at_timestamp(t) rt
+    WHERE rt.ranking_id = ranking
+    ORDER BY rt.elo::int DESC;
+END;
+$$
+LANGUAGE plpgsql;
+
+CREATE VIEW current_ranking AS(
+    SELECT *
+    FROM ranking_at_timestamp(CURRENT_TIMESTAMP::TIMESTAMP)
 );
 
 CREATE PROCEDURE update_ranking_after_game(

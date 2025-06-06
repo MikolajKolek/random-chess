@@ -5,7 +5,6 @@ import org.junit.Assert
 import org.junit.Test
 import pl.edu.uj.tcs.rchess.api.ClientApi
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
-import pl.edu.uj.tcs.rchess.model.PlayerColor
 
 class DatabaseTest {
     val clientApi: ClientApi = Server()
@@ -15,10 +14,10 @@ class DatabaseTest {
     //TODO: make it check all the fens instead of just the last one
     //TODO: make it import stuff into the database? or just use the existing one like right now
     fun partialFenGenerationTest() = runBlocking {
-        clientApi.getUserGames().forEach {
+        clientApi.getUserGames(ClientApi.GamesRequestSettings(length = Int.MAX_VALUE)).forEach {
             if(it.finalPosition.toFenString(partial = true) !=
             it.finalGameState.currentState.toFenString(partial = true))
-                println(it.getPlayerName(PlayerColor.WHITE))
+                println(it.whitePlayer.displayName)
 
             Assert.assertEquals(
                 it.finalPosition.toFenString(partial = true),

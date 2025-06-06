@@ -2,15 +2,17 @@ package pl.edu.uj.tcs.rchess.api
 
 import kotlinx.coroutines.flow.StateFlow
 import pl.edu.uj.tcs.rchess.api.entity.BotOpponent
-import pl.edu.uj.tcs.rchess.api.entity.Ranking
+import pl.edu.uj.tcs.rchess.api.entity.ranking.Ranking
 import pl.edu.uj.tcs.rchess.api.entity.Service
 import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryGame
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryServiceGame
 import pl.edu.uj.tcs.rchess.api.entity.game.LiveGame
 import pl.edu.uj.tcs.rchess.api.entity.game.PgnGame
+import pl.edu.uj.tcs.rchess.api.entity.ranking.RankingSpot
 import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.PlayerColor
+import java.time.LocalDateTime
 
 interface ClientApi {
     /**
@@ -72,7 +74,12 @@ interface ClientApi {
     /**
      * @return A list of all [Ranking]s the user can view.
      */
-    suspend fun getRankings(): List<Ranking>
+    suspend fun getRankingsList(): List<Ranking>
+
+    /**
+     * @return The placements on a given ranking, ordered first-to-last.
+     */
+    suspend fun getRankingPlacements(settings: RankingRequestSettings): List<RankingSpot>
 
     /**
      * Requests a resync of data from external services to the database.
@@ -125,5 +132,28 @@ interface ClientApi {
          * [databaseState] flow after the request is made.
          */
         val refreshAvailableUpdates: Boolean = false
+    )
+
+    data class RankingRequestSettings(
+        /**
+         * The ranking that is being queried.
+         */
+        val ranking: Ranking,
+        /**
+         * Return games that are after the given [ServiceAccount] in the game list.
+         *
+         * If this is null, the request returns entries starting from the top of the ranking.
+         */
+        val after: RankingSpot? = null,
+        /**
+         * The number of ranking entries that should be returned.
+         */
+        val length: Int = 100,
+        /**
+         * The state of the rankings will be queried at this timestamp. This is useful
+         * for displaying a consistent infinite-scrolling ranking guaranteed
+         * not to display conflicting information.
+         */
+        val atTimestamp: LocalDateTime = LocalDateTime.now()
     )
 }

@@ -9,6 +9,8 @@ import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryGame
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryServiceGame
 import pl.edu.uj.tcs.rchess.api.entity.game.PgnGame
+import pl.edu.uj.tcs.rchess.api.entity.ranking.Ranking
+import pl.edu.uj.tcs.rchess.api.entity.ranking.RankingSpot
 import pl.edu.uj.tcs.rchess.generated.db.tables.records.*
 import pl.edu.uj.tcs.rchess.generated.db.udt.records.ClockSettingsTypeRecord
 import pl.edu.uj.tcs.rchess.generated.db.udt.records.GameResultTypeRecord
@@ -188,4 +190,12 @@ internal object Serialization {
 
     fun Service.Companion.fromDbId(id: Int): Service =
         entries.filter { it != UNKNOWN }.find { it.toDbId() == id } ?: UNKNOWN
+
+    fun RankingWithPlacementAtTimestampRecord.toModel(
+        serviceAccount: ServiceAccount,
+    ): RankingSpot = RankingSpot(
+        placement = placement!!,
+        serviceAccount = serviceAccount,
+        elo = elo!!
+    )
 }

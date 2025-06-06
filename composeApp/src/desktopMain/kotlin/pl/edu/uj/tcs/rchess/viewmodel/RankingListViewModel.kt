@@ -10,7 +10,7 @@ import pl.edu.uj.tcs.rchess.viewmodel.datastate.DataStateViewModel
 class RankingListViewModel(
     val clientApi: ClientApi,
 ): ViewModel() {
-    val rankingList = DataStateViewModel { clientApi.getRankings() }
+    val rankingList = DataStateViewModel { clientApi.getRankingsList() }
 
     private var _selectedRankingId by mutableStateOf<Int?>(null)
     val selectedRankingId: Int?
