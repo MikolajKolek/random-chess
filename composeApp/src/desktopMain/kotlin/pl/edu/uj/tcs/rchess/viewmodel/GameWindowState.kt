@@ -1,7 +1,6 @@
 package pl.edu.uj.tcs.rchess.viewmodel
 
 import androidx.compose.runtime.*
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import pl.edu.uj.tcs.rchess.api.entity.game.ApiGame
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryGame
@@ -38,13 +37,13 @@ interface GameWindowState {
     val resignation: Resignation?
 
     /**
-     * Returns the color of the input.player if the currently displayed board
+     * Returns the color of the [input.player] if the currently displayed board
      * should allow the player to make a move.
      */
     val moveEnabledForColor: PlayerColor?
 
     /**
-     * Returns true if the game is running and it's input.player's turn
+     * Returns true if the game is running, and it's [input.player]'s turn
      */
     val waitingForOwnMove: Boolean
 
@@ -60,10 +59,10 @@ fun rememberGameWindowState(game: ApiGame): GameWindowState {
     val gameState by when (game) {
         is HistoryGame -> derivedStateOf { game.finalGameState }
         is LiveGame -> {
-            game.controls.observer.stateFlow.collectAsStateWithLifecycle()
+            game.controls.observer.stateFlow.collectAsState()
         }
     }
-    val input = (game as? LiveGame)?.controls?.input
+    val input by derivedStateOf { (game as? LiveGame)?.controls?.input }
 
     val orientation = remember { mutableStateOf(
         input?.playerColor
@@ -71,12 +70,39 @@ fun rememberGameWindowState(game: ApiGame): GameWindowState {
                 ?: PlayerColor.WHITE
     ) }
     val makeMoveLoading = remember { mutableStateOf(false) }
-    val boardStateBrowser = rememberListBrowser(gameState.boardStates)
+    val boardStateBrowser = rememberListBrowser(derivedStateOf { gameState.boardStates })
+
+    var resignDialogVisible by remember { mutableStateOf(false) }
+    val resignation by derivedStateOf {
+        input.takeIf { gameState.progress is GameProgress.Running }?.let { resignInput ->
+            object : GameWindowState.Resignation {
+                override val dialogVisible = resignDialogVisible
+
+                override fun openDialog() {
+                    resignDialogVisible = true
+                }
+
+                override fun cancelResignation() {
+                    resignDialogVisible = false
+                }
+
+                override fun confirmResignation() {
+                    coroutineScope.launch {
+                        // TODO: Handle errors, needed in case we introduce a client-server architecture
+                        resignInput.resign()
+                    }
+                    resignDialogVisible = false
+                }
+            }
+        }
+    }
 
     return object : GameWindowState {
-        override val game = game
+        override val game
+            get() = game
 
-        override val gameState = gameState
+        override val gameState
+            get() = gameState
 
         override val orientation by orientation
 
@@ -84,41 +110,21 @@ fun rememberGameWindowState(game: ApiGame): GameWindowState {
             orientation.value = orientation.value.opponent
         }
 
-        override val resignation =
-            input.takeIf { gameState.progress is GameProgress.Running }?.let { resignInput ->
-                object : GameWindowState.Resignation {
-                    private var _dialogVisible by remember { mutableStateOf(false) }
-                    override val dialogVisible = _dialogVisible
+        override val resignation
+            get() = resignation
 
-                    override fun openDialog() {
-                         _dialogVisible = true
-                    }
-
-                    override fun cancelResignation() {
-                        _dialogVisible = false
-                    }
-
-                    override fun confirmResignation() {
-                        coroutineScope.launch {
-                            // TODO: Handle errors, needed in case we introduce a client-server architecture
-                            resignInput.resign()
-                        }
-                        _dialogVisible = false
-                    }
+        override val moveEnabledForColor
+            get() = input?.let { input ->
+                input.playerColor.takeIf {
+                    !makeMoveLoading.value &&
+                        gameState.progress is GameProgress.Running &&
+                        boardStateBrowser.lastSelected &&
+                        gameState.currentState.currentTurn == input.playerColor
                 }
             }
 
-        override val moveEnabledForColor = input?.let { input ->
-            input.playerColor.takeIf {
-                !makeMoveLoading.value &&
-                    gameState.progress is GameProgress.Running &&
-                    boardStateBrowser.lastSelected &&
-                    gameState.currentState.currentTurn == input.playerColor
-            }
-        }
-
-        override val waitingForOwnMove =
-            gameState.progress is GameProgress.Running &&
+        override val waitingForOwnMove
+            get() = gameState.progress is GameProgress.Running &&
                 gameState.currentState.currentTurn == input?.playerColor
 
         override fun makeMove(move: Move) {

@@ -2,6 +2,7 @@ package pl.edu.uj.tcs.rchess.view.game
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
@@ -20,26 +21,62 @@ fun GameWindow(
     onCloseRequest: () -> Unit,
     onFinish: (historyGame: HistoryGame) -> Unit,
 ) {
+    LaunchedEffect(game) {
+        if (game !is LiveGame) return@LaunchedEffect
+        val finishedGame = game.controls.observer.finishedGame.await()
+        onFinish(finishedGame)
+    }
+
+    val windowState = rememberGameWindowState(game)
+
+    fun onKeyEvent(event: KeyEvent): Boolean {
+        if (event.type != KeyEventType.KeyDown) return false
+
+        return when (event.key) {
+            Key.DirectionLeft, Key.DirectionUp -> {
+                windowState.boardStateBrowser.selectPrev()
+                true
+            }
+
+            Key.DirectionRight, Key.DirectionDown -> {
+                windowState.boardStateBrowser.selectNext()
+                true
+            }
+
+            Key.MoveHome -> {
+                windowState.boardStateBrowser.selectFirst()
+                true
+            }
+
+            Key.MoveEnd -> {
+                windowState.boardStateBrowser.selectLast()
+                true
+            }
+
+            Key.R -> {
+                windowState.flipOrientation()
+                true
+            }
+
+            else -> false
+        }
+    }
+
     Window(
         onCloseRequest = onCloseRequest,
+        onKeyEvent = {
+            onKeyEvent(it)
+        },
         title = when (game) {
             is HistoryGame -> "Random Chess history game"
             is LiveGame -> "Random Chess live game"
-        },
+        } + " ${windowState.boardStateBrowser.index}/${windowState.gameState.boardStates.lastIndex}",
         state = rememberWindowState(
             placement = WindowPlacement.Maximized,
             size = DpSize(1200.dp, 800.dp)
         ),
     ) {
         window.minimumSize = Dimension(900, 600)
-
-        LaunchedEffect(game) {
-            if (game !is LiveGame) return@LaunchedEffect
-            val finishedGame = game.controls.observer.finishedGame.await()
-            onFinish(finishedGame)
-        }
-
-        val windowState = rememberGameWindowState(game)
 
         RandomChessTheme {
             GameScreen(windowState)
