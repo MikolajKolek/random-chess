@@ -24,6 +24,7 @@ import rchess.composeapp.generated.resources.icon_refresh
 @Composable
 fun GameHistoryScreen(context: AppContext) {
     val padding = 16.dp
+    val bottomPadding = 32.dp
 
     DataStateScreen(context.gameListViewModel, "Loading game list") { games, refresh ->
         var importPgnDialogVisible by remember { mutableStateOf(false) }
@@ -81,6 +82,7 @@ fun GameHistoryScreen(context: AppContext) {
                     modifier = Modifier.fillMaxHeight().weight(1f),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     state = scrollState,
+                    contentPadding = PaddingValues(bottom = bottomPadding)
                 ) {
                     items(games) { game ->
                         GameHistoryItem(
@@ -91,14 +93,10 @@ fun GameHistoryScreen(context: AppContext) {
                             }
                         )
                     }
-
-                    item {
-                        Spacer(modifier = Modifier.height(padding + 16.dp))
-                    }
                 }
                 if (scrollState.canScrollForward || scrollState.canScrollBackward) {
                     VerticalScrollbar(
-                        modifier = Modifier.fillMaxHeight().padding(start = 8.dp),
+                        modifier = Modifier.padding(start = 8.dp, bottom = bottomPadding).fillMaxHeight(),
                         adapter = rememberScrollbarAdapter(scrollState)
                     )
                 }
