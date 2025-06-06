@@ -963,7 +963,9 @@ CREATE TABLE "tournaments_games"
 CREATE TABLE "tournaments_players"
 (
     "tournament_id"     INTEGER     NOT NULL    REFERENCES swiss_tournaments(tournament_id) ON DELETE CASCADE,
-    "user_id"           INTEGER     NULL        --REFERENCES service_accounts(user_id_in_service) ON DELETE SET NULL -- Is this correct? Likely done via trigger.
+    "user_id"           INTEGER     NULL,        --REFERENCES service_accounts(user_id_in_service) ON DELETE SET NULL,
+    -- TODO: Likely must add the same hack foreign key as in elo_history
+    "byes"              INTEGER     NOT NULL    DEFAULT 0
 );
 
 -- Ranking value requirement placed on a tournament
@@ -981,6 +983,7 @@ CREATE TABLE "tournaments_ranked_games_reqs"
     "ranking_type"      INTEGER     NOT NULL    REFERENCES rankings(id) DEFAULT 0, -- 0 is the global ranking
     "game_count"        INTEGER     NOT NULL    CHECK ( game_count > 0 )
 );
+-- TODO: Make (tournament_id, ranking_type) unique in both tables
 
 CREATE VIEW "tournaments_reqs" AS
 (
@@ -1002,7 +1005,7 @@ CREATE VIEW "swiss_tournaments_players_points" AS
 
 CREATE VIEW "swiss_tournaments_round_standings" AS
 (
-    SELECT st.tournament_id, tg.round
+    SELECT ROW_NUMBER() OVER (PARTITION BY tg.round ORDER BY stpp.points, stpp.performance_rating), st.tournament_id, tg.round
     FROM swiss_tournaments st
          JOIN tournaments_players tp USING(tournament_id)
          JOIN tournaments_games tg USING(tournament_id)
@@ -1073,6 +1076,9 @@ CREATE OR REPLACE FUNCTION check_tournament_player_validity()
 $$
 DECLARE
     player_data RECORD;
+    ranking_restriction RECORD;
+    games_restriction RECORD;
+    req_val INTEGER;
 BEGIN
     player_data := (
         SELECT *
@@ -1080,7 +1086,26 @@ BEGIN
         WHERE sa.user_id_in_service=NEW.user_id AND sa.service_id = 1
     );
     IF(player_data IS NULL) THEN RAISE EXCEPTION 'Player not found in local service accounts.'; END IF;
-    -- TODO: Verify that the player fulfills all requirements placed on the tournaments.
+    
+    -- Check all requirements for ranking minimum
+    FOR ranking_restriction IN (SELECT * FROM tournaments_ranking_reqs trq WHERE NEW.tournament_id=trq.tournament_id) LOOP
+        req_val = (
+            SELECT rat.elo
+            FROM ranking_at_timestamp(CURRENT_TIMESTAMP::TIMESTAMP) rat
+            WHERE NEW.user_id=rat.user_id_in_service AND trq.ranking_type=rat.ranking_id
+        );
+        IF(req_val < trq.required_value) THEN RAISE EXCEPTION 'Could not join the tournament - rating too low.'; END IF;
+    END LOOP;
+
+    -- Check all requirements for ranked game minimum
+    FOR games_restriction IN (SELECT * FROM tournaments_ranked_games_reqs trgr WHERE NEW.tournament_id=trgr.tournament_id) LOOP
+        req_val = (
+            SELECT COUNT(*)
+            FROM elo_history eh
+            WHERE eh.user_id_in_service=NEW.user_id AND eh.ranking_id=trgr.ranking_id
+        );
+        IF(req_val < trq.game_count) THEN RAISE EXCEPTION 'Could not join tournament - not enough ranked games.'; END IF;
+    END LOOP;
     RETURN NEW;
 END;
 $$
