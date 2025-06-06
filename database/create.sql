@@ -427,12 +427,45 @@ CREATE TABLE "pgn_games"
     "white_player_name" VARCHAR         NOT NULL
 );
 
-
 -- Wartości "id" mogą się powtarzać, ale już pary ("id", "kind") są unikatowe
 CREATE VIEW "games" AS (
-    SELECT "id", 'service' AS "kind", "starting_position", "moves", "partial_fens", "creation_date", "result", "metadata", "clock" FROM service_games
+    SELECT "id",
+           'service' AS "kind",
+           "starting_position",
+           "moves",
+           "partial_fens",
+           "creation_date",
+           "result",
+           "metadata",
+           "clock",
+           "game_id_in_service",
+           "service_id",
+           "white_player" AS "white_service_account",
+           "black_player" AS "black_service_account",
+           "is_ranked",
+           NULL AS "pgn_owner_id",
+           NULL AS "pgn_black_player_name",
+           NULL AS "pgn_white_player_name"
+    FROM service_games
     UNION ALL
-    SELECT "id", 'pgn' AS "kind", "starting_position", "moves", "partial_fens", "creation_date", "result", "metadata", "clock" FROM pgn_games
+    SELECT "id",
+           'pgn' AS "kind",
+           "starting_position",
+           "moves",
+           "partial_fens",
+           "creation_date",
+           "result",
+           "metadata",
+           "clock",
+           NULL AS "game_id_in_service",
+           NULL AS "service_id",
+           NULL AS "white_service_account",
+           NULL AS "black_service_account",
+           NULL AS "is_ranked",
+           "owner_id" AS "pgn_owner_id",
+           "black_player_name" AS "pgn_black_player_name",
+           "white_player_name" AS "pgn_white_player_name"
+    FROM pgn_games
 );
 
 CREATE VIEW "users_games" AS (

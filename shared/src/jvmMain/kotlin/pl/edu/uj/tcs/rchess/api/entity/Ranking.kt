@@ -9,7 +9,11 @@ data class Ranking(
     val id: Int,
     val name: String,
     val playtimeMin: Duration,
-    val playtimeMax: Duration?,
+    /**
+     * If the ranking doesn't have an upper playtime limit,
+     * playtimeMax is equal to [Duration.INFINITE].
+     */
+    val playtimeMax: Duration,
     val extraMoveMultiplier: Int,
     val includeBots: Boolean,
 )

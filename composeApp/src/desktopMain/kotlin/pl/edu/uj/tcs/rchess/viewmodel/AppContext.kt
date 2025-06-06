@@ -9,7 +9,7 @@ class AppContext(
 ) {
     val navigation = NavigationManager()
 
-    val gameListViewModel = DataStateViewModel { clientApi.getUserGames() }
+    val gameListViewModel = DataStateViewModel { clientApi.getUserGames(ClientApi.GamesRequestSettings()) }
 
     val rankingsViewModel = DataStateViewModel { clientApi.getRankings() }
 }

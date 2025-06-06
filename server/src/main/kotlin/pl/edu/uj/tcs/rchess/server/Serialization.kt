@@ -5,6 +5,8 @@ import org.jooq.types.YearToSecond
 import pl.edu.uj.tcs.rchess.api.entity.*
 import pl.edu.uj.tcs.rchess.api.entity.Service.UNKNOWN
 import pl.edu.uj.tcs.rchess.api.entity.Service.entries
+import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
+import pl.edu.uj.tcs.rchess.api.entity.game.HistoryGame
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryServiceGame
 import pl.edu.uj.tcs.rchess.api.entity.game.PgnGame
 import pl.edu.uj.tcs.rchess.generated.db.tables.records.*
@@ -53,7 +55,7 @@ internal object Serialization {
         id = id!!,
         name = name,
         playtimeMin = playtimeMin.toKotlinDuration(),
-        playtimeMax = playtimeMax?.toKotlinDuration(),
+        playtimeMax = playtimeMax?.toKotlinDuration() ?: Duration.INFINITE,
         extraMoveMultiplier = extraMoveMultiplier,
         includeBots = includeBots
     )
@@ -109,6 +111,49 @@ internal object Serialization {
         whitePlayer = PlayerDetails.Simple(whitePlayerName),
         clockSettings = clock?.toModel(),
     )
+
+    fun GamesRecord.toModel(
+        white: ServiceAccountsRecord?,
+        black: ServiceAccountsRecord?,
+        currentUserId: Int,
+        opening: Opening?,
+    ): HistoryGame = when(kind) {
+        "service" -> HistoryServiceGame(
+            id = id!!,
+            moves = moves!!.map { Move.fromLongAlgebraicNotation(it!!) },
+            startingPosition = BoardState.fromFen(startingPosition!!),
+            finalPosition = BoardState.fromFen(partialFens!!.last()!!, true),
+            opening = opening,
+            creationDate = creationDate!!,
+            result = GameResult.fromDbResult(result!!),
+            metadata = metadata?.data()?.let { Json.Default.decodeFromString<Map<String, String>>(it) }
+                ?: emptyMap(),
+            gameIdInService = gameIdInService,
+            service = Service.fromDbId(serviceId!!),
+            blackPlayer = black!!.toModel(
+                black.userId == currentUserId
+            ),
+            whitePlayer = white!!.toModel(
+                white.userId == currentUserId
+            ),
+            clockSettings = clock?.toModel()
+        )
+        "pgn" -> PgnGame(
+            id = id!!,
+            moves = moves!!.map { Move.fromLongAlgebraicNotation(it!!) },
+            startingPosition = BoardState.fromFen(startingPosition!!),
+            finalPosition = BoardState.fromFen(partialFens!!.last()!!, true),
+            opening = opening,
+            creationDate = creationDate!!,
+            result = GameResult.fromDbResult(result!!),
+            metadata = metadata?.data()?.let { Json.Default.decodeFromString<Map<String, String>>(it) }
+                ?: emptyMap(),
+            blackPlayer = PlayerDetails.Simple(pgnBlackPlayerName!!),
+            whitePlayer = PlayerDetails.Simple(pgnWhitePlayerName!!),
+            clockSettings = clock?.toModel()
+        )
+        else -> throw IllegalArgumentException("Invalid game kind: $kind")
+    }
 
     fun OpeningsRecord.toModel() = id?.let {
         Opening(

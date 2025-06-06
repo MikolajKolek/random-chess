@@ -3,6 +3,7 @@ package pl.edu.uj.tcs.rchess.api
 import kotlinx.coroutines.flow.StateFlow
 import pl.edu.uj.tcs.rchess.api.entity.BotOpponent
 import pl.edu.uj.tcs.rchess.api.entity.Ranking
+import pl.edu.uj.tcs.rchess.api.entity.Service
 import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryGame
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryServiceGame
@@ -19,10 +20,10 @@ interface ClientApi {
 
     /**
      * @return A list of all [HistoryGame]s the user has access to
-     * @param refreshAvailableUpdates If true, this sets [DatabaseState.updatesAvailable] to `false` in the
-     * [databaseState] flow.
+     * that match the provided settings, sorted descending by
+     * [HistoryGame.creationDate].
      */
-    suspend fun getUserGames(refreshAvailableUpdates: Boolean = false): List<HistoryGame>
+    suspend fun getUserGames(settings: GamesRequestSettings): List<HistoryGame>
 
     /**
      * @param id The ID of the service game
@@ -95,5 +96,34 @@ interface ClientApi {
          * Indicates if data from external services is currently being synchronized.
          */
         val synchronizing: Boolean,
+    )
+
+    data class GamesRequestSettings(
+        /**
+         * Whether the request should return PGN games.
+         */
+        val includePgnGames: Boolean = true,
+        /**
+         * The set of services games played on which should be included in the results.
+         *
+         * If this is null, this indicates that all services should be included.
+         * If this is an empty set, this indicates that no service games should be included.
+         */
+        val includedServices: Set<Service>? = null,
+        /**
+         * Return games that are after the given [HistoryGame] in the game list.
+         *
+         * If this is null, the request returns games starting from the top of the list.
+         */
+        val after: HistoryGame? = null,
+        /**
+         * The number of games that should be returned
+         */
+        val length: Int = 100,
+        /**
+         * If true, this sets [DatabaseState.updatesAvailable] to `false` in the
+         * [databaseState] flow after the request is made.
+         */
+        val refreshAvailableUpdates: Boolean = false
     )
 }

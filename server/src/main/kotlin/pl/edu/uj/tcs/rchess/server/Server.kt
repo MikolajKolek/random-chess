@@ -4,6 +4,7 @@ import io.r2dbc.spi.ConnectionFactories
 import io.r2dbc.spi.ConnectionFactoryOptions
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
@@ -14,16 +15,14 @@ import kotlinx.serialization.json.Json
 import org.jooq.JSONB
 import org.jooq.SQLDialect
 import org.jooq.impl.DSL
+import org.jooq.impl.DSL.noCondition
 import org.jooq.kotlin.coroutines.transactionCoroutine
 import pl.edu.uj.tcs.rchess.api.ClientApi
 import pl.edu.uj.tcs.rchess.api.entity.BotOpponent
 import pl.edu.uj.tcs.rchess.api.entity.Ranking
 import pl.edu.uj.tcs.rchess.api.entity.Service
 import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
-import pl.edu.uj.tcs.rchess.api.entity.game.HistoryGame
-import pl.edu.uj.tcs.rchess.api.entity.game.HistoryServiceGame
-import pl.edu.uj.tcs.rchess.api.entity.game.LiveGame
-import pl.edu.uj.tcs.rchess.api.entity.game.PgnGame
+import pl.edu.uj.tcs.rchess.api.entity.game.*
 import pl.edu.uj.tcs.rchess.config.BotType
 import pl.edu.uj.tcs.rchess.config.ConfigLoader
 import pl.edu.uj.tcs.rchess.generated.db.keys.SERVICE_GAMES__SERVICE_GAMES_SERVICE_ID_BLACK_PLAYER_FKEY
@@ -94,9 +93,83 @@ class Server() : ClientApi, Database {
     }
 
 
-    override suspend fun getUserGames(refreshAvailableUpdates: Boolean): List<HistoryGame> =
-        (serviceGamesRequest(Optional.empty()) + pgnGamesRequest(Optional.empty()))
-            .sortedByDescending { it.creationDate }
+    override suspend fun getUserGames(settings: ClientApi.GamesRequestSettings): List<HistoryGame> {
+        val whiteAccount = SERVICE_ACCOUNTS.`as`("white_account")
+        val blackAccount = SERVICE_ACCOUNTS.`as`("black_account")
+
+        var conditions = (blackAccount.USER_ID.eq(config.defaultUser)
+            .or(whiteAccount.USER_ID.eq(config.defaultUser))
+            .or(GAMES.PGN_OWNER_ID.eq(config.defaultUser)))
+
+        if(!settings.includePgnGames)
+            conditions = conditions.and(GAMES.KIND.notEqual("pgn"))
+
+        settings.includedServices?.let { includedServices ->
+            var serviceCondition = noCondition()
+            for (service in includedServices) {
+                serviceCondition = serviceCondition.or(
+                    GAMES.SERVICE_ID.eq(service.toDbId())
+                )
+            }
+            conditions = conditions.and(serviceCondition)
+        }
+
+        settings.after?.let {
+            conditions = conditions.and(
+                GAMES.CREATION_DATE.lessThan(it.creationDate).or(
+                    GAMES.CREATION_DATE.eq(it.creationDate).and(
+                        GAMES.ID.lessThan(it.id).or(
+                            GAMES.ID.eq(it.id).and(
+                                GAMES.KIND.lessThan(when(it) {
+                                    is ServiceGame -> "service"
+                                    is PgnGame -> "pgn"
+                                })
+                            )
+                        )
+                    )
+                )
+            )
+        }
+
+        val query = dsl.select(
+            GAMES,
+            whiteAccount,
+            blackAccount,
+            GAMES_OPENINGS,
+            OPENINGS
+        ).from(GAMES)
+            .leftJoin(whiteAccount).on(
+                GAMES.WHITE_SERVICE_ACCOUNT.eq(whiteAccount.USER_ID_IN_SERVICE)
+                    .and(GAMES.SERVICE_ID.eq(whiteAccount.SERVICE_ID))
+            )
+            .leftJoin(blackAccount).on(
+                GAMES.BLACK_SERVICE_ACCOUNT.eq(blackAccount.USER_ID_IN_SERVICE)
+                    .and(GAMES.SERVICE_ID.eq(blackAccount.SERVICE_ID))
+            )
+            .join(GAMES_OPENINGS).on(
+                GAMES.ID.eq(GAMES_OPENINGS.GAME_ID)
+                    .and(GAMES_OPENINGS.KIND.eq(GAMES.KIND))
+            )
+            .leftJoin(OPENINGS).on(GAMES_OPENINGS.OPENING_ID.eq(OPENINGS.ID))
+            .where(conditions)
+            .orderBy(GAMES.CREATION_DATE.desc(), GAMES.ID.desc(), GAMES.KIND.desc())
+            .limit(settings.length)
+
+        val result = Flux.from(query).asFlow().map { (game, white, black, _, opening) ->
+            game.toModel(
+                white = white,
+                black = black,
+                currentUserId = config.defaultUser,
+                opening = opening.toModel(),
+            )
+        }.toList()
+
+        // This should only happen when we know the function is not going to throw
+        if(settings.refreshAvailableUpdates)
+            databaseState.getAndUpdate { it.copy(updatesAvailable = false) }
+
+        return result
+    }
 
     override suspend fun getServiceGame(id: Int): HistoryServiceGame =
         serviceGamesRequest(Optional.of(id)).singleOrNull() ?: throw IllegalArgumentException(
