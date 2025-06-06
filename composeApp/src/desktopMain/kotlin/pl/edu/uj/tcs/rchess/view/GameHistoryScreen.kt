@@ -27,6 +27,7 @@ fun GameHistoryScreen(context: AppContext) {
     val scrollState = rememberLazyListState()
     // TODO: Accept requests only when the games are near
     val games by context.gameHistoryViewModel.collectListAsState(derivedStateOf { true })
+    val databaseState by context.clientApi.databaseState.collectAsState()
 
     var importPgnDialogVisible by remember { mutableStateOf(false) }
 
@@ -47,9 +48,10 @@ fun GameHistoryScreen(context: AppContext) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(vertical = padding),
             horizontalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.End),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             when {
-                context.gameHistoryViewModel.databaseState.synchronizing -> {
+                databaseState.synchronizing -> {
                     Text(
                         "Synchronizing games from external services...",
                         style = typography.bodySmall,
@@ -57,7 +59,7 @@ fun GameHistoryScreen(context: AppContext) {
                     )
                 }
 
-                context.gameHistoryViewModel.databaseState.updatesAvailable -> {
+                databaseState.updatesAvailable -> {
                     Text(
                         "Refresh to see latest changes",
                         style = typography.bodySmall,

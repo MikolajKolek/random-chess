@@ -37,6 +37,7 @@ class RandomChessApp(private val clientApi: ClientApi) {
                 },
                 onFinish = { historyGame ->
                     context.navigation.replaceGameWindow(index, historyGame)
+                    context.gameHistoryViewModel.refresh()
                 },
             )
         }

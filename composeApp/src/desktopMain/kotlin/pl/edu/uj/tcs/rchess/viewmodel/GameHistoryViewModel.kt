@@ -90,7 +90,4 @@ class GameHistoryViewModel(
 
         return remember { derivedStateOf { _list.toList() } }
     }
-
-    val databaseState: ClientApi.DatabaseState
-        get() = clientApi.databaseState.value
 }
