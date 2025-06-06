@@ -1,10 +1,8 @@
 package pl.edu.uj.tcs.rchess.view.rankings
 
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.Card
 import androidx.compose.runtime.Composable
@@ -16,20 +14,27 @@ import pl.edu.uj.tcs.rchess.viewmodel.AppContext
 
 @Composable
 fun RankingsScreen(context: AppContext) {
-    DataStateScreen(context.rankingsViewModel, "Loading ranking list") { rankings, refresh ->
+    val viewModel = context.rankingListViewModel
+
+    DataStateScreen(viewModel.rankingList, "Loading ranking list") { rankings, refresh ->
         Row(
             modifier = Modifier.fillMaxSize()
         ) {
             LazyColumn(
-                modifier = Modifier.widthIn(max = 400.dp).selectableGroup()
+                modifier = Modifier
+                    .padding(end = 12.dp)
+                    .widthIn(max = 360.dp)
+                    .selectableGroup(),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                itemsIndexed(rankings) { index, ranking ->
+                items(rankings) { ranking ->
                     RankingListItem(
+                        modifier = Modifier.fillMaxWidth(),
                         ranking,
-                        index == 3, // TODO: Implement correctly
+                        ranking.id == viewModel.selectedRankingId,
                         onClick = {
-                            // TODO: Handle
-                        }
+                            viewModel.selectRanking(ranking.id)
+                        },
                     )
                 }
             }

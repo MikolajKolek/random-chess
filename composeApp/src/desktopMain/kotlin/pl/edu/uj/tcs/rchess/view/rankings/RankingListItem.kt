@@ -1,16 +1,8 @@
 package pl.edu.uj.tcs.rchess.view.rankings
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ListItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,6 +17,7 @@ import kotlin.time.Duration
 
 @Composable
 fun RankingListItem(
+    modifier: Modifier = Modifier,
     ranking: Ranking,
     selected: Boolean,
     onClick: () -> Unit,
@@ -33,31 +26,39 @@ fun RankingListItem(
     //  and infinite durations are represented as Duration.INFINITE
     val playtimeMax = ranking.playtimeMax ?: Duration.INFINITE
 
-    @OptIn(ExperimentalMaterialApi::class)
-    ListItem(
-        modifier = Modifier
-            .selectable(selected, onClick = onClick)
+    Card(
+        modifier = Modifier.then(modifier),
+        colors = CardDefaults.cardColors()
             .runIf(selected) {
-                background(MaterialTheme.colorScheme.primaryContainer)
-            },
-
-        text = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(ranking.name)
-                if (ranking.includeBots) {
-                    Icon(
-                        painter = painterResource(Res.drawable.icon_robot),
-                        contentDescription = "Ranking includes bots",
-                        modifier = Modifier.padding(start = 8.dp).size(16.dp),
-                    )
-                }
+                copy(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                )
             }
-        },
-
-        secondaryText = {
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .selectable(selected, onClick = onClick),
+        ) {
             Column(
-                modifier = Modifier.padding(bottom = 12.dp)
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .fillMaxWidth()
             ) {
+                Row(
+                    modifier = Modifier.padding(bottom = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(ranking.name)
+                    if (ranking.includeBots) {
+                        Icon(
+                            painter = painterResource(Res.drawable.icon_robot),
+                            contentDescription = "Ranking includes bots",
+                            modifier = Modifier.padding(start = 8.dp).size(16.dp),
+                        )
+                    }
+                }
+
                 Text(
                     when {
                         ranking.playtimeMin == Duration.ZERO && playtimeMax == Duration.INFINITE -> {
@@ -87,5 +88,5 @@ fun RankingListItem(
                 }
             }
         }
-    )
+    }
 }

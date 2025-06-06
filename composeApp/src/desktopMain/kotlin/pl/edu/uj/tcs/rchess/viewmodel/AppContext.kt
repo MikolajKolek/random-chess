@@ -11,5 +11,5 @@ class AppContext(
 
     val gameListViewModel = DataStateViewModel { clientApi.getUserGames(ClientApi.GamesRequestSettings()) }
 
-    val rankingsViewModel = DataStateViewModel { clientApi.getRankings() }
+    val rankingListViewModel = RankingListViewModel(clientApi)
 }
