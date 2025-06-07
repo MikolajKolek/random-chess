@@ -252,13 +252,9 @@ class Server() : ClientApi, Database {
     }
 
     override suspend fun requestResync() {
-        requestResyncImpl()
-    }
-
-    private fun requestResyncImpl() {
         requestResyncMutex.tryWithLock {
             if(resyncMutex.isLocked || !externalConnections.any { it.available() })
-                return@requestResyncImpl
+                return@requestResync
 
             databaseState.getAndUpdate { it.copy(synchronizationState = Synchronizing()) }
 
@@ -280,9 +276,7 @@ class Server() : ClientApi, Database {
             // This makes sure that from the time requestResyncMutex is unlocked,
             // the resyncMutex is locked, so any new requestResyncImpl() call
             // will fail at the resyncMutex.isLocked check.
-            runBlocking {
-                transferChannel.receive()
-            }
+            transferChannel.receive()
         }
     }
 
