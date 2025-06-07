@@ -26,8 +26,8 @@ class DemoRemoteProxy(
 
     private suspend fun <T> networked(action: suspend () -> T): T {
         if (enabled) {
-            delay(Random.Default.nextLong(150L..600L).milliseconds)
-            if (Random.Default.nextInt(0..<100) < 20) {
+            delay(Random.nextLong(150L..600L).milliseconds)
+            if (Random.nextInt(0..<100) < 25) {
                 throw Exception("Demo network failure")
             }
         }

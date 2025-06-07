@@ -2,6 +2,8 @@ package pl.edu.uj.tcs.rchess.viewmodel.paging
 
 import androidx.compose.runtime.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import pl.edu.uj.tcs.rchess.util.logger
 import pl.edu.uj.tcs.rchess.utils.waitUntil
 
@@ -29,6 +31,7 @@ class Paging<T, K>(
 
     private val acceptingRequestStates = mutableStateListOf<State<Boolean>>()
     private var job = launchJob()
+    private var refreshMutex = Mutex()
 
     private fun launchJob() = scope.launch {
         while (isActive && !reachedEnd) {
@@ -73,13 +76,16 @@ class Paging<T, K>(
      * Clears all items and [error] and restarts fetching.
      */
     fun refresh() {
-        runBlocking {
-            job.cancelAndJoin()
+        scope.launch {
+            refreshMutex.withLock {
+                job.cancelAndJoin()
+                reachedEnd = false
+                nextKey = null
+                _error = null
+                _list.clear()
+                job = launchJob()
+            }
         }
-        reachedEnd = false
-        _error = null
-        _list.clear()
-        job = launchJob()
     }
 
     /**
