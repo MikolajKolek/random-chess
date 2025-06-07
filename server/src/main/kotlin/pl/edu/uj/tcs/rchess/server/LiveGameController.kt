@@ -25,10 +25,10 @@ import kotlin.time.Duration
 
 internal class LiveGameController(
     initialBoardState: BoardState = BoardState.Companion.initial,
-    private val clockSettings: ClockSettings,
+    val clockSettings: ClockSettings,
     val whitePlayerId: String,
     val blackPlayerId: String,
-    private val isRanked: Boolean,
+    val isRanked: Boolean,
     private val database: Database
 ) : GameObserver {
     val stateMachine: StateMachine<GameState, GameStateChange> =
@@ -145,17 +145,8 @@ internal class LiveGameController(
     private suspend fun withStateWrapper(block: suspend (state: GameState) -> GameStateChange?): GameState {
         val updatedState = stateMachine.withState(block)
 
-        if(updatedState.progress is GameProgress.FinishedWithClockInfo) {
-            timer.stop()
-            //TODO: this should spawn in an unconnected coroutine somewhere in the db scope
-            finishedGame.complete(database.saveGame(
-                updatedState,
-                blackPlayerId,
-                whitePlayerId,
-                isRanked,
-                clockSettings,
-            ))
-        }
+        if(updatedState.progress is GameProgress.FinishedWithClockInfo)
+            database.saveGame(updatedState, this)
 
         return updatedState
     }

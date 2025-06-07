@@ -73,7 +73,7 @@ sealed interface ClockState {
         override val settings: ClockSettings,
         override val endsAt: Instant
     ) : Running() {
-        override fun remainingTimeOnClock() = endsAt - Clock.System.now()
+        override fun remainingTimeOnClock() = maxOf(Duration.ZERO, endsAt - Clock.System.now())
 
         override fun remainingExtraTime() = Duration.ZERO
 

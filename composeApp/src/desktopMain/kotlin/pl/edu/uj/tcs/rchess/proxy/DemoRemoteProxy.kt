@@ -10,7 +10,6 @@ import pl.edu.uj.tcs.rchess.api.args.RankingRequestArgs
 import pl.edu.uj.tcs.rchess.api.entity.BotOpponent
 import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.PlayerColor
-import pl.edu.uj.tcs.rchess.server.Server
 import kotlin.random.Random
 import kotlin.random.nextInt
 import kotlin.random.nextLong
@@ -21,7 +20,7 @@ import kotlin.time.Duration.Companion.milliseconds
  * This class simulates a poor network connection with extra delays and occasional errors.
  */
 class DemoRemoteProxy(
-    private val server: Server,
+    private val server: ClientApi,
     initiallyEnabled: Boolean,
 ) : ClientApi {
     var enabled by mutableStateOf(initiallyEnabled)

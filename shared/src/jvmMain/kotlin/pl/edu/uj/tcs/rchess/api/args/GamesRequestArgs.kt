@@ -22,9 +22,11 @@ data class GamesRequestArgs(
      */
     val after: HistoryGame? = null,
     /**
-     * The number of games that should be returned
+     * The number of games that should be returned.
+     *
+     * If this is null, all matching games are returned.
      */
-    val length: Int = 100,
+    val length: Int? = 100,
     /**
      * If true, this sets [pl.edu.uj.tcs.rchess.api.DatabaseState.updatesAvailable] to `false` in the
      * [pl.edu.uj.tcs.rchess.api.ClientApi.databaseState] flow after the request is made.

@@ -2,7 +2,6 @@ package pl.edu.uj.tcs.rchess.server
 
 import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryServiceGame
-import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.state.GameState
 
 /**
@@ -10,19 +9,26 @@ import pl.edu.uj.tcs.rchess.model.state.GameState
  */
 internal interface Database {
     /**
-     * Saves the GameState to the database and returns the created [HistoryServiceGame].
+     * Stops the timer in the provided liveGameController, saves the
+     * GameState to the database and completes [LiveGameController.finishedGame].
      */
     suspend fun saveGame(
         game: GameState,
-        blackPlayerId: String,
-        whitePlayerId: String,
-        isRanked: Boolean,
-        clockSettings: ClockSettings,
-    ): HistoryServiceGame
+        liveGameController: LiveGameController,
+    )
 
     /**
-     * Returns the latest [pl.edu.uj.tcs.rchess.api.entity.game.ServiceGame] linked to the
+     * Returns the latest [pl.edu.uj.tcs.rchess.api.entity.game.ServiceGame]s linked to the
      * service account, or null if there are none.
      */
     suspend fun getLatestGameForServiceAccount(serviceAccount: ServiceAccount): HistoryServiceGame?
+
+    /**
+     * Returns all the [pl.edu.uj.tcs.rchess.api.entity.game.ServiceGame]s linked to the
+     * service account that happened on the given epoch second, or null if there are none.
+     */
+    suspend fun getGamesAtSecondForServiceAccount(
+        serviceAccount: ServiceAccount,
+        epochSecond: Int
+    ): HistoryServiceGame?
 }

@@ -47,7 +47,7 @@ import pl.edu.uj.tcs.rchess.util.tryWithLock
 import reactor.core.publisher.Flux
 import java.time.OffsetDateTime
 
-class Server() : ClientApi, Database {
+internal class Server() : ClientApi, Database {
     private val config = ConfigLoader.loadConfig()
     private val connection = ConnectionFactories.get(
         ConnectionFactoryOptions
@@ -117,7 +117,7 @@ class Server() : ClientApi, Database {
             extraConditions = GAMES.ID.eq(id),
             userId = config.defaultUser
         ).singleOrNull() as? HistoryServiceGame
-            ?: throw IllegalArgumentException("Game with id $id does not exist or is owned by another user")
+            ?: throw IllegalArgumentException("Service game with id $id does not exist or is owned by another user")
 
     override suspend fun getPgnGame(id: Int): PgnGame =
         modifiableUserGamesRequest(
@@ -128,7 +128,7 @@ class Server() : ClientApi, Database {
             extraConditions = GAMES.ID.eq(id),
             userId = config.defaultUser
         ).singleOrNull() as? PgnGame
-            ?: throw IllegalArgumentException("Game with id $id does not exist or is owned by another user")
+            ?: throw IllegalArgumentException("PGN game with id $id does not exist or is owned by another user")
 
     //TODO: maybe make this launch a coroutine
     override suspend fun addPgnGames(fullPgn: String): List<Int> {
@@ -284,33 +284,34 @@ class Server() : ClientApi, Database {
 
     override suspend fun saveGame(
         game: GameState,
-        blackPlayerId: String,
-        whitePlayerId: String,
-        isRanked: Boolean,
-        clockSettings: ClockSettings,
-    ): HistoryServiceGame {
-        val progress = game.progress
-        require(progress is GameProgress.Finished) { "The game is not finished" }
+        liveGameController: LiveGameController
+    ) {
+        databaseScope.launch {
+            liveGameController.timer.stop()
 
-        val id = dsl.insertInto(SERVICE_GAMES)
-            .set(SERVICE_GAMES.MOVES, game.moves.map { it.toLongAlgebraicNotation() }.toTypedArray())
-            .set(SERVICE_GAMES.STARTING_POSITION, game.initialState.toFenString())
-            .set(SERVICE_GAMES.CREATION_DATE, OffsetDateTime.now())
-            .set(SERVICE_GAMES.RESULT, progress.result.toDbResult())
-            .set(SERVICE_GAMES.IS_RANKED, isRanked)
-            .set(SERVICE_GAMES.SERVICE_ID, Service.RANDOM_CHESS.toDbId())
-            .set(SERVICE_GAMES.BLACK_PLAYER, blackPlayerId)
-            .set(SERVICE_GAMES.WHITE_PLAYER, whitePlayerId)
-            .set(SERVICE_GAMES.CLOCK, clockSettings.toDbType())
-            .returningResult(SERVICE_GAMES.ID)
-            .awaitFirst()?.getValue(SERVICE_GAMES.ID)
-            ?: throw IllegalStateException("Failed to save game to the database")
+            val progress = game.progress
+            require(progress is GameProgress.Finished) { "The game is not finished" }
 
-        databaseState.getAndUpdate {
-            it.copy(updatesAvailable = true)
+            val id = dsl.insertInto(SERVICE_GAMES)
+                .set(SERVICE_GAMES.MOVES, game.moves.map { it.toLongAlgebraicNotation() }.toTypedArray())
+                .set(SERVICE_GAMES.STARTING_POSITION, game.initialState.toFenString())
+                .set(SERVICE_GAMES.CREATION_DATE, OffsetDateTime.now())
+                .set(SERVICE_GAMES.RESULT, progress.result.toDbResult())
+                .set(SERVICE_GAMES.IS_RANKED, liveGameController.isRanked)
+                .set(SERVICE_GAMES.SERVICE_ID, Service.RANDOM_CHESS.toDbId())
+                .set(SERVICE_GAMES.BLACK_PLAYER, liveGameController.blackPlayerId)
+                .set(SERVICE_GAMES.WHITE_PLAYER, liveGameController.whitePlayerId)
+                .set(SERVICE_GAMES.CLOCK, liveGameController.clockSettings.toDbType())
+                .returningResult(SERVICE_GAMES.ID)
+                .awaitFirst()?.getValue(SERVICE_GAMES.ID)
+                ?: throw IllegalStateException("Failed to save game to the database")
+
+            databaseState.getAndUpdate {
+                it.copy(updatesAvailable = true)
+            }
+
+            liveGameController.finishedGame.complete(getServiceGame(id))
         }
-
-        return getServiceGame(id)
     }
 
     override suspend fun getLatestGameForServiceAccount(serviceAccount: ServiceAccount): HistoryServiceGame? =
@@ -322,6 +323,22 @@ class Server() : ClientApi, Database {
             ),
             extraConditions = GAMES.BLACK_SERVICE_ACCOUNT.eq(serviceAccount.userIdInService)
                 .or(GAMES.WHITE_SERVICE_ACCOUNT.eq(serviceAccount.userIdInService)),
+            userId = null
+        ).singleOrNull() as? HistoryServiceGame
+
+    override suspend fun getGamesAtSecondForServiceAccount(
+        serviceAccount: ServiceAccount,
+        epochSecond: Int
+    ): HistoryServiceGame? =
+        modifiableUserGamesRequest(
+            settings = GamesRequestArgs(
+                includePgnGames = false,
+                includedServices = setOf(serviceAccount.service),
+                length = null,
+            ),
+            extraConditions = (GAMES.BLACK_SERVICE_ACCOUNT.eq(serviceAccount.userIdInService)
+                    .or(GAMES.WHITE_SERVICE_ACCOUNT.eq(serviceAccount.userIdInService))
+                    ).and(epoch(GAMES.CREATION_DATE).eq(epochSecond)),
             userId = null
         ).singleOrNull() as? HistoryServiceGame
 
@@ -377,7 +394,7 @@ class Server() : ClientApi, Database {
             )
         }
 
-        val query = dsl.select(
+        val queryWithoutLimit = dsl.select(
             GAMES,
             whiteAccount,
             blackAccount,
@@ -418,7 +435,10 @@ class Server() : ClientApi, Database {
             .leftJoin(OPENINGS).on(GAMES_OPENINGS.OPENING_ID.eq(OPENINGS.ID))
             .where(conditions)
             .orderBy(GAMES.CREATION_DATE.desc(), GAMES.ID.desc(), GAMES.KIND.desc())
-            .limit(settings.length)
+
+        val query =
+            if(settings.length == null) queryWithoutLimit
+            else queryWithoutLimit.limit(settings.length)
 
         val result = Flux.from(query).asFlow().map { (game, white, black, _, opening, rankingUpdates) ->
             game.toModel(

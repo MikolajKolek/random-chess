@@ -2,6 +2,7 @@ package pl.edu.uj.tcs.rchess.external
 
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
+import kotlinx.coroutines.delay
 import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
 import pl.edu.uj.tcs.rchess.server.Database
 import kotlin.time.Clock
@@ -26,7 +27,9 @@ internal class ChessComConnection(
 
         lastRequest = Clock.System.now()
 
-        val latestGame = database.getLatestGameForServiceAccount(serviceAccount)
+        /*val latestGame = database.getLatestGameForServiceAccount(serviceAccount)
+        latestGame?.creationDate?.toInstant()?.epochSecond*/
+        delay(2.seconds)
 
         return true
     }
