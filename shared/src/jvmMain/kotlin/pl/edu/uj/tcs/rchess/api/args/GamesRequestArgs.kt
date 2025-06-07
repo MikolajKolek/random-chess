@@ -31,5 +31,5 @@ data class GamesRequestArgs(
      * If true, this sets [pl.edu.uj.tcs.rchess.api.DatabaseState.updatesAvailable] to `false` in the
      * [pl.edu.uj.tcs.rchess.api.ClientApi.databaseState] flow after the request is made.
      */
-    val refreshAvailableUpdates: Boolean = false
+    val clearUpdatesAvailable: Boolean = false
 )

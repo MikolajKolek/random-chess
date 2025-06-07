@@ -451,7 +451,7 @@ internal class Server() : ClientApi, Database {
         }.toList()
 
         // This should only happen when we know the function is not going to throw
-        if(settings.refreshAvailableUpdates)
+        if(settings.clearUpdatesAvailable)
             databaseState.getAndUpdate { it.copy(updatesAvailable = false) }
 
         return result
