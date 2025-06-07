@@ -984,7 +984,7 @@ CREATE TABLE "tournaments_players"
     "service_id"        INTEGER     NOT NULL DEFAULT 1  REFERENCES game_services(id)
         CHECK (service_id = 1),
     "tournament_id"     INTEGER     NOT NULL    REFERENCES swiss_tournaments(tournament_id) ON DELETE CASCADE,
-    "user_id_in_service" VARCHAR,
+    "user_id_in_service" VARCHAR    NOT NULL,
     FOREIGN KEY ("service_id", "user_id_in_service")
         REFERENCES "service_accounts" ("service_id", "user_id_in_service"),
     UNIQUE ("tournament_id", "user_id_in_service")
@@ -1146,19 +1146,20 @@ DECLARE
     white_player_id VARCHAR := NULL;
     black_player_id VARCHAR := NULL;
 BEGIN
-    tournament_data := (
-        SELECT *
-        FROM swiss_tournaments st
-        WHERE st.tournament_id = NEW.tournament_id
-    );
-    game_data := (
-        SELECT *
-        FROM service_games sg
-        WHERE sg.id = NEW.game_id AND sg.service_id = 1
-    );
-    IF(game_data IS NULL) THEN RAISE EXCEPTION 'Game not found in local games.'; END IF;
+    SELECT *
+    INTO tournament_data
+    FROM swiss_tournaments st
+    WHERE st.tournament_id = NEW.tournament_id;
+
     IF(tournament_data IS NULL) THEN RAISE EXCEPTION 'Invalid tournament'; END IF;
     IF(tournament_data.round_count < NEW.round) THEN RAISE EXCEPTION 'Round exceeds maximum defined by the tournament'; END IF;
+
+    SELECT *
+    INTO game_data
+    FROM service_games sg
+    WHERE sg.id = NEW.game_id AND sg.service_id = 1;
+
+    IF(game_data IS NULL) THEN RAISE EXCEPTION 'Game not found in local games.'; END IF;
     IF(tournament_data.is_ranked != game_data.is_ranked) THEN RAISE EXCEPTION 'Game and tournament ranking mismatch'; END IF;
     IF(tournament_data.starting_position != game_data.starting_position) THEN
         RAISE EXCEPTION 'Game and tournament starting position mismatch. Tournament has % and game has %', tournament_data.starting_position, game_data.starting_position;
@@ -1203,11 +1204,11 @@ DECLARE
     games_restriction RECORD;
     req_val INTEGER;
 BEGIN
-    player_data := (
-        SELECT *
-        FROM service_accounts sa
-        WHERE sa.user_id_in_service=NEW.user_id_in_service AND sa.service_id = 1
-    );
+    SELECT *
+    INTO player_data
+    FROM service_accounts sa
+    WHERE sa.user_id_in_service=NEW.user_id_in_service AND sa.service_id = 1
+    LIMIT 1;
     IF(player_data IS NULL) THEN RAISE EXCEPTION 'Player not found in local service accounts.'; END IF;
     IF(player_data.is_bot) THEN RETURN NEW; END IF;
 

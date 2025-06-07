@@ -159,13 +159,24 @@ INSERT INTO service_games(moves, starting_position, creation_date, result, metad
         'stockfish-impossible'
     );
 
--- Games for the tournament tests
+-- Tournament test data
 INSERT INTO swiss_tournaments(round_count, ranking_id, time_control) VALUES
     (
         5,
         1,
-        '(3 minutes, 2 second)'
+        '(3 minutes, 2 seconds)'
     );
+
+INSERT INTO tournaments_players(tournament_id, user_id_in_service) VALUES
+    (1, 1),
+    (1 , 2),
+    (1, 3),
+    (1, 4),
+    (1, 5),
+    (1, 6),
+    (1, 7),
+    (1, 8);
+
 
 /* New example game to be added
 INSERT INTO service_games("moves", "starting_position", "creation_date", "result", "metadata", "service_id", "game_id_in_service", white_player, black_player) VALUES
