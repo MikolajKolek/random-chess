@@ -1238,14 +1238,10 @@ $$
 CREATE OR REPLACE TRIGGER check_tournament_player_validity BEFORE INSERT OR UPDATE ON tournaments_players
     FOR EACH ROW EXECUTE PROCEDURE check_tournament_player_validity();
 
--- Przykładowe dane:
 INSERT INTO game_services(name) VALUES
     ('chess.com'),
     ('lichess.org');
 
-INSERT INTO users(email, password_hash) VALUES
-    ('test@randomchess.com', 'empty'),
-    ('test2@randomchess.com', 'empty2');;
 UPDATE service_accounts SET display_name = 'Admin' WHERE user_id = 1;
 
 INSERT INTO service_accounts("user_id", "service_id", "user_id_in_service", "is_bot", "display_name") VALUES

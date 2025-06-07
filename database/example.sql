@@ -1,3 +1,117 @@
+INSERT INTO service_accounts("user_id", "service_id", "user_id_in_service", "is_bot", "display_name") VALUES
+    (NULL, 2, 'test_ccom_id', FALSE, 'test_chesscom'),
+    (NULL, 2, 'test2_ccom_id', FALSE, 'test2_chesscom'),
+    (NULL, 3, 'test2_lc_id', FALSE, 'test2_lichess'),
+    (NULL, 2, 'makaron_ccom_id', FALSE, 'makaron_w_domu'),
+    (NULL, 3, 'makaron_lc_id', FALSE, 'Djammnick'),
+    (NULL, 2, 'chess_com_user', FALSE, 'chess_com_user_not_in_service'),
+    (NULL, 3, 'lichess_user', FALSE, 'lichess_user_not_in_service'),
+    (NULL, 2, 'chess_com_bot', TRUE, 'chess_com_bot'),
+    (NULL, 1, 'internal_bot', TRUE, 'bot_1');
+
+INSERT INTO users(email, password_hash) VALUES
+    ('test1@randomchess.com', 'password1'),
+    ('test2@randomchess.com', 'password2'),
+    ('test3@randomchess.com', 'password3'),
+    ('test4@randomchess.com', 'password4'),
+    ('test5@randomchess.com', 'password5'),
+    ('test6@randomchess.com', 'password6'),
+    ('test7@randomchess.com', 'password7'),
+    ('test8@randomchess.com', 'password8'),
+    ('test9@randomchess.com', 'password9'),
+    ('test10@randomchess.com', 'password10'),
+    ('test11@randomchess.com', 'password11'),
+    ('test12@randomchess.com', 'password12'),
+    ('test13@randomchess.com', 'password13'),
+    ('test14@randomchess.com', 'password14'),
+    ('test15@randomchess.com', 'password15'),
+    ('test16@randomchess.com', 'password16'),
+    ('test17@randomchess.com', 'password17'),
+    ('test18@randomchess.com', 'password18'),
+    ('test19@randomchess.com', 'password19'),
+    ('test20@randomchess.com', 'password20'),
+    ('test21@randomchess.com', 'password21'),
+    ('test22@randomchess.com', 'password22'),
+    ('test23@randomchess.com', 'password23'),
+    ('test24@randomchess.com', 'password24'),
+    ('test25@randomchess.com', 'password25'),
+    ('test26@randomchess.com', 'password26'),
+    ('test27@randomchess.com', 'password27'),
+    ('test28@randomchess.com', 'password28'),
+    ('test29@randomchess.com', 'password29'),
+    ('test30@randomchess.com', 'password30'),
+    ('test31@randomchess.com', 'password31'),
+    ('test32@randomchess.com', 'password32'),
+    ('test33@randomchess.com', 'password33'),
+    ('test34@randomchess.com', 'password34'),
+    ('test35@randomchess.com', 'password35'),
+    ('test36@randomchess.com', 'password36'),
+    ('test37@randomchess.com', 'password37'),
+    ('test38@randomchess.com', 'password38'),
+    ('test39@randomchess.com', 'password39'),
+    ('test40@randomchess.com', 'password40'),
+    ('test41@randomchess.com', 'password41'),
+    ('test42@randomchess.com', 'password42'),
+    ('test43@randomchess.com', 'password43'),
+    ('test44@randomchess.com', 'password44'),
+    ('test45@randomchess.com', 'password45'),
+    ('test46@randomchess.com', 'password46'),
+    ('test47@randomchess.com', 'password47'),
+    ('test48@randomchess.com', 'password48'),
+    ('test49@randomchess.com', 'password49'),
+    ('test50@randomchess.com', 'password50'),
+    ('test51@randomchess.com', 'password51'),
+    ('test52@randomchess.com', 'password52'),
+    ('test53@randomchess.com', 'password53'),
+    ('test54@randomchess.com', 'password54'),
+    ('test55@randomchess.com', 'password55'),
+    ('test56@randomchess.com', 'password56'),
+    ('test57@randomchess.com', 'password57'),
+    ('test58@randomchess.com', 'password58'),
+    ('test59@randomchess.com', 'password59'),
+    ('test60@randomchess.com', 'password60'),
+    ('test61@randomchess.com', 'password61'),
+    ('test62@randomchess.com', 'password62'),
+    ('test63@randomchess.com', 'password63'),
+    ('test64@randomchess.com', 'password64'),
+    ('test65@randomchess.com', 'password65'),
+    ('test66@randomchess.com', 'password66'),
+    ('test67@randomchess.com', 'password67'),
+    ('test68@randomchess.com', 'password68'),
+    ('test69@randomchess.com', 'password69'),
+    ('test70@randomchess.com', 'password70'),
+    ('test71@randomchess.com', 'password71'),
+    ('test72@randomchess.com', 'password72'),
+    ('test73@randomchess.com', 'password73'),
+    ('test74@randomchess.com', 'password74'),
+    ('test75@randomchess.com', 'password75'),
+    ('test76@randomchess.com', 'password76'),
+    ('test77@randomchess.com', 'password77'),
+    ('test78@randomchess.com', 'password78'),
+    ('test79@randomchess.com', 'password79'),
+    ('test80@randomchess.com', 'password80'),
+    ('test81@randomchess.com', 'password81'),
+    ('test82@randomchess.com', 'password82'),
+    ('test83@randomchess.com', 'password83'),
+    ('test84@randomchess.com', 'password84'),
+    ('test85@randomchess.com', 'password85'),
+    ('test86@randomchess.com', 'password86'),
+    ('test87@randomchess.com', 'password87'),
+    ('test88@randomchess.com', 'password88'),
+    ('test89@randomchess.com', 'password89'),
+    ('test90@randomchess.com', 'password90'),
+    ('test91@randomchess.com', 'password91'),
+    ('test92@randomchess.com', 'password92'),
+    ('test93@randomchess.com', 'password93'),
+    ('test94@randomchess.com', 'password94'),
+    ('test95@randomchess.com', 'password95'),
+    ('test96@randomchess.com', 'password96'),
+    ('test97@randomchess.com', 'password97'),
+    ('test98@randomchess.com', 'password98'),
+    ('test99@randomchess.com', 'password99'),
+    ('test100@randomchess.com', 'password100');
+
+-- Przykładowe lokalne partie
 INSERT INTO service_games(moves, starting_position, creation_date, result, metadata, clock, is_ranked, game_id_in_service, service_id, white_player, black_player) VALUES
     (
         '{e2e4,d7d6,g1f3,g8f6,b1c3,g7g6,d2d4,f8g7,a1b1,e8g8,h2h3,c7c5,d4d5,d8a5,c1d2,f6d7,c3b5,a5a2,b5c7,g7b2,c7a8,b8a6,f1d3,a6b4,d2b4,c5b4,a8c7,a7a6,e1f1,b2c3,f1e2,a2a5,c7e6,f7e6,d5e6,d7c5,b1a1,c3a1,d1a1,a5a1,h1a1,c8e6,f3d4,e6d7,a1b1,a6a5,d4b3,a5a4,b3c5,d6c5,d3c4,g8g7,e2e3,g7f6,f2f3,f6e5,f3f4,f8f4,e3e2,f4e4,e2f3,e4c4,b1e1,e5f6,e1f1,c4c2,f3e4,d7f5}',
@@ -45,25 +159,13 @@ INSERT INTO service_games(moves, starting_position, creation_date, result, metad
         'stockfish-impossible'
     );
 
-
-/*INSERT INTO users(email, password_hash) VALUES
-    ('test@[1.1.1.1]', '1234'),
-    ('email.test@gmail.com', '0000'),
-    ('test2.user@interia.pl', '1111'),
-    ('makaron@studiomakaron.com', '2222');
-
-UPDATE service_accounts SET display_name = 'test user' WHERE user_id = 1;
-
-INSERT INTO service_accounts("user_id", "service_id", "user_id_in_service", "is_bot", "display_name") VALUES
-    (2, 2, 'test_ccom_id', FALSE, 'test_chesscom'),
-    (3, 2, 'test2_ccom_id', FALSE, 'test2_chesscom'),
-    (3, 3, 'test2_lc_id', FALSE, 'test2_lichess'),
-    (4, 2, 'makaron_ccom_id', FALSE, 'makaron_w_domu'),
-    (4, 3, 'makaron_lc_id', FALSE, 'Djammnick'),
-    (NULL, 2, 'chess_com_user', FALSE, 'chess_com_user_not_in_service'),
-    (NULL, 3, 'lichess_user', FALSE, 'lichess_user_not_in_service'),
-    (NULL, 2, 'chess_com_bot', TRUE, 'chess_com_bot'),
-    (NULL, 1, 'internal_bot', TRUE, 'bot_1');*/
+-- Games for the tournament tests
+INSERT INTO swiss_tournaments(round_count, ranking_id, time_control) VALUES
+    (
+        5,
+        1,
+        '(3 minutes, 2 second)'
+    );
 
 /* New example game to be added
 INSERT INTO service_games("moves", "starting_position", "creation_date", "result", "metadata", "service_id", "game_id_in_service", white_player, black_player) VALUES
@@ -77,9 +179,8 @@ INSERT INTO service_games("moves", "starting_position", "creation_date", "result
         'zGsFNtCE',
         'test2_lc_id',
         'lichess_user'
-    );*/
-
-/*INSERT INTO service_games("moves", "creation_date", "result", "metadata", "service_id", "game_id_in_service", white_player, black_player) VALUES
+    );
+INSERT INTO service_games("moves", "creation_date", "result", "metadata", "service_id", "game_id_in_service", white_player, black_player) VALUES
     (
         '1. e4 d5 2. exd5 Qxd5 3. Nc3 Qd8 { B01 Scandinavian Defense: Valencian Variation } 4. d4 Nf6 5. Nf3 g6 6. Bc4 Bg7 7. O-O O-O 8. Re1 Nbd7 9. Bg5 Nb6 10. Bd3 c6 11. Ne2 Nbd5 12. c3 Nb6 13. h3 Re8 14. Ng3 Be6 15. Qd2 Qd7 16. Bh6 Rad8 17. Ng5 Bxh6 18. N3e4 Nxe4 19. Bxe4 Bd5 20. Bd3 f6 21. h4 fxg5 22. hxg5 Bg7 23. a4 e5 24. a5 Nc4 25. Qe2 exd4 26. Bxc4 Rxe2 27. Bxd5+ Qxd5 28. Rxe2 dxc3 { White resigns. } 0-1',
         '2025-04-24T16:02:54Z',
@@ -147,5 +248,4 @@ INSERT INTO pgn_games("moves", "creation_date", "result", "metadata", "owner_id"
         4,
         'Garry Kasparov',
         'Veselin Topalov'
-    );
-  */
+    );*/
