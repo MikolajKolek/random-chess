@@ -5,6 +5,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import format
 import formatReason
@@ -28,9 +29,6 @@ fun GameHistoryItem(
     Card(
         modifier = modifier,
         onClick = onClick,
-        colors = CardDefaults.cardColors(
-//            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-        ),
     ) {
         Row(
             modifier = Modifier.height(IntrinsicSize.Min).fillMaxWidth().padding(12.dp),
@@ -40,6 +38,7 @@ fun GameHistoryItem(
                 16.dp,
                 state = game.finalPosition,
                 orientation = PlayerColor.WHITE,
+                square = true,
             )
 
             Column(
@@ -69,6 +68,7 @@ fun GameHistoryItem(
                         append(game.creationDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                     },
                     style = MaterialTheme.typography.bodySmall,
+                    textAlign = TextAlign.End,
                 )
 
                 Row(
@@ -79,6 +79,7 @@ fun GameHistoryItem(
                             Text(
                                 "Manually imported as #${game.id}",
                                 style = MaterialTheme.typography.bodySmall,
+                                textAlign = TextAlign.End,
                             )
                         }
 
@@ -86,6 +87,7 @@ fun GameHistoryItem(
                             Text(
                                 "in ${game.service.format()}",
                                 style = MaterialTheme.typography.bodySmall,
+                                textAlign = TextAlign.End,
                             )
 //                            ServiceLabel(game.service)
                         }
@@ -107,7 +109,8 @@ fun GameHistoryItem(
                         ) {
                             OpeningInfo(
                                 modifier = Modifier.width(200.dp),
-                                opening = it
+                                opening = it,
+                                squareBoard = true,
                             )
                         } },
                         state = rememberTooltipState(
@@ -117,6 +120,7 @@ fun GameHistoryItem(
                         Text(
                             "${it.eco}: ${it.name}",
                             style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.End,
                         )
                     }
                 }

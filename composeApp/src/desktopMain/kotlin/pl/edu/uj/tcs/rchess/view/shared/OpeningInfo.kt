@@ -1,7 +1,6 @@
 package pl.edu.uj.tcs.rchess.view.shared
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -18,6 +17,7 @@ fun OpeningInfo(
     modifier: Modifier = Modifier,
     opening: Opening,
     orientation: PlayerColor = PlayerColor.WHITE,
+    squareBoard: Boolean = false,
 ) {
     val openingUrl = "https://www.365chess.com/eco/${opening.eco}"
 
@@ -35,18 +35,15 @@ fun OpeningInfo(
             }
         )
 
-        OutlinedCard(
+        BoxWithConstraints(
             modifier = Modifier.fillMaxWidth().aspectRatio(1f),
         ) {
-            BoxWithConstraints(
-                modifier = Modifier.fillMaxSize(),
-            ) {
-                BoardView(
-                    pieceSize = minWidth / 8,
-                    state = opening.position,
-                    orientation = orientation,
-                )
-            }
+            BoardView(
+                pieceSize = minWidth / 8,
+                state = opening.position,
+                orientation = orientation,
+                square = squareBoard,
+            )
         }
     }
 }
