@@ -76,7 +76,7 @@ private class PagingImpl<T, K>(
     private fun launchJob() = scope.launch {
         while (isActive && !reachedEnd) {
             waitUntil {
-                _error == null && acceptingRequestStates.any { it.value }
+                _error == null && (_list.isEmpty() || acceptingRequestStates.any { it.value })
             }
 
             val fetchKey = nextKey

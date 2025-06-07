@@ -80,7 +80,7 @@ fun Sidebar(
             demoProxyEnabled?.let {
                 Column(
                     modifier = Modifier
-                        .widthIn(max = 64.dp)
+                        .widthIn(max = 60.dp)
                         .padding(bottom = 16.dp)
                         .align(Alignment.CenterHorizontally),
                     horizontalAlignment = Alignment.CenterHorizontally,

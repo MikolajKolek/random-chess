@@ -61,7 +61,7 @@ fun GameHistoryScreen(context: AppContext) {
             },
             emptyListContent = {
                 Column(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.CenterVertically),
                 ) {

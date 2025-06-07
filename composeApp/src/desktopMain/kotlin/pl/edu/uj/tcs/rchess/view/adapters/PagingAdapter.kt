@@ -29,8 +29,11 @@ fun <T> PagingAdapter(
     emptyListContent: @Composable () -> Unit,
 ) {
     val scrollState = rememberLazyListState()
-    // TODO: Accept requests only when the games are near
-    val items by paging.collectListAsState(derivedStateOf { true })
+    val items by paging.collectListAsState(derivedStateOf {
+        val lastVisibleIndex = scrollState.firstVisibleItemIndex + scrollState.layoutInfo.visibleItemsInfo.size
+        val extraFetched = scrollState.layoutInfo.totalItemsCount - lastVisibleIndex
+        extraFetched < (3 * scrollState.layoutInfo.visibleItemsInfo.size).coerceIn(10, 50)
+    })
 
     Column {
         if (items.isEmpty()) {

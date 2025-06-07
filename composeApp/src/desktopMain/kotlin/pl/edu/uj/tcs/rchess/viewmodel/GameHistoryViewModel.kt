@@ -14,7 +14,7 @@ class GameHistoryViewModel(
     val paging = Paging(viewModelScope, ::fetchPage)
 
     private suspend fun fetchPage(key: HistoryGame?): PageFetchResult<HistoryGame, HistoryGame> {
-        val requestedLength = 5 // TODO: Increase in production, the lower value is used as a demo
+        val requestedLength = 25
         val games = clientApi.getUserGames(
             GamesRequestArgs(
                 after = key,
