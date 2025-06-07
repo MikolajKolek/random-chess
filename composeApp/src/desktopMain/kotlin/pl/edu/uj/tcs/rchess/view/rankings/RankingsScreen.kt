@@ -15,7 +15,11 @@ import pl.edu.uj.tcs.rchess.viewmodel.AppContext
 fun RankingsScreen(context: AppContext) {
     val viewModel = context.rankingListViewModel
 
-    DataStateAdapter(viewModel.rankingList, "Loading ranking list") { rankings, refresh ->
+    DataStateAdapter(
+        viewModel.rankingList,
+        "Loading ranking list",
+        "An error occurred while loading ranking list",
+    ) { rankings, refresh ->
         Row(
             modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp).fillMaxSize()
         ) {

@@ -46,6 +46,7 @@ fun GameHistoryScreen(context: AppContext) {
         PagingAdapter(
             context.gameHistoryViewModel.paging,
             "Loading game history...",
+            errorHeader = "An error occurred while loading game history",
             PaddingValues(bottom = bottomPadding),
             listContent = { list ->
                 items(list, key = { it::class to it.id }) { game ->

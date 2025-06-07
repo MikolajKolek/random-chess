@@ -2,6 +2,7 @@ package pl.edu.uj.tcs.rchess.view
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -59,11 +60,12 @@ fun showCriticalAppError(error: Exception, duringServerStartup: Boolean) = appli
                             style = MaterialTheme.typography.headlineSmall,
                         )
 
-                        Text(
-                            modifier = Modifier.padding(top = 8.dp),
-                            text = error.message ?: "Unknown error",
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
+                        SelectionContainer(Modifier.padding(top = 8.dp)) {
+                            Text(
+                                text = error.message ?: "Unknown error",
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                        }
                     }
                 }
             }

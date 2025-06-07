@@ -51,7 +51,11 @@ fun NewGameDialog(
         ),
         resizable = false,
     ) {
-        DataStateAdapter(viewModel.opponentList, "Loading opponent list...") { opponentList, _ ->
+        DataStateAdapter(
+            viewModel.opponentList,
+            "Loading opponent list...",
+            "Failed to load opponent list",
+        ) { opponentList, _ ->
             if (viewModel.isLoading) {
                 Loading(text = "The bot is getting ready")
                 return@DataStateAdapter

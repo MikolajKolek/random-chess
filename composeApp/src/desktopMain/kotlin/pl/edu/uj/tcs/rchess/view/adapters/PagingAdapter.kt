@@ -14,7 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import pl.edu.uj.tcs.rchess.view.shared.ErrorScreen
+import pl.edu.uj.tcs.rchess.view.shared.ErrorCard
 import pl.edu.uj.tcs.rchess.view.shared.Loading
 import pl.edu.uj.tcs.rchess.viewmodel.paging.Paging
 
@@ -22,6 +22,7 @@ import pl.edu.uj.tcs.rchess.viewmodel.paging.Paging
 fun <T> PagingAdapter(
     paging: Paging<T, *>,
     loadingMessage: String,
+    errorHeader: String,
     contentPadding: PaddingValues,
     listContent: LazyListScope.(list: List<T>) -> Unit,
     emptyListContent: @Composable () -> Unit,
@@ -34,11 +35,17 @@ fun <T> PagingAdapter(
         if (items.isEmpty()) {
             val error = paging.error
             if (error != null) {
-                ErrorScreen(
+                Box(
                     modifier = Modifier.fillMaxWidth().weight(1f),
-                    error = error,
-                    onRetry = paging::dismissError,
-                )
+                ) {
+                    ErrorCard(
+                        modifier = Modifier.fillMaxWidth().align(Alignment.Center),
+                        headerText = errorHeader,
+                        error = error,
+                        onRetry = paging::dismissError,
+                        prominent = true,
+                    )
+                }
             } else if (paging.loading) {
                 Loading(
                     modifier = Modifier.fillMaxWidth().weight(1f),
@@ -90,8 +97,9 @@ fun <T> PagingAdapter(
         paging.error?.let { error ->
             HorizontalDivider()
 
-            ErrorScreen(
-                modifier = Modifier.fillMaxWidth(),
+            ErrorCard(
+                modifier = Modifier.padding(vertical = 16.dp).fillMaxWidth(),
+                headerText = errorHeader,
                 error = error,
                 onRetry = paging::dismissError,
             )
