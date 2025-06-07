@@ -726,8 +726,8 @@ BEGIN
 
     --TODO: fix SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
-    SELECT cr_black.elo, cr_white.elo, cr_black.elo_history_id, cr_white.elo_history_id, (sg.result).game_end_type
-    INTO current_black_elo, current_white_elo, previous_black_entry, previous_white_entry, game_end_type
+    SELECT cr_black.elo, cr_black.elo_history_id, (sg.result).game_end_type
+    INTO current_black_elo, previous_black_entry, game_end_type
     FROM service_games sg
     JOIN service_accounts sa_black ON(
         sg.service_id = sa_black.service_id AND
@@ -738,6 +738,11 @@ BEGIN
         sa_black.user_id_in_service = cr_black.user_id_in_service AND
         cr_black.ranking_id = ranking_id_to_update
     )
+    WHERE sg.id = service_game_id;
+
+    SELECT cr_white.elo, cr_white.elo_history_id
+    INTO current_white_elo, previous_white_entry
+    FROM service_games sg
     JOIN service_accounts sa_white ON(
         sg.service_id = sa_white.service_id AND
         sg.white_player = sa_white.user_id_in_service
