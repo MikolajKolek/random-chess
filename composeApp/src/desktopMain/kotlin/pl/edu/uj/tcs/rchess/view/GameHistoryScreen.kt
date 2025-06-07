@@ -26,7 +26,7 @@ fun GameHistoryScreen(context: AppContext) {
 
     val scrollState = rememberLazyListState()
     // TODO: Accept requests only when the games are near
-    val games by context.gameHistoryViewModel.collectListAsState(derivedStateOf { true })
+    val games by context.gameHistoryViewModel.paging.collectListAsState(derivedStateOf { true })
     val databaseState by context.clientApi.databaseState.collectAsState()
 
     var importPgnDialogVisible by remember { mutableStateOf(false) }
@@ -36,7 +36,7 @@ fun GameHistoryScreen(context: AppContext) {
             context,
             onCancel = { importPgnDialogVisible = false },
             onSuccess = {
-                context.gameHistoryViewModel.refresh()
+                context.gameHistoryViewModel.paging.refresh()
                 importPgnDialogVisible = false
             }
         )
@@ -59,7 +59,7 @@ fun GameHistoryScreen(context: AppContext) {
                     )
                 }
 
-                databaseState.updatesAvailable && !context.gameHistoryViewModel.initialLoading -> {
+                databaseState.updatesAvailable && !context.gameHistoryViewModel.paging.initialLoading -> {
                     Text(
                         "Refresh to see latest changes",
                         style = typography.bodySmall,
@@ -68,7 +68,7 @@ fun GameHistoryScreen(context: AppContext) {
                 }
             }
 
-            TextButton(onClick = context.gameHistoryViewModel::refresh) {
+            TextButton(onClick = context.gameHistoryViewModel.paging::refresh) {
                 Icon(
                     painter = painterResource(Res.drawable.icon_refresh),
                     contentDescription = "Refresh",
@@ -84,14 +84,14 @@ fun GameHistoryScreen(context: AppContext) {
         }
 
         if (games.isEmpty()) {
-            val error = context.gameHistoryViewModel.error
+            val error = context.gameHistoryViewModel.paging.error
             if (error != null) {
                 ErrorScreen(
                     modifier = Modifier.fillMaxWidth().weight(1f),
                     error = error,
-                    onRetry = context.gameHistoryViewModel::dismissError,
+                    onRetry = context.gameHistoryViewModel.paging::dismissError,
                 )
-            } else if (context.gameHistoryViewModel.loading) {
+            } else if (context.gameHistoryViewModel.paging.loading) {
                 Loading(
                     modifier = Modifier.fillMaxWidth().weight(1f),
                     text = "Loading game history..."
@@ -129,7 +129,7 @@ fun GameHistoryScreen(context: AppContext) {
                     )
                 }
 
-                if (context.gameHistoryViewModel.loading) {
+                if (context.gameHistoryViewModel.paging.loading) {
                     item {
                         Box(
                             contentAlignment = Alignment.Center,
@@ -148,13 +148,13 @@ fun GameHistoryScreen(context: AppContext) {
             }
         }
 
-        context.gameHistoryViewModel.error?.let { error ->
+        context.gameHistoryViewModel.paging.error?.let { error ->
             HorizontalDivider()
 
             ErrorScreen(
                 modifier = Modifier.fillMaxWidth(),
                 error = error,
-                onRetry = context.gameHistoryViewModel::dismissError,
+                onRetry = context.gameHistoryViewModel.paging::dismissError,
             )
         }
     }
