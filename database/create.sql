@@ -1031,7 +1031,7 @@ CREATE VIEW "tournaments_reqs" AS
     FROM tournaments_ranking_reqs
 );
 
-CREATE OR REPLACE FUNCTION calculate_performance_rating(opponent_elos NUMERIC[], myelo NUMERIC, points NUMERIC) RETURNS NUMERIC AS
+CREATE OR REPLACE FUNCTION calculate_performance_rating(opponent_elos NUMERIC[], points NUMERIC) RETURNS NUMERIC AS
 $$
 DECLARE
     lo NUMERIC := 0;
@@ -1045,7 +1045,7 @@ BEGIN
         mid := (lo + hi)/2;
         expected := 0;
         FOREACH elo IN ARRAY opponent_elos LOOP
-            expected := expected + (1 / (1 + 10^((elo - myelo)/400)));
+            expected := expected + (1 / (1 + 10^((elo - mid)/400)));
         END LOOP;
         IF (expected < points) THEN
            lo := mid;
@@ -1053,7 +1053,7 @@ BEGIN
            hi := mid;
         END IF;
     END LOOP;
-    RETURN lo;
+    RETURN mid;
 END;
 $$
 LANGUAGE plpgsql;
@@ -1091,19 +1091,24 @@ CREATE VIEW "swiss_tournaments_players_points" AS
     SELECT st.tournament_id, tp.user_id_in_service, tg.round, pv.points,
     calculate_performance_rating(
         -- TODO: Something is likely wrong in this subquery. Investigate using example data.
-            (SELECT ARRAY_AGG(rat.elo)
-            FROM current_ranking rat
-                JOIN tournaments_games tg2 ON (tg2.tournament_id=st.tournament_id AND tg2.round <= tg.round)
-                JOIN service_games sg ON (sg.id = tg2.game_id AND (sg.white_player = tp.user_id_in_service OR sg.black_player = tp.user_id_in_service))
-                JOIN service_accounts opp ON (sg.white_player = opp.user_id_in_service OR sg.black_player = opp.user_id_in_service)
-                    AND opp.user_id_in_service != tp.user_id_in_service
-            WHERE rat.user_id_in_service=opp.user_id_in_service AND rat.ranking_id=st.ranking_id
+        (WITH linked_games AS (
+            SELECT white_player, black_player
+            FROM tournaments_games tg2
+            JOIN service_games sg ON (sg.id = tg2.game_id AND (sg.white_player = tp.user_id_in_service OR sg.black_player = tp.user_id_in_service))
+            WHERE tg2.tournament_id=st.tournament_id AND tg2.round <= tg.round
+        ), opponents AS (
+            SELECT lg.white_player AS opp
+            FROM linked_games lg
+            WHERE lg.white_player != tp.user_id_in_service
+            UNION
+            SELECT lg.black_player AS opp
+            FROM linked_games lg
+            WHERE lg.black_player != tp.user_id_in_service
+        )
+        SELECT ARRAY_AGG(rat.elo)
+            FROM opponents o
+            JOIN current_ranking rat ON o.opp=rat.user_id_in_service AND rat.ranking_id=st.ranking_id
         ), -- opponents' ratings
-        (
-            SELECT rat.elo
-            FROM current_ranking rat
-            WHERE rat.user_id_in_service=tp.user_id_in_service AND rat.ranking_id=st.ranking_id
-        ), -- own rating
         pv.points
     ) AS performance_rating
     FROM swiss_tournaments st
