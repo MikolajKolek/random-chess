@@ -981,10 +981,23 @@ CREATE TABLE "tournaments_games"
 
 CREATE TABLE "tournaments_players"
 (
+    "service_id"        INTEGER     NOT NULL DEFAULT 1  REFERENCES game_services(id)
+        CHECK (service_id = 1),
     "tournament_id"     INTEGER     NOT NULL    REFERENCES swiss_tournaments(tournament_id) ON DELETE CASCADE,
-    "user_id_in_service" VARCHAR,        --REFERENCES service_accounts(user_id_in_service) ON DELETE SET NULL,
-    -- TODO: Likely must add the same hack foreign key as in elo_history
-    "byes"              INTEGER     NOT NULL    DEFAULT 0
+    "user_id_in_service" VARCHAR,
+    FOREIGN KEY ("service_id", "user_id_in_service")
+        REFERENCES "service_accounts" ("service_id", "user_id_in_service"),
+    UNIQUE ("tournament_id", "user_id_in_service")
+);
+
+CREATE TABLE "byes"
+(
+    "tournament_id"         INTEGER     NOT NULL            REFERENCES swiss_tournaments(tournament_id),
+    "round"                 INTEGER     NOT NULL            CHECK ( round > 0 ),
+    "user_id_in_service"    VARCHAR     NOT NULL,
+    FOREIGN KEY ("tournament_id", "user_id_in_service")
+        REFERENCES "tournaments_players" ("tournament_id", "user_id_in_service"),
+    UNIQUE ("tournament_id", "round", "user_id_in_service")
 );
 
 -- Ranking value requirement placed on a tournament
@@ -1000,9 +1013,9 @@ CREATE TABLE "tournaments_ranked_games_reqs"
 (
     "tournament_id"     INTEGER     NOT NULL    REFERENCES swiss_tournaments(tournament_id) ON DELETE CASCADE,
     "ranking_type"      INTEGER     NOT NULL    REFERENCES rankings(id) DEFAULT 0, -- 0 is the global ranking
-    "game_count"        INTEGER     NOT NULL    CHECK ( game_count > 0 )
+    "game_count"        INTEGER     NOT NULL    CHECK ( game_count > 0 ),
+    UNIQUE(tournament_id, ranking_type)
 );
--- TODO: Make (tournament_id, ranking_type) unique in both tables
 
 CREATE VIEW "tournaments_reqs" AS
 (
@@ -1054,7 +1067,11 @@ CREATE VIEW "swiss_tournaments_players_points" AS
                 WHERE sg.service_id = 1
                     AND (sg.white_player = tp.user_id_in_service OR sg.black_player = tp.user_id_in_service)
                     AND (sg.result).game_end_type = '1/2-1/2')
-           )::numeric/2 + tp.byes
+           )::numeric/2+(
+                SELECT COUNT(*)
+                FROM byes b
+                WHERE b.tournament_id=st.tournament_id AND b.user_id_in_service=tp.user_id_in_service
+           )
     ) AS points,
     calculate_performance_rating(
         ARRAY_AGG(
@@ -1084,13 +1101,17 @@ CREATE VIEW "swiss_tournaments_players_points" AS
                 WHERE sg.service_id = 1
                     AND (sg.white_player = tp.user_id_in_service OR sg.black_player = tp.user_id_in_service)
                     AND (sg.result).game_end_type = '1/2-1/2')
-           )::numeric/2 + tp.byes
+           )::numeric/2 + (
+                SELECT COUNT(*)
+                FROM byes b
+                WHERE b.tournament_id=st.tournament_id AND b.user_id_in_service=tp.user_id_in_service
+           )
         ) -- current points
     ) AS performance_rating
     FROM swiss_tournaments st
          JOIN tournaments_players tp USING(tournament_id)
          JOIN tournaments_games tg USING(tournament_id)
-    GROUP BY st.tournament_id, tp.user_id_in_service, tg.round, tp.byes
+    GROUP BY st.tournament_id, tp.user_id_in_service, tg.round
 );
 
 CREATE VIEW "swiss_tournaments_round_standings" AS
