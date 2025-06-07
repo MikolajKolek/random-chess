@@ -1,5 +1,6 @@
 package pl.edu.uj.tcs.rchess.server
 
+import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryServiceGame
 import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.state.GameState
@@ -18,4 +19,10 @@ internal interface Database {
         isRanked: Boolean,
         clockSettings: ClockSettings,
     ): HistoryServiceGame
+
+    /**
+     * Returns the latest [pl.edu.uj.tcs.rchess.api.entity.game.ServiceGame] linked to the
+     * service account, or null if there are none.
+     */
+    suspend fun getLatestGameForServiceAccount(serviceAccount: ServiceAccount): HistoryServiceGame?
 }

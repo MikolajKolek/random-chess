@@ -386,7 +386,7 @@ CREATE TABLE "service_games"
     "moves"              VARCHAR(5)[]       NOT NULL CHECK(array_position(moves, NULL) IS NULL),
     "starting_position"  VARCHAR(100)       NOT NULL,
     "partial_fens"       VARCHAR[]          GENERATED ALWAYS AS (generate_fen_array(starting_position, moves)) STORED, -- FEN pozycji po każdym ruchu od pozycji startowej
-    "creation_date"      TIMESTAMP          NOT NULL, -- data rozegrania partii
+    "creation_date"      TIMESTAMPTZ        NOT NULL, -- data rozegrania partii
     "result"             GAME_RESULT        NOT NULL,
     "metadata"           JSONB              NULL,
     "clock"              "clock_settings"   NULL,
@@ -417,7 +417,7 @@ CREATE TABLE "pgn_games"
     "moves"             VARCHAR(5)[]    NOT NULL,
     "starting_position" VARCHAR(100)    NOT NULL,
     "partial_fens"      VARCHAR[]       GENERATED ALWAYS AS (generate_fen_array(starting_position, moves)) STORED, -- FEN pozycji po każdym ruchu od pozycji startowej
-    "creation_date"     TIMESTAMP       NOT NULL, -- data zaimportowania partii
+    "creation_date"     TIMESTAMPTZ     NOT NULL, -- data zaimportowania partii
     "result"            GAME_RESULT     NOT NULL,
     "metadata"          JSONB           NULL,
     "clock"              "clock_settings"   NULL,
@@ -654,7 +654,7 @@ WHERE
 ;
 
 
-CREATE FUNCTION ranking_at_timestamp(t TIMESTAMP)
+CREATE FUNCTION ranking_at_timestamp(t TIMESTAMPTZ)
     RETURNS TABLE(service_id INT, user_id_in_service VARCHAR, ranking_id INT, elo NUMERIC, elo_history_id INT)
 AS
 $$
@@ -676,7 +676,7 @@ END;
 $$
 LANGUAGE plpgsql;
 
-CREATE FUNCTION ranking_with_placement_at_timestamp(t TIMESTAMP, ranking INT)
+CREATE FUNCTION ranking_with_placement_at_timestamp(t TIMESTAMPTZ, ranking INT)
     RETURNS TABLE(placement INT, service_id INT, user_id_in_service VARCHAR, ranking_id INT, elo INT, elo_history_id INT)
 AS
 $$
@@ -697,7 +697,7 @@ LANGUAGE plpgsql;
 
 CREATE VIEW current_ranking AS(
     SELECT *
-    FROM ranking_at_timestamp(CURRENT_TIMESTAMP::TIMESTAMP)
+    FROM ranking_at_timestamp(CURRENT_TIMESTAMP)
 );
 
 CREATE PROCEDURE update_ranking_after_game(
@@ -1076,7 +1076,7 @@ CREATE VIEW "swiss_tournaments_players_points" AS
     calculate_performance_rating(
         ARRAY_AGG(
             (SELECT rat.elo
-            FROM ranking_at_timestamp(CURRENT_TIMESTAMP::TIMESTAMP) rat
+            FROM current_ranking rat
                 JOIN tournaments_games tg2 ON (tg2.tournament_id=st.tournament_id AND tg2.round <= tg.round)
                 JOIN service_games sg ON (sg.id = tg2.game_id AND (sg.white_player = tp.user_id_in_service OR sg.black_player = tp.user_id_in_service))
                 JOIN service_accounts opp ON (sg.white_player = opp.user_id_in_service OR sg.black_player = opp.user_id_in_service)
@@ -1085,7 +1085,7 @@ CREATE VIEW "swiss_tournaments_players_points" AS
         ), -- opponents' ratings
         (
             SELECT rat.elo
-            FROM ranking_at_timestamp(CURRENT_TIMESTAMP::TIMESTAMP) rat
+            FROM current_ranking rat
             WHERE rat.user_id_in_service=tp.user_id_in_service AND rat.ranking_id=st.ranking_id
         ), -- own rating
         (
@@ -1214,7 +1214,7 @@ BEGIN
     FOR ranking_restriction IN (SELECT * FROM tournaments_ranking_reqs trq WHERE NEW.tournament_id=trq.tournament_id) LOOP
         req_val = (
             SELECT rat.elo
-            FROM ranking_at_timestamp(CURRENT_TIMESTAMP::TIMESTAMP) rat
+            FROM current_ranking rat
             WHERE NEW.user_id=rat.user_id_in_service AND trq.ranking_type=rat.ranking_id
         );
         IF(req_val < trq.required_value) THEN RAISE EXCEPTION 'Could not join the tournament - rating too low.'; END IF;

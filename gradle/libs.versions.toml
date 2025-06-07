@@ -12,6 +12,7 @@ r2dbc-postgresql = "1.0.7.RELEASE"
 logback = "1.5.18"
 kotlin-logging = "7.0.3"
 composeHotReload = "1.0.0-alpha10"
+ktor = "3.1.3"
 
 [libraries]
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
@@ -33,6 +34,8 @@ r2dbc-postgresql = { module = "org.postgresql:r2dbc-postgresql", version.ref = "
 jdbc-postgresql = { module = "org.postgresql:postgresql", version.ref = "jdbc-postgresql" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 kotlin-logging = { module = 'io.github.oshai:kotlin-logging-jvm', version.ref = "kotlin-logging" }
+ktor-client-core = { module = 'io.ktor:ktor-client-core', version.ref = 'ktor' }
+ktor-client-cio = { module = 'io.ktor:ktor-client-cio', version.ref = 'ktor' }
 
 [plugins]
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform" }

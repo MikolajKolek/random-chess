@@ -1,6 +1,7 @@
 package pl.edu.uj.tcs.rchess.external
 
-import kotlinx.coroutines.delay
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
 import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
 import pl.edu.uj.tcs.rchess.server.Database
 import kotlin.time.Clock
@@ -11,6 +12,7 @@ internal class ChessComConnection(
     override val database: Database,
     override val serviceAccount: ServiceAccount
 ) : ExternalConnection {
+    val httpClient = HttpClient(CIO)
     var lastRequest: Instant? = null
 
     override fun available(): Boolean {
@@ -24,7 +26,7 @@ internal class ChessComConnection(
 
         lastRequest = Clock.System.now()
 
-        delay(2.seconds)
+        val latestGame = database.getLatestGameForServiceAccount(serviceAccount)
 
         return true
     }

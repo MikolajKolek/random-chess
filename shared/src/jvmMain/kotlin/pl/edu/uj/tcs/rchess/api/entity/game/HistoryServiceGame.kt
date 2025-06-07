@@ -8,7 +8,7 @@ import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.GameResult
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.state.BoardState
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 
 /**
  * A service game commited to the database
@@ -19,7 +19,7 @@ data class HistoryServiceGame(
     override val startingPosition: BoardState,
     override val finalPosition: BoardState,
     override val opening: Opening?,
-    override val creationDate: LocalDateTime,
+    override val creationDate: OffsetDateTime,
     override val result: GameResult,
     override val metadata: Map<String, String>,
     val gameIdInService: String?,

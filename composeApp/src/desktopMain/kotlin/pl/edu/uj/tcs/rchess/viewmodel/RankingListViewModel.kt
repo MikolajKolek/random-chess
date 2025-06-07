@@ -12,7 +12,7 @@ import pl.edu.uj.tcs.rchess.api.entity.ranking.RankingSpot
 import pl.edu.uj.tcs.rchess.viewmodel.datastate.DataStateViewModel
 import pl.edu.uj.tcs.rchess.viewmodel.paging.PageFetchResult
 import pl.edu.uj.tcs.rchess.viewmodel.paging.Paging
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 
 class RankingListViewModel(
     val clientApi: ClientApi,
@@ -36,7 +36,7 @@ class RankingListViewModel(
                 rankingId,
                 after = key?.lastSpot,
                 length = requestedLength,
-                atTimestamp = key?.atTimestamp ?: LocalDateTime.now(),
+                atTimestamp = key?.atTimestamp ?: OffsetDateTime.now(),
             )
             val spots = clientApi.getRankingPlacements(settings)
             return@Paging PageFetchResult(
@@ -60,7 +60,7 @@ class RankingListViewModel(
 
     private data class RankingKey(
         val lastSpot: RankingSpot?,
-        val atTimestamp: LocalDateTime,
+        val atTimestamp: OffsetDateTime,
     )
 
     fun refreshAll() {

@@ -8,7 +8,7 @@ import pl.edu.uj.tcs.rchess.model.SanFullMove
 import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import pl.edu.uj.tcs.rchess.model.state.GameState
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 
 /**
@@ -20,7 +20,7 @@ sealed class HistoryGame : ApiGame {
     abstract val startingPosition: BoardState
     abstract val finalPosition: BoardState
     abstract val opening: Opening?
-    abstract val creationDate: LocalDateTime
+    abstract val creationDate: OffsetDateTime
     abstract val result: GameResult
     abstract val metadata: Map<String, String>
 

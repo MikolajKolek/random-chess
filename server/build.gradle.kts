@@ -33,6 +33,9 @@ dependencies {
     implementation(libs.jdbc.postgresql)
     implementation(libs.r2dbc.postgresql)
 
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.cio)
+
     testImplementation(libs.kotlin.test.junit)
 }
 

@@ -80,7 +80,7 @@ internal object Serialization {
         white: ServiceAccountsRecord?,
         black: ServiceAccountsRecord?,
         rankingUpdates: org.jooq.Result<Record4<Int, Int?, String?, RankingsRecord>>?,
-        currentUserId: Int,
+        currentUserId: Int?,
         opening: Opening?,
     ): HistoryGame = when(kind) {
         "service" -> HistoryServiceGame(

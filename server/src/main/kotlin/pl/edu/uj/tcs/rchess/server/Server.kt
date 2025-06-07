@@ -45,7 +45,7 @@ import pl.edu.uj.tcs.rchess.server.Serialization.toDbType
 import pl.edu.uj.tcs.rchess.server.Serialization.toModel
 import pl.edu.uj.tcs.rchess.util.tryWithLock
 import reactor.core.publisher.Flux
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 
 class Server() : ClientApi, Database {
     private val config = ConfigLoader.loadConfig()
@@ -106,7 +106,7 @@ class Server() : ClientApi, Database {
     }
 
     override suspend fun getUserGames(settings: GamesRequestArgs): List<HistoryGame> =
-        modifiableUserGamesRequest(settings)
+        modifiableUserGamesRequest(settings = settings, userId = config.defaultUser)
 
     override suspend fun getServiceGame(id: Int): HistoryServiceGame =
         modifiableUserGamesRequest(
@@ -114,18 +114,20 @@ class Server() : ClientApi, Database {
                 includePgnGames = false,
                 length = 1
             ),
-            extraConditions = GAMES.ID.eq(id)
-        ).first() as? HistoryServiceGame
+            extraConditions = GAMES.ID.eq(id),
+            userId = config.defaultUser
+        ).singleOrNull() as? HistoryServiceGame
             ?: throw IllegalArgumentException("Game with id $id does not exist or is owned by another user")
 
     override suspend fun getPgnGame(id: Int): PgnGame =
         modifiableUserGamesRequest(
             settings = GamesRequestArgs(
-                includedServices = setOf(),
+                includedServices = emptySet(),
                 length = 1
             ),
-            extraConditions = GAMES.ID.eq(id)
-        ).first() as? PgnGame
+            extraConditions = GAMES.ID.eq(id),
+            userId = config.defaultUser
+        ).singleOrNull() as? PgnGame
             ?: throw IllegalArgumentException("Game with id $id does not exist or is owned by another user")
 
     //TODO: maybe make this launch a coroutine
@@ -138,7 +140,7 @@ class Server() : ClientApi, Database {
                     transaction.dsl().insertInto(PGN_GAMES)
                         .set(PGN_GAMES.MOVES, pgn.moves.map { it.toLongAlgebraicNotation() }.toTypedArray())
                         .set(PGN_GAMES.STARTING_POSITION, pgn.startingPosition.toFenString())
-                        .set(PGN_GAMES.CREATION_DATE, LocalDateTime.now())
+                        .set(PGN_GAMES.CREATION_DATE, OffsetDateTime.now())
                         .set(PGN_GAMES.RESULT, pgn.result.toDbResult())
                         .set(PGN_GAMES.METADATA, JSONB.jsonb(Json.encodeToString(pgn.metadata)))
                         .set(PGN_GAMES.OWNER_ID, config.defaultUser)
@@ -293,7 +295,7 @@ class Server() : ClientApi, Database {
         val id = dsl.insertInto(SERVICE_GAMES)
             .set(SERVICE_GAMES.MOVES, game.moves.map { it.toLongAlgebraicNotation() }.toTypedArray())
             .set(SERVICE_GAMES.STARTING_POSITION, game.initialState.toFenString())
-            .set(SERVICE_GAMES.CREATION_DATE, LocalDateTime.now())
+            .set(SERVICE_GAMES.CREATION_DATE, OffsetDateTime.now())
             .set(SERVICE_GAMES.RESULT, progress.result.toDbResult())
             .set(SERVICE_GAMES.IS_RANKED, isRanked)
             .set(SERVICE_GAMES.SERVICE_ID, Service.RANDOM_CHESS.toDbId())
@@ -311,10 +313,23 @@ class Server() : ClientApi, Database {
         return getServiceGame(id)
     }
 
+    override suspend fun getLatestGameForServiceAccount(serviceAccount: ServiceAccount): HistoryServiceGame? =
+        modifiableUserGamesRequest(
+            settings = GamesRequestArgs(
+                includePgnGames = false,
+                includedServices = setOf(serviceAccount.service),
+                length = 1,
+            ),
+            extraConditions = GAMES.BLACK_SERVICE_ACCOUNT.eq(serviceAccount.userIdInService)
+                .or(GAMES.WHITE_SERVICE_ACCOUNT.eq(serviceAccount.userIdInService)),
+            userId = null
+        ).singleOrNull() as? HistoryServiceGame
+
     //TODO: this is pretty horrible and probably can be done better
     private suspend fun modifiableUserGamesRequest(
         settings: GamesRequestArgs,
-        extraConditions: Condition = noCondition()
+        extraConditions: Condition = noCondition(),
+        userId: Int?
     ): List<HistoryGame> {
         val currentEloHistory = ELO_HISTORY.`as`("current_elo_history")
         val previousEloHistory = ELO_HISTORY.`as`("previous_elo_history")
@@ -322,11 +337,15 @@ class Server() : ClientApi, Database {
         val blackAccount = SERVICE_ACCOUNTS.`as`("black_account")
 
         //TODO: eq, or, etc. can probably be made nicer as infix operators
-        var conditions = extraConditions.and(
-            (blackAccount.USER_ID.eq(config.defaultUser)
-            .or(whiteAccount.USER_ID.eq(config.defaultUser))
-            .or(GAMES.PGN_OWNER_ID.eq(config.defaultUser)))
-        )
+        var conditions = extraConditions
+
+        userId?.let {
+            conditions = conditions.and(
+                (blackAccount.USER_ID.eq(it)
+                    .or(whiteAccount.USER_ID.eq(it))
+                    .or(GAMES.PGN_OWNER_ID.eq(it)))
+            )
+        }
 
         if(!settings.includePgnGames)
             conditions = conditions.and(GAMES.KIND.notEqual("pgn"))
@@ -405,7 +424,7 @@ class Server() : ClientApi, Database {
             game.toModel(
                 white = white,
                 black = black,
-                currentUserId = config.defaultUser,
+                currentUserId = userId,
                 opening = opening.toModel(),
                 rankingUpdates = rankingUpdates
             )
@@ -428,8 +447,7 @@ class Server() : ClientApi, Database {
                     it.userIdInService,
                     it.displayName,
                     it.isBot,
-                    (userId == config.defaultUser.toString())
-                            && (service == Service.RANDOM_CHESS)
+                    (userId == config.defaultUser.toString()) && (service == Service.RANDOM_CHESS)
                 )
             } ?: throw IllegalStateException("The requested service account does not exist")
     }
