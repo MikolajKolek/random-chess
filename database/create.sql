@@ -1177,14 +1177,14 @@ BEGIN
     );
     IF(white_player_id IS NULL OR black_player_id IS NULL) THEN RAISE EXCEPTION 'Player not found among local accounts'; END IF;
     IF NOT EXISTS (
-        SELECT user_id
+        SELECT tp.user_id_in_service
         FROM tournaments_players tp
-        WHERE tp.user_id = white_player_id
+        WHERE tp.user_id_in_service = white_player_id
     ) THEN RAISE EXCEPTION 'White player does not participate in the tournament.'; END IF;
     IF NOT EXISTS (
-        SELECT user_id
+        SELECT tp.user_id_in_service
         FROM tournaments_players tp
-        WHERE tp.user_id = black_player_id
+        WHERE tp.user_id_in_service = black_player_id
     ) THEN RAISE EXCEPTION 'Black player does not participate in the tournament.'; END IF;
     RETURN NEW;
 END;
@@ -1206,16 +1206,17 @@ BEGIN
     player_data := (
         SELECT *
         FROM service_accounts sa
-        WHERE sa.user_id_in_service=NEW.user_id AND sa.service_id = 1
+        WHERE sa.user_id_in_service=NEW.user_id_in_service AND sa.service_id = 1
     );
     IF(player_data IS NULL) THEN RAISE EXCEPTION 'Player not found in local service accounts.'; END IF;
+    IF(player_data.is_bot) THEN RETURN NEW; END IF;
 
     -- Check all requirements for ranking minimum
     FOR ranking_restriction IN (SELECT * FROM tournaments_ranking_reqs trq WHERE NEW.tournament_id=trq.tournament_id) LOOP
         req_val = (
             SELECT rat.elo
             FROM current_ranking rat
-            WHERE NEW.user_id=rat.user_id_in_service AND trq.ranking_type=rat.ranking_id
+            WHERE NEW.user_id_in_service=rat.user_id_in_service AND trq.ranking_type=rat.ranking_id
         );
         IF(req_val < trq.required_value) THEN RAISE EXCEPTION 'Could not join the tournament - rating too low.'; END IF;
     END LOOP;
@@ -1225,7 +1226,7 @@ BEGIN
         req_val = (
             SELECT COUNT(*)
             FROM elo_history eh
-            WHERE eh.user_id_in_service=NEW.user_id AND eh.ranking_id=trgr.ranking_id
+            WHERE eh.user_id_in_service=NEW.user_id_in_service AND eh.ranking_id=trgr.ranking_id
         );
         IF(req_val < trq.game_count) THEN RAISE EXCEPTION 'Could not join tournament - not enough ranked games.'; END IF;
     END LOOP;
