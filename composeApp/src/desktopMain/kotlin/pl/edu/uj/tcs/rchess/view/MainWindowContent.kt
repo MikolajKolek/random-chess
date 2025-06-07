@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import pl.edu.uj.tcs.rchess.proxy.DemoRemoteProxy
 import pl.edu.uj.tcs.rchess.view.history.GameHistoryScreen
 import pl.edu.uj.tcs.rchess.view.newgame.NewGameDialog
 import pl.edu.uj.tcs.rchess.view.rankings.RankingsScreen
@@ -55,6 +56,12 @@ fun MainWindowContent(
                 context.navigation.route,
                 context.navigation::navigateTo,
                 onOpenNewGameDialog = context.navigation::openNewGameDialog,
+                demoProxyEnabled = (context.clientApi as? DemoRemoteProxy)?.enabled,
+                onSetDemoProxyEnabled = { value ->
+                    (context.clientApi as? DemoRemoteProxy)?.let { proxy ->
+                        proxy.enabled = value
+                    }
+                },
             )
 
             Box(

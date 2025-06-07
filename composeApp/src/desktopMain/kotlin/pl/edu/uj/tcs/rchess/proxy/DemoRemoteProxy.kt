@@ -1,31 +1,33 @@
-package pl.edu.uj.tcs.rchess.server
+package pl.edu.uj.tcs.rchess.proxy
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import kotlinx.coroutines.delay
 import pl.edu.uj.tcs.rchess.api.ClientApi
-import pl.edu.uj.tcs.rchess.api.ClientApi.GamesRequestSettings
-import pl.edu.uj.tcs.rchess.api.ClientApi.RankingRequestSettings
 import pl.edu.uj.tcs.rchess.api.entity.BotOpponent
 import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.PlayerColor
+import pl.edu.uj.tcs.rchess.server.Server
 import kotlin.random.Random
 import kotlin.random.nextInt
 import kotlin.random.nextLong
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
- * A demo implementation of a network layer for [ClientApi].
+ * A demo implementation of a network layer for [pl.edu.uj.tcs.rchess.api.ClientApi].
  * This class simulates a poor network connection with extra delays and occasional errors.
  */
 class DemoRemoteProxy(
     private val server: Server,
     initiallyEnabled: Boolean,
 ) : ClientApi {
-    private var enabled: Boolean = initiallyEnabled
+    var enabled by mutableStateOf(initiallyEnabled)
 
     private suspend fun <T> networked(action: suspend () -> T): T {
         if (enabled) {
-            delay(Random.nextLong(150L..600L).milliseconds)
-            if (Random.nextInt(0..<100) < 20) {
+            delay(Random.Default.nextLong(150L..600L).milliseconds)
+            if (Random.Default.nextInt(0..<100) < 20) {
                 throw Exception("Demo network failure")
             }
         }
@@ -35,7 +37,7 @@ class DemoRemoteProxy(
     override val databaseState
         get() = server.databaseState
 
-    override suspend fun getUserGames(settings: GamesRequestSettings) =
+    override suspend fun getUserGames(settings: ClientApi.GamesRequestSettings) =
         networked { server.getUserGames(settings) }
 
     override suspend fun getServiceGame(id: Int)
@@ -64,7 +66,7 @@ class DemoRemoteProxy(
     override suspend fun getRankingsList()
         = networked { server.getRankingsList() }
 
-    override suspend fun getRankingPlacements(settings: RankingRequestSettings)
+    override suspend fun getRankingPlacements(settings: ClientApi.RankingRequestSettings)
         = networked { server.getRankingPlacements(settings) }
 
     override suspend fun requestResync()

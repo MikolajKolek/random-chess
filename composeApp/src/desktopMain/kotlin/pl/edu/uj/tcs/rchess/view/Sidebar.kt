@@ -1,12 +1,11 @@
 package pl.edu.uj.tcs.rchess.view
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
 import pl.edu.uj.tcs.rchess.viewmodel.navigation.Route
@@ -17,6 +16,8 @@ fun Sidebar(
     currentRoute: Route,
     onNavigate: (Route) -> Unit,
     onOpenNewGameDialog: () -> Unit,
+    demoProxyEnabled: Boolean? = null,
+    onSetDemoProxyEnabled: (value: Boolean) -> Unit = {},
 ) {
     NavigationRail(
         containerColor = MaterialTheme.colorScheme.surface,
@@ -75,6 +76,32 @@ fun Sidebar(
                 onClick = { onNavigate(Route.TournamentList) }
             )
             Spacer(modifier = Modifier.weight(1f))
+
+            demoProxyEnabled?.let {
+                Column(
+                    modifier = Modifier
+                        .widthIn(max = 64.dp)
+                        .padding(bottom = 16.dp)
+                        .align(Alignment.CenterHorizontally),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        "Simulate poor network",
+                        style = MaterialTheme.typography.labelSmall,
+                        textAlign = TextAlign.Center,
+                    )
+                    Switch(
+                        checked = it,
+                        onCheckedChange = onSetDemoProxyEnabled,
+                        colors = SwitchDefaults.colors(
+                            checkedTrackColor = MaterialTheme.colorScheme.errorContainer,
+                            checkedThumbColor = MaterialTheme.colorScheme.error,
+                            checkedBorderColor =  MaterialTheme.colorScheme.error,
+                        ),
+                    )
+                }
+            }
+
             NavigationRailItem(
                 icon = {
                     Icon(
