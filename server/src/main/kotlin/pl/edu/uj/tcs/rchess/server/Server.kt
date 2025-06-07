@@ -15,7 +15,6 @@ import kotlinx.serialization.json.Json
 import org.jooq.Condition
 import org.jooq.JSONB
 import org.jooq.SQLDialect
-import org.jooq.impl.DSL
 import org.jooq.impl.DSL.*
 import org.jooq.impl.SQLDataType.INTEGER
 import org.jooq.kotlin.coroutines.transactionCoroutine
@@ -211,7 +210,7 @@ class Server() : ClientApi, Database {
             .from(
                 RANKING_WITH_PLACEMENT_AT_TIMESTAMP(
                     settings.atTimestamp,
-                    settings.ranking.id
+                    settings.rankingId
                 )
             )
             .join(SERVICE_ACCOUNTS).on(

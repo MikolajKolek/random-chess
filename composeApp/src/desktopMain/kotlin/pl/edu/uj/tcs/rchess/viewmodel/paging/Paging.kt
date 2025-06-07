@@ -128,7 +128,7 @@ private class PagingImpl<T, K>(
 
     @Composable
     override fun collectListAsState(acceptingRequests: State<Boolean>): State<List<T>> {
-        DisposableEffect(acceptingRequests) {
+        DisposableEffect(acceptingRequests, this) {
             acceptingRequestStates.add(acceptingRequests)
 
             onDispose {
@@ -136,6 +136,6 @@ private class PagingImpl<T, K>(
             }
         }
 
-        return remember { derivedStateOf { _list.toList() } }
+        return remember(this) { derivedStateOf { _list.toList() } }
     }
 }

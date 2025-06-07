@@ -2,13 +2,13 @@ package pl.edu.uj.tcs.rchess.api
 
 import kotlinx.coroutines.flow.StateFlow
 import pl.edu.uj.tcs.rchess.api.entity.BotOpponent
-import pl.edu.uj.tcs.rchess.api.entity.ranking.Ranking
 import pl.edu.uj.tcs.rchess.api.entity.Service
 import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryGame
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryServiceGame
 import pl.edu.uj.tcs.rchess.api.entity.game.LiveGame
 import pl.edu.uj.tcs.rchess.api.entity.game.PgnGame
+import pl.edu.uj.tcs.rchess.api.entity.ranking.Ranking
 import pl.edu.uj.tcs.rchess.api.entity.ranking.RankingSpot
 import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.PlayerColor
@@ -136,9 +136,9 @@ interface ClientApi {
 
     data class RankingRequestSettings(
         /**
-         * The ranking that is being queried.
+         * The id of the ranking that is being queried.
          */
-        val ranking: Ranking,
+        val rankingId: Int,
         /**
          * Return games that are after the given [ServiceAccount] in the game list.
          *
