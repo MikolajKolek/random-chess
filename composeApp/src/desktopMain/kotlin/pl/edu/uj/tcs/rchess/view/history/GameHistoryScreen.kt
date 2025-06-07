@@ -2,21 +2,15 @@ package pl.edu.uj.tcs.rchess.view.history
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import org.jetbrains.compose.resources.painterResource
 import pl.edu.uj.tcs.rchess.view.ImportPgnDialog
 import pl.edu.uj.tcs.rchess.view.adapters.PagingAdapter
 import pl.edu.uj.tcs.rchess.viewmodel.AppContext
-import rchess.composeapp.generated.resources.Res
-import rchess.composeapp.generated.resources.icon_refresh
 
 @Composable
 fun GameHistoryScreen(context: AppContext) {
@@ -41,43 +35,13 @@ fun GameHistoryScreen(context: AppContext) {
     Column(
         modifier = Modifier.fillMaxWidth().padding(horizontal = padding),
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(vertical = padding),
-            horizontalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.End),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            when {
-                databaseState.synchronizing -> {
-                    Text(
-                        "Synchronizing games from external services...",
-                        style = typography.bodySmall,
-                        modifier = Modifier.padding(end = 8.dp),
-                    )
-                }
-
-                databaseState.updatesAvailable && !context.gameHistoryViewModel.paging.initialLoading -> {
-                    Text(
-                        "Refresh to see latest changes",
-                        style = typography.bodySmall,
-                        modifier = Modifier.padding(end = 8.dp),
-                    )
-                }
-            }
-
-            TextButton(onClick = context.gameHistoryViewModel.paging::refresh) {
-                Icon(
-                    painter = painterResource(Res.drawable.icon_refresh),
-                    contentDescription = "Refresh",
-                    modifier = Modifier.padding(end = 8.dp),
-                )
-
-                Text("Refresh")
-            }
-
-            Button(onClick = { importPgnDialogVisible = true }) {
-                Text("Import game")
-            }
-        }
+        GameHistoryHeader(
+            Modifier.fillMaxWidth().padding(vertical = padding),
+            databaseState,
+            initialLoading = context.gameHistoryViewModel.paging.initialLoading,
+            onRefresh = context.gameHistoryViewModel.paging::refresh,
+            onImportClick = { importPgnDialogVisible = true },
+        )
 
         PagingAdapter(
             context.gameHistoryViewModel.paging,
