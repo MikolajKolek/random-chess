@@ -10,4 +10,5 @@ sudo -H -u postgres bash -c "\
   psql -c \"CREATE DATABASE random_chess OWNER random_chess;\"
   psql \"postgresql://random_chess:random_chess@localhost:5432/random_chess\" < $mydir/create.sql
   psql \"postgresql://random_chess:random_chess@localhost:5432/random_chess\" < $mydir/openings.sql
+  psql \"postgresql://random_chess:random_chess@localhost:5432/random_chess\" < $mydir/example.sql
 "
