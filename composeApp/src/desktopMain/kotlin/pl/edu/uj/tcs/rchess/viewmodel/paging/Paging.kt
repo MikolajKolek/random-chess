@@ -45,6 +45,15 @@ interface Paging<T> {
      */
     @Composable
     fun collectListAsState(acceptingRequests: State<Boolean>): State<List<T>>
+
+    /**
+     * Registers a composition local callback that will be called when the user
+     * when reloading the list.
+     *
+     * Can be used to scroll to the top of the list when reloading.
+     */
+    @Composable
+    fun onReload(action: suspend () -> Unit)
 }
 
 /**
@@ -70,10 +79,12 @@ private class PagingImpl<T, K>(
     private var nextKey: K? = null
 
     private val acceptingRequestStates = mutableStateListOf<State<Boolean>>()
-    private var job = launchJob()
+    private val onReloadActions = mutableStateListOf<suspend () -> Unit>()
     private var refreshMutex = Mutex()
+    private var job = launchJob()
 
     private fun launchJob() = scope.launch {
+        onReloadActions.forEach { it() }
         while (isActive && !reachedEnd) {
             waitUntil {
                 _error == null && (_list.isEmpty() || acceptingRequestStates.any { it.value })
@@ -138,5 +149,16 @@ private class PagingImpl<T, K>(
         }
 
         return remember(this) { derivedStateOf { _list.toList() } }
+    }
+
+    @Composable
+    override fun onReload(action: suspend () -> Unit) {
+        DisposableEffect(action, this) {
+            onReloadActions.add(action)
+
+            onDispose {
+                onReloadActions.remove(action)
+            }
+        }
     }
 }
