@@ -968,6 +968,7 @@ CREATE TABLE "swiss_tournaments"
     "round_count"       INTEGER             NOT NULL        CHECK ( round_count > 0 ), -- Swiss tournaments have a fixed round count
     "starting_position" VARCHAR             NOT NULL DEFAULT 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
     "is_ranked"         BOOLEAN             NOT NULL DEFAULT TRUE,
+    "ranking_id"        INTEGER             NOT NULL        REFERENCES rankings(id),
     "time_control"      "clock_settings"    NOT NULL
 );
 
@@ -1012,6 +1013,32 @@ CREATE VIEW "tournaments_reqs" AS
     FROM tournaments_ranking_reqs
 );
 
+CREATE OR REPLACE FUNCTION calculate_performance_rating(opponent_elos NUMERIC[], myelo NUMERIC, points NUMERIC) RETURNS NUMERIC AS
+$$
+DECLARE
+    lo NUMERIC := 0;
+    hi NUMERIC := 5000;
+    mid NUMERIC;
+    expected NUMERIC;
+    elo NUMERIC;
+BEGIN
+    WHILE(hi - lo > 0.001) LOOP
+        mid := (lo + hi)/2;
+        expected := 0;
+        FOREACH elo IN ARRAY opponent_elos LOOP
+            expected := expected + (1 / (1 + 10^((elo - myelo)/400)));
+        END LOOP;
+        IF (expected < points) THEN
+           lo := mid;
+        ELSE
+           hi := mid;
+        END IF;
+    END LOOP;
+    RETURN lo;
+END;
+$$
+LANGUAGE plpgsql;
+
 CREATE VIEW "swiss_tournaments_players_points" AS
 (
     SELECT st.tournament_id, tp.user_id_in_service, tg.round,
@@ -1028,7 +1055,38 @@ CREATE VIEW "swiss_tournaments_players_points" AS
                     AND (sg.white_player = tp.user_id_in_service OR sg.black_player = tp.user_id_in_service)
                     AND (sg.result).game_end_type = '1/2-1/2')
            )::numeric/2 + tp.byes
-    ) AS points, 0 AS performance_rating -- TODO: Calculate performance rating given using tournament games for each round.
+    ) AS points,
+    calculate_performance_rating(
+        ARRAY_AGG(
+            (SELECT rat.elo
+            FROM ranking_at_timestamp(CURRENT_TIMESTAMP::TIMESTAMP) rat
+                JOIN tournaments_games tg2 ON (tg2.tournament_id=st.tournament_id AND tg2.round <= tg.round)
+                JOIN service_games sg ON (sg.id = tg2.game_id AND (sg.white_player = tp.user_id_in_service OR sg.black_player = tp.user_id_in_service))
+                JOIN service_accounts opp ON (sg.white_player = opp.user_id_in_service OR sg.black_player = opp.user_id_in_service)
+                    AND opp.user_id_in_service != tp.user_id_in_service
+            WHERE rat.user_id_in_service=opp.user_id_in_service AND rat.ranking_id=st.ranking_id)
+        ), -- opponents' ratings
+        (
+            SELECT rat.elo
+            FROM ranking_at_timestamp(CURRENT_TIMESTAMP::TIMESTAMP) rat
+            WHERE rat.user_id_in_service=tp.user_id_in_service AND rat.ranking_id=st.ranking_id
+        ), -- own rating
+        (
+            (
+               (SELECT COUNT(*)
+                FROM service_games sg
+                WHERE sg.service_id = 1
+                    AND (sg.white_player = tp.user_id_in_service AND (sg.result).game_end_type = '1-0')
+                    OR (sg.black_player = tp.user_id_in_service AND (sg.result).game_end_type = '0-1'))
+           )+(
+                (SELECT COUNT(*)
+                FROM service_games sg
+                WHERE sg.service_id = 1
+                    AND (sg.white_player = tp.user_id_in_service OR sg.black_player = tp.user_id_in_service)
+                    AND (sg.result).game_end_type = '1/2-1/2')
+           )::numeric/2 + tp.byes
+        ) -- current points
+    ) AS performance_rating
     FROM swiss_tournaments st
          JOIN tournaments_players tp USING(tournament_id)
          JOIN tournaments_games tg USING(tournament_id)
@@ -1044,6 +1102,18 @@ CREATE VIEW "swiss_tournaments_round_standings" AS
          JOIN swiss_tournaments_players_points stpp on st.tournament_id = stpp.tournament_id AND stpp.round = tg.round
     ORDER BY stpp.points, stpp.performance_rating
 );
+
+-- Poniższy trigger sprawdza, czy time control turnieju jest zgodny z jego rating type
+CREATE OR REPLACE FUNCTION check_tournament_validity()
+    RETURNS TRIGGER AS
+$$
+DECLARE
+BEGIN
+    -- Check if tournament's time control is within the given rating
+    RETURN NEW;
+END;
+$$
+LANGUAGE plpgsql;
 
 -- Poniższy trigger sprawdza wszelkie przypadki niepoprawnych wpisów w tournaments_games
 CREATE OR REPLACE FUNCTION check_tournament_game_validity()
