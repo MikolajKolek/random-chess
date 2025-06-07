@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.view.datastate
+package pl.edu.uj.tcs.rchess.view.shared
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Button

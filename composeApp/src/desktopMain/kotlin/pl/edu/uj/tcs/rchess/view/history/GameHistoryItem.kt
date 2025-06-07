@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.view
+package pl.edu.uj.tcs.rchess.view.history
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*

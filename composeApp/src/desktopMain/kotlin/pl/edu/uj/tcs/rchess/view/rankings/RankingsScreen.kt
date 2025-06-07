@@ -6,7 +6,7 @@ import androidx.compose.material3.Card
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import pl.edu.uj.tcs.rchess.view.datastate.DataStateScreen
+import pl.edu.uj.tcs.rchess.view.adapters.DataStateAdapter
 import pl.edu.uj.tcs.rchess.view.shared.PlaceholderScreen
 import pl.edu.uj.tcs.rchess.view.shared.ScrollableColumn
 import pl.edu.uj.tcs.rchess.viewmodel.AppContext
@@ -15,7 +15,7 @@ import pl.edu.uj.tcs.rchess.viewmodel.AppContext
 fun RankingsScreen(context: AppContext) {
     val viewModel = context.rankingListViewModel
 
-    DataStateScreen(viewModel.rankingList, "Loading ranking list") { rankings, refresh ->
+    DataStateAdapter(viewModel.rankingList, "Loading ranking list") { rankings, refresh ->
         Row(
             modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp).fillMaxSize()
         ) {

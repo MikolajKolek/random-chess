@@ -1,16 +1,17 @@
-package pl.edu.uj.tcs.rchess.view.datastate
+package pl.edu.uj.tcs.rchess.view.adapters
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import pl.edu.uj.tcs.rchess.view.shared.ErrorScreen
 import pl.edu.uj.tcs.rchess.view.shared.Loading
 import pl.edu.uj.tcs.rchess.viewmodel.datastate.DataState
 import pl.edu.uj.tcs.rchess.viewmodel.datastate.DataStateViewModel
 
 @Composable
-fun <T> DataStateScreen(
+fun <T> DataStateAdapter(
     viewModel: DataStateViewModel<T>,
     dataLoadingMessage: String,
     content: @Composable (data: T, refresh: () -> Unit) -> Unit,

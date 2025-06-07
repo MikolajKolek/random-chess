@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import pl.edu.uj.tcs.rchess.view.history.GameHistoryScreen
 import pl.edu.uj.tcs.rchess.view.newgame.NewGameDialog
 import pl.edu.uj.tcs.rchess.view.rankings.RankingsScreen
 import pl.edu.uj.tcs.rchess.view.shared.PlaceholderScreen

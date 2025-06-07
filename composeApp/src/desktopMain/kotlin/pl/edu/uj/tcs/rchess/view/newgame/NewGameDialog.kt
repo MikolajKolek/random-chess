@@ -16,7 +16,7 @@ import org.jetbrains.compose.resources.painterResource
 import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.util.runIf
-import pl.edu.uj.tcs.rchess.view.datastate.DataStateScreen
+import pl.edu.uj.tcs.rchess.view.adapters.DataStateAdapter
 import pl.edu.uj.tcs.rchess.view.shared.Loading
 import pl.edu.uj.tcs.rchess.view.shared.ScrollableColumn
 import pl.edu.uj.tcs.rchess.viewmodel.AppContext
@@ -51,10 +51,10 @@ fun NewGameDialog(
         ),
         resizable = false,
     ) {
-        DataStateScreen(viewModel.opponentList, "Loading opponent list...") { opponentList, _ ->
+        DataStateAdapter(viewModel.opponentList, "Loading opponent list...") { opponentList, _ ->
             if (viewModel.isLoading) {
                 Loading(text = "The bot is getting ready")
-                return@DataStateScreen
+                return@DataStateAdapter
             }
 
             Row(
