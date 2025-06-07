@@ -24,6 +24,7 @@ fun <T> PagingAdapter(
     loadingMessage: String,
     errorHeader: String,
     contentPadding: PaddingValues,
+    statusPadding: PaddingValues = PaddingValues(0.dp),
     listContent: LazyListScope.(list: List<T>) -> Unit,
     emptyListContent: @Composable () -> Unit,
 ) {
@@ -36,7 +37,7 @@ fun <T> PagingAdapter(
             val error = paging.error
             if (error != null) {
                 Box(
-                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    modifier = Modifier.padding(statusPadding).fillMaxWidth().weight(1f),
                 ) {
                     ErrorCard(
                         modifier = Modifier.fillMaxWidth().align(Alignment.Center),
@@ -48,11 +49,11 @@ fun <T> PagingAdapter(
                 }
             } else if (paging.loading) {
                 Loading(
-                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    modifier = Modifier.padding(statusPadding).fillMaxWidth().weight(1f),
                     text = loadingMessage,
                 )
             } else {
-                Box(Modifier.fillMaxWidth().weight(1f)) {
+                Box(Modifier.padding(statusPadding).fillMaxWidth().weight(1f)) {
                     emptyListContent()
                 }
             }
@@ -98,7 +99,10 @@ fun <T> PagingAdapter(
             HorizontalDivider()
 
             ErrorCard(
-                modifier = Modifier.padding(vertical = 16.dp).fillMaxWidth(),
+                modifier = Modifier
+                    .padding(statusPadding)
+                    .padding(vertical = 16.dp)
+                    .fillMaxWidth(),
                 headerText = errorHeader,
                 error = error,
                 onRetry = paging::dismissError,

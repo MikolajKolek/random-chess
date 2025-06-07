@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 fun ScrollableColumn(
     modifier: Modifier = Modifier,
     leftPadding: Boolean,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     content: @Composable () -> Unit,
 ) {
@@ -26,7 +27,7 @@ fun ScrollableColumn(
                 .fillMaxHeight()
                 .weight(1f)
                 .verticalScroll(scrollState)
-                .then(modifier),
+                .padding(contentPadding),
             verticalArrangement = verticalArrangement,
         ) {
             content()

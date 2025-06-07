@@ -44,8 +44,9 @@ fun RankingListItem(
                     .fillMaxWidth()
             ) {
                 Row(
-                    modifier = Modifier.padding(bottom = 4.dp),
+                    modifier = Modifier.padding(bottom = 4.dp).fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Text(ranking.name)
                     if (ranking.includeBots) {

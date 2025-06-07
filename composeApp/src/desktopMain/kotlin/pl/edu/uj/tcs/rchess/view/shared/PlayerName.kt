@@ -24,18 +24,20 @@ import rchess.composeapp.generated.resources.icon_robot
 fun PlayerName(
     modifier: Modifier = Modifier,
     player: PlayerDetails,
-    color: PlayerColor,
+    color: PlayerColor? = null,
     isWinner: Boolean = false,
 ) {
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Image(
-            modifier = Modifier.padding(end = 12.dp).size(24.dp),
-            painter = painterResource(King(color).icon),
-            contentDescription = null,
-        )
+        if (color != null) {
+            Image(
+                modifier = Modifier.padding(end = 12.dp).size(24.dp),
+                painter = painterResource(King(color).icon),
+                contentDescription = null,
+            )
+        }
 
         Text(player.displayName)
 

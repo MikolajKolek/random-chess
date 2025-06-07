@@ -64,7 +64,7 @@ private class PagingImpl<T, K>(
     private val fetchPage: suspend (key: K?) -> PageFetchResult<T, K>,
 ): Paging<T> {
     private var _error by mutableStateOf<Exception?>(null)
-    private var _loading by mutableStateOf(false)
+    private var _loading by mutableStateOf(true)
     private val _list = mutableStateListOf<T>()
     private var reachedEnd = false
     private var nextKey: K? = null
@@ -98,6 +98,7 @@ private class PagingImpl<T, K>(
                 _loading = false
             }
         }
+        _loading = false
     }
 
     override val error: Exception?
