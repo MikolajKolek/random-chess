@@ -13,14 +13,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
-import pl.edu.uj.tcs.rchess.api.ClientApi
+import pl.edu.uj.tcs.rchess.api.DatabaseState
+import pl.edu.uj.tcs.rchess.api.Synchronizing
 import rchess.composeapp.generated.resources.Res
 import rchess.composeapp.generated.resources.icon_refresh
 
 @Composable
 fun GameHistoryHeader(
     modifier: Modifier,
-    databaseState: ClientApi.DatabaseState,
+    databaseState: DatabaseState,
     initialLoading: Boolean,
     onRefresh: () -> Unit,
     onImportClick: () -> Unit,
@@ -31,7 +32,7 @@ fun GameHistoryHeader(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         when {
-            databaseState.synchronizing -> {
+            databaseState.synchronizationState is Synchronizing -> {
                 Text(
                     "Synchronizing games from external services...",
                     style = typography.bodySmall,

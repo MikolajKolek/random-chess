@@ -1,8 +1,9 @@
 package pl.edu.uj.tcs.rchess.api
 
 import kotlinx.coroutines.flow.StateFlow
+import pl.edu.uj.tcs.rchess.api.args.GamesRequestArgs
+import pl.edu.uj.tcs.rchess.api.args.RankingRequestArgs
 import pl.edu.uj.tcs.rchess.api.entity.BotOpponent
-import pl.edu.uj.tcs.rchess.api.entity.Service
 import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryGame
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryServiceGame
@@ -12,7 +13,6 @@ import pl.edu.uj.tcs.rchess.api.entity.ranking.Ranking
 import pl.edu.uj.tcs.rchess.api.entity.ranking.RankingSpot
 import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.PlayerColor
-import java.time.LocalDateTime
 
 interface ClientApi {
     /**
@@ -25,7 +25,7 @@ interface ClientApi {
      * that match the provided settings, sorted descending by
      * [HistoryGame.creationDate].
      */
-    suspend fun getUserGames(settings: GamesRequestSettings): List<HistoryGame>
+    suspend fun getUserGames(settings: GamesRequestArgs): List<HistoryGame>
 
     /**
      * @param id The ID of the service game
@@ -79,7 +79,7 @@ interface ClientApi {
     /**
      * @return The placements on a given ranking, ordered first-to-last.
      */
-    suspend fun getRankingPlacements(settings: RankingRequestSettings): List<RankingSpot>
+    suspend fun getRankingPlacements(settings: RankingRequestArgs): List<RankingSpot>
 
     /**
      * Requests a resync of data from external services to the database.
@@ -90,70 +90,4 @@ interface ClientApi {
      * by setting [DatabaseState.updatesAvailable] to `true`.
      */
     suspend fun requestResync()
-
-    data class DatabaseState(
-        /**
-         * Indicates if there are unread database updates.
-         *
-         * A database update is considered unread when no [getUserGames] requests with
-         * `refreshUpdates = true` have been made since the update was made.
-         */
-        val updatesAvailable: Boolean,
-        /**
-         * Indicates if data from external services is currently being synchronized.
-         */
-        val synchronizing: Boolean,
-    )
-
-    data class GamesRequestSettings(
-        /**
-         * Whether the request should return PGN games.
-         */
-        val includePgnGames: Boolean = true,
-        /**
-         * The set of services games played on which should be included in the results.
-         *
-         * If this is null, this indicates that all services should be included.
-         * If this is an empty set, this indicates that no service games should be included.
-         */
-        val includedServices: Set<Service>? = null,
-        /**
-         * Return games that are after the given [HistoryGame] in the game list.
-         *
-         * If this is null, the request returns games starting from the top of the list.
-         */
-        val after: HistoryGame? = null,
-        /**
-         * The number of games that should be returned
-         */
-        val length: Int = 100,
-        /**
-         * If true, this sets [DatabaseState.updatesAvailable] to `false` in the
-         * [databaseState] flow after the request is made.
-         */
-        val refreshAvailableUpdates: Boolean = false
-    )
-
-    data class RankingRequestSettings(
-        /**
-         * The id of the ranking that is being queried.
-         */
-        val rankingId: Int,
-        /**
-         * Return games that are after the given [ServiceAccount] in the game list.
-         *
-         * If this is null, the request returns entries starting from the top of the ranking.
-         */
-        val after: RankingSpot? = null,
-        /**
-         * The number of ranking entries that should be returned.
-         */
-        val length: Int = 100,
-        /**
-         * The state of the rankings will be queried at this timestamp. This is useful
-         * for displaying a consistent infinite-scrolling ranking guaranteed
-         * not to display conflicting information.
-         */
-        val atTimestamp: LocalDateTime = LocalDateTime.now()
-    )
 }

@@ -3,6 +3,7 @@ package pl.edu.uj.tcs.rchess.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import pl.edu.uj.tcs.rchess.api.ClientApi
+import pl.edu.uj.tcs.rchess.api.args.GamesRequestArgs
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryGame
 import pl.edu.uj.tcs.rchess.viewmodel.paging.PageFetchResult
 import pl.edu.uj.tcs.rchess.viewmodel.paging.Paging
@@ -15,7 +16,7 @@ class GameHistoryViewModel(
     private suspend fun fetchPage(key: HistoryGame?): PageFetchResult<HistoryGame, HistoryGame> {
         val requestedLength = 5 // TODO: Increase in production, the lower value is used as a demo
         val games = clientApi.getUserGames(
-            ClientApi.GamesRequestSettings(
+            GamesRequestArgs(
                 after = key,
                 length = requestedLength,
                 // key == null indicates that this is the first page,

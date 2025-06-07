@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import pl.edu.uj.tcs.rchess.api.ClientApi
+import pl.edu.uj.tcs.rchess.api.args.RankingRequestArgs
 import pl.edu.uj.tcs.rchess.api.entity.ranking.RankingSpot
 import pl.edu.uj.tcs.rchess.viewmodel.datastate.DataStateViewModel
 import pl.edu.uj.tcs.rchess.viewmodel.paging.PageFetchResult
@@ -31,7 +32,7 @@ class RankingListViewModel(
     private fun createPaging(rankingId: Int): Paging<RankingSpot> {
         return Paging<RankingSpot, RankingKey>(viewModelScope) { key ->
             val requestedLength = 50
-            val settings = ClientApi.RankingRequestSettings(
+            val settings = RankingRequestArgs(
                 rankingId,
                 after = key?.lastSpot,
                 length = requestedLength,

@@ -5,6 +5,14 @@ plugins {
     alias(libs.plugins.jooqCodegen)
 }
 
+kotlin {
+    sourceSets.main {
+        languageSettings {
+            optIn("kotlin.time.ExperimentalTime")
+        }
+    }
+}
+
 dependencies {
     implementation(projects.shared)
 

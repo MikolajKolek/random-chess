@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.delay
 import pl.edu.uj.tcs.rchess.api.ClientApi
+import pl.edu.uj.tcs.rchess.api.args.GamesRequestArgs
+import pl.edu.uj.tcs.rchess.api.args.RankingRequestArgs
 import pl.edu.uj.tcs.rchess.api.entity.BotOpponent
 import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.PlayerColor
@@ -37,7 +39,7 @@ class DemoRemoteProxy(
     override val databaseState
         get() = server.databaseState
 
-    override suspend fun getUserGames(settings: ClientApi.GamesRequestSettings) =
+    override suspend fun getUserGames(settings: GamesRequestArgs) =
         networked { server.getUserGames(settings) }
 
     override suspend fun getServiceGame(id: Int)
@@ -66,7 +68,7 @@ class DemoRemoteProxy(
     override suspend fun getRankingsList()
         = networked { server.getRankingsList() }
 
-    override suspend fun getRankingPlacements(settings: ClientApi.RankingRequestSettings)
+    override suspend fun getRankingPlacements(settings: RankingRequestArgs)
         = networked { server.getRankingPlacements(settings) }
 
     override suspend fun requestResync()

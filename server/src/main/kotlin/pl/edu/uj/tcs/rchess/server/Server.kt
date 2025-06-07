@@ -2,15 +2,13 @@ package pl.edu.uj.tcs.rchess.server
 
 import io.r2dbc.spi.ConnectionFactories
 import io.r2dbc.spi.ConnectionFactoryOptions
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.getAndUpdate
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirst
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
 import org.jooq.Condition
 import org.jooq.JSONB
@@ -19,6 +17,11 @@ import org.jooq.impl.DSL.*
 import org.jooq.impl.SQLDataType.INTEGER
 import org.jooq.kotlin.coroutines.transactionCoroutine
 import pl.edu.uj.tcs.rchess.api.ClientApi
+import pl.edu.uj.tcs.rchess.api.DatabaseState
+import pl.edu.uj.tcs.rchess.api.Synchronized
+import pl.edu.uj.tcs.rchess.api.Synchronizing
+import pl.edu.uj.tcs.rchess.api.args.GamesRequestArgs
+import pl.edu.uj.tcs.rchess.api.args.RankingRequestArgs
 import pl.edu.uj.tcs.rchess.api.entity.BotOpponent
 import pl.edu.uj.tcs.rchess.api.entity.Service
 import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
@@ -27,6 +30,8 @@ import pl.edu.uj.tcs.rchess.api.entity.ranking.Ranking
 import pl.edu.uj.tcs.rchess.api.entity.ranking.RankingSpot
 import pl.edu.uj.tcs.rchess.config.BotType
 import pl.edu.uj.tcs.rchess.config.ConfigLoader
+import pl.edu.uj.tcs.rchess.external.ExternalConnection
+import pl.edu.uj.tcs.rchess.external.toExternalConnection
 import pl.edu.uj.tcs.rchess.generated.db.tables.references.*
 import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
@@ -55,12 +60,15 @@ class Server() : ClientApi, Database {
     private val dsl = using(connection, SQLDialect.POSTGRES)
     private val botOpponents: Map<BotOpponent, BotType>
     private val botGameFactory = GameWithBotFactory(this)
+    private val databaseScope = CoroutineScope(Dispatchers.IO)
 
-    private val syncMutex = Mutex()
+    private val externalConnections: List<ExternalConnection>
+    private val requestResyncMutex = Mutex()
+    private val resyncMutex = Mutex()
     override val databaseState = MutableStateFlow(
-        ClientApi.DatabaseState(
+        DatabaseState(
             updatesAvailable = false,
-            synchronizing = false
+            synchronizationState = Synchronized(emptyList())
         )
     )
 
@@ -88,15 +96,21 @@ class Server() : ClientApi, Database {
                 ) to botType
             }.associate { it }
 
-        requestResyncImpl()
+        externalConnections = runBlocking {
+            Flux.from(dsl.selectFrom(SERVICE_ACCOUNTS)
+                .where(SERVICE_ACCOUNTS.USER_ID.eq(config.defaultUser))
+            ).asFlow().map {
+                it.toModel(it.userId == config.defaultUser).toExternalConnection(this@Server)
+            }.filterNotNull().toList()
+        }
     }
 
-    override suspend fun getUserGames(settings: ClientApi.GamesRequestSettings): List<HistoryGame> =
+    override suspend fun getUserGames(settings: GamesRequestArgs): List<HistoryGame> =
         modifiableUserGamesRequest(settings)
 
     override suspend fun getServiceGame(id: Int): HistoryServiceGame =
         modifiableUserGamesRequest(
-            settings = ClientApi.GamesRequestSettings(
+            settings = GamesRequestArgs(
                 includePgnGames = false,
                 length = 1
             ),
@@ -106,7 +120,7 @@ class Server() : ClientApi, Database {
 
     override suspend fun getPgnGame(id: Int): PgnGame =
         modifiableUserGamesRequest(
-            settings = ClientApi.GamesRequestSettings(
+            settings = GamesRequestArgs(
                 includedServices = setOf(),
                 length = 1
             ),
@@ -114,6 +128,7 @@ class Server() : ClientApi, Database {
         ).first() as? PgnGame
             ?: throw IllegalArgumentException("Game with id $id does not exist or is owned by another user")
 
+    //TODO: maybe make this launch a coroutine
     override suspend fun addPgnGames(fullPgn: String): List<Int> {
         val result = mutableListOf<Int>()
         val pgnList = Pgn.fromPgnDatabase(fullPgn)
@@ -190,7 +205,7 @@ class Server() : ClientApi, Database {
         ).asFlow().map { it.toModel() }.toList()
     }
 
-    override suspend fun getRankingPlacements(settings: ClientApi.RankingRequestSettings): List<RankingSpot> {
+    override suspend fun getRankingPlacements(settings: RankingRequestArgs): List<RankingSpot> {
         var conditions = noCondition()
 
         settings.after?.let {
@@ -241,8 +256,33 @@ class Server() : ClientApi, Database {
     }
 
     private fun requestResyncImpl() {
-        syncMutex.tryWithLock {
-            // TODO: Implement
+        requestResyncMutex.tryWithLock {
+            if(resyncMutex.isLocked || !externalConnections.any { it.available() })
+                return@requestResyncImpl
+
+            databaseState.getAndUpdate { it.copy(synchronizationState = Synchronizing()) }
+
+            val transferChannel = Channel<Unit>(capacity = 1)
+            databaseScope.launch {
+                resyncMutex.withLock {
+                    transferChannel.send(Unit)
+
+                    val errors = externalConnections.associate {
+                        it.serviceAccount.service to databaseScope.async {
+                            it.synchronize()
+                        }
+                    }.mapValues { it.value.await() }.filterValues { it }.keys.toList()
+
+                    databaseState.getAndUpdate { it.copy(synchronizationState = Synchronized(errors)) }
+                }
+            }
+
+            // This makes sure that from the time requestResyncMutex is unlocked,
+            // the resyncMutex is locked, so any new requestResyncImpl() call
+            // will fail at the resyncMutex.isLocked check.
+            runBlocking {
+                transferChannel.receive()
+            }
         }
     }
 
@@ -279,7 +319,7 @@ class Server() : ClientApi, Database {
 
     //TODO: this is pretty horrible and probably can be done better
     private suspend fun modifiableUserGamesRequest(
-        settings: ClientApi.GamesRequestSettings,
+        settings: GamesRequestArgs,
         extraConditions: Condition = noCondition()
     ): List<HistoryGame> {
         val currentEloHistory = ELO_HISTORY.`as`("current_elo_history")
