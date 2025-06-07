@@ -1040,6 +1040,7 @@ DECLARE
     expected NUMERIC;
     elo NUMERIC;
 BEGIN
+    IF(opponent_elos IS NULL) THEN RETURN 0; END IF;
     WHILE(hi - lo > 0.001) LOOP
         mid := (lo + hi)/2;
         expected := 0;
@@ -1059,65 +1060,57 @@ LANGUAGE plpgsql;
 
 CREATE VIEW "swiss_tournaments_players_points" AS
 (
-    SELECT st.tournament_id, tp.user_id_in_service, tg.round,
-           (
-               (SELECT COUNT(*)
-                FROM tournaments_games tg2
-                JOIN service_games sg ON(tg2.game_id = sg.id)
-                WHERE sg.service_id = 1
-                    AND (sg.white_player = tp.user_id_in_service AND (sg.result).game_end_type = '1-0')
-                    OR (sg.black_player = tp.user_id_in_service AND (sg.result).game_end_type = '0-1')
-           )+(
-                (SELECT COUNT(*)
-                FROM service_games sg
-                WHERE sg.service_id = 1
-                    AND (sg.white_player = tp.user_id_in_service OR sg.black_player = tp.user_id_in_service)
-                    AND (sg.result).game_end_type = '1/2-1/2')
-           )::numeric/2+(
-                SELECT COUNT(*)
-                FROM byes b
-                WHERE b.tournament_id=st.tournament_id AND b.user_id_in_service=tp.user_id_in_service
-           )
-    ) AS points,
+    WITH point_values AS (
+        SELECT st.tournament_id, tp.user_id_in_service, tg.round,
+        (
+            SELECT COUNT(*)
+            FROM tournaments_games tg2
+            JOIN service_games sg ON(tg2.game_id = sg.id)
+            WHERE sg.service_id = 1
+                AND ((sg.white_player = tp.user_id_in_service AND (sg.result).game_end_type = '1-0')
+                OR (sg.black_player = tp.user_id_in_service AND (sg.result).game_end_type = '0-1'))
+                AND tg2.round <= tg.round
+        )+(
+            SELECT COUNT(*)
+            FROM tournaments_games tg2
+            JOIN service_games sg ON(tg2.game_id = sg.id)
+            WHERE sg.service_id = 1
+                AND (sg.white_player = tp.user_id_in_service OR sg.black_player = tp.user_id_in_service)
+                AND (sg.result).game_end_type = '1/2-1/2'
+                AND tg2.round <= tg.round
+        )::numeric/2+(
+            SELECT COUNT(*)
+            FROM byes b
+            WHERE b.tournament_id=st.tournament_id AND b.user_id_in_service=tp.user_id_in_service AND b.round <= tg.round
+        ) AS points
+        FROM swiss_tournaments st
+        JOIN tournaments_players tp USING(tournament_id)
+        JOIN tournaments_games tg USING(tournament_id)
+        GROUP BY st.tournament_id, tp.user_id_in_service, tg.round
+    )
+    SELECT st.tournament_id, tp.user_id_in_service, tg.round, pv.points,
     calculate_performance_rating(
-        ARRAY_AGG(
-            (SELECT rat.elo
+        -- TODO: Something is likely wrong in this subquery. Investigate using example data.
+            (SELECT ARRAY_AGG(rat.elo)
             FROM current_ranking rat
                 JOIN tournaments_games tg2 ON (tg2.tournament_id=st.tournament_id AND tg2.round <= tg.round)
                 JOIN service_games sg ON (sg.id = tg2.game_id AND (sg.white_player = tp.user_id_in_service OR sg.black_player = tp.user_id_in_service))
                 JOIN service_accounts opp ON (sg.white_player = opp.user_id_in_service OR sg.black_player = opp.user_id_in_service)
                     AND opp.user_id_in_service != tp.user_id_in_service
-            WHERE rat.user_id_in_service=opp.user_id_in_service AND rat.ranking_id=st.ranking_id)
+            WHERE rat.user_id_in_service=opp.user_id_in_service AND rat.ranking_id=st.ranking_id
         ), -- opponents' ratings
         (
             SELECT rat.elo
             FROM current_ranking rat
             WHERE rat.user_id_in_service=tp.user_id_in_service AND rat.ranking_id=st.ranking_id
         ), -- own rating
-        (
-            (
-               (SELECT COUNT(*)
-                FROM service_games sg
-                WHERE sg.service_id = 1
-                    AND (sg.white_player = tp.user_id_in_service AND (sg.result).game_end_type = '1-0')
-                    OR (sg.black_player = tp.user_id_in_service AND (sg.result).game_end_type = '0-1'))
-           )+(
-                (SELECT COUNT(*)
-                FROM service_games sg
-                WHERE sg.service_id = 1
-                    AND (sg.white_player = tp.user_id_in_service OR sg.black_player = tp.user_id_in_service)
-                    AND (sg.result).game_end_type = '1/2-1/2')
-           )::numeric/2 + (
-                SELECT COUNT(*)
-                FROM byes b
-                WHERE b.tournament_id=st.tournament_id AND b.user_id_in_service=tp.user_id_in_service
-           )
-        ) -- current points
+        pv.points
     ) AS performance_rating
     FROM swiss_tournaments st
-         JOIN tournaments_players tp USING(tournament_id)
-         JOIN tournaments_games tg USING(tournament_id)
-    GROUP BY st.tournament_id, tp.user_id_in_service, tg.round
+        JOIN tournaments_players tp USING(tournament_id)
+        JOIN tournaments_games tg USING(tournament_id)
+        JOIN point_values pv ON(pv.tournament_id=st.tournament_id AND tp.user_id_in_service=pv.user_id_in_service AND tg.round=pv.round)
+    GROUP BY st.tournament_id, tp.user_id_in_service, tg.round, pv.points
 );
 
 CREATE VIEW "swiss_tournaments_round_standings" AS
