@@ -177,6 +177,23 @@ INSERT INTO tournaments_players(tournament_id, user_id_in_service) VALUES
     (1, 7),
     (1, 8);
 
+INSERT INTO service_games(moves, starting_position, creation_date, result, metadata, clock, is_ranked, game_id_in_service, service_id, white_player, black_player) VALUES
+    (
+        '{}',
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        CURRENT_TIMESTAMP,
+        '(0-1,TIMEOUT)',
+        NULL,
+        '(3 minutes, 2 seconds)',
+        TRUE,
+        NULL,
+        1,
+        1,
+        2
+    );
+
+INSERT INTO tournaments_games(tournament_id, game_id, round) VALUES
+    (1, 4, 1)
 
 /* New example game to be added
 INSERT INTO service_games("moves", "starting_position", "creation_date", "result", "metadata", "service_id", "game_id_in_service", white_player, black_player) VALUES

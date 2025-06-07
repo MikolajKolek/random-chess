@@ -1062,7 +1062,8 @@ CREATE VIEW "swiss_tournaments_players_points" AS
     SELECT st.tournament_id, tp.user_id_in_service, tg.round,
            (
                (SELECT COUNT(*)
-                FROM service_games sg
+                FROM tournaments_games tg2
+                JOIN service_games sg ON(tg2.game_id = sg.id)
                 WHERE sg.service_id = 1
                     AND (sg.white_player = tp.user_id_in_service AND (sg.result).game_end_type = '1-0')
                     OR (sg.black_player = tp.user_id_in_service AND (sg.result).game_end_type = '0-1')
@@ -1121,12 +1122,11 @@ CREATE VIEW "swiss_tournaments_players_points" AS
 
 CREATE VIEW "swiss_tournaments_round_standings" AS
 (
-    SELECT ROW_NUMBER() OVER (PARTITION BY tg.round ORDER BY stpp.points, stpp.performance_rating), st.tournament_id, tg.round
+    SELECT ROW_NUMBER() OVER (PARTITION BY st.tournament_id, stpp.round ORDER BY stpp.points DESC, stpp.performance_rating DESC) place,
+    stpp.points, stpp.performance_rating, stpp.user_id_in_service, st.tournament_id, stpp.round
     FROM swiss_tournaments st
-         JOIN tournaments_players tp USING(tournament_id)
-         JOIN tournaments_games tg USING(tournament_id)
-         JOIN swiss_tournaments_players_points stpp on st.tournament_id = stpp.tournament_id AND stpp.round = tg.round
-    ORDER BY stpp.points, stpp.performance_rating
+        JOIN swiss_tournaments_players_points stpp on st.tournament_id = stpp.tournament_id
+    ORDER BY place
 );
 
 -- Poniższy trigger sprawdza, czy time control turnieju jest zgodny z jego rating type
