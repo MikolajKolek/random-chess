@@ -20,7 +20,7 @@ import pl.edu.uj.tcs.rchess.viewmodel.paging.Paging
 
 @Composable
 fun <T> PagingAdapter(
-    paging: Paging<T, *>,
+    paging: Paging<T>,
     loadingMessage: String,
     errorHeader: String,
     contentPadding: PaddingValues,

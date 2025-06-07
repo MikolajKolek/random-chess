@@ -8,21 +8,61 @@ import pl.edu.uj.tcs.rchess.util.logger
 import pl.edu.uj.tcs.rchess.utils.waitUntil
 
 /**
- * A generic class for fetching paginated data.
+ * A generic class and interface for fetching paginated data.
  * It manages loading and error states and allows pausing fetching,
  * until at least one observer is requesting more items.
  *
  * If an error occurs during fetching, it will be exposed in the [error] property,
  * and fetching will only continue after calling [dismissError].
  *
+ * The interface is used to hide the K generic parameter of the [PagingImpl] from [Paging] users.
+ */
+interface Paging<T> {
+    val error: Exception?
+
+    val loading: Boolean
+
+    /**
+     * Indicates that the first page is loading.
+     */
+    val initialLoading: Boolean
+
+    /**
+     * Clears all items and [error] and restarts fetching.
+     */
+    fun refresh()
+
+    /**
+     * Clears [error] and allows fetching to continue.
+     */
+    fun dismissError()
+
+    /**
+     * Collects the list as a state, which can be used in a Composable function.
+     *
+     * @param acceptingRequests should indicate whether the current Composable is requesting more items.
+     * This parameter can be used to pause fetching until the user has scrolled to the end of the list.
+     */
+    @Composable
+    fun collectListAsState(acceptingRequests: State<Boolean>): State<List<T>>
+}
+
+/**
+ * Creates a [Paging] instance.
+ *
  * @param fetchPage a suspend function that loads the page based on the provided key.
  * Returns a [PageFetchResult] with the list of items and the key for the next page.
  * If there are no more pages, the next key should be set to null.
  */
-class Paging<T, K>(
+fun <T, K> Paging(
+    scope: CoroutineScope,
+    fetchPage: suspend (key: K?) -> PageFetchResult<T, K>,
+): Paging<T> = PagingImpl(scope, fetchPage)
+
+private class PagingImpl<T, K>(
     private val scope: CoroutineScope,
     private val fetchPage: suspend (key: K?) -> PageFetchResult<T, K>,
-) {
+): Paging<T> {
     private var _error by mutableStateOf<Exception?>(null)
     private var _loading by mutableStateOf(false)
     private val _list = mutableStateListOf<T>()
@@ -60,22 +100,16 @@ class Paging<T, K>(
         }
     }
 
-    val error: Exception?
+    override val error: Exception?
         get() = _error
 
-    val loading: Boolean
+    override val loading: Boolean
         get() = _loading
 
-    /**
-     * Indicates that the first page is loading.
-     */
-    val initialLoading: Boolean
+    override val initialLoading: Boolean
         get() = _list.isEmpty() && _loading
 
-    /**
-     * Clears all items and [error] and restarts fetching.
-     */
-    fun refresh() {
+    override fun refresh() {
         scope.launch {
             refreshMutex.withLock {
                 job.cancelAndJoin()
@@ -88,21 +122,12 @@ class Paging<T, K>(
         }
     }
 
-    /**
-     * Clears [error] and allows fetching to continue.
-     */
-    fun dismissError() {
+    override fun dismissError() {
         _error = null
     }
 
-    /**
-     * Collects the list as a state, which can be used in a Composable function.
-     *
-     * @param acceptingRequests should indicate whether the current Composable is requesting more items.
-     * This parameter can be used to pause fetching until the user has scrolled to the end of the list.
-     */
     @Composable
-    fun collectListAsState(acceptingRequests: State<Boolean>): State<List<T>> {
+    override fun collectListAsState(acceptingRequests: State<Boolean>): State<List<T>> {
         DisposableEffect(acceptingRequests) {
             acceptingRequestStates.add(acceptingRequests)
 
