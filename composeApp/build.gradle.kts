@@ -55,7 +55,8 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "pl.edu.uj.tcs.rchess"
+            packageName = "Random Chess"
+            description = "A chess app with functionality for saving, analyzing and playing games"
             packageVersion = "1.0.0"
         }
     }
