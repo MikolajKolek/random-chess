@@ -77,7 +77,7 @@ class TournamentMatchingTest {
             "2" to "6",
             "4" to "8"
         )
-        val unit = TournamentMatchingUnit(limits, 4, playersPoints)
+        val unit = TournamentMatchingUnit(limits, playersPoints)
         val matches = unit.issueMatching()
         for(notAllowed in limits) {
             Assert.assertFalse(matches.first.contains(notAllowed))

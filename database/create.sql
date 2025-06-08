@@ -617,6 +617,27 @@ CREATE TABLE elo_history(
         REFERENCES "service_accounts" ("service_id", "user_id_in_service")
 );
 
+CREATE OR REPLACE FUNCTION verify_time_control(
+       sgclock clock_settings,
+       playtime_min INTERVAL,
+       playtime_max INTERVAL,
+       extra_move_multiplier INT
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    IF(sgclock."starting_time" IS NULL) THEN RETURN FALSE; END IF;
+    IF(sgclock."move_increase" IS NULL) THEN RETURN FALSE; END IF;
+    IF(
+        (sgclock."starting_time" + extra_move_multiplier * sgclock."move_increase") < playtime_min
+    ) THEN RETURN FALSE; END IF;
+    IF(
+        (sgclock."starting_time" + extra_move_multiplier * sgclock."move_increase") >= playtime_max
+    ) THEN RETURN FALSE; END IF;
+    RETURN TRUE;
+END;
+$$
+LANGUAGE plpgsql;
+
 -- Table mapping games from service_games to the rankings in which the game is rated
 CREATE VIEW games_rankings AS
 SELECT
@@ -634,18 +655,11 @@ INNER JOIN "service_accounts" black_accounts ON (
 CROSS JOIN "rankings"
 WHERE
     "service_games"."is_ranked" AND
-    ("service_games"."clock")."starting_time" IS NOT NULL AND
-    ("service_games"."clock")."move_increase" IS NOT NULL AND
-    (
-        ("service_games"."clock")."starting_time" +
-        "rankings"."extra_move_multiplier" * ("service_games"."clock")."move_increase"
-    ) >= "rankings"."playtime_min" AND
-    (
-        "rankings"."playtime_max" IS NULL OR
-        (
-            ("service_games"."clock")."starting_time" +
-            "rankings"."extra_move_multiplier" * ("service_games"."clock")."move_increase"
-        ) < "rankings"."playtime_max"
+    verify_time_control(
+        "service_games"."clock",
+        "rankings"."playtime_min",
+        "rankings"."playtime_max",
+        "rankings"."extra_move_multiplier"
     ) AND
     (
         "rankings"."include_bots" OR
@@ -973,8 +987,9 @@ CREATE TABLE "swiss_tournaments"
     "round_count"       INTEGER             NOT NULL        CHECK ( round_count > 0 ), -- Swiss tournaments have a fixed round count
     "starting_position" VARCHAR             NOT NULL DEFAULT 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
     "is_ranked"         BOOLEAN             NOT NULL DEFAULT TRUE,
-    "ranking_id"        INTEGER             NOT NULL        REFERENCES rankings(id),
-    "time_control"      "clock_settings"    NOT NULL
+    "ranking_id"        INTEGER             NULL        REFERENCES rankings(id),
+    "time_control"      "clock_settings"    NOT NULL,
+    CHECK((is_ranked IS FALSE AND ranking_id IS NULL) OR (is_ranked IS TRUE AND ranking_id IS NOT NULL))
 );
 
 CREATE TABLE "tournaments_games"
@@ -1092,7 +1107,6 @@ CREATE VIEW "swiss_tournaments_players_points" AS
     )
     SELECT st.tournament_id, tp.user_id_in_service, tg.round, pv.points,
     calculate_performance_rating(
-        -- TODO: Something is likely wrong in this subquery. Investigate using example data.
         (WITH linked_games AS (
             SELECT white_player, black_player
             FROM tournaments_games tg2
@@ -1111,7 +1125,11 @@ CREATE VIEW "swiss_tournaments_players_points" AS
             FROM opponents o
             JOIN current_ranking rat ON o.opp=rat.user_id_in_service AND rat.ranking_id=st.ranking_id
         ), -- opponents' ratings
-        pv.points
+        pv.points - (
+            SELECT COUNT(*)
+            FROM byes b
+            WHERE b.tournament_id=st.tournament_id AND b.user_id_in_service=tp.user_id_in_service AND b.round <= tg.round
+        )
     ) AS performance_rating
     FROM swiss_tournaments st
         JOIN tournaments_players tp USING(tournament_id)
@@ -1134,12 +1152,27 @@ CREATE OR REPLACE FUNCTION check_tournament_validity()
     RETURNS TRIGGER AS
 $$
 DECLARE
+    ranking_data RECORD;
 BEGIN
+    IF(NEW.is_ranked = FALSE) THEN RETURN NEW; END IF;
+    SELECT *
+    INTO ranking_data
+    FROM rankings r
+    WHERE r.id = NEW.ranking_id;
     -- Check if tournament's time control is within the given rating
+    IF(verify_time_control(
+        NEW.time_control,
+        ranking_data.playtime_min,
+        ranking_data.playtime_max,
+        ranking_data.extra_move_multiplier
+    ) IS FALSE) THEN RAISE EXCEPTION 'Time control mismatch.'; END IF;
     RETURN NEW;
 END;
 $$
 LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER check_tournament_game_validity BEFORE INSERT OR UPDATE ON swiss_tournaments
+FOR EACH ROW EXECUTE PROCEDURE check_tournament_validity();
 
 -- Poniższy trigger sprawdza wszelkie przypadki niepoprawnych wpisów w tournaments_games
 CREATE OR REPLACE FUNCTION check_tournament_game_validity()
