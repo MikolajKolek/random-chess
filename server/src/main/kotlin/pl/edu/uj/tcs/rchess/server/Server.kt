@@ -67,7 +67,7 @@ internal class Server() : ClientApi, Database {
     private val botGameFactory = GameWithBotFactory(this)
     override val databaseScope = CoroutineScope(Dispatchers.IO)
 
-    private val externalConnections: List<ExternalConnection>
+    private val externalConnections: MutableList<ExternalConnection>
     private val requestResyncMutex = Mutex()
     private val resyncMutex = Mutex()
     override val databaseState = MutableStateFlow(
@@ -109,7 +109,7 @@ internal class Server() : ClientApi, Database {
                 .where(SERVICE_ACCOUNTS.USER_ID.eq(config.defaultUser))
             ).asFlow().map {
                 it.toModel(it.userId == config.defaultUser).toExternalConnection(this@Server)
-            }.filterNotNull().toList()
+            }.filterNotNull().toList().toMutableList()
         }
 
         runBlocking {
@@ -597,10 +597,23 @@ internal class Server() : ClientApi, Database {
     }
 
     private suspend fun refreshServiceAccounts() {
+        val accounts = Flux.from(dsl.selectFrom(SERVICE_ACCOUNTS)
+            .where(SERVICE_ACCOUNTS.USER_ID.eq(config.defaultUser))
+        ).asFlow().map { it.toModel(true) }.toSet()
+
+        val newExternalConnections = accounts.filter {
+            !externalConnections.any { conn ->
+                conn.serviceAccount.userIdInService == it.userIdInService &&
+                        conn.serviceAccount.service == it.service
+            }
+        }.mapNotNull { it.toExternalConnection(this) }
+
+        newExternalConnections.forEach { externalConnections.add(it) }
+        if(newExternalConnections.isNotEmpty())
+            requestResync()
+
         serviceAccounts.emit(
-            Flux.from(dsl.selectFrom(SERVICE_ACCOUNTS)
-                .where(SERVICE_ACCOUNTS.USER_ID.eq(config.defaultUser))
-            ).asFlow().map { it.toModel(true) }.toSet()
+            accounts
         )
     }
 }
