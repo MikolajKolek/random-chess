@@ -100,7 +100,7 @@ internal class LichessAuthentication(
         }
 
         return AddExternalAccountResponse(
-            oauthURL = createAuthUrl(),
+            oAuthUrl = createAuthUrl(),
             completionCallback = callback
         )
     }

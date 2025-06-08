@@ -20,15 +20,36 @@ package pl.edu.uj.tcs.rchess.view.account
     import androidx.compose.runtime.collectAsState
     import androidx.compose.runtime.getValue
     import androidx.compose.runtime.key
+    import androidx.compose.runtime.rememberCoroutineScope
     import androidx.compose.ui.Alignment
     import androidx.compose.ui.Modifier
+    import androidx.compose.ui.platform.LocalUriHandler
     import androidx.compose.ui.unit.dp
+    import kotlinx.coroutines.launch
+    import pl.edu.uj.tcs.rchess.api.entity.Service
+    import pl.edu.uj.tcs.rchess.util.logger
     import pl.edu.uj.tcs.rchess.view.shared.format
     import pl.edu.uj.tcs.rchess.viewmodel.AppContext
 
 @Composable
 fun AccountScreen(context: AppContext) {
     val serviceAccounts by context.clientApi.serviceAccounts.collectAsState()
+
+    val uriHandler = LocalUriHandler.current
+    val coroutineScope = rememberCoroutineScope()
+
+    fun linkLichess() {
+        coroutineScope.launch {
+            try {
+                val response = context.clientApi.addExternalAccount(Service.LICHESS)
+                uriHandler.openUri(response.oAuthUrl)
+                response.completionCallback.await()
+            } catch (exception: Exception) {
+                logger.error(exception) { "Failed to link account" }
+                // TODO: Handle error
+            }
+        }
+    }
 
     Box(
         modifier = Modifier.padding(all = 16.dp).fillMaxSize(),
@@ -98,7 +119,7 @@ fun AccountScreen(context: AppContext) {
             ) {
                 Button(
                     onClick = {
-                        // TODO
+                        linkLichess()
                     },
                 ) {
                     Text("Link Lichess account")

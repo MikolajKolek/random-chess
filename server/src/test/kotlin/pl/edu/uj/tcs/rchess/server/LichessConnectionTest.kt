@@ -23,7 +23,7 @@ class LichessConnectionTest {
             println(server.serviceAccounts.value)
 
             val response = server.addExternalAccount(Service.LICHESS)
-            println(response.oauthURL)
+            println(response.oAuthUrl)
             response.completionCallback.await()
 
             println(server.serviceAccounts.value)
