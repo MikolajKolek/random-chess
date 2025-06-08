@@ -5,7 +5,6 @@ package pl.edu.uj.tcs.rchess.tournament
  */
 class TournamentMatchingUnit(
     val playedGames: List<Pair<String, String>>, // Temporary solution
-    val round: Int,
     val playersPoints: List<Pair<Double, String>> // Temporary solution
 ) {
 
