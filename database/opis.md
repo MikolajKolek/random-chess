@@ -497,12 +497,13 @@ Z powodu decyzji o traktowaniu partii rozegranych w naszym systemie w taki sam s
 
 ## Wykrywanie debiutów dla partii
 
+Dla każdej partii debiutem jest najpóźniejsza pozycja pasująca do jakiegoś wpisu w tabeli debiutów. Aby definitywanie go wyznaczyć, konieczne jest zasymulowanie pozycji z całej partii.
+Wykrywanie debiutu i przechowywanie danych o nich nie jest więc tak trywialne, a potrzebowaliśmy odpowiedniego rozwiązania dla naszych potrzeb.
+
 1. Zapisywanie debiutu dla partii na stałe po umieszczeniu w tabeli na podstawie zapisanych ruchów\
-    **Wady**: Wartości częściowych FEN-ów używane do obliczania debiutów są i tak używane w aplikacji, więc nie zyskujemy wiele. Dodatkowo, choć relatywnie rzadko, baza debiutów też może być aktualizowana, co spowoduje przedawnienie się danych.
-2. Funkcja licząca debiut dla danej partii.\
-    **Wady**: Wykonujemy wiele zapytań związanych z debiutami, a wyliczenie ich jest dość kosztowne. To rozwiązanie znacznie spowolniłoby aplikację.
-3. Finalne rozwiązanie: Generated column przez funkcję liczącą debiut dla danej partii.\
-    **Wady**: To rozwiązanie i tak wymagało kaskady dodatkowych funkcji i parsowanie FEN-ów w bazie jest dość nieporęczne. Dodatkowo polegamy w tym miejscu na poprawności danych wejściowych, czego nie można zagwarantować, gdy użytkownik po prostu ręcznie wrzuci tam byle co.
+    **Wady**: Wartości częściowych FEN-ów, które używamy do obliczania debiutów są i tak stale używane w aplikacji, więc nawet stracilibyśmy raczej na nieprzechowywaniu tych informacji w żaden sposób. Dodatkowo, choć relatywnie rzadko, baza debiutów też może być aktualizowana, co spowoduje przedawnienie się danych.
+2. Finalne rozwiązanie: Widok wykorzystujący funkcję liczącą debiut dla danej partii.\
+    **Wady**: To rozwiązanie i tak wymagało kaskady dodatkowych funkcji i parsowanie FEN-ów w bazie jest dość nieporęczne. Dodatkowo polegamy w tym miejscu na poprawności danych wejściowych, czego nie można zagwarantować, gdy użytkownik po prostu ręcznie wrzuci tam byle co. Zyskujemy jednak na oddzieleniu kosztownych obliczeń debiutów od często badanej tabeli gier.
 
 ## Usuwanie zawodników i partii turniejowych
 
