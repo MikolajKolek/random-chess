@@ -476,16 +476,16 @@ Z powodu decyzji o traktowaniu partii rozegranych w naszym systemie w taki sam s
    **Wady**: mimo tego, że wygląda to, jak dobre rozwiązanie, niestety spotykamy te same problemy, co w podejściu 4 z modelowania partii szachowych. Fakt, że inne tabele nie mogłyby zwracać się do kont systemowych poprzez foreign key, zupełnie psułby np. foreign key z `service_games` do `service_accounts`.
 3. Finalne rozwiązanie: stworzenie triggerów `add_default_service_to_user`, `prevent_default_service_modification`, `prevent_default_service_deletion` oraz checka `valid_system_account`, które weryfikują poprawność i istnienie kont systemowych.
 
-Szukaliśmy także najbardziej dogodnego rozwiązania do wykrywania debiutów.
+## Wykrywanie debiutów dla partii
 
 1. Zapisywanie debiutu dla partii od początku, oraz razu po umieszczeniu w tabeli.
     **Wady**: Wartości częściowych FEN-ów używane do obliczania debiutów są i tak używane w aplikacji, więc nie zyskujemy wiele. Dodatkowo, choć relatywnie rzadko, baza debiutów też może być aktualizowana, co spowoduje przedawnienie się danych.
 2. Funkcja licząca debiut dla danej partii.
     **Wady**: Wykonujemy wiele zapytań związanych z debiutami, a wyliczenie ich jest dość kosztowne. To rozwiązanie znacznie spowolniłoby aplikację.
-3. Generated column przez funkcję liczącą debiut dla danej partii.
+3. Finalne rozwiązanie: Generated column przez funkcję liczącą debiut dla danej partii.
     **Wady**: To rozwiązanie i tak wymagało kaskady dodatkowych funkcji i parsowanie FEN-ów w bazie jest dość nieporęczne. Dodatkowo polegamy w tym miejscu na poprawności danych wejściowych, czego nie można zagwarantować, gdy użytkownik po prostu ręcznie wrzuci tam byle co.
 
-Konstrukcja turniejów w bazie również miała swoją serię problemów do rozwiązania. Jednym z nich był problem usuwania wpisów z tabel, które tak gęsto zależą od siebie nawzajem. Konkretnie, usuwanie gier i graczy z odpowiednich tabel.
+## Usuwanie zawodników i partii turniejowych
 
 1. Usuwanie gier i zawodników dowolne.
    **Wady**: Po usunięciu użytkownika pozostają w tabeli nieusunięte partie, powiązane z turniejem, ale nie z żadnym graczem.
