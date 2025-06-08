@@ -3,10 +3,10 @@
 CAUTION: Do not modify this file unless you know what you are doing.
  Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="1.2.0-beta1" use-changelog="false" max-obj-count="15"
+<dbmodel pgmodeler-ver="1.2.0-beta1" use-changelog="false" max-obj-count="54"
 	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
-	 last-position="-190,20" last-zoom="0.75" scene-rect="-440.5,-120.5,2225.27,1490"
-	 default-schema="​" default-owner="postgres"
+	 last-position="-419,0" last-zoom="0.4" scene-rect="-1280.5,-120.5,4276.68,2697.82"
+	 default-schema="public" default-owner="postgres"
 	 layers="Default layer"
 	 active-layers="0"
 	 layer-name-colors="#000000"
@@ -30,27 +30,67 @@ CAUTION: Do not modify this file unless you know what you are doing.
  password="********">
 </role>
 
-<database name="mikolaj" encoding="UTF8" lc-collate="C.UTF-8" lc-ctype="C.UTF-8" is-template="false" allow-conns="true">
-	<role name="mikolaj"/>
-	<tablespace name="pg_default"/>
+<role name="random_chess"
+ inherit="true"
+ login="true"
+ password="********">
+</role>
+
+<database name="new_database" is-template="false" allow-conns="true">
 </database>
 
-<schema name="public" layers="0" rect-visible="true" fill-color="#21262a" name-color="#21262a" sql-disabled="true">
+<schema name="public" layers="0" fill-color="#e1e1e1" name-color="#000000" sql-disabled="true">
 </schema>
 
-<schema name="​" layers="0" rect-visible="true" fill-color="#21262a" name-color="#31363b">
-	<role name="postgres"/>
-</schema>
+<usertype name="game_result_type" configuration="composite">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<typeattrib name="game_end_reason">
+		<type name="character varying" length="0"/>
+	</typeattrib>
+	<typeattrib name="game_end_type">
+		<type name="character varying" length="0"/>
+	</typeattrib>
+</usertype>
+
+<domain name="game_result" not-null="false">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<type name="public.game_result_type" length="1"/>
+	<constraint name="game_result_check" type="check">
+		<expression> <![CDATA[(((((VALUE).game_end_type)::text = ANY ((ARRAY['1-0'::character varying, '0-1'::character varying])::text[])) AND (((VALUE).game_end_reason)::text = ANY ((ARRAY['UNKNOWN'::character varying, 'TIMEOUT'::character varying, 'CHECKMATE'::character varying, 'RESIGNATION'::character varying, 'ABANDONMENT'::character varying, 'DEATH'::character varying])::text[]))) OR ((((VALUE).game_end_type)::text = '1/2-1/2'::text) AND (((VALUE).game_end_reason)::text = ANY ((ARRAY['UNKNOWN'::character varying, 'TIMEOUT_VS_INSUFFICIENT_MATERIAL'::character varying, 'INSUFFICIENT_MATERIAL'::character varying, 'THREEFOLD_REPETITION'::character varying, 'FIFTY_MOVE_RULE'::character varying, 'STALEMATE'::character varying])::text[]))))]]> </expression>
+	</constraint>
+</domain>
+
+<usertype name="clock_settings_type" configuration="composite">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<typeattrib name="move_increase">
+		<type name="interval" length="0"/>
+	</typeattrib>
+	<typeattrib name="starting_time">
+		<type name="interval" length="0"/>
+	</typeattrib>
+</usertype>
+
+<domain name="clock_settings" not-null="false">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<type name="public.clock_settings_type" length="1"/>
+	<constraint name="clock_settings_check" type="check">
+		<expression> <![CDATA[((((VALUE).starting_time IS NULL) AND ((VALUE).move_increase IS NULL)) OR (((VALUE).starting_time IS NOT NULL) AND ((VALUE).move_increase IS NOT NULL) AND ((VALUE).starting_time >= '00:00:00'::interval) AND ((VALUE).move_increase >= '00:00:00'::interval)))]]> </expression>
+	</constraint>
+</domain>
 
 <sequence name="openings_id_seq" cycle="false" start="1" increment="1" min-value="1" max-value="2147483647" cache="1">
 	<schema name="public"/>
-	<role name="postgres"/>
+	<role name="random_chess"/>
 </sequence>
 
 <table name="openings" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
-	<schema name="​"/>
-	<role name="postgres"/>
-	<position x="1260" y="620"/>
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<position x="1420" y="200"/>
 	<column name="id" not-null="true" sequence="public.openings_id_seq">
 		<type name="integer" length="0"/>
 	</column>
@@ -63,23 +103,23 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="partial_fen" not-null="true">
 		<type name="character varying" length="0"/>
 	</column>
-	<constraint name="openings_pkey" type="pk-constr" table="​.openings">
+	<constraint name="openings_pkey" type="pk-constr" table="public.openings">
 		<columns names="id" ref-type="src-columns"/>
 	</constraint>
-	<constraint name="openings_partial_fen_key" type="uq-constr" table="​.openings">
+	<constraint name="openings_partial_fen_key" type="uq-constr" table="public.openings">
 		<columns names="partial_fen" ref-type="src-columns"/>
 	</constraint>
 </table>
 
 <sequence name="users_id_seq" cycle="false" start="1" increment="1" min-value="1" max-value="2147483647" cache="1">
 	<schema name="public"/>
-	<role name="postgres"/>
+	<role name="random_chess"/>
 </sequence>
 
-<table name="users" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
-	<schema name="​"/>
-	<role name="postgres"/>
-	<position x="-100" y="760"/>
+<table name="users" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<position x="-880" y="560"/>
 	<column name="id" not-null="true" sequence="public.users_id_seq">
 		<type name="integer" length="0"/>
 	</column>
@@ -89,47 +129,44 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="password_hash" not-null="true">
 		<type name="character varying" length="0"/>
 	</column>
-	<column name="elo" not-null="true" default-value="1500">
-		<type name="numeric" length="0"/>
-	</column>
-	<constraint name="users_email_check" type="ck-constr" table="​.users">
+	<constraint name="users_email_check" type="ck-constr" table="public.users">
 			<expression> <![CDATA[((email)::text ~* '(?:[a-z0-9!#$%&''''*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&''''*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])'::text)]]> </expression>
 	</constraint>
-	<constraint name="users_pkey" type="pk-constr" table="​.users">
+	<constraint name="users_pkey" type="pk-constr" table="public.users">
 		<columns names="id" ref-type="src-columns"/>
 	</constraint>
-	<constraint name="users_email_key" type="uq-constr" table="​.users">
+	<constraint name="users_email_key" type="uq-constr" table="public.users">
 		<columns names="email" ref-type="src-columns"/>
 	</constraint>
 </table>
 
 <sequence name="game_services_id_seq" cycle="false" start="1" increment="1" min-value="1" max-value="2147483647" cache="1">
 	<schema name="public"/>
-	<role name="postgres"/>
+	<role name="random_chess"/>
 </sequence>
 
 <table name="game_services" layers="0" collapse-mode="2" max-obj-count="2" z-value="0">
-	<schema name="​"/>
-	<role name="postgres"/>
-	<position x="-100" y="160"/>
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<position x="-880" y="1080"/>
 	<column name="id" not-null="true" sequence="public.game_services_id_seq">
 		<type name="integer" length="0"/>
 	</column>
 	<column name="name" not-null="true">
 		<type name="character varying" length="256"/>
 	</column>
-	<constraint name="game_services_pkey" type="pk-constr" table="​.game_services">
+	<constraint name="game_services_pkey" type="pk-constr" table="public.game_services">
 		<columns names="id" ref-type="src-columns"/>
 	</constraint>
-	<constraint name="game_services_name_key" type="uq-constr" table="​.game_services">
+	<constraint name="game_services_name_key" type="uq-constr" table="public.game_services">
 		<columns names="name" ref-type="src-columns"/>
 	</constraint>
 </table>
 
-<table name="service_accounts" layers="0" collapse-mode="2" max-obj-count="6" z-value="0">
-	<schema name="​"/>
-	<role name="postgres"/>
-	<position x="-100" y="440"/>
+<table name="service_accounts" layers="0" collapse-mode="2" max-obj-count="7" z-value="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<position x="-880" y="760"/>
 	<column name="user_id">
 		<type name="integer" length="0"/>
 	</column>
@@ -139,40 +176,452 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="user_id_in_service" not-null="true">
 		<type name="character varying" length="0"/>
 	</column>
+	<column name="token">
+		<type name="character varying" length="0"/>
+	</column>
 	<column name="display_name" not-null="true">
 		<type name="character varying" length="256"/>
 	</column>
 	<column name="is_bot" not-null="true">
 		<type name="boolean" length="0"/>
 	</column>
-	<constraint name="valid_system_account" type="ck-constr" table="​.service_accounts">
+	<constraint name="valid_system_account" type="ck-constr" table="public.service_accounts">
 			<expression> <![CDATA[((service_id <> 1) OR ((is_bot = true) AND (user_id IS NULL)) OR ((is_bot = false) AND ((((user_id)::character varying)::text = (user_id_in_service)::text) OR (user_id IS NULL))))]]> </expression>
 	</constraint>
-	<constraint name="service_accounts_pkey" type="pk-constr" table="​.service_accounts">
+	<constraint name="valid_token" type="ck-constr" table="public.service_accounts">
+			<expression> <![CDATA[((token IS NULL) = ((service_id = 1) OR (user_id IS NULL)))]]> </expression>
+	</constraint>
+	<constraint name="service_accounts_pkey" type="pk-constr" table="public.service_accounts">
 		<columns names="service_id,user_id_in_service" ref-type="src-columns"/>
 	</constraint>
 </table>
 
+<function name="fen_to_board"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="IMMUTABLE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="character varying" length="0"/>
+	</return-type>
+	<parameter name="fen">
+		<type name="character varying" length="0"/>
+	</parameter>
+	<definition> <![CDATA[DECLARE
+    ret VARCHAR := '';
+    c CHAR;
+    i INT := 1;
+    j INT := 0;
+BEGIN
+    WHILE(i <= length(fen)) LOOP
+        c := substr(fen, i, 1);
+        IF(c ~ '[0-9]') THEN
+            WHILE(j < c::integer) LOOP
+                ret:=ret||'e'; -- 'e' represents empty square
+                j:=j+1;
+            END LOOP;
+            j:=0;
+        ELSE
+            ret:=ret||c;
+        END IF;
+        i:=i+1;
+    END LOOP;
+    RETURN ret;
+END;]]> </definition>
+</function>
+
+<function name="board_to_fen"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="IMMUTABLE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="character varying" length="0"/>
+	</return-type>
+	<parameter name="board">
+		<type name="character varying" length="0"/>
+	</parameter>
+	<definition> <![CDATA[DECLARE
+    ret VARCHAR := '';
+    c CHAR;
+    empty INT := 0;
+    i INT := 1;
+BEGIN
+    WHILE(i <= length(board)) LOOP
+        c:=substr(board,i,1);
+        IF(c='e') THEN empty:=empty+1;
+        ELSE
+            IF(empty!=0) THEN
+                ret=ret||empty::CHAR;
+                empty:=0;
+            END IF;
+            ret=ret||c;
+        END IF;
+        i:=i+1;
+    END LOOP;
+    IF(empty!=0) THEN ret=ret||empty::CHAR; END IF;
+    RETURN ret;
+END;]]> </definition>
+</function>
+
+<function name="square_to_id"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="IMMUTABLE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="integer" length="0"/>
+	</return-type>
+	<parameter name="square">
+		<type name="character varying" length="0"/>
+	</parameter>
+	<definition> <![CDATA[DECLARE
+BEGIN
+    RETURN (8-substr(square, 2, 1)::integer)*9+ascii(substr(square, 1, 1))-ascii('a')+1;
+END;]]> </definition>
+</function>
+
+<function name="id_to_square"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="IMMUTABLE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="character varying" length="0"/>
+	</return-type>
+	<parameter name="id">
+		<type name="integer" length="0"/>
+	</parameter>
+	<definition> <![CDATA[DECLARE
+BEGIN
+    RETURN chr(ascii('a')+(id%9-1))||(8-id/9)::char;
+END;]]> </definition>
+</function>
+
+<function name="get_piece_at"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="IMMUTABLE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="character" length="0"/>
+	</return-type>
+	<parameter name="board">
+		<type name="character varying" length="0"/>
+	</parameter>
+	<parameter name="square">
+		<type name="character varying" length="0"/>
+	</parameter>
+	<definition> <![CDATA[DECLARE
+BEGIN
+    IF(substr(square, 1, 1) < 'a' OR substr(square, 1, 1) > 'h') THEN RETURN 'e'; END IF;
+    RETURN substr(board, square_to_id(square), 1);
+END;]]> </definition>
+</function>
+
+<function name="place_piece"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="IMMUTABLE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="character varying" length="0"/>
+	</return-type>
+	<parameter name="board">
+		<type name="character varying" length="0"/>
+	</parameter>
+	<parameter name="square">
+		<type name="character varying" length="0"/>
+	</parameter>
+	<parameter name="piece">
+		<type name="character varying" length="0"/>
+	</parameter>
+	<definition> <![CDATA[DECLARE
+    id INTEGER := square_to_id(square);
+BEGIN
+    RETURN substr(board, 1, id-1)||piece||substr(board, id+1, length(board)-id);
+END;]]> </definition>
+</function>
+
+<function name="remove_letter"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="IMMUTABLE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="character varying" length="0"/>
+	</return-type>
+	<parameter name="str">
+		<type name="character varying" length="0"/>
+	</parameter>
+	<parameter name="letter">
+		<type name="character" length="0"/>
+	</parameter>
+	<definition> <![CDATA[DECLARE
+    new_str VARCHAR := '';
+    i INTEGER := 1;
+BEGIN
+    WHILE(i <= length(str)) LOOP
+        IF(substr(str, i, 1) != letter) THEN
+            new_str := new_str||substr(str, i, 1);
+        END IF;
+        i := i+1;
+    END LOOP;
+    IF(new_str = '') THEN
+        RETURN '-';
+    END IF;
+    RETURN new_str;
+END;]]> </definition>
+</function>
+
+<function name="apply_move"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="IMMUTABLE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="character varying" length="0"/>
+	</return-type>
+	<parameter name="fen">
+		<type name="character varying" length="0"/>
+	</parameter>
+	<parameter name="move">
+		<type name="character varying" length="0"/>
+	</parameter>
+	<definition> <![CDATA[DECLARE
+    board VARCHAR := fen_to_board(split_part(fen, ' ', 1));
+    newBoard VARCHAR;
+    piece CHAR;
+    from_square VARCHAR(2) = substr(move, 1, 2);
+    to_square VARCHAR(2) = substr(move, 3, 2);
+    color CHAR := split_part(fen, ' ', 2);
+    castling_rights VARCHAR := split_part(fen, ' ', 3);
+    en_passant VARCHAR := split_part(fen, ' ', 4);
+    promote_piece CHAR;
+BEGIN
+    -- Aplikowanie ruchu
+    newBoard := board;
+    piece := get_piece_at(newBoard, from_square);
+    newBoard := place_piece(newBoard, from_square, 'e');
+    newBoard := place_piece(newBoard, to_square, piece);
+
+    -- Zmiana koloru przy ruchu
+    IF(color = 'w') THEN
+        color := 'b';
+    ELSE
+        color := 'w';
+    END IF;
+
+    -- Promocja
+    IF(length(move) = 5) THEN
+        promote_piece := substr(move, 5, 1);
+        IF(piece = LOWER(piece)) THEN
+            newBoard := place_piece(newBoard, to_square, LOWER(promote_piece));
+        ELSE
+            newBoard := place_piece(newBoard, to_square, UPPER(promote_piece));
+        END IF;
+    END IF;
+
+    -- Capturing en passant
+    IF(LOWER(piece) = 'p') THEN
+        IF(get_piece_at(board, to_square)='e') THEN
+            IF(substr(move, 1, 1) != substr(move, 3, 1)) THEN
+                IF(piece = LOWER(piece)) THEN
+                    newBoard := place_piece(newBoard, id_to_square(square_to_id(to_square)-9), 'e');
+                ELSE
+                    newBoard := place_piece(newBoard, id_to_square(square_to_id(to_square)+9), 'e');
+                END IF;
+            END IF;
+        END IF;
+    END IF;
+
+    -- Replacing rook in castling and castling rights in king move
+    IF(LOWER(piece) = 'k') THEN
+        IF(from_square = 'e8') THEN
+            castling_rights := remove_letter(castling_rights, 'k');
+            castling_rights := remove_letter(castling_rights, 'q');
+            IF(to_square = 'c8') THEN
+                newBoard := place_piece(newBoard, 'a8', 'e');
+                newBoard := place_piece(newBoard, 'd8', 'r');
+            END IF;
+            IF(to_square = 'g8') THEN
+                newBoard := place_piece(newBoard, 'h8', 'e');
+                newBoard := place_piece(newBoard, 'f8', 'r');
+            END IF;
+        END IF;
+        IF(from_square = 'e1') THEN
+            castling_rights := remove_letter(castling_rights, 'K');
+            castling_rights := remove_letter(castling_rights, 'Q');
+            IF(to_square = 'c1') THEN
+                newBoard := place_piece(newBoard, 'a1', 'e');
+                newBoard := place_piece(newBoard, 'd1', 'R');
+            END IF;
+            IF(to_square = 'g1') THEN
+                newBoard := place_piece(newBoard, 'h1', 'e');
+                newBoard := place_piece(newBoard, 'f1', 'R');
+            END IF;
+        END IF;
+    END IF;
+
+    -- Removing castling rights on rook move
+    IF(from_square = 'a1' OR to_square = 'a1') THEN
+        castling_rights := remove_letter(castling_rights, 'Q');
+    END IF;
+    IF(from_square = 'a8' OR to_square = 'a8') THEN
+        castling_rights := remove_letter(castling_rights, 'q');
+    END IF;
+    IF(from_square = 'h1' OR to_square = 'h1') THEN
+        castling_rights := remove_letter(castling_rights, 'K');
+    END IF;
+    IF(from_square = 'h8' OR to_square = 'h8') THEN
+        castling_rights := remove_letter(castling_rights, 'k');
+    END IF;
+
+    en_passant := '-';
+    IF(LOWER(piece) = 'p') THEN
+        IF(substr(move, 2, 1) = '2' AND substr(move, 4, 1) = '4') THEN
+            IF(get_piece_at(board, (chr(ascii(substr(move, 1, 1))-1)||'4')::VARCHAR) = 'p'
+                OR get_piece_at(board, (chr(ascii(substr(move, 1, 1))+1)||'4')::VARCHAR) = 'p') THEN
+                en_passant := substr(move, 1, 1)||'3';
+            END IF;
+        END IF;
+        IF(substr(move, 2, 1) = '7' AND substr(move, 4, 1) = '5') THEN
+            IF(get_piece_at(board, (chr(ascii(substr(move, 1, 1))-1)||'5')::VARCHAR) = 'P'
+                OR get_piece_at(board, (chr(ascii(substr(move, 1, 1))+1)||'5')::VARCHAR) = 'P') THEN
+                en_passant := substr(move, 1, 1)||'6';
+            END IF;
+        END IF;
+    END IF;
+
+    RETURN board_to_fen(newBoard)||' '||color||' '||castling_rights||' '||en_passant;
+END;]]> </definition>
+</function>
+
+<function name="generate_fen_array"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="IMMUTABLE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="character varying" length="0" dimension="1"/>
+	</return-type>
+	<parameter name="starting_position">
+		<type name="character varying" length="0"/>
+	</parameter>
+	<parameter name="moves">
+		<type name="character varying" length="0" dimension="1"/>
+	</parameter>
+	<definition> <![CDATA[DECLARE
+    result_fen_array VARCHAR[] := '{}';
+    start VARCHAR := array_to_string(trim_array(string_to_array(starting_position, ' '), 2), ' ');
+    last_fen VARCHAR := start;
+    elem VARCHAR(5);
+BEGIN
+    result_fen_array := array_append(result_fen_array, start);
+    FOREACH elem IN ARRAY moves
+    LOOP
+        last_fen := apply_move(last_fen, elem);
+        result_fen_array := array_append(result_fen_array, last_fen);
+    END LOOP;
+    RETURN result_fen_array;
+END;]]> </definition>
+</function>
+
 <sequence name="service_games_id_seq" cycle="false" start="1" increment="1" min-value="1" max-value="2147483647" cache="1">
 	<schema name="public"/>
-	<role name="postgres"/>
+	<role name="random_chess"/>
 </sequence>
 
-<table name="service_games" layers="0" collapse-mode="2" max-obj-count="9" z-value="0">
-	<schema name="​"/>
-	<role name="postgres"/>
-	<position x="440" y="160"/>
+<table name="service_games" layers="0" collapse-mode="2" max-obj-count="15" z-value="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<position x="-160" y="60"/>
 	<column name="id" not-null="true" sequence="public.service_games_id_seq">
 		<type name="integer" length="0"/>
 	</column>
 	<column name="moves" not-null="true">
-		<type name="character varying" length="0"/>
+		<type name="character varying" length="5" dimension="1"/>
 	</column>
-	<column name="date">
-		<type name="timestamp" length="0"/>
+	<column name="starting_position" not-null="true">
+		<type name="character varying" length="100"/>
+	</column>
+	<column name="partial_fens" default-value="generate_fen_array(starting_position, moves)" generated="true">
+		<type name="character varying" length="0" dimension="1"/>
+	</column>
+	<column name="creation_date" not-null="true">
+		<type name="timestamp with time zone" length="0" with-timezone="true"/>
+	</column>
+	<column name="result" not-null="true">
+		<type name="public.game_result" length="0"/>
 	</column>
 	<column name="metadata">
 		<type name="jsonb" length="0"/>
+	</column>
+	<column name="clock">
+		<type name="public.clock_settings" length="0"/>
 	</column>
 	<column name="game_id_in_service">
 		<type name="character varying" length="0"/>
@@ -186,41 +635,59 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="black_player" not-null="true">
 		<type name="character varying" length="0"/>
 	</column>
-	<constraint name="service_games_check" type="ck-constr" table="​.service_games">
+	<column name="is_ranked" not-null="true">
+		<type name="boolean" length="0"/>
+	</column>
+	<constraint name="service_games_moves_check" type="ck-constr" table="public.service_games">
+			<expression> <![CDATA[(array_position(moves, NULL::character varying) IS NULL)]]> </expression>
+	</constraint>
+	<constraint name="service_games_check" type="ck-constr" table="public.service_games">
 			<expression> <![CDATA[
 CASE
     WHEN (service_id = 1) THEN (game_id_in_service IS NULL)
-    ELSE (game_id_in_service IS NOT NULL)
+    ELSE ((game_id_in_service IS NOT NULL) AND (is_ranked = false))
 END]]> </expression>
 	</constraint>
-	<constraint name="service_games_pkey" type="pk-constr" table="​.service_games">
+	<constraint name="service_games_pkey" type="pk-constr" table="public.service_games">
 		<columns names="id" ref-type="src-columns"/>
 	</constraint>
-	<constraint name="service_games_game_id_in_service_service_id_key" type="uq-constr" table="​.service_games">
+	<constraint name="service_games_game_id_in_service_service_id_key" type="uq-constr" table="public.service_games">
 		<columns names="game_id_in_service,service_id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
 <sequence name="pgn_games_id_seq" cycle="false" start="1" increment="1" min-value="1" max-value="2147483647" cache="1">
 	<schema name="public"/>
-	<role name="postgres"/>
+	<role name="random_chess"/>
 </sequence>
 
-<table name="pgn_games" layers="0" collapse-mode="2" max-obj-count="8" z-value="0">
-	<schema name="​"/>
-	<role name="postgres"/>
-	<position x="440" y="760"/>
+<table name="pgn_games" layers="0" collapse-mode="2" max-obj-count="13" z-value="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<position x="240" y="720"/>
 	<column name="id" not-null="true" sequence="public.pgn_games_id_seq">
 		<type name="integer" length="0"/>
 	</column>
 	<column name="moves" not-null="true">
-		<type name="character varying" length="0"/>
+		<type name="character varying" length="5" dimension="1"/>
 	</column>
-	<column name="date">
-		<type name="timestamp" length="0"/>
+	<column name="starting_position" not-null="true">
+		<type name="character varying" length="100"/>
+	</column>
+	<column name="partial_fens" default-value="generate_fen_array(starting_position, moves)" generated="true">
+		<type name="character varying" length="0" dimension="1"/>
+	</column>
+	<column name="creation_date" not-null="true">
+		<type name="timestamp with time zone" length="0" with-timezone="true"/>
+	</column>
+	<column name="result" not-null="true">
+		<type name="public.game_result" length="0"/>
 	</column>
 	<column name="metadata">
 		<type name="jsonb" length="0"/>
+	</column>
+	<column name="clock">
+		<type name="public.clock_settings" length="0"/>
 	</column>
 	<column name="owner_id" not-null="true">
 		<type name="integer" length="0"/>
@@ -231,75 +698,105 @@ END]]> </expression>
 	<column name="white_player_name" not-null="true">
 		<type name="character varying" length="0"/>
 	</column>
-	<constraint name="pgn_games_pkey" type="pk-constr" table="​.pgn_games">
+	<constraint name="pgn_games_pkey" type="pk-constr" table="public.pgn_games">
 		<columns names="id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
 <view name="games" layers="0" collapse-mode="2" max-obj-count="2" z-value="0">
-	<schema name="​"/>
-	<role name="postgres"/>
-	<position x="900" y="380"/>
-	<reference object="​.service_games" type="table" ref-name="service_games" use-signature="true"/>
-	<reference object="​.pgn_games" type="table" ref-name="pgn_games" use-signature="true"/>
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<position x="760" y="60"/>
+	<reference object="public.service_games" type="table" ref-name="service_games" use-signature="true"/>
+	<reference object="public.pgn_games" type="table" ref-name="pgn_games" use-signature="true"/>
 	<simplecol name="id" type="integer"/>
 	<simplecol name="kind" type="text"/>
-	<simplecol name="moves" type="character varying"/>
-	<simplecol name="date" type="timestamp"/>
+	<simplecol name="starting_position" type="character varying(100)"/>
+	<simplecol name="moves" type="character varying(5)[]"/>
+	<simplecol name="partial_fens" type="character varying[]"/>
+	<simplecol name="creation_date" type="timestamp with time zone"/>
+	<simplecol name="result" type="public.game_result"/>
 	<simplecol name="metadata" type="jsonb"/>
+	<simplecol name="clock" type="public.clock_settings"/>
+	<simplecol name="game_id_in_service" type="character varying"/>
+	<simplecol name="service_id" type="integer"/>
+	<simplecol name="white_service_account" type="character varying"/>
+	<simplecol name="black_service_account" type="character varying"/>
+	<simplecol name="is_ranked" type="boolean"/>
+	<simplecol name="pgn_owner_id" type="integer"/>
+	<simplecol name="pgn_black_player_name" type="character varying"/>
+	<simplecol name="pgn_white_player_name" type="character varying"/>
 	<definition> <![CDATA[ SELECT service_games.id,
     'service'::text AS kind,
+    service_games.starting_position,
     service_games.moves,
-    service_games.date,
-    service_games.metadata
+    service_games.partial_fens,
+    service_games.creation_date,
+    service_games.result,
+    service_games.metadata,
+    service_games.clock,
+    service_games.game_id_in_service,
+    service_games.service_id,
+    service_games.white_player AS white_service_account,
+    service_games.black_player AS black_service_account,
+    service_games.is_ranked,
+    NULL::integer AS pgn_owner_id,
+    NULL::character varying AS pgn_black_player_name,
+    NULL::character varying AS pgn_white_player_name
    FROM service_games
 UNION ALL
  SELECT pgn_games.id,
     'pgn'::text AS kind,
+    pgn_games.starting_position,
     pgn_games.moves,
-    pgn_games.date,
-    pgn_games.metadata
+    pgn_games.partial_fens,
+    pgn_games.creation_date,
+    pgn_games.result,
+    pgn_games.metadata,
+    pgn_games.clock,
+    NULL::character varying AS game_id_in_service,
+    NULL::integer AS service_id,
+    NULL::character varying AS white_service_account,
+    NULL::character varying AS black_service_account,
+    NULL::boolean AS is_ranked,
+    pgn_games.owner_id AS pgn_owner_id,
+    pgn_games.black_player_name AS pgn_black_player_name,
+    pgn_games.white_player_name AS pgn_white_player_name
    FROM pgn_games;]]> </definition>
 </view>
 
-<relationship name="rel_games_pgn_games" type="reltv" layers="0"
-	 custom-color="#5479e2"
-	 src-table="​.games"
-	 dst-table="​.pgn_games"
-	 src-required="false" dst-required="false">
-	<label ref-type="name-label">
-		<position x="1077.57" y="151.862"/>
-	</label>
-</relationship>
-
 <relationship name="rel_games_service_games" type="reltv" layers="0"
-	 custom-color="#117369"
-	 src-table="​.games"
-	 dst-table="​.service_games"
-	 src-required="false" dst-required="false">
-	<label ref-type="name-label">
-		<position x="-397.896" y="1076.21"/>
-	</label>
-</relationship>
+	 custom-color="#b92764"
+	 src-table="public.games"
+	 dst-table="public.service_games"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_games_pgn_games" type="reltv" layers="0"
+	 custom-color="#397771"
+	 src-table="public.games"
+	 dst-table="public.pgn_games"
+	 src-required="false" dst-required="false"/>
 
 <view name="users_games" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
-	<schema name="​"/>
-	<role name="postgres"/>
-	<position x="900" y="620"/>
-	<reference object="​.service_accounts" type="table" ref-name="service_accounts" use-signature="true"/>
-	<reference object="​.service_games" type="table" ref-name="service_games" use-signature="true"/>
-	<reference object="​.pgn_games" type="table" ref-name="pgn_games" use-signature="true"/>
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<position x="260" y="440"/>
+	<reference object="public.service_accounts" type="table" ref-name="service_accounts" use-signature="true"/>
+	<reference object="public.service_games" type="table" ref-name="service_games" use-signature="true"/>
+	<reference object="public.pgn_games" type="table" ref-name="pgn_games" use-signature="true"/>
 	<simplecol name="user_id" type="integer"/>
 	<simplecol name="game_id" type="integer"/>
 	<simplecol name="kind" type="text"/>
-	<simplecol name="moves" type="character varying"/>
-	<simplecol name="date" type="timestamp"/>
+	<simplecol name="moves" type="character varying(5)[]"/>
+	<simplecol name="creation_date" type="timestamp with time zone"/>
+	<simplecol name="result" type="public.game_result"/>
 	<simplecol name="metadata" type="jsonb"/>
 	<definition> <![CDATA[ SELECT sa.user_id,
     sg.id AS game_id,
     'service'::text AS kind,
     sg.moves,
-    sg.date,
+    sg.creation_date,
+    sg.result,
     sg.metadata
    FROM (service_accounts sa
      JOIN service_games sg ON ((((sa.user_id_in_service)::text = (sg.white_player)::text) OR ((sa.user_id_in_service)::text = (sg.black_player)::text))))
@@ -308,75 +805,96 @@ UNION
     pg.id AS game_id,
     'pgn'::text AS kind,
     pg.moves,
-    pg.date,
+    pg.creation_date,
+    pg.result,
     pg.metadata
    FROM pgn_games pg;]]> </definition>
 </view>
 
-<relationship name="rel_users_games_pgn_games" type="reltv" layers="0"
-	 custom-color="#8c1eeb"
-	 src-table="​.users_games"
-	 dst-table="​.pgn_games"
-	 src-required="false" dst-required="false">
-	<label ref-type="name-label">
-		<position x="-164.426" y="566.212"/>
-	</label>
-</relationship>
+<relationship name="rel_users_games_service_accounts" type="reltv" layers="0"
+	 custom-color="#b3b3ea"
+	 src-table="public.users_games"
+	 dst-table="public.service_accounts"
+	 src-required="false" dst-required="false"/>
 
 <relationship name="rel_users_games_service_games" type="reltv" layers="0"
-	 custom-color="#77cc79"
-	 src-table="​.users_games"
-	 dst-table="​.service_games"
-	 src-required="false" dst-required="false">
-	<label ref-type="name-label">
-		<position x="1669.6" y="140.562"/>
-	</label>
-</relationship>
+	 custom-color="#69b2cc"
+	 src-table="public.users_games"
+	 dst-table="public.service_games"
+	 src-required="false" dst-required="false"/>
 
-<relationship name="rel_users_games_service_accounts" type="reltv" layers="0"
-	 custom-color="#bc6431"
-	 src-table="​.users_games"
-	 dst-table="​.service_accounts"
-	 src-required="false" dst-required="false">
-	<label ref-type="name-label">
-		<position x="-78.7077" y="-622.488"/>
-	</label>
-</relationship>
+<relationship name="rel_users_games_pgn_games" type="reltv" layers="0"
+	 custom-color="#3ac42a"
+	 src-table="public.users_games"
+	 dst-table="public.pgn_games"
+	 src-required="false" dst-required="false"/>
+
+<function name="detect_opening"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="record" length="0"/>
+	</return-type>
+	<parameter name="partial_fens">
+		<type name="character varying" length="0" dimension="1"/>
+	</parameter>
+	<definition> <![CDATA[DECLARE
+    my_partial_fen VARCHAR;
+    opening_id INTEGER := NULL;
+    move_no INTEGER := 0;
+    ret_val RECORD := NULL;
+BEGIN
+    FOREACH my_partial_fen IN ARRAY partial_fens LOOP
+        IF EXISTS(
+            SELECT *
+            FROM openings o
+            WHERE my_partial_fen=o.partial_fen
+        ) THEN
+            opening_id := (SELECT o.id
+                FROM openings o
+                WHERE my_partial_fen=o.partial_fen
+                LIMIT 1
+            );
+            SELECT opening_id, move_no INTO ret_val;
+        END IF;
+        move_no := move_no + 1;
+    END LOOP;
+    RETURN ret_val;
+END;]]> </definition>
+</function>
 
 <view name="games_openings" layers="0" collapse-mode="2" max-obj-count="2" z-value="0">
-	<schema name="​"/>
-	<role name="postgres"/>
-	<position x="1300" y="400"/>
-	<reference object="​.openings" type="table" ref-name="openings" use-signature="true"/>
-	<reference object="​.games" type="view" ref-name="games" use-signature="true"/>
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<position x="1200" y="200"/>
+	<reference object="public.games" type="view" ref-name="games" use-signature="true"/>
+	<reference object="public.openings" type="table" ref-name="games_openings_openings"/>
 	<simplecol name="game_id" type="integer"/>
-	<simplecol name="game_kind" type="character varying"/>
+	<simplecol name="kind" type="text"/>
 	<simplecol name="opening_id" type="integer"/>
-	<definition> <![CDATA[ SELECT g.id AS game_id, g.kind AS game_kind,
-    o.id AS opening_id
-   FROM (openings o
-     JOIN games g ON (((g.moves)::text ~~ like_escape(((o.partial_fen)::text || '%'::text), '\'::text))))]]> </definition>
+	<simplecol name="move_no" type="integer"/>
+	<definition> <![CDATA[ SELECT g.id AS game_id,
+    g.kind,
+    detect_opening.opening_id,
+    detect_opening.move_no
+   FROM games g,
+    LATERAL detect_opening(g.partial_fens) detect_opening(opening_id integer, move_no integer);]]> </definition>
 </view>
 
-<relationship name="rel_game_openings_openings" type="reltv" layers="0"
-	 custom-color="#de39e9"
-	 src-table="​.games_openings"
-	 dst-table="​.openings"
-	 src-required="false" dst-required="false">
-	<label ref-type="name-label">
-		<position x="557.363" y="165.762"/>
-	</label>
-</relationship>
-
-<relationship name="rel_game_openings_games" type="reltv" layers="0"
-	 custom-color="#add416"
-	 src-table="​.games_openings"
-	 dst-table="​.games"
-	 src-required="false" dst-required="false">
-	<label ref-type="name-label">
-		<position x="911.892" y="-99.888"/>
-	</label>
-</relationship>
+<relationship name="rel_games_openings_games" type="reltv" layers="0"
+	 custom-color="#0d6bc1"
+	 src-table="public.games_openings"
+	 dst-table="public.games"
+	 src-required="false" dst-required="false"/>
 
 <function name="add_default_service_to_user"
 		window-func="false"
@@ -388,7 +906,7 @@ UNION
 		execution-cost="100"
 		row-amount="0">
 	<schema name="public"/>
-	<role name="postgres"/>
+	<role name="random_chess"/>
 	<language name="plpgsql"/>
 	<return-type>
 	<type name="trigger" length="0"/>
@@ -411,7 +929,7 @@ END;]]> </definition>
 		execution-cost="100"
 		row-amount="0">
 	<schema name="public"/>
-	<role name="postgres"/>
+	<role name="random_chess"/>
 	<language name="plpgsql"/>
 	<return-type>
 	<type name="trigger" length="0"/>
@@ -440,7 +958,7 @@ END;]]> </definition>
 		execution-cost="100"
 		row-amount="0">
 	<schema name="public"/>
-	<role name="postgres"/>
+	<role name="random_chess"/>
 	<language name="plpgsql"/>
 	<return-type>
 	<type name="trigger" length="0"/>
@@ -456,173 +974,1754 @@ END;]]> </definition>
 
 <trigger name="users_insert_add_default_service" firing-type="AFTER" per-line="true" constraint="false"
 	 ins-event="true" del-event="false" upd-event="false" trunc-event="false"
-	 table="​.users">
+	 table="public.users">
 		<function signature="public.add_default_service_to_user()"/>
 </trigger>
 
 <trigger name="service_accounts_update_prevent_for_default_service" firing-type="BEFORE" per-line="true" constraint="false"
 	 ins-event="false" del-event="false" upd-event="true" trunc-event="false"
-	 table="​.service_accounts">
+	 table="public.service_accounts">
 		<function signature="public.prevent_default_service_modification()"/>
 </trigger>
 
 <trigger name="service_accounts_delete_prevent_for_default_service" firing-type="BEFORE" per-line="true" constraint="false"
 	 ins-event="false" del-event="true" upd-event="false" trunc-event="false"
-	 table="​.service_accounts">
+	 table="public.service_accounts">
 		<function signature="public.prevent_default_service_deletion()"/>
 </trigger>
 
-<view name="test" layers="0" collapse-mode="2" max-obj-count="0" z-value="0">
-	<schema name="​"/>
-	<role name="postgres"/>
-	<position x="1680" y="1100"/>
-	<definition> <![CDATA[CREATE VIEW test AS (
-    SELECT g.id as game_id, o.id as opening_id
-    FROM openings o
-    INNER JOIN games g ON(g.moves LIKE o.partial_fen || '%' ESCAPE '\')
- );]]> </definition>
+<sequence name="rankings_id_seq" cycle="false" start="1" increment="1" min-value="1" max-value="2147483647" cache="1">
+	<schema name="public"/>
+	<role name="random_chess"/>
+</sequence>
+
+<table name="rankings" layers="0" collapse-mode="2" max-obj-count="9" z-value="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<position x="180" y="1560"/>
+	<column name="id" not-null="true" sequence="public.rankings_id_seq">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="name" not-null="true">
+		<type name="character varying" length="0"/>
+	</column>
+	<column name="playtime_min" not-null="true">
+		<type name="interval" length="0"/>
+	</column>
+	<column name="playtime_max">
+		<type name="interval" length="0"/>
+	</column>
+	<column name="extra_move_multiplier" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="starting_elo" not-null="true">
+		<type name="numeric" length="0"/>
+	</column>
+	<column name="include_bots" not-null="true">
+		<type name="boolean" length="0"/>
+	</column>
+	<column name="k_factor" not-null="true">
+		<type name="numeric" length="0"/>
+	</column>
+	<constraint name="rankings_playtime_min_check" type="ck-constr" table="public.rankings">
+			<expression> <![CDATA[(playtime_min >= '00:00:00'::interval)]]> </expression>
+	</constraint>
+	<constraint name="rankings_playtime_max_check" type="ck-constr" table="public.rankings">
+			<expression> <![CDATA[(playtime_max > '00:00:00'::interval)]]> </expression>
+	</constraint>
+	<constraint name="rankings_extra_move_multiplier_check" type="ck-constr" table="public.rankings">
+			<expression> <![CDATA[(extra_move_multiplier >= 0)]]> </expression>
+	</constraint>
+	<constraint name="rankings_starting_elo_check" type="ck-constr" table="public.rankings">
+			<expression> <![CDATA[(starting_elo > (0)::numeric)]]> </expression>
+	</constraint>
+	<constraint name="playtime_valid" type="ck-constr" table="public.rankings">
+			<expression> <![CDATA[((playtime_max IS NULL) OR (playtime_min <= playtime_max))]]> </expression>
+	</constraint>
+	<constraint name="rankings_pkey" type="pk-constr" table="public.rankings">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<sequence name="elo_history_id_seq" cycle="false" start="1" increment="1" min-value="1" max-value="2147483647" cache="1">
+	<schema name="public"/>
+	<role name="random_chess"/>
+</sequence>
+
+<table name="elo_history" layers="0" collapse-mode="2" max-obj-count="12" z-value="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<position x="-420" y="1580"/>
+	<column name="id" not-null="true" sequence="public.elo_history_id_seq">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="service_id" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="user_id_in_service" not-null="true">
+		<type name="character varying" length="0"/>
+	</column>
+	<column name="ranking_id" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="game_id" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="elo" not-null="true">
+		<type name="numeric" length="0"/>
+	</column>
+	<column name="previous_entry">
+		<type name="integer" length="0"/>
+	</column>
+	<constraint name="elo_history_service_id_check" type="ck-constr" table="public.elo_history">
+			<expression> <![CDATA[(service_id = 1)]]> </expression>
+	</constraint>
+	<constraint name="elo_history_pkey" type="pk-constr" table="public.elo_history">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+	<constraint name="elo_history_service_id_user_id_in_service_ranking_id_previo_key" type="uq-constr" nulls-not-distinct="true" table="public.elo_history">
+		<columns names="service_id,user_id_in_service,ranking_id,previous_entry" ref-type="src-columns"/>
+	</constraint>
+	<constraint name="elo_history_service_id_user_id_in_service_ranking_id_game_i_key" type="uq-constr" table="public.elo_history">
+		<columns names="service_id,user_id_in_service,ranking_id,game_id" ref-type="src-columns"/>
+	</constraint>
+	<constraint name="elo_history_service_id_user_id_in_service_ranking_id_id_key" type="uq-constr" table="public.elo_history">
+		<columns names="service_id,user_id_in_service,ranking_id,id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<function name="verify_time_control"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="boolean" length="0"/>
+	</return-type>
+	<parameter name="sgclock">
+		<type name="public.clock_settings" length="0"/>
+	</parameter>
+	<parameter name="playtime_min">
+		<type name="interval" length="0"/>
+	</parameter>
+	<parameter name="playtime_max">
+		<type name="interval" length="0"/>
+	</parameter>
+	<parameter name="extra_move_multiplier">
+		<type name="integer" length="0"/>
+	</parameter>
+	<definition> <![CDATA[BEGIN
+    IF(sgclock."starting_time" IS NULL) THEN RETURN FALSE; END IF;
+    IF(sgclock."move_increase" IS NULL) THEN RETURN FALSE; END IF;
+    IF(
+        (sgclock."starting_time" + extra_move_multiplier * sgclock."move_increase") < playtime_min
+    ) THEN RETURN FALSE; END IF;
+    IF(
+        (sgclock."starting_time" + extra_move_multiplier * sgclock."move_increase") >= playtime_max
+    ) THEN RETURN FALSE; END IF;
+    RETURN TRUE;
+END;]]> </definition>
+</function>
+
+<view name="games_rankings" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<position x="180" y="1400"/>
+	<reference object="public.service_accounts" type="table" ref-name="service_accounts" use-signature="true"/>
+	<reference object="public.service_games" type="table" ref-name="service_games" use-signature="true"/>
+	<reference object="public.rankings" type="table" ref-name="rankings" use-signature="true"/>
+	<simplecol name="game_id" type="integer"/>
+	<simplecol name="ranking_id" type="integer"/>
+	<definition> <![CDATA[ SELECT service_games.id AS game_id,
+    rankings.id AS ranking_id
+   FROM (((service_games
+     JOIN service_accounts white_accounts ON (((white_accounts.service_id = service_games.service_id) AND ((white_accounts.user_id_in_service)::text = (service_games.white_player)::text))))
+     JOIN service_accounts black_accounts ON (((black_accounts.service_id = service_games.service_id) AND ((black_accounts.user_id_in_service)::text = (service_games.black_player)::text))))
+     CROSS JOIN rankings)
+  WHERE (service_games.is_ranked AND verify_time_control(service_games.clock, rankings.playtime_min, rankings.playtime_max, rankings.extra_move_multiplier) AND (rankings.include_bots OR ((white_accounts.is_bot = false) AND (black_accounts.is_bot = false))));]]> </definition>
 </view>
 
-<view name="test2" layers="0" collapse-mode="2" max-obj-count="0" z-value="0">
-	<schema name="​"/>
-	<role name="postgres"/>
-	<position x="-300" y="-20"/>
-	<definition> <![CDATA[CREATE VIEW test2 AS (
-    SELECT g.id as game_id, o.id as opening_id
-    FROM openings o
-    INNER JOIN games g ON(g.moves LIKE o.partial_fen || '%' ESCAPE '\')
- );]]> </definition>
+<relationship name="rel_games_rankings_service_accounts" type="reltv" layers="0"
+	 custom-color="#0fa57d"
+	 src-table="public.games_rankings"
+	 dst-table="public.service_accounts"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_games_rankings_service_games" type="reltv" layers="0"
+	 custom-color="#ac3ffa"
+	 src-table="public.games_rankings"
+	 dst-table="public.service_games"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_games_rankings_rankings" type="reltv" layers="0"
+	 custom-color="#2bc22d"
+	 src-table="public.games_rankings"
+	 dst-table="public.rankings"
+	 src-required="false" dst-required="false"/>
+
+<function name="ranking_at_timestamp"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="1000">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<parameter name="service_id">
+		<type name="integer" length="0"/>
+	</parameter>
+	<parameter name="user_id_in_service">
+		<type name="character varying" length="0"/>
+	</parameter>
+	<parameter name="ranking_id">
+		<type name="integer" length="0"/>
+	</parameter>
+	<parameter name="elo">
+		<type name="numeric" length="0"/>
+	</parameter>
+	<parameter name="elo_history_id">
+		<type name="integer" length="0"/>
+	</parameter>
+	</return-type>
+	<parameter name="t" in="true">
+		<type name="timestamp with time zone" length="0" with-timezone="true"/>
+	</parameter>
+	<definition> <![CDATA[BEGIN
+    RETURN QUERY SELECT
+        DISTINCT ON (sa.service_id, sa.user_id_in_service, r.id)
+        sa.service_id,
+        sa.user_id_in_service,
+        r.id AS "ranking_id",
+        COALESCE(eh.elo, r.starting_elo) AS "elo",
+        "eh".id AS "elo_history_id"
+    FROM service_accounts sa
+    CROSS JOIN rankings r
+    LEFT JOIN elo_history eh ON (r.id = eh.ranking_id AND sa.user_id_in_service = eh.user_id_in_service)
+    LEFT JOIN service_games sg ON (eh.game_id = sg.id)
+    WHERE (sa.service_id = 1) AND (r.include_bots OR NOT sa.is_bot) AND (sg.creation_date <= t OR sg IS NULL)
+    ORDER BY sa.service_id, sa.user_id_in_service, r.id, sg.creation_date DESC;
+END;]]> </definition>
+</function>
+
+<function name="ranking_with_placement_at_timestamp"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="1000">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<parameter name="placement">
+		<type name="integer" length="0"/>
+	</parameter>
+	<parameter name="service_id">
+		<type name="integer" length="0"/>
+	</parameter>
+	<parameter name="user_id_in_service">
+		<type name="character varying" length="0"/>
+	</parameter>
+	<parameter name="ranking_id">
+		<type name="integer" length="0"/>
+	</parameter>
+	<parameter name="elo">
+		<type name="integer" length="0"/>
+	</parameter>
+	<parameter name="elo_history_id">
+		<type name="integer" length="0"/>
+	</parameter>
+	</return-type>
+	<parameter name="t" in="true">
+		<type name="timestamp with time zone" length="0" with-timezone="true"/>
+	</parameter>
+	<parameter name="ranking" in="true">
+		<type name="integer" length="0"/>
+	</parameter>
+	<definition> <![CDATA[BEGIN
+    RETURN QUERY SELECT
+        (rank() over (ORDER BY rt.elo::int DESC))::int,
+        rt.service_id,
+        rt.user_id_in_service,
+        rt.ranking_id,
+        rt.elo::int,
+        rt.elo_history_id
+    FROM ranking_at_timestamp(t) rt
+    WHERE rt.ranking_id = ranking
+    ORDER BY rt.elo::int DESC;
+END;]]> </definition>
+</function>
+
+<view name="current_ranking" layers="0" collapse-mode="2" max-obj-count="2" z-value="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<position x="-100" y="1860"/>
+	<reference object="public.elo_history.elo" type="column" ref-name="cr_elo_history"/>
+	<reference object="public.rankings" type="table" ref-name="rr"/>
+	<simplecol name="service_id" type="integer"/>
+	<simplecol name="user_id_in_service" type="character varying"/>
+	<simplecol name="ranking_id" type="integer"/>
+	<simplecol name="elo" type="numeric"/>
+	<simplecol name="elo_history_id" type="integer"/>
+	<definition> <![CDATA[ SELECT service_id,
+    user_id_in_service,
+    ranking_id,
+    elo,
+    elo_history_id
+   FROM ranking_at_timestamp(CURRENT_TIMESTAMP) ranking_at_timestamp(service_id, user_id_in_service, ranking_id, elo, elo_history_id);]]> </definition>
 </view>
+
+<procedure name="update_ranking_after_game" security-type="SECURITY INVOKER">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<language name="plpgsql"/>
+	<parameter name="service_game_id">
+		<type name="integer" length="0"/>
+	</parameter>
+	<parameter name="ranking_id_to_update">
+		<type name="integer" length="0"/>
+	</parameter>
+	<definition> <![CDATA[DECLARE
+    -- Variable names taken from https://en.wikipedia.org/wiki/Elo_rating_system#Mathematical_details
+    game_end_type VARCHAR;
+    current_black_elo NUMERIC;
+    current_white_elo NUMERIC;
+    previous_black_entry INT;
+    previous_white_entry INT;
+    k_factor_var NUMERIC;
+    black_score NUMERIC;
+    white_score NUMERIC;
+    Q_black NUMERIC;
+    Q_white NUMERIC;
+    expected_black_value NUMERIC;
+    expected_white_value NUMERIC;
+BEGIN
+    IF service_game_id IS NULL OR ranking_id_to_update IS NULL THEN
+        RETURN;
+    END IF;
+
+    --TODO: fix SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+    SELECT cr_black.elo, cr_black.elo_history_id, (sg.result).game_end_type
+    INTO current_black_elo, previous_black_entry, game_end_type
+    FROM service_games sg
+    JOIN service_accounts sa_black ON(
+        sg.service_id = sa_black.service_id AND
+        sg.black_player = sa_black.user_id_in_service
+    )
+    JOIN current_ranking cr_black ON(
+        sa_black.service_id = cr_black.service_id AND
+        sa_black.user_id_in_service = cr_black.user_id_in_service AND
+        cr_black.ranking_id = ranking_id_to_update
+    )
+    WHERE sg.id = service_game_id;
+
+    SELECT cr_white.elo, cr_white.elo_history_id
+    INTO current_white_elo, previous_white_entry
+    FROM service_games sg
+    JOIN service_accounts sa_white ON(
+        sg.service_id = sa_white.service_id AND
+        sg.white_player = sa_white.user_id_in_service
+    )
+    JOIN current_ranking cr_white ON(
+        sa_white.service_id = cr_white.service_id AND
+        sa_white.user_id_in_service = cr_white.user_id_in_service AND
+        cr_white.ranking_id = ranking_id_to_update
+    )
+    WHERE sg.id = service_game_id;
+
+    k_factor_var := (SELECT k_factor FROM rankings WHERE id = ranking_id_to_update);
+
+    IF game_end_type = '1/2-1/2' THEN
+        black_score := 0.5;
+        white_score := 0.5;
+    ELSE
+        IF game_end_type = '1-0' THEN
+            black_score := 0;
+            white_score := 1;
+        ELSE
+            black_score := 1;
+            white_score := 0;
+        END IF;
+    END IF;
+
+    Q_black := 10^(current_black_elo / 400);
+    Q_white := 10^(current_white_elo / 400);
+
+    expected_black_value := Q_black / (Q_black + Q_white);
+    expected_white_value := Q_white / (Q_black + Q_white);
+
+    INSERT INTO elo_history(service_id, user_id_in_service, ranking_id, game_id, elo, previous_entry) VALUES
+        (
+             1,
+             (SELECT black_player FROM service_games WHERE id = service_game_id),
+             ranking_id_to_update,
+             service_game_id,
+             current_black_elo + k_factor_var * (black_score - expected_black_value),
+             previous_black_entry
+        ),
+        (
+            1,
+            (SELECT white_player FROM service_games WHERE id = service_game_id),
+            ranking_id_to_update,
+            service_game_id,
+            current_white_elo + k_factor_var * (white_score - expected_white_value),
+            previous_white_entry
+        );
+END;]]> </definition>
+</procedure>
+
+<procedure name="update_elo_after_game" security-type="SECURITY INVOKER">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<language name="plpgsql"/>
+	<parameter name="service_game_id">
+		<type name="integer" length="0"/>
+	</parameter>
+	<definition> <![CDATA[DECLARE
+    ranking_id INT;
+BEGIN
+    FOR ranking_id IN
+        SELECT gr.ranking_id
+        FROM games_rankings gr
+        WHERE gr.game_id = service_game_id
+    LOOP
+        CALL update_ranking_after_game(service_game_id, ranking_id);
+    END LOOP;
+END;]]> </definition>
+</procedure>
+
+<procedure name="recalculate_ranking" security-type="SECURITY INVOKER">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<language name="plpgsql"/>
+	<parameter name="ranking_id">
+		<type name="integer" length="0"/>
+	</parameter>
+	<definition> <![CDATA[DECLARE
+    game_id INT;
+BEGIN
+    --TODO: fix SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+
+    DELETE FROM elo_history
+    WHERE elo_history.ranking_id = recalculate_ranking.ranking_id;
+
+    FOR game_id IN
+        SELECT service_games.id
+        FROM service_games
+        INNER JOIN games_rankings ON (service_games.id = games_rankings.game_id)
+        WHERE games_rankings.ranking_id = recalculate_ranking.ranking_id
+        ORDER BY creation_date ASC
+    LOOP
+        CALL update_ranking_after_game(game_id, ranking_id);
+    END LOOP;
+END;]]> </definition>
+</procedure>
+
+<function name="recalculate_ranking_on_update"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="trigger" length="0"/>
+	</return-type>
+	<definition> <![CDATA[BEGIN
+    CALL recalculate_ranking(NEW.id);
+    RETURN NEW;
+END;]]> </definition>
+</function>
+
+<trigger name="rankings_insert_update_recalculate" firing-type="AFTER" per-line="true" constraint="false"
+	 ins-event="true" del-event="false" upd-event="true" trunc-event="false"
+	 table="public.rankings">
+		<function signature="public.recalculate_ranking_on_update()"/>
+</trigger>
+
+<function name="update_rankings_on_game_insert"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="trigger" length="0"/>
+	</return-type>
+	<definition> <![CDATA[DECLARE
+    ranking_id INT;
+BEGIN
+    FOR ranking_id IN
+        SELECT games_rankings.ranking_id
+        FROM games_rankings
+        WHERE games_rankings.game_id = NEW.id
+    LOOP
+        CALL update_ranking_after_game(NEW.id, ranking_id);
+    END LOOP;
+    RETURN NEW;
+END;]]> </definition>
+</function>
+
+<trigger name="service_games_insert_update_rankings" firing-type="AFTER" per-line="true" constraint="false"
+	 ins-event="true" del-event="false" upd-event="false" trunc-event="false"
+	 table="public.service_games">
+		<function signature="public.update_rankings_on_game_insert()"/>
+</trigger>
+
+<function name="prevent_game_deletion"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="trigger" length="0"/>
+	</return-type>
+	<definition> <![CDATA[BEGIN
+    RAISE EXCEPTION 'Deleting service games is forbidden - tried to delete game %', OLD.id;
+END;]]> </definition>
+</function>
+
+<function name="prevent_significant_game_changes"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="trigger" length="0"/>
+	</return-type>
+	<definition> <![CDATA[BEGIN
+    IF (OLD.result).game_end_type <> (NEW.result).game_end_type THEN
+        RAISE EXCEPTION 'Modifying game_end_type in a service game is forbidden - tried to modify game %', OLD.id;
+    END IF;
+
+    IF
+        (OLD.clock).starting_time IS NULL <> (NEW.clock).starting_time IS NULL OR
+        (
+            (NEW.clock).starting_time IS NOT NULL AND
+            OLD.clock <> NEW.clock
+        )
+    THEN
+        RAISE EXCEPTION 'Modifying clock in a service game is forbidden - tried to modify game %', OLD.id;
+    END IF;
+
+    IF OLD.white_player <> NEW.white_player THEN
+        RAISE EXCEPTION 'Modifying white_player in a service game is forbidden - tried to modify game %', OLD.id;
+    END IF;
+
+    IF OLD.white_player <> NEW.black_player THEN
+        RAISE EXCEPTION 'Modifying black_player in a service game is forbidden - tried to modify game %', OLD.id;
+    END IF;
+
+    IF OLD.service_id <> NEW.service_id THEN
+        RAISE EXCEPTION 'Modifying service_id in a service game is forbidden - tried to modify game %', OLD.id;
+    END IF;
+
+    IF OLD.is_ranked <> NEW.is_ranked THEN
+        RAISE EXCEPTION 'Modifying is_ranked in a service game is forbidden - tried to modify game %', OLD.id;
+    END IF;
+
+    RETURN NEW;
+END;]]> </definition>
+</function>
+
+<trigger name="service_game_prevent_deletion" firing-type="BEFORE" per-line="true" constraint="false"
+	 ins-event="false" del-event="true" upd-event="false" trunc-event="false"
+	 table="public.service_games">
+		<function signature="public.prevent_game_deletion()"/>
+</trigger>
+
+<trigger name="service_game_prevent_updates" firing-type="BEFORE" per-line="true" constraint="false"
+	 ins-event="false" del-event="false" upd-event="true" trunc-event="false"
+	 table="public.service_games">
+		<function signature="public.prevent_significant_game_changes()"/>
+</trigger>
+
+<function name="check_invalid_elo_history"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="trigger" length="0"/>
+	</return-type>
+	<definition> <![CDATA[BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM games_rankings
+        WHERE
+            games_rankings.game_id = NEW.game_id AND
+            games_rankings.ranking_id = NEW.ranking_id
+    ) THEN
+        RAISE EXCEPTION 'Elo history entry for game % and ranking % is not valid',
+            games_rankings.game_id, games_rankings.ranking_id;
+    END IF;
+
+    RETURN NEW;
+END;]]> </definition>
+</function>
+
+<trigger name="elo_history_prevent_invalid" firing-type="BEFORE" per-line="true" constraint="false"
+	 ins-event="true" del-event="false" upd-event="true" trunc-event="false"
+	 table="public.elo_history">
+		<function signature="public.check_invalid_elo_history()"/>
+</trigger>
+
+<sequence name="swiss_tournaments_tournament_id_seq" cycle="false" start="1" increment="1" min-value="1" max-value="2147483647" cache="1">
+	<schema name="public"/>
+	<role name="random_chess"/>
+</sequence>
+
+<table name="swiss_tournaments" layers="0" collapse-mode="2" max-obj-count="7" z-value="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<position x="1060" y="1200"/>
+	<column name="tournament_id" not-null="true" sequence="public.swiss_tournaments_tournament_id_seq">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="round_count" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="starting_position" not-null="true" default-value="'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'">
+		<type name="character varying" length="0"/>
+	</column>
+	<column name="is_ranked" not-null="true" default-value="true">
+		<type name="boolean" length="0"/>
+	</column>
+	<column name="ranking_id">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="time_control" not-null="true">
+		<type name="public.clock_settings" length="0"/>
+	</column>
+	<constraint name="swiss_tournaments_round_count_check" type="ck-constr" table="public.swiss_tournaments">
+			<expression> <![CDATA[(round_count > 0)]]> </expression>
+	</constraint>
+	<constraint name="swiss_tournaments_check" type="ck-constr" table="public.swiss_tournaments">
+			<expression> <![CDATA[(((is_ranked IS FALSE) AND (ranking_id IS NULL)) OR ((is_ranked IS TRUE) AND (ranking_id IS NOT NULL)))]]> </expression>
+	</constraint>
+	<constraint name="swiss_tournaments_pkey" type="pk-constr" table="public.swiss_tournaments">
+		<columns names="tournament_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="tournaments_games" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<position x="1060" y="980"/>
+	<column name="tournament_id" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="game_id" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="round" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<constraint name="tournaments_games_round_check" type="ck-constr" table="public.tournaments_games">
+			<expression> <![CDATA[(round > 0)]]> </expression>
+	</constraint>
+</table>
+
+<table name="tournaments_players" layers="0" collapse-mode="2" max-obj-count="6" z-value="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<position x="540" y="1280"/>
+	<column name="service_id" not-null="true" default-value="1">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="tournament_id" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="user_id_in_service" not-null="true">
+		<type name="character varying" length="0"/>
+	</column>
+	<constraint name="tournaments_players_service_id_check" type="ck-constr" table="public.tournaments_players">
+			<expression> <![CDATA[(service_id = 1)]]> </expression>
+	</constraint>
+	<constraint name="tournaments_players_tournament_id_user_id_in_service_key" type="uq-constr" table="public.tournaments_players">
+		<columns names="tournament_id,user_id_in_service" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<function name="prevent_tournament_player_deletion"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="trigger" length="0"/>
+	</return-type>
+	<definition> <![CDATA[BEGIN
+    IF NOT EXISTS(
+        SELECT *
+        FROM swiss_tournaments st
+        WHERE st.tournament_id = OLD.tournament_id
+    ) THEN RETURN NULL; END IF;
+    IF EXISTS (
+        SELECT *
+        FROM tournaments_games tg
+        JOIN service_games sg ON(sg.id = tg.game_id)
+        WHERE tg.tournament_id = OLD.tournament_id
+        AND (sg.white_player = OLD.user_id_in_service OR sg.black_player = OLD.user_id_in_service)
+    ) THEN RAISE EXCEPTION 'Cannot delete player from tournament - there are still games registered.'; END IF;
+    RETURN NULL;
+END;]]> </definition>
+</function>
+
+<trigger name="prevent_tournament_player_deletion" firing-type="BEFORE" per-line="true" constraint="false"
+	 ins-event="false" del-event="true" upd-event="false" trunc-event="false"
+	 table="public.tournaments_players">
+		<function signature="public.prevent_tournament_player_deletion()"/>
+</trigger>
+
+<table name="byes" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<position x="1060" y="1500"/>
+	<column name="tournament_id" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="round" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="user_id_in_service" not-null="true">
+		<type name="character varying" length="0"/>
+	</column>
+	<constraint name="byes_round_check" type="ck-constr" table="public.byes">
+			<expression> <![CDATA[(round > 0)]]> </expression>
+	</constraint>
+	<constraint name="byes_tournament_id_round_user_id_in_service_key" type="uq-constr" table="public.byes">
+		<columns names="tournament_id,round,user_id_in_service" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="tournaments_ranking_reqs" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<position x="1800" y="1120"/>
+	<column name="tournament_id" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="ranking_type" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="required_value" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<constraint name="tournaments_ranking_reqs_required_value_check" type="ck-constr" table="public.tournaments_ranking_reqs">
+			<expression> <![CDATA[(required_value > 0)]]> </expression>
+	</constraint>
+</table>
+
+<table name="tournaments_ranked_games_reqs" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<position x="1460" y="1780"/>
+	<column name="tournament_id" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="ranking_type" not-null="true" default-value="0">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="game_count" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<constraint name="tournaments_ranked_games_reqs_game_count_check" type="ck-constr" table="public.tournaments_ranked_games_reqs">
+			<expression> <![CDATA[(game_count > 0)]]> </expression>
+	</constraint>
+	<constraint name="tournaments_ranked_games_reqs_tournament_id_ranking_type_key" type="uq-constr" table="public.tournaments_ranked_games_reqs">
+		<columns names="tournament_id,ranking_type" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<view name="tournaments_reqs" layers="0" collapse-mode="2" max-obj-count="2" z-value="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<position x="1480" y="860"/>
+	<reference object="public.tournaments_ranking_reqs" type="table" ref-name="tournaments_ranking_reqs" use-signature="true"/>
+	<reference object="public.tournaments_ranked_games_reqs" type="table" ref-name="tournaments_ranked_games_reqs" use-signature="true"/>
+	<simplecol name="tournament_id" type="integer"/>
+	<simplecol name="ranking_type" type="integer"/>
+	<simplecol name="game_count" type="integer"/>
+	<simplecol name="required_value" type="integer"/>
+	<definition> <![CDATA[ SELECT tournaments_ranked_games_reqs.tournament_id,
+    tournaments_ranked_games_reqs.ranking_type,
+    tournaments_ranked_games_reqs.game_count,
+    NULL::integer AS required_value
+   FROM tournaments_ranked_games_reqs
+UNION ALL
+ SELECT tournaments_ranking_reqs.tournament_id,
+    tournaments_ranking_reqs.ranking_type,
+    NULL::integer AS game_count,
+    tournaments_ranking_reqs.required_value
+   FROM tournaments_ranking_reqs;]]> </definition>
+</view>
+
+<relationship name="rel_tournaments_reqs_tournaments_ranking_reqs" type="reltv" layers="0"
+	 custom-color="#79f6f1"
+	 src-table="public.tournaments_reqs"
+	 dst-table="public.tournaments_ranking_reqs"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_tournaments_reqs_tournaments_ranked_games_reqs" type="reltv" layers="0"
+	 custom-color="#93f72f"
+	 src-table="public.tournaments_reqs"
+	 dst-table="public.tournaments_ranked_games_reqs"
+	 src-required="false" dst-required="false"/>
+
+<function name="calculate_performance_rating"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="numeric" length="0"/>
+	</return-type>
+	<parameter name="opponent_elos">
+		<type name="numeric" length="0" dimension="1"/>
+	</parameter>
+	<parameter name="points">
+		<type name="numeric" length="0"/>
+	</parameter>
+	<definition> <![CDATA[DECLARE
+    lo NUMERIC := 0;
+    hi NUMERIC := 5000;
+    mid NUMERIC;
+    expected NUMERIC;
+    elo NUMERIC;
+BEGIN
+    IF(opponent_elos IS NULL) THEN RETURN 0; END IF;
+    WHILE(hi - lo > 0.001) LOOP
+        mid := (lo + hi)/2;
+        expected := 0;
+        FOREACH elo IN ARRAY opponent_elos LOOP
+            expected := expected + (1 / (1 + 10^((elo - mid)/400)));
+        END LOOP;
+        IF (expected < points) THEN
+           lo := mid;
+        ELSE
+           hi := mid;
+        END IF;
+    END LOOP;
+    RETURN mid;
+END;]]> </definition>
+</function>
+
+<view name="swiss_tournaments_players_points" layers="0" collapse-mode="2" max-obj-count="7" z-value="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<position x="1800" y="1320"/>
+	<reference object="public.service_games" type="table" ref-name="service_games" use-signature="true"/>
+	<reference object="public.current_ranking" type="view" ref-name="current_ranking" use-signature="true"/>
+	<reference object="public.swiss_tournaments" type="table" ref-name="swiss_tournaments" use-signature="true"/>
+	<reference object="public.tournaments_games" type="table" ref-name="tournaments_games" use-signature="true"/>
+	<reference object="public.tournaments_players" type="table" ref-name="tournaments_players" use-signature="true"/>
+	<reference object="public.byes" type="table" ref-name="byes" use-signature="true"/>
+	<simplecol name="tournament_id" type="integer"/>
+	<simplecol name="user_id_in_service" type="character varying"/>
+	<simplecol name="round" type="integer"/>
+	<simplecol name="points" type="numeric"/>
+	<simplecol name="performance_rating" type="numeric"/>
+	<definition> <![CDATA[ WITH point_values AS (
+         SELECT st_1.tournament_id,
+            tp_1.user_id_in_service,
+            tg_1.round,
+            round((((( SELECT count(*) AS count
+                   FROM (tournaments_games tg2
+                     JOIN service_games sg ON ((tg2.game_id = sg.id)))
+                  WHERE ((sg.service_id = 1) AND ((((sg.white_player)::text = (tp_1.user_id_in_service)::text) AND (((sg.result).game_end_type)::text = '1-0'::text)) OR (((sg.black_player)::text = (tp_1.user_id_in_service)::text) AND (((sg.result).game_end_type)::text = '0-1'::text))) AND (tg2.round <= tg_1.round) AND (tg2.tournament_id = st_1.tournament_id))))::numeric + ((( SELECT count(*) AS count
+                   FROM (tournaments_games tg2
+                     JOIN service_games sg ON ((tg2.game_id = sg.id)))
+                  WHERE ((sg.service_id = 1) AND (((sg.white_player)::text = (tp_1.user_id_in_service)::text) OR ((sg.black_player)::text = (tp_1.user_id_in_service)::text)) AND (((sg.result).game_end_type)::text = '1/2-1/2'::text) AND (tg2.round <= tg_1.round) AND (tg2.tournament_id = st_1.tournament_id))))::numeric / (2)::numeric)) + (( SELECT count(*) AS count
+                   FROM byes b
+                  WHERE ((b.tournament_id = st_1.tournament_id) AND ((b.user_id_in_service)::text = (tp_1.user_id_in_service)::text) AND (b.round <= tg_1.round))))::numeric), 1) AS points
+           FROM ((swiss_tournaments st_1
+             JOIN tournaments_players tp_1 USING (tournament_id))
+             JOIN tournaments_games tg_1 USING (tournament_id))
+          GROUP BY st_1.tournament_id, tp_1.user_id_in_service, tg_1.round
+        )
+ SELECT st.tournament_id,
+    tp.user_id_in_service,
+    tg.round,
+    pv.points,
+    calculate_performance_rating(( WITH linked_games AS (
+                 SELECT sg.white_player,
+                    sg.black_player
+                   FROM (tournaments_games tg2
+                     JOIN service_games sg ON (((sg.id = tg2.game_id) AND (((sg.white_player)::text = (tp.user_id_in_service)::text) OR ((sg.black_player)::text = (tp.user_id_in_service)::text)))))
+                  WHERE ((tg2.tournament_id = st.tournament_id) AND (tg2.round <= tg.round))
+                ), opponents AS (
+                 SELECT lg.white_player AS opp
+                   FROM linked_games lg
+                  WHERE ((lg.white_player)::text <> (tp.user_id_in_service)::text)
+                UNION
+                 SELECT lg.black_player AS opp
+                   FROM linked_games lg
+                  WHERE ((lg.black_player)::text <> (tp.user_id_in_service)::text)
+                )
+         SELECT array_agg(rat.elo) AS array_agg
+           FROM (opponents o
+             JOIN current_ranking rat ON ((((o.opp)::text = (rat.user_id_in_service)::text) AND (rat.ranking_id = st.ranking_id))))), (pv.points - (( SELECT count(*) AS count
+           FROM byes b
+          WHERE ((b.tournament_id = st.tournament_id) AND ((b.user_id_in_service)::text = (tp.user_id_in_service)::text) AND (b.round <= tg.round))))::numeric)) AS performance_rating
+   FROM (((swiss_tournaments st
+     JOIN tournaments_players tp USING (tournament_id))
+     JOIN tournaments_games tg USING (tournament_id))
+     JOIN point_values pv ON (((pv.tournament_id = st.tournament_id) AND ((tp.user_id_in_service)::text = (pv.user_id_in_service)::text) AND (tg.round = pv.round))))
+  GROUP BY st.tournament_id, tp.user_id_in_service, tg.round, pv.points;]]> </definition>
+</view>
+
+<relationship name="rel_swiss_tournaments_players_points_service_games" type="reltv" layers="0"
+	 custom-color="#1cdb26"
+	 src-table="public.swiss_tournaments_players_points"
+	 dst-table="public.service_games"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_swiss_tournaments_players_points_current_ranking" type="reltv" layers="0"
+	 custom-color="#75a93a"
+	 src-table="public.swiss_tournaments_players_points"
+	 dst-table="public.current_ranking"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_swiss_tournaments_players_points_swiss_tournaments" type="reltv" layers="0"
+	 custom-color="#11f843"
+	 src-table="public.swiss_tournaments_players_points"
+	 dst-table="public.swiss_tournaments"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_swiss_tournaments_players_points_tournaments_games" type="reltv" layers="0"
+	 custom-color="#059adc"
+	 src-table="public.swiss_tournaments_players_points"
+	 dst-table="public.tournaments_games"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_swiss_tournaments_players_points_tournaments_players" type="reltv" layers="0"
+	 custom-color="#3638fe"
+	 src-table="public.swiss_tournaments_players_points"
+	 dst-table="public.tournaments_players"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_swiss_tournaments_players_points_byes" type="reltv" layers="0"
+	 custom-color="#e5fed6"
+	 src-table="public.swiss_tournaments_players_points"
+	 dst-table="public.byes"
+	 src-required="false" dst-required="false"/>
+
+<view name="swiss_tournaments_round_standings" layers="0" collapse-mode="2" max-obj-count="2" z-value="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<position x="1800" y="1560"/>
+	<reference object="public.swiss_tournaments" type="table" ref-name="swiss_tournaments" use-signature="true"/>
+	<reference object="public.swiss_tournaments_players_points" type="view" ref-name="swiss_tournaments_players_points" use-signature="true"/>
+	<simplecol name="place" type="bigint"/>
+	<simplecol name="points" type="numeric"/>
+	<simplecol name="performance_rating" type="numeric"/>
+	<simplecol name="user_id_in_service" type="character varying"/>
+	<simplecol name="tournament_id" type="integer"/>
+	<simplecol name="round" type="integer"/>
+	<definition> <![CDATA[ SELECT row_number() OVER (PARTITION BY st.tournament_id, stpp.round ORDER BY stpp.points DESC, stpp.performance_rating DESC) AS place,
+    stpp.points,
+    stpp.performance_rating,
+    stpp.user_id_in_service,
+    st.tournament_id,
+    stpp.round
+   FROM (swiss_tournaments st
+     JOIN swiss_tournaments_players_points stpp ON ((st.tournament_id = stpp.tournament_id)))
+  ORDER BY (row_number() OVER (PARTITION BY st.tournament_id, stpp.round ORDER BY stpp.points DESC, stpp.performance_rating DESC));]]> </definition>
+</view>
+
+<relationship name="rel_swiss_tournaments_round_standings_swiss_tournaments" type="reltv" layers="0"
+	 custom-color="#2a6c0c"
+	 src-table="public.swiss_tournaments_round_standings"
+	 dst-table="public.swiss_tournaments"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_swiss_tournaments_round_standings_swiss_tournaments_players" type="reltv" layers="0"
+	 custom-color="#e1fa35"
+	 src-table="public.swiss_tournaments_round_standings"
+	 dst-table="public.swiss_tournaments_players_points"
+	 src-required="false" dst-required="false"/>
+
+<function name="check_tournament_validity"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="trigger" length="0"/>
+	</return-type>
+	<definition> <![CDATA[DECLARE
+    ranking_data RECORD;
+BEGIN
+    IF(NEW.is_ranked = FALSE) THEN RETURN NEW; END IF;
+    SELECT *
+    INTO ranking_data
+    FROM rankings r
+    WHERE r.id = NEW.ranking_id;
+    -- Check if tournament's time control is within the given rating
+    IF(verify_time_control(
+        NEW.time_control,
+        ranking_data.playtime_min,
+        ranking_data.playtime_max,
+        ranking_data.extra_move_multiplier
+    ) IS FALSE) THEN RAISE EXCEPTION 'Time control mismatch.'; END IF;
+    RETURN NEW;
+END;]]> </definition>
+</function>
+
+<trigger name="check_tournament_game_validity" firing-type="BEFORE" per-line="true" constraint="false"
+	 ins-event="true" del-event="false" upd-event="true" trunc-event="false"
+	 table="public.swiss_tournaments">
+		<function signature="public.check_tournament_validity()"/>
+</trigger>
+
+<function name="check_tournament_game_validity"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="trigger" length="0"/>
+	</return-type>
+	<definition> <![CDATA[DECLARE
+    tournament_data RECORD;
+    game_data RECORD;
+    white_player_id VARCHAR := NULL;
+    black_player_id VARCHAR := NULL;
+BEGIN
+    SELECT *
+    INTO tournament_data
+    FROM swiss_tournaments st
+    WHERE st.tournament_id = NEW.tournament_id;
+
+    IF(tournament_data IS NULL) THEN RAISE EXCEPTION 'Invalid tournament'; END IF;
+    IF(tournament_data.round_count < NEW.round) THEN RAISE EXCEPTION 'Round exceeds maximum defined by the tournament'; END IF;
+
+    SELECT *
+    INTO game_data
+    FROM service_games sg
+    WHERE sg.id = NEW.game_id AND sg.service_id = 1;
+
+    IF(game_data IS NULL) THEN RAISE EXCEPTION 'Game not found in local games.'; END IF;
+    IF(tournament_data.is_ranked != game_data.is_ranked) THEN RAISE EXCEPTION 'Game and tournament ranking mismatch'; END IF;
+    IF(tournament_data.starting_position != game_data.starting_position) THEN
+        RAISE EXCEPTION 'Game and tournament starting position mismatch. Tournament has % and game has %', tournament_data.starting_position, game_data.starting_position;
+    END IF;
+    IF((tournament_data.time_control)."starting_time" != (game_data.clock)."starting_time") THEN RAISE EXCEPTION 'Time control mismatch'; END IF;
+    IF((tournament_data.time_control)."move_increase" != (game_data.clock)."move_increase") THEN RAISE EXCEPTION 'Time control increment mismatch'; END IF;
+    white_player_id := (
+        SELECT sa.user_id_in_service
+        FROM service_accounts sa
+        WHERE sa.user_id_in_service = game_data.white_player AND sa.service_id = 1
+    );
+    black_player_id := (
+        SELECT sa.user_id_in_service
+        FROM service_accounts sa
+        WHERE sa.user_id_in_service = game_data.black_player AND sa.service_id = 1
+    );
+    IF(white_player_id IS NULL OR black_player_id IS NULL) THEN RAISE EXCEPTION 'Player not found among local accounts'; END IF;
+    IF NOT EXISTS (
+        SELECT tp.user_id_in_service
+        FROM tournaments_players tp
+        WHERE tp.user_id_in_service = white_player_id
+    ) THEN RAISE EXCEPTION 'White player does not participate in the tournament.'; END IF;
+    IF NOT EXISTS (
+        SELECT tp.user_id_in_service
+        FROM tournaments_players tp
+        WHERE tp.user_id_in_service = black_player_id
+    ) THEN RAISE EXCEPTION 'Black player does not participate in the tournament.'; END IF;
+    RETURN NEW;
+END;]]> </definition>
+</function>
+
+<trigger name="check_tournament_game_validity" firing-type="BEFORE" per-line="true" constraint="false"
+	 ins-event="true" del-event="false" upd-event="true" trunc-event="false"
+	 table="public.tournaments_games">
+		<function signature="public.check_tournament_game_validity()"/>
+</trigger>
+
+<function name="check_tournament_player_validity"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		parallel-type="PARALLEL UNSAFE"
+		execution-cost="100"
+		row-amount="0">
+	<schema name="public"/>
+	<role name="random_chess"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="trigger" length="0"/>
+	</return-type>
+	<definition> <![CDATA[DECLARE
+    player_data RECORD;
+    ranking_restriction RECORD;
+    games_restriction RECORD;
+    req_val INTEGER;
+BEGIN
+    SELECT *
+    INTO player_data
+    FROM service_accounts sa
+    WHERE sa.user_id_in_service=NEW.user_id_in_service AND sa.service_id = 1
+    LIMIT 1;
+    IF(player_data IS NULL) THEN RAISE EXCEPTION 'Player not found in local service accounts.'; END IF;
+    IF(player_data.is_bot) THEN RETURN NEW; END IF;
+
+    -- Check all requirements for ranking minimum
+    FOR ranking_restriction IN (SELECT * FROM tournaments_ranking_reqs trq WHERE NEW.tournament_id=trq.tournament_id) LOOP
+        req_val = (
+            SELECT rat.elo
+            FROM current_ranking rat
+            WHERE NEW.user_id_in_service=rat.user_id_in_service AND trq.ranking_type=rat.ranking_id
+        );
+        IF(req_val < trq.required_value) THEN RAISE EXCEPTION 'Could not join the tournament - rating too low.'; END IF;
+    END LOOP;
+
+    -- Check all requirements for ranked game minimum
+    FOR games_restriction IN (SELECT * FROM tournaments_ranked_games_reqs trgr WHERE NEW.tournament_id=trgr.tournament_id) LOOP
+        req_val = (
+            SELECT COUNT(*)
+            FROM elo_history eh
+            WHERE eh.user_id_in_service=NEW.user_id_in_service AND eh.ranking_id=trgr.ranking_id
+        );
+        IF(req_val < trq.game_count) THEN RAISE EXCEPTION 'Could not join tournament - not enough ranked games.'; END IF;
+    END LOOP;
+    RETURN NEW;
+END;]]> </definition>
+</function>
+
+<trigger name="check_tournament_player_validity" firing-type="BEFORE" per-line="true" constraint="false"
+	 ins-event="true" del-event="false" upd-event="true" trunc-event="false"
+	 table="public.tournaments_players">
+		<function signature="public.check_tournament_player_validity()"/>
+</trigger>
+
+<index name="idx_sg_service_id_black" table="public.service_games"
+	 concurrent="false" unique="false" fast-update="false" buffering="false" nulls-not-distinct="false"
+	 index-type="btree" factor="90">
+		<idxelement use-sorting="false">
+			<column name="service_id"/>
+		</idxelement>
+		<idxelement use-sorting="false">
+			<column name="black_player"/>
+		</idxelement>
+</index>
+
+<index name="idx_sg_service_id_white" table="public.service_games"
+	 concurrent="false" unique="false" fast-update="false" buffering="false" nulls-not-distinct="false"
+	 index-type="btree" factor="90">
+		<idxelement use-sorting="false">
+			<column name="service_id"/>
+		</idxelement>
+		<idxelement use-sorting="false">
+			<column name="white_player"/>
+		</idxelement>
+</index>
+
+<index name="idx_sg_service_id_date_id" table="public.service_games"
+	 concurrent="false" unique="false" fast-update="false" buffering="false" nulls-not-distinct="false"
+	 index-type="btree" factor="90">
+		<idxelement use-sorting="false">
+			<column name="service_id"/>
+		</idxelement>
+		<idxelement use-sorting="true" nulls-first="true" asc-order="false">
+			<column name="creation_date"/>
+		</idxelement>
+		<idxelement use-sorting="true" nulls-first="true" asc-order="false">
+			<column name="id"/>
+		</idxelement>
+</index>
+
+<index name="idx_pgn_owner_date_id" table="public.pgn_games"
+	 concurrent="false" unique="false" fast-update="false" buffering="false" nulls-not-distinct="false"
+	 index-type="btree" factor="90">
+		<idxelement use-sorting="false">
+			<column name="owner_id"/>
+		</idxelement>
+		<idxelement use-sorting="true" nulls-first="true" asc-order="false">
+			<column name="creation_date"/>
+		</idxelement>
+		<idxelement use-sorting="true" nulls-first="true" asc-order="false">
+			<column name="id"/>
+		</idxelement>
+</index>
+
+<index name="idx_pgn_by_owner" table="public.pgn_games"
+	 concurrent="false" unique="false" fast-update="false" buffering="false" nulls-not-distinct="false"
+	 index-type="btree" factor="90">
+		<idxelement use-sorting="false">
+			<column name="owner_id"/>
+		</idxelement>
+</index>
+
+<index name="idx_eh_game_id_service_id" table="public.elo_history"
+	 concurrent="false" unique="false" fast-update="false" buffering="false" nulls-not-distinct="false"
+	 index-type="btree" factor="90">
+		<idxelement use-sorting="false">
+			<column name="game_id"/>
+		</idxelement>
+		<idxelement use-sorting="false">
+			<column name="service_id"/>
+		</idxelement>
+</index>
+
+<index name="idx_sa_user_service" table="public.service_accounts"
+	 concurrent="false" unique="false" fast-update="false" buffering="false" nulls-not-distinct="false"
+	 index-type="btree" factor="90">
+		<idxelement use-sorting="false">
+			<column name="user_id"/>
+		</idxelement>
+		<idxelement use-sorting="false">
+			<column name="service_id"/>
+		</idxelement>
+</index>
+
+<index name="idx_sa_user_service_id" table="public.service_accounts"
+	 concurrent="false" unique="false" fast-update="false" buffering="false" nulls-not-distinct="false"
+	 index-type="btree" factor="90">
+		<idxelement use-sorting="false">
+			<column name="user_id"/>
+		</idxelement>
+		<idxelement use-sorting="false">
+			<column name="service_id"/>
+		</idxelement>
+		<idxelement use-sorting="false">
+			<column name="user_id_in_service"/>
+		</idxelement>
+</index>
+
+<relationship name="rel_games_openings_openings" type="reltv" layers="0"
+	 src-table="public.games_openings"
+	 dst-table="public.openings"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_current_ranking_rankings" type="reltv" layers="0"
+	 src-table="public.current_ranking"
+	 dst-table="public.rankings"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_current_ranking_elo_history" type="reltv" layers="0"
+	 src-table="public.current_ranking"
+	 dst-table="public.elo_history"
+	 src-required="false" dst-required="false"/>
 
 <constraint name="service_accounts_user_id_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
-	 upd-action="NO ACTION" del-action="SET NULL" ref-table="​.users" table="​.service_accounts">
+	 upd-action="NO ACTION" del-action="SET NULL" ref-table="public.users" table="public.service_accounts">
 	<columns names="user_id" ref-type="src-columns"/>
 	<columns names="id" ref-type="dst-columns"/>
 </constraint>
 
 <constraint name="service_accounts_service_id_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
-	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="​.game_services" table="​.service_accounts">
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.game_services" table="public.service_accounts">
 	<columns names="service_id" ref-type="src-columns"/>
 	<columns names="id" ref-type="dst-columns"/>
 </constraint>
 
 <constraint name="service_games_service_id_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
-	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="​.game_services" table="​.service_games">
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.game_services" table="public.service_games">
 	<columns names="service_id" ref-type="src-columns"/>
 	<columns names="id" ref-type="dst-columns"/>
 </constraint>
 
 <constraint name="service_games_service_id_white_player_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
-	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="​.service_accounts" table="​.service_games">
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.service_accounts" table="public.service_games">
 	<columns names="service_id,white_player" ref-type="src-columns"/>
 	<columns names="service_id,user_id_in_service" ref-type="dst-columns"/>
 </constraint>
 
 <constraint name="service_games_service_id_black_player_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
-	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="​.service_accounts" table="​.service_games">
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.service_accounts" table="public.service_games">
 	<columns names="service_id,black_player" ref-type="src-columns"/>
 	<columns names="service_id,user_id_in_service" ref-type="dst-columns"/>
 </constraint>
 
 <constraint name="pgn_games_owner_id_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
-	 upd-action="NO ACTION" del-action="CASCADE" ref-table="​.users" table="​.pgn_games">
+	 upd-action="NO ACTION" del-action="CASCADE" ref-table="public.users" table="public.pgn_games">
 	<columns names="owner_id" ref-type="src-columns"/>
 	<columns names="id" ref-type="dst-columns"/>
 </constraint>
 
+<constraint name="elo_history_service_id_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.game_services" table="public.elo_history">
+	<columns names="service_id" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="elo_history_ranking_id_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.rankings" table="public.elo_history">
+	<columns names="ranking_id" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="elo_history_game_id_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.service_games" table="public.elo_history">
+	<columns names="game_id" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="elo_history_service_id_user_id_in_service_ranking_id_previ_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.elo_history" table="public.elo_history">
+	<columns names="service_id,user_id_in_service,ranking_id,previous_entry" ref-type="src-columns"/>
+	<columns names="service_id,user_id_in_service,ranking_id,id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="elo_history_service_id_user_id_in_service_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.service_accounts" table="public.elo_history">
+	<columns names="service_id,user_id_in_service" ref-type="src-columns"/>
+	<columns names="service_id,user_id_in_service" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="swiss_tournaments_ranking_id_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.rankings" table="public.swiss_tournaments">
+	<columns names="ranking_id" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="tournaments_games_tournament_id_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="CASCADE" ref-table="public.swiss_tournaments" table="public.tournaments_games">
+	<columns names="tournament_id" ref-type="src-columns"/>
+	<columns names="tournament_id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="tournaments_games_game_id_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.service_games" table="public.tournaments_games">
+	<columns names="game_id" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="tournaments_players_service_id_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.game_services" table="public.tournaments_players">
+	<columns names="service_id" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="tournaments_players_tournament_id_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="CASCADE" ref-table="public.swiss_tournaments" table="public.tournaments_players">
+	<columns names="tournament_id" ref-type="src-columns"/>
+	<columns names="tournament_id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="tournaments_players_service_id_user_id_in_service_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.service_accounts" table="public.tournaments_players">
+	<columns names="service_id,user_id_in_service" ref-type="src-columns"/>
+	<columns names="service_id,user_id_in_service" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="byes_tournament_id_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="CASCADE" ref-table="public.swiss_tournaments" table="public.byes">
+	<columns names="tournament_id" ref-type="src-columns"/>
+	<columns names="tournament_id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="byes_tournament_id_user_id_in_service_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.tournaments_players" table="public.byes">
+	<columns names="tournament_id,user_id_in_service" ref-type="src-columns"/>
+	<columns names="tournament_id,user_id_in_service" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="tournaments_ranking_reqs_tournament_id_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="CASCADE" ref-table="public.swiss_tournaments" table="public.tournaments_ranking_reqs">
+	<columns names="tournament_id" ref-type="src-columns"/>
+	<columns names="tournament_id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="tournaments_ranking_reqs_ranking_type_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="CASCADE" ref-table="public.rankings" table="public.tournaments_ranking_reqs">
+	<columns names="ranking_type" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="tournaments_ranked_games_reqs_tournament_id_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="CASCADE" ref-table="public.swiss_tournaments" table="public.tournaments_ranked_games_reqs">
+	<columns names="tournament_id" ref-type="src-columns"/>
+	<columns names="tournament_id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="tournaments_ranked_games_reqs_ranking_type_fkey" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.rankings" table="public.tournaments_ranked_games_reqs">
+	<columns names="ranking_type" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
 <relationship name="rel_service_accounts_users" type="relfk" layers="0"
-	 custom-color="#3739cc"
-	 src-table="​.service_accounts"
-	 dst-table="​.users" reference-fk="service_accounts_user_id_fkey"
+	 custom-color="#ef6e44"
+	 src-table="public.service_accounts"
+	 dst-table="public.users" reference-fk="service_accounts_user_id_fkey"
 	 src-required="false" dst-required="false">
 	<label ref-type="src-label">
-		<position x="-207" y="-3.3"/>
+		<position x="93" y="1676.7"/>
 	</label>
 	<label ref-type="dst-label">
-		<position x="-287" y="-163.3"/>
-	</label>
-	<label ref-type="name-label">
-		<position x="-219.795" y="-116.191"/>
+		<position x="13" y="1836.7"/>
 	</label>
 </relationship>
 
 <relationship name="rel_service_accounts_game_services" type="relfk" layers="0"
-	 custom-color="#38d1ac"
-	 src-table="​.service_accounts"
-	 dst-table="​.game_services" reference-fk="service_accounts_service_id_fkey"
+	 custom-color="#ad8f9b"
+	 src-table="public.service_accounts"
+	 dst-table="public.game_services" reference-fk="service_accounts_service_id_fkey"
 	 src-required="false" dst-required="true">
 	<label ref-type="src-label">
-		<position x="-207" y="94.1"/>
+		<position x="73" y="1654.1"/>
 	</label>
 	<label ref-type="dst-label">
-		<position x="-87" y="-243.3"/>
-	</label>
-	<label ref-type="name-label">
-		<position x="-273.795" y="-47.491"/>
+		<position x="93" y="1336.7"/>
 	</label>
 </relationship>
 
 <relationship name="rel_service_games_game_services" type="relfk" layers="0"
-	 custom-color="#0d878a"
-	 src-table="​.service_games"
-	 dst-table="​.game_services" reference-fk="service_games_service_id_fkey"
+	 custom-color="#e848fe"
+	 src-table="public.service_games"
+	 dst-table="public.game_services" reference-fk="service_games_service_id_fkey"
 	 src-required="false" dst-required="true">
 	<label ref-type="src-label">
-		<position x="-167" y="223.7"/>
+		<position x="-967" y="473.3"/>
 	</label>
 	<label ref-type="dst-label">
-		<position x="-190.871" y="-263.3"/>
-	</label>
-	<label ref-type="name-label">
-		<position x="196.269" y="-672.691"/>
+		<position x="-610.871" y="-263.3"/>
 	</label>
 </relationship>
 
 <relationship name="rel_service_games_service_accounts" type="relfk" layers="0"
-	 custom-color="#f17591"
-	 src-table="​.service_games"
-	 dst-table="​.service_accounts" reference-fk="service_games_service_id_white_player_fkey"
+	 custom-color="#962457"
+	 src-table="public.service_games"
+	 dst-table="public.service_accounts" reference-fk="service_games_service_id_white_player_fkey"
 	 src-required="false" dst-required="true">
 	<label ref-type="src-label">
-		<position x="-187" y="226.75"/>
+		<position x="-1027" y="476.35"/>
 	</label>
 	<label ref-type="dst-label">
-		<position x="63.8477" y="-597.2"/>
-	</label>
-	<label ref-type="name-label">
-		<position x="-9.87167" y="821.884"/>
+		<position x="-736.152" y="22.8"/>
 	</label>
 </relationship>
 
 <relationship name="rel_service_games_service_accounts1" type="relfk" layers="0"
-	 custom-color="#58df66"
-	 src-table="​.service_games"
-	 dst-table="​.service_accounts" reference-fk="service_games_service_id_black_player_fkey"
+	 custom-color="#b37d5e"
+	 src-table="public.service_games"
+	 dst-table="public.service_accounts" reference-fk="service_games_service_id_black_player_fkey"
 	 src-required="false" dst-required="true">
 	<label ref-type="src-label">
-		<position x="-227" y="206.75"/>
+		<position x="-987" y="516.35"/>
 	</label>
 	<label ref-type="dst-label">
-		<position x="103.848" y="-557.2"/>
-	</label>
-	<label ref-type="name-label">
-		<position x="73.6283" y="861.884"/>
+		<position x="-736.152" y="-17.2"/>
 	</label>
 </relationship>
 
 <relationship name="rel_pgn_games_users" type="relfk" layers="0"
-	 custom-color="#0df3ce"
-	 src-table="​.pgn_games"
-	 dst-table="​.users" reference-fk="pgn_games_owner_id_fkey"
+	 custom-color="#1a9ec3"
+	 src-table="public.pgn_games"
+	 dst-table="public.users" reference-fk="pgn_games_owner_id_fkey"
 	 src-required="false" dst-required="true">
 	<label ref-type="src-label">
-		<position x="-47" y="406.3"/>
+		<position x="-1027" y="1515.9"/>
 	</label>
 	<label ref-type="dst-label">
-		<position x="-16.2898" y="536.7"/>
+		<position x="-696.29" y="196.7"/>
 	</label>
-	<label ref-type="name-label">
-		<position x="1029.06" y="678.609"/>
+</relationship>
+
+<relationship name="rel_elo_history_game_services" type="relfk" layers="0"
+	 custom-color="#f3abd6"
+	 src-table="public.elo_history"
+	 dst-table="public.game_services" reference-fk="elo_history_service_id_fkey"
+	 src-required="false" dst-required="true">
+	<label ref-type="src-label">
+		<position x="-367" y="774.1"/>
+	</label>
+	<label ref-type="dst-label">
+		<position x="-650.871" y="-283.3"/>
+	</label>
+</relationship>
+
+<relationship name="rel_elo_history_rankings" type="relfk" layers="0"
+	 custom-color="#1739d3"
+	 src-table="public.elo_history"
+	 dst-table="public.rankings" reference-fk="elo_history_ranking_id_fkey"
+	 src-required="false" dst-required="true">
+	<label ref-type="src-label">
+		<position x="-768.937" y="768.9"/>
+	</label>
+	<label ref-type="dst-label">
+		<position x="-1047" y="876.7"/>
+	</label>
+</relationship>
+
+<relationship name="rel_elo_history_service_games" type="relfk" layers="0"
+	 custom-color="#4b4978"
+	 src-table="public.elo_history"
+	 dst-table="public.service_games" reference-fk="elo_history_game_id_fkey"
+	 src-required="false" dst-required="true">
+	<label ref-type="src-label">
+		<position x="-748.937" y="686.3"/>
+	</label>
+	<label ref-type="dst-label">
+		<position x="-1484.75" y="736.7"/>
+	</label>
+</relationship>
+
+<relationship name="rel_elo_history_elo_history" type="relfk" layers="0"
+	 custom-color="#075651"
+	 src-table="public.elo_history"
+	 dst-table="public.elo_history" reference-fk="elo_history_service_id_user_id_in_service_ranking_id_previ_fkey"
+	 src-required="false" dst-required="true">
+	<line>
+		<position x="-33.0633" y="1648.37"/>
+	<position x="-33.0633" y="1558"/>
+	<position x="-176.709" y="1558"/>
+	</line>
+	<label ref-type="src-label">
+		<position x="-709.937" y="806.625"/>
+	</label>
+	<label ref-type="dst-label">
+		<position x="-648.291" y="875"/>
+	</label>
+</relationship>
+
+<relationship name="rel_elo_history_service_accounts" type="relfk" layers="0"
+	 custom-color="#5f8a87"
+	 src-table="public.elo_history"
+	 dst-table="public.service_accounts" reference-fk="elo_history_service_id_user_id_in_service_fkey"
+	 src-required="false" dst-required="true">
+	<label ref-type="src-label">
+		<position x="-447" y="822.8"/>
+	</label>
+	<label ref-type="dst-label">
+		<position x="-756.152" y="22.8"/>
+	</label>
+</relationship>
+
+<relationship name="rel_swiss_tournaments_rankings" type="relfk" layers="0"
+	 custom-color="#ab47ec"
+	 src-table="public.swiss_tournaments"
+	 dst-table="public.rankings" reference-fk="swiss_tournaments_ranking_id_fkey"
+	 src-required="false" dst-required="false">
+	<label ref-type="src-label">
+		<position x="-687" y="1166.3"/>
+	</label>
+	<label ref-type="dst-label">
+		<position x="60.1477" y="796.7"/>
+	</label>
+</relationship>
+
+<relationship name="rel_tournaments_games_swiss_tournaments" type="relfk" layers="0"
+	 custom-color="#b3ad21"
+	 src-table="public.tournaments_games"
+	 dst-table="public.swiss_tournaments" reference-fk="tournaments_games_tournament_id_fkey"
+	 src-required="false" dst-required="true">
+	<label ref-type="src-label">
+		<position x="767.987" y="-1023.3"/>
+	</label>
+	<label ref-type="dst-label">
+		<position x="-724.446" y="1136.7"/>
+	</label>
+</relationship>
+
+<relationship name="rel_tournaments_games_service_games" type="relfk" layers="0"
+	 custom-color="#4d71fd"
+	 src-table="public.tournaments_games"
+	 dst-table="public.service_games" reference-fk="tournaments_games_game_id_fkey"
+	 src-required="false" dst-required="true">
+	<label ref-type="src-label">
+		<position x="-2267" y="-225.9"/>
+	</label>
+	<label ref-type="dst-label">
+		<position x="-1424.75" y="676.7"/>
+	</label>
+</relationship>
+
+<relationship name="rel_tournaments_players_game_services" type="relfk" layers="0"
+	 custom-color="#458bfa"
+	 src-table="public.tournaments_players"
+	 dst-table="public.game_services" reference-fk="tournaments_players_service_id_fkey"
+	 src-required="false" dst-required="true">
+	<label ref-type="src-label">
+		<position x="-1747" y="-503.3"/>
+	</label>
+	<label ref-type="dst-label">
+		<position x="-630.871" y="-303.3"/>
+	</label>
+</relationship>
+
+<relationship name="rel_tournaments_players_swiss_tournaments" type="relfk" layers="0"
+	 custom-color="#259cec"
+	 src-table="public.tournaments_players"
+	 dst-table="public.swiss_tournaments" reference-fk="tournaments_players_tournament_id_fkey"
+	 src-required="false" dst-required="true">
+	<label ref-type="src-label">
+		<position x="-288.937" y="994.1"/>
+	</label>
+	<label ref-type="dst-label">
+		<position x="373" y="-1323.3"/>
+	</label>
+</relationship>
+
+<relationship name="rel_tournaments_players_service_accounts" type="relfk" layers="0"
+	 custom-color="#95dcb5"
+	 src-table="public.tournaments_players"
+	 dst-table="public.service_accounts" reference-fk="tournaments_players_service_id_user_id_in_service_fkey"
+	 src-required="false" dst-required="true">
+	<label ref-type="src-label">
+		<position x="-1707" y="-485.9"/>
+	</label>
+	<label ref-type="dst-label">
+		<position x="-736.152" y="2.8"/>
+	</label>
+</relationship>
+
+<relationship name="rel_byes_swiss_tournaments" type="relfk" layers="0"
+	 custom-color="#0832a8"
+	 src-table="public.byes"
+	 dst-table="public.swiss_tournaments" reference-fk="byes_tournament_id_fkey"
+	 src-required="false" dst-required="true">
+	<label ref-type="src-label">
+		<position x="-407" y="836.7"/>
+	</label>
+	<label ref-type="dst-label">
+		<position x="453" y="-1283.3"/>
+	</label>
+</relationship>
+
+<relationship name="rel_byes_tournaments_players" type="relfk" layers="0"
+	 custom-color="#2b5cc0"
+	 src-table="public.byes"
+	 dst-table="public.tournaments_players" reference-fk="byes_tournament_id_user_id_in_service_fkey"
+	 src-required="false" dst-required="true">
+	<label ref-type="src-label">
+		<position x="-387" y="814.1"/>
+	</label>
+	<label ref-type="dst-label">
+		<position x="-268.937" y="1042.8"/>
+	</label>
+</relationship>
+
+<relationship name="rel_tournaments_ranking_reqs_swiss_tournaments" type="relfk" layers="0"
+	 custom-color="#ebbb4d"
+	 src-table="public.tournaments_ranking_reqs"
+	 dst-table="public.swiss_tournaments" reference-fk="tournaments_ranking_reqs_tournament_id_fkey"
+	 src-required="false" dst-required="true">
+	<label ref-type="src-label">
+		<position x="393" y="-1163.3"/>
+	</label>
+	<label ref-type="dst-label">
+		<position x="-704.446" y="1076.7"/>
+	</label>
+</relationship>
+
+<relationship name="rel_tournaments_ranking_reqs_rankings" type="relfk" layers="0"
+	 custom-color="#1edb1b"
+	 src-table="public.tournaments_ranking_reqs"
+	 dst-table="public.rankings" reference-fk="tournaments_ranking_reqs_ranking_type_fkey"
+	 src-required="false" dst-required="true">
+	<label ref-type="src-label">
+		<position x="413" y="-1185.9"/>
+	</label>
+	<label ref-type="dst-label">
+		<position x="20.1477" y="796.7"/>
+	</label>
+</relationship>
+
+<relationship name="rel_tournaments_ranked_games_reqs_swiss_tournaments" type="relfk" layers="0"
+	 custom-color="#675222"
+	 src-table="public.tournaments_ranked_games_reqs"
+	 dst-table="public.swiss_tournaments" reference-fk="tournaments_ranked_games_reqs_tournament_id_fkey"
+	 src-required="false" dst-required="true">
+	<label ref-type="src-label">
+		<position x="-827" y="556.7"/>
+	</label>
+	<label ref-type="dst-label">
+		<position x="-684.446" y="1096.7"/>
+	</label>
+</relationship>
+
+<relationship name="rel_tournaments_ranked_games_reqs_rankings" type="relfk" layers="0"
+	 custom-color="#7086b6"
+	 src-table="public.tournaments_ranked_games_reqs"
+	 dst-table="public.rankings" reference-fk="tournaments_ranked_games_reqs_ranking_type_fkey"
+	 src-required="false" dst-required="true">
+	<label ref-type="src-label">
+		<position x="-887" y="554.1"/>
+	</label>
+	<label ref-type="dst-label">
+		<position x="-1679.85" y="-763.3"/>
 	</label>
 </relationship>
 
