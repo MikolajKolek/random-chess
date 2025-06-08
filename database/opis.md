@@ -23,7 +23,7 @@ Projekt ***Random Chess*** został stworzony w celu ogranizacji treningu szachow
 
 ### game_result
 
-Domena `game_result` na typie `game_result_type` przechowuje informacje o rozstrzygnięciu partii oraz o powodzie zakończenia gry, np. `(1-0,TIMEOUT)` lub '(1/2-1/2,FIFTY_MOVE_RULE)'
+Domena `game_result` na typie `game_result_type` przechowuje informacje o rozstrzygnięciu partii oraz o powodzie zakończenia gry, np. `(1-0,TIMEOUT)` lub `(1/2-1/2,FIFTY_MOVE_RULE)`
 
 ### clock_settings
 
@@ -126,7 +126,7 @@ Klucze podstawowe **`id`** w `service_games` i `pgn_games` mogą się powtarzać
 
 Jako że wszystkie partie posiadają duże przecięcie, niezależnie od źródła, wiele pól występuje zarówno w tabeli `service_games` jak i w `pgn_games`.
 
-Kolumna `moves` przechowuje ruchy graczy w partii w postaci [PGN](https://pl.wikipedia.org/wiki/Portable_Game_Notation), bez metadanych.
+Kolumna `moves` przechowuje ruchy graczy w partii w postaci długiej algebraicznej.
 
 Kolumna `starting_position` przetrzymuje pierwsze 4 pola formatu [FEN](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation).
 
@@ -185,11 +185,9 @@ Pole `is_ranked` (fałszywe dla gier spoza naszego serwisu) opisuje, czy dana ro
 | `include_bots`          | BOOLEAN  | NOT NULL             |
 | `k_factor`              | NUMERIC  | NOT NULL             |
 
-Tabela opisująca rankingi.
-
 Wartości `playtime_min`, `playtime_max`, `extra_move_multiplier` determinują, czy dana gra może zaliczać się w dany ranking (określają "widełki").
 
-`include_bots` opisuje, czy boty mogą posiadać wartości w tym rankingu.
+`include_bots` opisuje, czy boty mogą mieć wartości w tym rankingu.
 
 `starting_elo` to wartość początkowa przyporządkowywana zawodnikom w danym rankingu.
 
@@ -213,9 +211,9 @@ Tabela ta w naturalny sposób tworzy historię zmian rankingów ELO dla lokalnyc
 `service_id` wraz z `user_id_in_service` tworzą klucz obcy na tabelę `service_accounts`.
 `ranking_id` wskazuje podobnie na ranking, w którym zmiana się dokonała, a `game_id` wskazuje na grę, która była powodem tej zmiany.
 
-`elo` opisuje nową wartość rankingu, a `previous_entry` wskazuje na poprzednią zmianę tego rankingu.
+`elo` opisuje nową wartość rankingu, a `previous_entry` wskazuje na poprzednią zmianę tego rankingu dla danego gracza.
 
-Podczas dodawania wartości do tej tabeli upewniamy się, krotki w tabeli nie wystąpią wielokrotnie w tabeli oraz że każda gra może wpłynąć na ELO danego gracza tylko raz.
+Podczas dodawania wartości do tej tabeli upewniamy się, że każda gra może wpłynąć na ELO danego gracza tylko raz.
 
 ### swiss\_tournaments
 
@@ -228,7 +226,7 @@ Podczas dodawania wartości do tej tabeli upewniamy się, krotki w tabeli nie wy
 | `ranking_id`        | INTEGER         | NULL REFERENCES rankings(id) |
 | `time_control`      | CLOCK_SETTINGS  | NOT NULL                     |
 
-`round_count` to informacja o maksymalnej liczbie rund, w jakiej rozgrywany jest dany turniej-wartość charakterystyczna dla turniejów w systemie szwajcarskim.
+`round_count` to informacja o maksymalnej liczbie rund, w jakiej rozgrywany jest dany turniej - wartość charakterystyczna dla turniejów w systemie szwajcarskim.
 
 `starting_position` to wartość startowej pozycji obowiązująca wszystkie rozgrywki zaliczane do danego turnieju, podobnie jak `time_control` zadaje wymaganie o konkretnym tempie rozgrywki.
 
@@ -244,7 +242,7 @@ Podczas dodawania wartości do tej tabeli upewniamy się, krotki w tabeli nie wy
 | `game_id`       | INT | NOT NULL RERERENCES service_games(id)                |
 | `round`         | INT | NOT NULL                                             |
 
-Tabela ta łączy turnieje z zarejestrowanymi dla niego partiami. Zaimpelementowane triggery i checki zapewniają, że rozgrywka zgodna jest z wymaganiami zapewnionymi przez turnieju oraz że gracze są w turnieju zarejestrowani.
+Tabela ta łączy turnieje z zarejestrowanymi dla niego partiami. Zaimpelementowane triggery i checki zapewniają, że rozgrywka zgodna jest z wymaganiami zapewnionymi przez turniej oraz że gracze są w turnieju zarejestrowani.
 
 Nałożona na kolumnę `tournament_id` klauzula `ON DELETE CASCADE` zapewnia, że gra zostanie usunięta z tego rejestru, gdy zostanie usunięty jej turniej.
 
@@ -325,7 +323,7 @@ Podobnie jak inne wpisy łączące się z danym turniejem, wpisy z tej tabeli ta
 
 Widok `games` jest UNION `service_games` i `pgn_games`. `kind` jest równy `'service'` dla partii pochodzących z `service_games` i `'pgn'` dla partii pochodzących z `'pgn_games'`. `id` nie jest unikatowe dla wszystkich jego elementów, ale para `(id, kind)` już jest.
 
-W szczególności, wartości unikalne dla jednego z tych rodzajów są puste dla wartości pochodzących z drugiego.
+W szczególności, wartości unikalne dla jednego z tych rodzajów są `NULL` dla wierszy pochodzących z drugiego.
 
 ### users\_games
 
@@ -339,7 +337,7 @@ W szczególności, wartości unikalne dla jednego z tych rodzajów są puste dla
 | `result`               | GAME_RESULT  | NOT NULL                                           |
 | `metadata`             | JSOB         | NULL                                               |
 
-Widok ten łączy użytkowników z rozegranymi przez nich grami-tutaj także znajduje się pole `kind` oznaczające źródło pochodzenia partii.
+Widok ten łączy użytkowników z posiadanymi przez nich grami - tutaj także znajduje się pole `kind` oznaczające źródło pochodzenia partii. Gra jest posiadana przez użytkownika, gdy jest ona grą PGN i jest on oznaczony jako jej właściciel, lub jest ona grą serwisową i jego service_account jest jedną z jej stron.
 Podobnie jak wcześniej, para (`game_id`,`kind`) jest unikalna, mimo że żadna z tych wartości pojedynczo niekoniecznie musi taka być.
 
 ### games\_openings
@@ -353,47 +351,42 @@ Podobnie jak wcześniej, para (`game_id`,`kind`) jest unikalna, mimo że żadna 
 | `move_no`    | VARCHAR | NULL                           |
 
 Widok ten łączy wszystkie gry z ich debiutami przy pomocy funkcji. Tam, gdzie wykrycie debiutu jest możliwe (istnieje jakikolwiek wpis w bazie, który można dopasować), tam wartość `opening_id` wskazuje na odpowiedni wpis.
-Dodatkowo, kolumna `move_no` trzyma informację o tym, w którym ruchu dany debiut został wykryty.
+Dodatkowo kolumna `move_no` trzyma informację o tym, w którym ruchu dany debiut został wykryty.
 
 ### games\_rankings
 
 
 
--- Table mapping games from service_games to the rankings in which the game is rated
-CREATE VIEW games_rankings AS
-SELECT
-"service_games"."id" AS "game_id",
-"rankings"."id" AS "ranking_id"
-FROM "service_games"
-INNER JOIN "service_accounts" white_accounts ON (
-white_accounts."service_id" = "service_games"."service_id" AND
-white_accounts."user_id_in_service" = "service_games"."white_player"
-)
-INNER JOIN "service_accounts" black_accounts ON (
-black_accounts."service_id" = "service_games"."service_id" AND
-black_accounts."user_id_in_service" = "service_games"."black_player"
-)
-CROSS JOIN "rankings"
-WHERE
-"service_games"."is_ranked" AND
-verify_time_control(
-"service_games"."clock",
-"rankings"."playtime_min",
-"rankings"."playtime_max",
-"rankings"."extra_move_multiplier"
-) AND
-(
-"rankings"."include_bots" OR
-(white_accounts."is_bot" = FALSE AND black_accounts."is_bot" = FALSE)
-)
-;
+| Pole         | Typ | Dodatkowe informacje              |
+|--------------|-----|-----------------------------------|
+| `game_id`    | INT | NOT NULL, dotyczy `service_games` |
+| `ranking_id` | INT | NOT NULL, dotyczy `rankings`      |
+
+Widok `games_rankings` łączy grę z wszystkimi rankingami, na które wpływa. Robi to, sprawdzając,
+czy ustawienia zegara gry są zgodne z ustawieniami rankingu, oraz, jeśli jedną ze stron gry jest bot,
+czy ranking pozwala na boty.
 
 ### current\_ranking
 
-CREATE VIEW current_ranking AS(
-SELECT *
-FROM ranking_at_timestamp(CURRENT_TIMESTAMP)
-);
+| Pole                 | Typ     | Dodatkowe informacje                 |
+|----------------------|---------|--------------------------------------|
+| `service_id`         | INT     | NOT NULL, dotyczy `service_accounts` |
+| `user_id_in_service` | INT     | NOT NULL, dotyczy `service_accounts` |
+| `ranking_id`         | INT     | NOT NULL, dotyczy `rankings`         |
+| `elo`                | NUMERIC | NOT NULL                             |
+| `elo_history_id`     | INT     | NOT NULL, dotyczy `elo_history`      |
+
+Widok `current_ranking` pozwala zobaczyć na obecne stany rankingów wszystkich graczy. Dla danego
+`service_id`, `user_id_in_service` oraz `ranking_id` znajduje się tam krotka pokazująca obecny stan 
+rankingu dla danego konta.
+
+Jeśli dane konto nie może brać udziału w danym rankingu (np. ponieważ jest botem i ranking nie
+pozwala na udział botów), widok ten nie będzie posiadał dla niego krotki. Jeśli za to może brać
+w nim udział, tylko jeszcze nie rozegrał partii, to widok będzie zawierał wartość z `elo` równym
+`starting_elo`.
+
+`elo_history_id` wskazuje na odpowiednią wartość w `elo_history`, żeby np. można było poprzez
+`previous_entry` zobaczyć poprzednią wartość elo.
 
 ### tournaments\_reqs
 
