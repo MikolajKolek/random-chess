@@ -60,13 +60,13 @@ compose.desktop {
             packageVersion = "1.0.0"
 
             linux {
-                iconFile.set(project.file("launcher_icon/icon.png"))
+                iconFile.set(project.file("launcher_icon/launcher_icon.png"))
             }
             windows {
-                iconFile.set(project.file("launcher_icon/icon.ico"))
+                iconFile.set(project.file("launcher_icon/launcher_icon.ico"))
             }
             macOS {
-                iconFile.set(project.file("launcher_icon/icon.icns"))
+                iconFile.set(project.file("launcher_icon/launcher_icon.icns"))
             }
 
             modules("java.instrument", "java.naming", "jdk.unsupported", "java.sql")

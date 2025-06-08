@@ -2,6 +2,7 @@ package pl.edu.uj.tcs.rchess.view.game
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
@@ -22,6 +23,7 @@ import java.awt.Dimension
 @Composable
 fun GameWindow(
     game: ApiGame,
+    icon: Painter,
     onCloseRequest: () -> Unit,
     onFinish: (historyGame: HistoryGame) -> Unit,
     onSelectRanking: (rankingId: Int) -> Unit,
@@ -76,6 +78,7 @@ fun GameWindow(
             is HistoryGame -> "Random Chess history game"
             is LiveGame -> "Random Chess live game"
         },
+        icon = icon,
         state = rememberWindowState(
             placement = WindowPlacement.Maximized,
             size = DpSize(1200.dp, 800.dp)
