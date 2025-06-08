@@ -1012,7 +1012,7 @@ CREATE TABLE "tournaments_players"
 
 CREATE TABLE "byes"
 (
-    "tournament_id"         INTEGER     NOT NULL            REFERENCES swiss_tournaments(tournament_id),
+    "tournament_id"         INTEGER     NOT NULL            REFERENCES swiss_tournaments(tournament_id) ON DELETE CASCADE,
     "round"                 INTEGER     NOT NULL            CHECK ( round > 0 ),
     "user_id_in_service"    VARCHAR     NOT NULL,
     FOREIGN KEY ("tournament_id", "user_id_in_service")
