@@ -37,10 +37,12 @@ fun RankingListItem(
 
     Card(
         modifier = Modifier.then(modifier),
-        colors = CardDefaults.cardColors()
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+        )
             .runIf(selected) {
                 copy(
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
                 )
             }
     ) {

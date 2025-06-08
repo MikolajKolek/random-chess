@@ -65,9 +65,9 @@ fun RandomChessTheme(
 
         surfaceContainerLowest  = Color(0xFFEDEBEC),
         surfaceContainerLow     = Color(0xFFEDEBEC),
-        surfaceContainer        = Color(0xFFEDEBEC),
-        surfaceContainerHigh    = Color(0xFFEDEBEC),
-        surfaceContainerHighest = Color(0xFFEDEBEC),
+        surfaceContainer        = Color(0xFFECEAEB),
+        surfaceContainerHigh    = Color(0xFFE7E5E6),
+        surfaceContainerHighest = Color(0xFFE2DFE0),
     )
 
     MaterialTheme(

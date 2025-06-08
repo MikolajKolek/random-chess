@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RichTooltip
@@ -45,6 +46,9 @@ fun GameHistoryItem(
     Card(
         modifier = modifier,
         onClick = onClick,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+        ),
     ) {
         Row(
             modifier = Modifier.height(IntrinsicSize.Min).fillMaxWidth().padding(12.dp),
@@ -122,6 +126,9 @@ fun GameHistoryItem(
                                     style = MaterialTheme.typography.labelSmall,
                                 )
                             },
+                            colors = TooltipDefaults.richTooltipColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            ),
                         ) {
                             OpeningInfo(
                                 modifier = Modifier.width(200.dp),
