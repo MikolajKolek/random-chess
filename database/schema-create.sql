@@ -738,8 +738,6 @@ BEGIN
         RETURN;
     END IF;
 
-    --TODO: fix SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-
     SELECT cr_black.elo, cr_black.elo_history_id, (sg.result).game_end_type
     INTO current_black_elo, previous_black_entry, game_end_type
     FROM service_games sg
@@ -835,8 +833,6 @@ $$
 DECLARE
     game_id INT;
 BEGIN
-    --TODO: fix SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
-
     DELETE FROM elo_history
     WHERE elo_history.ranking_id = recalculate_ranking.ranking_id;
 

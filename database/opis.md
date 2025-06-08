@@ -518,3 +518,13 @@ Wykrywanie debiutu i przechowywanie danych o nich nie jest więc tak trywialne, 
    **Wady**: Oczywiście nie uwzględniamy możliwości wycofania się z turnieju, nawet nie rozegrawszy żadnej partii.
 3. Finalne rozwiązanie: Możliwość usuwania gier dowolna, zawodników tylko tych bez gier.\
    **Wady**: Brak dowolności usuwania zawodników, nawet jeśli biorą udział w turnieju w np. tylko jednej partii
+
+## Ustalanie poziomu izolacji w transakcji:
+Chcieliśmy, aby procedura `update_ranking_after_game` wywoływana przez trigger 
+`update_rankings_on_game_insert` działała w isolation level `REPEATABLE READ`, ponieważ
+pierwsze robi selecta, a potem aktualizuje bazę na podstawie tych informacji, i mogłaby wprowadzić do bazy
+błędne wartości, gdyby okazało się, że między selectem a insertem zaszedł drugi insert. Nie mogliśmy jednak znaleźć żadnego sposobu na ustawienie poziomu izolacji wewnątrz procedury ani triggera.
+
+Analogiczny problem spotkaliśmy w procedurze `recalculate_ranking`. Służy ona do ponownego przeliczenia całego rankingu, gdy np. zostanie zmodyfikowany. Chcieliśmy ustawić w niej poziom izolacji `SERIALIZABLE`, ponieważ rekalkulacja rankingu jest delikatną operacją i nie chcieliśmy, żeby coś mogło pójść nie tak, ale spotkaliśmy ponownie ten sam problem.
+
+Mieliśmy jeszcze pomysł, który wyglądał, jakby mógł zadziałać - gdy triggery te zostaną wywołane z niższym poziomem izolacji niż wymagane, wyrzucą błąd, wymuszając wywołanie ich w sposób odpowiedni. Okazuje się jednak, że jOOQ, biblioteka do interakcji między Kotlinem a bazą danych, którą używamy, wcale nie wspiera ustawiania poziomów izolacji. Musieliśmy więc odrzucić ten pomysł.
