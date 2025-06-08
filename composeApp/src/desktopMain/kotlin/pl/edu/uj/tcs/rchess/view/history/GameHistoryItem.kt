@@ -1,5 +1,6 @@
 package pl.edu.uj.tcs.rchess.view.history
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -24,16 +26,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.resources.painterResource
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryGame
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryServiceGame
 import pl.edu.uj.tcs.rchess.api.entity.game.PgnGame
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.view.board.BoardView
+import pl.edu.uj.tcs.rchess.view.board.icon
 import pl.edu.uj.tcs.rchess.view.shared.OpeningInfo
 import pl.edu.uj.tcs.rchess.view.shared.PlayerName
 import pl.edu.uj.tcs.rchess.view.shared.format
 import pl.edu.uj.tcs.rchess.view.shared.formatReason
 import pl.edu.uj.tcs.rchess.view.shared.formatResult
+import rchess.composeapp.generated.resources.Res
+import rchess.composeapp.generated.resources.icon_pgn
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,38 +85,56 @@ fun GameHistoryItem(
                 modifier = Modifier.fillMaxHeight().padding(all = 8.dp).weight(1f),
                 horizontalAlignment = Alignment.End,
             ) {
-                Text(
-                    buildString {
-                        when (game) {
-                            is PgnGame -> append("Imported at ")
-                            is HistoryServiceGame -> append("Played on ")
-                        }
-                        append(game.creationDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
-                    },
-                    style = MaterialTheme.typography.bodySmall,
-                    textAlign = TextAlign.End,
-                )
+                Row {
+                    Column(
+                        horizontalAlignment = Alignment.End,
+                    ) {
+                        Text(
+                            buildString {
+                                when (game) {
+                                    is PgnGame -> append("Imported at ")
+                                    is HistoryServiceGame -> append("Played on ")
+                                }
+                                append(game.creationDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                            },
+                            style = MaterialTheme.typography.bodySmall,
+                            textAlign = TextAlign.End,
+                        )
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    when (game) {
-                        is PgnGame -> {
-                            Text(
-                                "Manually imported as #${game.id}",
-                                style = MaterialTheme.typography.bodySmall,
-                                textAlign = TextAlign.End,
-                            )
-                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            when (game) {
+                                is PgnGame -> {
+                                    Text(
+                                        "Manually imported as #${game.id}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        textAlign = TextAlign.End,
+                                    )
+                                }
 
-                        is HistoryServiceGame -> {
-                            Text(
-                                "in ${game.service.format()}",
-                                style = MaterialTheme.typography.bodySmall,
-                                textAlign = TextAlign.End,
-                            )
-//                            ServiceLabel(game.service)
+                                is HistoryServiceGame -> {
+                                    Text(
+                                        "in ${game.service.format()}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        textAlign = TextAlign.End,
+                                    )
+                                }
+                            }
                         }
+                    }
+
+                    val icon = when (game) {
+                        is HistoryServiceGame -> game.service.icon
+                        is PgnGame -> Res.drawable.icon_pgn
+                    }
+
+                    if (icon != null) {
+                        Image(
+                            modifier = Modifier.padding(start = 16.dp).size(28.dp),
+                            painter = painterResource(icon),
+                            contentDescription = "Service logo",
+                        )
                     }
                 }
 
