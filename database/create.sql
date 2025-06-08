@@ -1,3 +1,5 @@
+BEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+
 CREATE TYPE "game_result_type" AS (
     "game_end_type" VARCHAR,
     "game_end_reason" VARCHAR
@@ -738,7 +740,12 @@ BEGIN
         RETURN;
     END IF;
 
-    --TODO: fix SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+    IF
+        current_setting('transaction_isolation') <> 'serializable' AND
+        current_setting('transaction_isolation') <> 'repeatable read'
+    THEN
+        RAISE WARNING 'Updating a ranking after a game is added requires the REPEATABLE READ transaction isolation level';
+    END IF;
 
     SELECT cr_black.elo, cr_black.elo_history_id, (sg.result).game_end_type
     INTO current_black_elo, previous_black_entry, game_end_type
@@ -835,7 +842,9 @@ $$
 DECLARE
     game_id INT;
 BEGIN
-    --TODO: fix SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+    IF current_setting('transaction_isolation') <> 'serializable' THEN
+        RAISE WARNING 'Recalculating a ranking requires the serializable transaction isolation level';
+    END IF;
 
     DELETE FROM elo_history
     WHERE elo_history.ranking_id = recalculate_ranking.ranking_id;
@@ -1402,11 +1411,13 @@ INSERT INTO rankings("name", "playtime_min", "playtime_max", "extra_move_multipl
         40
     );
 
+COMMIT;
 
-CREATE INDEX CONCURRENTLY idx_sg_service_id_black
+
+CREATE INDEX idx_sg_service_id_black
     ON service_games (service_id, black_player);
 
-CREATE INDEX CONCURRENTLY idx_sg_service_id_white
+CREATE INDEX idx_sg_service_id_white
     ON service_games (service_id, white_player);
 
 CREATE INDEX CONCURRENTLY idx_sg_service_id_date_id

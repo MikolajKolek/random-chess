@@ -1,3 +1,5 @@
+BEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+
 INSERT INTO users(email, password_hash) VALUES
     ('admin@randomchess.com', 'adminPassword'),
     ('test1@randomchess.com', 'password1'),
@@ -626,3 +628,5 @@ INSERT INTO pgn_games("moves", "creation_date", "result", "metadata", "owner_id"
         'Garry Kasparov',
         'Veselin Topalov'
     );*/
+
+COMMIT;
