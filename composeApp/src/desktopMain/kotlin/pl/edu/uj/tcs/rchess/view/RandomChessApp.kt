@@ -14,7 +14,7 @@ import pl.edu.uj.tcs.rchess.view.game.GameWindow
 import pl.edu.uj.tcs.rchess.viewmodel.AppContext
 import pl.edu.uj.tcs.rchess.viewmodel.navigation.Route
 import rchess.composeapp.generated.resources.Res
-import rchess.composeapp.generated.resources.window_icon
+import rchess.composeapp.generated.resources.logo_rchess
 import java.awt.Dimension
 
 class RandomChessApp(private val clientApi: ClientApi) {
@@ -25,7 +25,7 @@ class RandomChessApp(private val clientApi: ClientApi) {
         )
         val context = remember { AppContext(clientApi) }
 
-        val icon = painterResource(Res.drawable.window_icon)
+        val icon = painterResource(Res.drawable.logo_rchess)
         Window(
             onCloseRequest = ::exitApplication,
             state = state,

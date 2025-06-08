@@ -1,5 +1,6 @@
 package pl.edu.uj.tcs.rchess.view.account
 
+    import androidx.compose.foundation.Image
     import androidx.compose.foundation.layout.Arrangement
     import androidx.compose.foundation.layout.Box
     import androidx.compose.foundation.layout.Column
@@ -8,6 +9,7 @@ package pl.edu.uj.tcs.rchess.view.account
     import androidx.compose.foundation.layout.fillMaxWidth
     import androidx.compose.foundation.layout.height
     import androidx.compose.foundation.layout.padding
+    import androidx.compose.foundation.layout.size
     import androidx.compose.foundation.layout.width
     import androidx.compose.foundation.layout.widthIn
     import androidx.compose.material3.Button
@@ -26,8 +28,10 @@ package pl.edu.uj.tcs.rchess.view.account
     import androidx.compose.ui.platform.LocalUriHandler
     import androidx.compose.ui.unit.dp
     import kotlinx.coroutines.launch
+    import org.jetbrains.compose.resources.painterResource
     import pl.edu.uj.tcs.rchess.api.entity.Service
     import pl.edu.uj.tcs.rchess.util.logger
+    import pl.edu.uj.tcs.rchess.view.board.icon
     import pl.edu.uj.tcs.rchess.view.shared.format
     import pl.edu.uj.tcs.rchess.viewmodel.AppContext
 
@@ -75,7 +79,7 @@ fun AccountScreen(context: AppContext) {
             ) {
                 Text(
                     "Service",
-                    modifier = Modifier.width(160.dp),
+                    modifier = Modifier.width(216.dp),
                     style = MaterialTheme.typography.labelLarge,
                 )
 
@@ -93,14 +97,25 @@ fun AccountScreen(context: AppContext) {
                     key(it.service to it.userIdInService) {
                         Row(
                             modifier = Modifier.padding(horizontal = 24.dp).fillMaxWidth()
-                                .height(40.dp),
+                                .height(48.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
-                            Text(
-                                it.service.format(),
-                                modifier = Modifier.widthIn(min = 160.dp),
-                            )
+                            Row(
+                                modifier = Modifier.widthIn(min = 216.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                it.service.icon?.let { icon ->
+                                    Image(
+                                        modifier = Modifier.padding(end = 24.dp).size(28.dp),
+                                        painter = painterResource(icon),
+                                        contentDescription = "Service logo",
+                                    )
+                                }
+                                Text(
+                                    it.service.format(),
+                                )
+                            }
 
                             Text(
                                 it.displayName,
