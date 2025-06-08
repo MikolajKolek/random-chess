@@ -198,30 +198,24 @@ Wartości `playtime_min`, `playtime_max`, `extra_move_multiplier` determinują, 
 ### elo_history
 
 
+| Pole                 | Typ     | Dodatkowe informacje                  |
+|----------------------|---------|---------------------------------------|
+| **`id`**             | SERIAL  | **PRIMARY KEY**                       |
+| `service_id`         | VARCHAR | NOT NULL, stale równe 1               |
+| `user_id_in_service` | VARCHAR | NOT NULL                              |
+| `ranking_id`         | INT     | NOT NULL REFERENCES rankings(id)      |
+| `game_id`            | INT     | NOT NULL REFERENCES service_games(id) |
+| `elo`                | NUMERIC | NOT NULL                              |
+| `previous_entry`     | INT     | NULL                                  |
 
-CREATE TABLE elo_history(
-"id"                    SERIAL      PRIMARY KEY,
-"service_id"            INT         NOT NULL    REFERENCES "game_services" ("id")
-CHECK ("service_id" = 1),
-"user_id_in_service"    VARCHAR     NOT NULL,
-"ranking_id"            INT         NOT NULL    REFERENCES "rankings" ("id"),
-"game_id"               INT         NOT NULL    REFERENCES "service_games" ("id"),
-"elo"                   NUMERIC     NOT NULL,
-"previous_entry"        INT         NULL,
+Tabela ta w naturalny sposób tworzy historię zmian rankingów ELO dla lokalnych kont.
 
-    -- Make sure that a single elo history entry is not the previous entry more than once
-    UNIQUE NULLS NOT DISTINCT ("service_id", "user_id_in_service", "ranking_id", "previous_entry"),
+`service_id` wraz z `user_id_in_service` tworzą klucz obcy na tabelę `service_accounts`.
+`ranking_id` wskazuje podobnie na ranking, w którym zmiana się dokonała, a `game_id` wskazuje na grę, która była powodem tej zmiany.
 
-    -- A single game can only influence a player's elo once
-    UNIQUE("service_id", "user_id_in_service", "ranking_id", "game_id"),
+`elo` opisuje nową wartość rankingu, a `previous_entry` wskazuje na poprzednią zmianę tego rankingu.
 
-    UNIQUE("service_id", "user_id_in_service", "ranking_id", "id"),
-    FOREIGN KEY("service_id", "user_id_in_service", "ranking_id", "previous_entry")
-        REFERENCES "elo_history"("service_id", "user_id_in_service", "ranking_id", "id"),
-
-    FOREIGN KEY ("service_id", "user_id_in_service")
-        REFERENCES "service_accounts" ("service_id", "user_id_in_service")
-);
+Podczas dodawania wartości do tej tabeli upewniamy się, krotki w tabeli nie wystąpią wielokrotnie w tabeli oraz że każda gra może wpłynąć na ELO danego gracza tylko raz.
 
 ### swiss\_tournaments
 
