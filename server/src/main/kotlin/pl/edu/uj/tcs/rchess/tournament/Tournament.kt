@@ -1,8 +1,25 @@
 package pl.edu.uj.tcs.rchess.tournament
 
-class Tournament(
+import io.r2dbc.spi.ConnectionFactories
+import io.r2dbc.spi.ConnectionFactoryOptions
+import org.jooq.SQLDialect
+import org.jooq.impl.DSL.using
+import pl.edu.uj.tcs.rchess.config.ConfigLoader
 
+class Tournament(
+    val myId : Int
 ) {
+    private val config = ConfigLoader.loadConfig()
+    private val connection = ConnectionFactories.get(
+        ConnectionFactoryOptions
+            .parse("r2dbc:postgresql://${config.database.host}:${config.database.port}/${config.database.database}")
+            .mutate()
+            .option(ConnectionFactoryOptions.USER, config.database.user)
+            .option(ConnectionFactoryOptions.PASSWORD, config.database.password)
+            .build()
+    )
+    private val dsl = using(connection, SQLDialect.POSTGRES)
+
     val players : HashSet<String> = HashSet()
     var matchings : MutableList<Pair<String, String>> = mutableListOf()
     val playedGames : MutableList<Pair<String, String>> = mutableListOf()
@@ -10,12 +27,14 @@ class Tournament(
     var round = 0
 
     fun playerJoin(player: String) {
+        // TODO: Add player to database
         require(!players.contains(player)) { "Already joined the tournament." }
         players.add(player)
         playersPoints.putIfAbsent(player, 0.0)
     }
 
     fun playerLeave(player: String) {
+        // No need to remove players from database entries - it is better to leave them there.
         require(players.contains(player)) { "Not registered in the tournament." }
         players.add(player)
     }
@@ -41,6 +60,7 @@ class Tournament(
             }
         }
         playedGames.add(game.first)
+        // Add game entry to database
     }
 
     fun issueMatchings() {
