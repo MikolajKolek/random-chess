@@ -51,6 +51,15 @@ to the `local.properties` file in `local/`.
 
 The available levels are `ERROR`, `WARN`, `INFO` (default), `DEBUG` and `TRACE`.
 
+# Colors
+- `primary`, `primaryContainer` are used for the most prominent elements on screen,
+  used especially for constructive actions (starting a game, importing games)
+- `secondary`, `secondaryContainer` are used for selection indication and actionable elements
+- `tertiary`, `tertiaryContainer` are used to focus user attention on otherwise less prominent elements,
+  in a game it is used for indicating current turn - clock highlights, game progress, possible piece moves
+- `surface`, `background` - used for the lowest layer background
+- `surfaceContainer` and variants - used for background of cards and other containers
+
 # Licences
 - **Fresca** chess piece set from [Lichess.org GitHub](https://github.com/lichess-org/lila/blob/master/COPYING.md):
   [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)

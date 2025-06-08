@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -41,7 +42,7 @@ fun PlayerName(
 
         Text(player.displayName)
 
-        if ((player as? ServiceAccount)?.isBot ?: false) {
+        if ((player as? ServiceAccount)?.isBot == true) {
             Icon(
                 painter = painterResource(Res.drawable.icon_robot),
                 contentDescription = "Bot",
@@ -54,6 +55,7 @@ fun PlayerName(
                 text = "winner",
                 modifier = Modifier.padding(start = 16.dp),
                 fontWeight = Bold,
+                color = MaterialTheme.colorScheme.primary,
             )
         }
     }

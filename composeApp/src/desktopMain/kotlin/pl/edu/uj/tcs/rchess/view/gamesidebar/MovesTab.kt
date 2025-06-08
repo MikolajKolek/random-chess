@@ -2,7 +2,14 @@ package pl.edu.uj.tcs.rchess.view.gamesidebar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -57,7 +64,7 @@ fun MovesTab(
                         onSelectIndex(0)
                     }
                     .runIf(0 == boardStateIndex) {
-                        background(color = MaterialTheme.colorScheme.primaryContainer)
+                        background(color = MaterialTheme.colorScheme.secondaryContainer)
                     },
                 contentAlignment = Alignment.CenterStart,
             ) {
@@ -83,7 +90,7 @@ fun MovesTab(
                         onSelectIndex(halfMove.moveIndex + 1)
                     }
                     .runIf(halfMove.moveIndex + 1 == boardStateIndex) {
-                        background(color = MaterialTheme.colorScheme.primaryContainer)
+                        background(color = MaterialTheme.colorScheme.secondaryContainer)
                     },
                 contentAlignment = Alignment.CenterStart,
             ) {

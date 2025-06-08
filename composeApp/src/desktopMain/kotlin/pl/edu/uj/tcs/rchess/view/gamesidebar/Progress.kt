@@ -1,11 +1,18 @@
 package pl.edu.uj.tcs.rchess.view.gamesidebar
 
 import androidx.compose.animation.animateColor
-import androidx.compose.animation.core.*
-import androidx.compose.foundation.background
+import androidx.compose.animation.core.EaseInOut
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,7 +26,6 @@ import pl.edu.uj.tcs.rchess.model.GameResult
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import pl.edu.uj.tcs.rchess.model.state.GameState
-import pl.edu.uj.tcs.rchess.util.runIf
 
 @Composable
 private fun ProgressRow(
@@ -74,30 +80,29 @@ fun Progress(
 ) {
     val infiniteTransition = rememberInfiniteTransition()
 
-    Box(
+    val (backgroundColor, contentColor) = when {
+            !waitingForOwnMove -> Color.White to Color.Unspecified
+
+            currentBoardStateSelected -> MaterialTheme.colorScheme.tertiaryContainer to MaterialTheme.colorScheme.onTertiaryContainer
+
+            else -> infiniteTransition.animateColor(
+                targetValue = Color.White,
+                initialValue = MaterialTheme.colorScheme.tertiaryContainer,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(350, delayMillis = 300, easing = EaseInOut),
+                    repeatMode = RepeatMode.Reverse,
+                ),
+            ).value to MaterialTheme.colorScheme.onTertiaryContainer
+    }
+
+    Surface(
         Modifier
             .clickable(
                 enabled = !currentBoardStateSelected,
                 onClick = onSelectCurrent,
-            )
-            .background(Color.White)
-            .runIf(waitingForOwnMove) {
-                val color = if (currentBoardStateSelected)
-                    MaterialTheme.colorScheme.primaryContainer
-                else
-                    // Highlight when the player is browsing an earlier move,
-                    // while the game is running and it's their turn
-                    infiniteTransition.animateColor(
-                        targetValue = Color.White,
-                        initialValue = MaterialTheme.colorScheme.primaryContainer,
-                        animationSpec = infiniteRepeatable(
-                            animation = tween(350, delayMillis = 300, easing = EaseInOut),
-                            repeatMode = RepeatMode.Reverse,
-                        ),
-                    ).value
-
-                background(color)
-            }
+            ),
+        color = backgroundColor,
+        contentColor = contentColor,
     ) {
         gameState.progress.let {
             when (it) {

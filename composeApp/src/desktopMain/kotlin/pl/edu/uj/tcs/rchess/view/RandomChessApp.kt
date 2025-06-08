@@ -43,5 +43,4 @@ class RandomChessApp(private val clientApi: ClientApi) {
             )
         }
     }
-
 }

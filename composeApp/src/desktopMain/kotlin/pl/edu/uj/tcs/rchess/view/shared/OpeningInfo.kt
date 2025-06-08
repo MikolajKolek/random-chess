@@ -1,6 +1,10 @@
 package pl.edu.uj.tcs.rchess.view.shared
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -42,7 +46,7 @@ fun OpeningInfo(
                 pieceSize = minWidth / 8,
                 state = opening.position,
                 orientation = orientation,
-                square = squareBoard,
+                squareBorder = squareBoard,
             )
         }
     }

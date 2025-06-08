@@ -1,8 +1,23 @@
 package pl.edu.uj.tcs.rchess.view.game
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PlainTooltip
+import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.VerticalDivider
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -13,9 +28,17 @@ import org.jetbrains.compose.resources.painterResource
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import pl.edu.uj.tcs.rchess.view.board.BoardArea
 import pl.edu.uj.tcs.rchess.view.board.PlayerBar
-import pl.edu.uj.tcs.rchess.view.gamesidebar.*
+import pl.edu.uj.tcs.rchess.view.gamesidebar.GameSidebar
+import pl.edu.uj.tcs.rchess.view.gamesidebar.InfoTab
+import pl.edu.uj.tcs.rchess.view.gamesidebar.MovesTab
+import pl.edu.uj.tcs.rchess.view.gamesidebar.Progress
+import pl.edu.uj.tcs.rchess.view.gamesidebar.Tab
 import pl.edu.uj.tcs.rchess.viewmodel.GameWindowState
-import rchess.composeapp.generated.resources.*
+import rchess.composeapp.generated.resources.Res
+import rchess.composeapp.generated.resources.icon_chevron_next
+import rchess.composeapp.generated.resources.icon_chevron_prev
+import rchess.composeapp.generated.resources.icon_resign
+import rchess.composeapp.generated.resources.icon_swap_vert
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -27,7 +50,7 @@ fun GameScreen(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
-                .background(MaterialTheme.colorScheme.background)
+                .background(MaterialTheme.colorScheme.surface)
                 .onPointerEvent(PointerEventType.Scroll) {
                     val change = it.changes.first()
                     // This works a bit wired on touchpads,
