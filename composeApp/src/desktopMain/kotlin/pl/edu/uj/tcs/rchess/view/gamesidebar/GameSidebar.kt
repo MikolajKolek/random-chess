@@ -23,7 +23,7 @@ enum class Tab(val displayName: String) {
 fun GameSidebar(
     modifier: Modifier,
     displayTab: @Composable (Tab) -> Unit,
-    displayProgress: @Composable () -> Unit,
+    displayFooter: @Composable () -> Unit,
 ) {
     var tab by remember { mutableStateOf(Tab.MOVES) }
     Column(
@@ -48,6 +48,6 @@ fun GameSidebar(
 
         HorizontalDivider()
 
-        displayProgress()
+        displayFooter()
     }
 }

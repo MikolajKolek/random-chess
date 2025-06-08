@@ -50,6 +50,8 @@ interface GameWindowState {
     fun makeMove(move: Move)
 
     val boardStateBrowser: SyncedListBrowser<BoardState>
+
+    var fenPinned: Boolean
 }
 
 @Composable
@@ -97,6 +99,8 @@ fun rememberGameWindowState(game: ApiGame): GameWindowState {
         }
     }
 
+    val fenPinned = remember { mutableStateOf(false) }
+
     return object : GameWindowState {
         override val game
             get() = game
@@ -142,5 +146,7 @@ fun rememberGameWindowState(game: ApiGame): GameWindowState {
         }
 
         override val boardStateBrowser = boardStateBrowser
+
+        override var fenPinned by fenPinned
     }
 }

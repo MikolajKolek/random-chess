@@ -1,6 +1,7 @@
 package pl.edu.uj.tcs.rchess.view.game
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -25,14 +27,17 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
+import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import pl.edu.uj.tcs.rchess.view.board.BoardArea
 import pl.edu.uj.tcs.rchess.view.board.PlayerBar
+import pl.edu.uj.tcs.rchess.view.gamesidebar.Field
 import pl.edu.uj.tcs.rchess.view.gamesidebar.GameSidebar
 import pl.edu.uj.tcs.rchess.view.gamesidebar.InfoTab
 import pl.edu.uj.tcs.rchess.view.gamesidebar.MovesTab
 import pl.edu.uj.tcs.rchess.view.gamesidebar.Progress
 import pl.edu.uj.tcs.rchess.view.gamesidebar.Tab
+import pl.edu.uj.tcs.rchess.view.shared.ExportField
 import pl.edu.uj.tcs.rchess.viewmodel.GameWindowState
 import rchess.composeapp.generated.resources.Res
 import rchess.composeapp.generated.resources.icon_chevron_next
@@ -178,10 +183,26 @@ fun GameScreen(
                         currentBoardState = boardStateBrowser.current,
                         game = game,
                         orientation = orientation,
+                        fenPinned = fenPinned,
+                        onFenPinnedChange = { fenPinned = it },
                     )
                 }
             },
-            displayProgress = {
+            displayFooter = {
+                if (fenPinned) {
+                    Box(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                        Field("FEN after current move", true, { fenPinned = it }) {
+                            ExportField(
+                                value = boardStateBrowser.current.toFenString(),
+                                downloadEnabled = false,
+                            )
+                        }
+                    }
+
+                    HorizontalDivider()
+                }
+
+
                 Progress(
                     gameState,
                     currentBoardStateSelected = boardStateBrowser.lastSelected,

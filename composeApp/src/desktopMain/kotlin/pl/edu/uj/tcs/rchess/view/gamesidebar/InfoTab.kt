@@ -4,8 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -24,6 +22,8 @@ fun InfoTab(
     currentBoardState: BoardState,
     game: ApiGame,
     orientation: PlayerColor,
+    fenPinned: Boolean,
+    onFenPinnedChange: (Boolean) -> Unit,
 ) {
     ScrollableColumn(
         modifier = Modifier.fillMaxWidth().then(modifier),
@@ -35,16 +35,6 @@ fun InfoTab(
                 .padding(all = 16.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
-            @Composable
-            fun Field(label: String, content: @Composable () -> Unit) {
-                Column(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(label, style = MaterialTheme.typography.labelLarge)
-                    content()
-                }
-            }
-
             (game as? HistoryGame)?.opening?.let {
                 Field("Opening") {
                     OpeningInfo(
@@ -55,18 +45,20 @@ fun InfoTab(
                 }
             }
 
-            Field("FEN after current move") {
-                ExportField(
-                    value = currentBoardState.toFenString(),
-                    downloadEnabled = false,
-                )
-            }
-
             (game as? HistoryGame)?.let { historyGame ->
                 Field("PGN") {
                     ExportField(
                         value = historyGame.pgnString,
                         downloadEnabled = true,
+                    )
+                }
+            }
+
+            if (!fenPinned) {
+                Field("FEN after current move", false, onFenPinnedChange) {
+                    ExportField(
+                        value = currentBoardState.toFenString(),
+                        downloadEnabled = false,
                     )
                 }
             }
