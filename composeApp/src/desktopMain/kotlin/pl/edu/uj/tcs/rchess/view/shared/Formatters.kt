@@ -1,3 +1,5 @@
+package pl.edu.uj.tcs.rchess.view.shared
+
 import pl.edu.uj.tcs.rchess.api.entity.Service
 import pl.edu.uj.tcs.rchess.model.Draw
 import pl.edu.uj.tcs.rchess.model.GameDrawReason

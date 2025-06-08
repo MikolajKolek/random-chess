@@ -18,10 +18,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import formatHumanSetting
 import org.jetbrains.compose.resources.painterResource
 import pl.edu.uj.tcs.rchess.api.entity.ranking.Ranking
 import pl.edu.uj.tcs.rchess.util.runIf
+import pl.edu.uj.tcs.rchess.view.shared.formatHumanSetting
 import rchess.composeapp.generated.resources.Res
 import rchess.composeapp.generated.resources.icon_robot
 import kotlin.time.Duration

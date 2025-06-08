@@ -1,6 +1,13 @@
 package pl.edu.uj.tcs.rchess.viewmodel
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import kotlinx.coroutines.launch
 import pl.edu.uj.tcs.rchess.api.entity.game.ApiGame
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryGame
@@ -13,7 +20,7 @@ import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import pl.edu.uj.tcs.rchess.model.state.GameState
 
 /**
- * Used as the state and business logic management mechanism for [GameScreen]
+ * Used as the state and business logic management mechanism for [pl.edu.uj.tcs.rchess.view.game.GameScreen]
  */
 interface GameWindowState {
     val game: ApiGame
@@ -37,13 +44,13 @@ interface GameWindowState {
     val resignation: Resignation?
 
     /**
-     * Returns the color of the [input.player] if the currently displayed board
+     * Returns the color of the `input.player` if the currently displayed board
      * should allow the player to make a move.
      */
     val moveEnabledForColor: PlayerColor?
 
     /**
-     * Returns true if the game is running, and it's [input.player]'s turn
+     * Returns true if the game is running, and it's `input.player`'s turn
      */
     val waitingForOwnMove: Boolean
 

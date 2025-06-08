@@ -20,12 +20,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import formatReason
-import formatResult
 import pl.edu.uj.tcs.rchess.model.GameResult
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import pl.edu.uj.tcs.rchess.model.state.GameState
+import pl.edu.uj.tcs.rchess.view.shared.formatReason
+import pl.edu.uj.tcs.rchess.view.shared.formatResult
 
 @Composable
 private fun ProgressRow(

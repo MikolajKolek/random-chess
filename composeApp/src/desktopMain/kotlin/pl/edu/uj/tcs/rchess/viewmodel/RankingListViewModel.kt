@@ -12,7 +12,7 @@ import pl.edu.uj.tcs.rchess.viewmodel.paging.Paging
 import java.time.OffsetDateTime
 
 class RankingListViewModel(
-    val clientApi: ClientApi,
+    private val clientApi: ClientApi,
 ): ViewModel() {
     val rankingList = DataStateViewModel { clientApi.getRankingsList() }
 

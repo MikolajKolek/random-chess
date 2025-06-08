@@ -10,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import pl.edu.uj.tcs.rchess.proxy.DemoRemoteProxy
 import pl.edu.uj.tcs.rchess.view.history.GameHistoryScreen
 import pl.edu.uj.tcs.rchess.view.newgame.NewGameDialog
@@ -37,7 +36,6 @@ fun RouteScreen(
 }
 
 @Composable
-@Preview
 fun MainWindowContent(
     context: AppContext,
 ) {

@@ -24,9 +24,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import format
-import formatReason
-import formatResult
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryGame
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryServiceGame
 import pl.edu.uj.tcs.rchess.api.entity.game.PgnGame
@@ -34,6 +31,9 @@ import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.view.board.BoardView
 import pl.edu.uj.tcs.rchess.view.shared.OpeningInfo
 import pl.edu.uj.tcs.rchess.view.shared.PlayerName
+import pl.edu.uj.tcs.rchess.view.shared.format
+import pl.edu.uj.tcs.rchess.view.shared.formatReason
+import pl.edu.uj.tcs.rchess.view.shared.formatResult
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)

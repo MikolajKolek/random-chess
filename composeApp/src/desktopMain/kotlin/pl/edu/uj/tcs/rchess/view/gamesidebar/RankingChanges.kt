@@ -15,13 +15,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import formatWithSign
 import org.jetbrains.compose.resources.painterResource
 import pl.edu.uj.tcs.rchess.api.entity.ranking.EloUpdate
 import pl.edu.uj.tcs.rchess.api.entity.ranking.RankingUpdate
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.pieces.King
 import pl.edu.uj.tcs.rchess.view.board.icon
+import pl.edu.uj.tcs.rchess.view.shared.formatWithSign
 
 @Composable
 private fun PlayerEloUpdate(modifier: Modifier, eloUpdate: EloUpdate?, color: PlayerColor) {
