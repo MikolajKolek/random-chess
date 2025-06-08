@@ -17,7 +17,14 @@ Projekt ***Random Chess*** został stworzony w celu ogranizacji treningu szachow
 - Szacowanie rankingu ELO wśród partii rozegranych lokalnie - osobno dla różnych rodzajów temp rozgrywki
 - Przeprowadzanie turniejów w systemie szwajcarskim (tylko w bazie, w aplikacji moduł do parowania graczy)
 
-# Przygotowanie bazy danych
+# Aplikacja
+Projekt realizowaliśmy w ramach Inżynierii Danych i Programowania Obiektowego.
+Wraz ze schematem bazy danych powstała aplikacja desktopowa,
+w obecnej wersji łącząca serwer i interfejs użytkownika i w jednym pliku wykonywalnym.
+
+Dokładne instrukcje znajdują się w pliku `README.md` w folderze z kodem źródłowym.
+
+## Przygotowanie bazy danych
 Aplikacja domyślnie oczekuje, aby w systemie baz danych:
 - istniał użytkownik `random_chess` z hasłem `random_chess`
 - istniała baza danych `random_chess` z użytkownikiem `random_chess` jako właścicielem.
@@ -25,13 +32,11 @@ Aplikacja domyślnie oczekuje, aby w systemie baz danych:
 Skrypt `extra/create.sh` tworzy użytkownika i bazę danych, tworzy schemat bazy danych i wczytuje przykładowe dane.
 Plik `create.sql` zawiera te same polecenia SQL, z wyjątkiem tworzenia użytkownika i bazy danych.
 
-# Budowanie aplikacji
+## Budowanie aplikacji
 Przed zbudowaniem aplikacji wymagane jest uruchomienie bazy danych,
 bo podczas kompilacji generowane są klasy na podstawie schematu bazy danych.
 
-Instrukcje budowania aplikacji znajdują się w pliku `README.md` w folderze z kodem źródłowym.
-
-# Pliki wymagane do działania aplikacji
+## Pliki wymagane do działania aplikacji
 Należy skopiować plik z przykładową konfiguracją [extra/config.example.yml](extra/config.example.yml) do folderu:
 - na Linux: `~/.local/share/rchess/config.yml`
 - na Windows: `%APPDATA%/rchess/config.yml`
