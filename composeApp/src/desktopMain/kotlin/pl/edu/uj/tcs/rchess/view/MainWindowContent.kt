@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import pl.edu.uj.tcs.rchess.proxy.DemoRemoteProxy
+import pl.edu.uj.tcs.rchess.view.account.AccountScreen
 import pl.edu.uj.tcs.rchess.view.history.GameHistoryScreen
 import pl.edu.uj.tcs.rchess.view.newgame.NewGameDialog
 import pl.edu.uj.tcs.rchess.view.rankings.RankingsScreen
@@ -30,7 +31,7 @@ fun RouteScreen(
             is Route.Ranking -> RankingsScreen(context, route.rankingId)
             is Route.TournamentList -> PlaceholderScreen(text = "Tournament list")
             is Route.Tournament -> PlaceholderScreen(text = "Tournament ${route.tournamentId}")
-            is Route.Account -> PlaceholderScreen(text = "Account")
+            is Route.Account -> AccountScreen(context)
         }
     }
 }
