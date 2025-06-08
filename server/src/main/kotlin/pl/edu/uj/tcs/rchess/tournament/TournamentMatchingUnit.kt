@@ -28,7 +28,7 @@ class TournamentMatchingUnit(
             while(nextMatched >= 0) {
                 if(
                     !playedGames.contains(Pair(group[currentMatched], group[nextMatched]))
-                    && !playedGames.contains(Pair(group[currentMatched], group[nextMatched]))
+                    && !playedGames.contains(Pair(group[nextMatched], group[currentMatched]))
                     && !matched[nextMatched]
                 ) {
                     matched[currentMatched] = true

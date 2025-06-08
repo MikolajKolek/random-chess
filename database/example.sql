@@ -165,6 +165,11 @@ INSERT INTO swiss_tournaments(round_count, ranking_id, time_control) VALUES
         5,
         1,
         '(3 minutes, 2 seconds)'
+    ),
+    (
+        5,
+        1,
+        '(3 minutes, 2 seconds)'
     );
 
 INSERT INTO tournaments_players(tournament_id, user_id_in_service) VALUES
@@ -175,7 +180,15 @@ INSERT INTO tournaments_players(tournament_id, user_id_in_service) VALUES
     (1, 5),
     (1, 6),
     (1, 7),
-    (1, 8);
+    (1, 8),
+    (2, 1),
+    (2 , 2),
+    (2, 3),
+    (2, 4),
+    (2, 5),
+    (2, 6),
+    (2, 7),
+    (2, 8);
 
 INSERT INTO service_games(moves, starting_position, creation_date, result, metadata, clock, is_ranked, game_id_in_service, service_id, white_player, black_player) VALUES
     (
@@ -222,10 +235,290 @@ INSERT INTO service_games(moves, starting_position, creation_date, result, metad
         4
     );
 
+INSERT INTO service_games(moves, starting_position, creation_date, result, metadata, clock, is_ranked, game_id_in_service, service_id, white_player, black_player) VALUES
+    (
+        '{}',
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        CURRENT_TIMESTAMP,
+        '(1-0,UNKNOWN)',
+        NULL,
+        '(3 minutes, 2 seconds)',
+        TRUE,
+        NULL,
+        1,
+        1,
+        2
+    );
+
+INSERT INTO service_games(moves, starting_position, creation_date, result, metadata, clock, is_ranked, game_id_in_service, service_id, white_player, black_player) VALUES
+    (
+        '{}',
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        CURRENT_TIMESTAMP,
+        '(1-0,UNKNOWN)',
+        NULL,
+        '(3 minutes, 2 seconds)',
+        TRUE,
+        NULL,
+        1,
+        3,
+        4
+    );
+
+INSERT INTO service_games(moves, starting_position, creation_date, result, metadata, clock, is_ranked, game_id_in_service, service_id, white_player, black_player) VALUES
+    (
+        '{}',
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        CURRENT_TIMESTAMP,
+        '(1-0,UNKNOWN)',
+        NULL,
+        '(3 minutes, 2 seconds)',
+        TRUE,
+        NULL,
+        1,
+        5,
+        6
+    );
+
+INSERT INTO service_games(moves, starting_position, creation_date, result, metadata, clock, is_ranked, game_id_in_service, service_id, white_player, black_player) VALUES
+    (
+        '{}',
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        CURRENT_TIMESTAMP,
+        '(0-1,UNKNOWN)',
+        NULL,
+        '(3 minutes, 2 seconds)',
+        TRUE,
+        NULL,
+        1,
+        8,
+        7
+    );
+
+INSERT INTO service_games(moves, starting_position, creation_date, result, metadata, clock, is_ranked, game_id_in_service, service_id, white_player, black_player) VALUES
+    (
+        '{}',
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        CURRENT_TIMESTAMP,
+        '(1-0,UNKNOWN)',
+        NULL,
+        '(3 minutes, 2 seconds)',
+        TRUE,
+        NULL,
+        1,
+        1,
+        3
+    );
+
+INSERT INTO service_games(moves, starting_position, creation_date, result, metadata, clock, is_ranked, game_id_in_service, service_id, white_player, black_player) VALUES
+    (
+        '{}',
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        CURRENT_TIMESTAMP,
+        '(1/2-1/2,UNKNOWN)',
+        NULL,
+        '(3 minutes, 2 seconds)',
+        TRUE,
+        NULL,
+        1,
+        2,
+        4
+    );
+
+
+INSERT INTO service_games(moves, starting_position, creation_date, result, metadata, clock, is_ranked, game_id_in_service, service_id, white_player, black_player) VALUES
+    (
+        '{}',
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        CURRENT_TIMESTAMP,
+        '(0-1,UNKNOWN)',
+        NULL,
+        '(3 minutes, 2 seconds)',
+        TRUE,
+        NULL,
+        1,
+        7,
+        5
+    );
+
+
+INSERT INTO service_games(moves, starting_position, creation_date, result, metadata, clock, is_ranked, game_id_in_service, service_id, white_player, black_player) VALUES
+    (
+        '{}',
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        CURRENT_TIMESTAMP,
+        '(1/2-1/2,UNKNOWN)',
+        NULL,
+        '(3 minutes, 2 seconds)',
+        TRUE,
+        NULL,
+        1,
+        6,
+        8
+    );
+
+INSERT INTO service_games(moves, starting_position, creation_date, result, metadata, clock, is_ranked, game_id_in_service, service_id, white_player, black_player) VALUES
+    (
+        '{}',
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        CURRENT_TIMESTAMP,
+        '(1-0,UNKNOWN)',
+        NULL,
+        '(3 minutes, 2 seconds)',
+        TRUE,
+        NULL,
+        1,
+        1,
+        5
+    );
+
+INSERT INTO service_games(moves, starting_position, creation_date, result, metadata, clock, is_ranked, game_id_in_service, service_id, white_player, black_player) VALUES
+    (
+        '{}',
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        CURRENT_TIMESTAMP,
+        '(1-0,UNKNOWN)',
+        NULL,
+        '(3 minutes, 2 seconds)',
+        TRUE,
+        NULL,
+        1,
+        3,
+        7
+    );
+
+INSERT INTO service_games(moves, starting_position, creation_date, result, metadata, clock, is_ranked, game_id_in_service, service_id, white_player, black_player) VALUES
+    (
+        '{}',
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        CURRENT_TIMESTAMP,
+        '(0-1,UNKNOWN)',
+        NULL,
+        '(3 minutes, 2 seconds)',
+        TRUE,
+        NULL,
+        1,
+        6,
+        2
+    );
+
+INSERT INTO service_games(moves, starting_position, creation_date, result, metadata, clock, is_ranked, game_id_in_service, service_id, white_player, black_player) VALUES
+    (
+        '{}',
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        CURRENT_TIMESTAMP,
+        '(1/2-1/2,UNKNOWN)',
+        NULL,
+        '(3 minutes, 2 seconds)',
+        TRUE,
+        NULL,
+        1,
+        8,
+        4
+    );
+
+INSERT INTO service_games(moves, starting_position, creation_date, result, metadata, clock, is_ranked, game_id_in_service, service_id, white_player, black_player) VALUES
+    (
+        '{}',
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        CURRENT_TIMESTAMP,
+        '(1-0,UNKNOWN)',
+        NULL,
+        '(3 minutes, 2 seconds)',
+        TRUE,
+        NULL,
+        1,
+        3,
+        5
+    );
+
+INSERT INTO service_games(moves, starting_position, creation_date, result, metadata, clock, is_ranked, game_id_in_service, service_id, white_player, black_player) VALUES
+    (
+        '{}',
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        CURRENT_TIMESTAMP,
+        '(1/2-1/2,UNKNOWN)',
+        NULL,
+        '(3 minutes, 2 seconds)',
+        TRUE,
+        NULL,
+        1,
+        2,
+        8
+    );
+
+INSERT INTO service_games(moves, starting_position, creation_date, result, metadata, clock, is_ranked, game_id_in_service, service_id, white_player, black_player) VALUES
+    (
+        '{}',
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        CURRENT_TIMESTAMP,
+        '(0-1,UNKNOWN)',
+        NULL,
+        '(3 minutes, 2 seconds)',
+        TRUE,
+        NULL,
+        1,
+        7,
+        4
+    );
+
+INSERT INTO service_games(moves, starting_position, creation_date, result, metadata, clock, is_ranked, game_id_in_service, service_id, white_player, black_player) VALUES
+    (
+        '{}',
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        CURRENT_TIMESTAMP,
+        '(1/2-1/2,UNKNOWN)',
+        NULL,
+        '(3 minutes, 2 seconds)',
+        TRUE,
+        NULL,
+        1,
+        1,
+        6
+    );
+
 INSERT INTO tournaments_games(tournament_id, game_id, round) VALUES
     (1, 4, 1),
     (1, 5, 1),
-    (1, 6, 2);
+    (1, 6, 2),
+    (2, 7, 1),
+    (2, 8, 1),
+    (2, 9, 1),
+    (2, 10, 1),
+    (2, 11, 2),
+    (2, 12, 2),
+    (2, 13, 2),
+    (2, 14, 2),
+    (2, 15, 3),
+    (2, 16, 3),
+    (2, 17, 3),
+    (2, 18, 3),
+    (2, 19, 4),
+    (2, 20, 4),
+    (2, 21, 4),
+    (2, 22, 4);
+
+SELECT * FROM swiss_tournaments_players_points where tournament_id = 1 and round = 1;
+SELECT * FROM swiss_tournaments_players_points where tournament_id = 2 and round = 4;
+
+/*insert into "public"."service_games" ("moves", "starting_position", "creation_date", "result", "is_ranked", "service_id", "black_player", "white_player", "clock")
+values (cast('{"e2e4","e7e5"}' as varchar(5)[]),
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        timestamp with time zone '2025-06-07 16:10:57.207660703+02:00',
+        cast(row('0-1', 'TIMEOUT') as "public"."game_result_type"),
+        true, 1, 'stockfish-impossible',
+        '1',
+        cast(row('0 years 0 mons 0 days 0 hours 0 mins 2.0 secs', '0 years 0 mons 0 days 0 hours 0 mins 0.0 secs') as "public"."clock_settings_type")) returning "public"."service_games"."id";
+
+insert into "public"."service_games" ("moves", "starting_position", "creation_date", "result", "is_ranked", "service_id", "black_player", "white_player", "clock")
+values (cast('{"e2e4","e7e5"}' as varchar(5)[]),
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        timestamp with time zone '2025-06-07 16:10:57.207660703+02:00',
+        cast(row('0-1', 'TIMEOUT') as "public"."game_result_type"),
+        true, 1, 'stockfish-impossible',
+        '1',
+        cast(row('0 years 0 mons 0 days 0 hours 0 mins 2.0 secs', '0 years 0 mons 0 days 0 hours 0 mins 0.0 secs') as "public"."clock_settings_type")) returning "public"."service_games"."id";
+*/
 
 /* New example game to be added
 INSERT INTO service_games("moves", "starting_position", "creation_date", "result", "metadata", "service_id", "game_id_in_service", white_player, black_player) VALUES

@@ -1062,7 +1062,7 @@ CREATE VIEW "swiss_tournaments_players_points" AS
 (
     WITH point_values AS (
         SELECT st.tournament_id, tp.user_id_in_service, tg.round,
-        (
+        ROUND((
             SELECT COUNT(*)
             FROM tournaments_games tg2
             JOIN service_games sg ON(tg2.game_id = sg.id)
@@ -1070,6 +1070,7 @@ CREATE VIEW "swiss_tournaments_players_points" AS
                 AND ((sg.white_player = tp.user_id_in_service AND (sg.result).game_end_type = '1-0')
                 OR (sg.black_player = tp.user_id_in_service AND (sg.result).game_end_type = '0-1'))
                 AND tg2.round <= tg.round
+                AND tg2.tournament_id=st.tournament_id
         )+(
             SELECT COUNT(*)
             FROM tournaments_games tg2
@@ -1078,11 +1079,12 @@ CREATE VIEW "swiss_tournaments_players_points" AS
                 AND (sg.white_player = tp.user_id_in_service OR sg.black_player = tp.user_id_in_service)
                 AND (sg.result).game_end_type = '1/2-1/2'
                 AND tg2.round <= tg.round
+                AND tg2.tournament_id=st.tournament_id
         )::numeric/2+(
             SELECT COUNT(*)
             FROM byes b
             WHERE b.tournament_id=st.tournament_id AND b.user_id_in_service=tp.user_id_in_service AND b.round <= tg.round
-        ) AS points
+        ),1) AS points
         FROM swiss_tournaments st
         JOIN tournaments_players tp USING(tournament_id)
         JOIN tournaments_games tg USING(tournament_id)
