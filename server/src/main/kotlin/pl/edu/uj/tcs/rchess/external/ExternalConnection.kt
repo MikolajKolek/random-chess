@@ -24,9 +24,11 @@ internal interface ExternalConnection {
      * Synchronizes the current state of the external service to the database,
      * if the service is ready for synchronization ([available] is true).
      *
-     * This method is guaranteed not to be called from multiple threads at the same time.
-     * This method is guaranteed not to throw, always catching the error, logging it,
-     * and returning false instead.
+     * This method is NOT thread-safe - it must not be called from multiple threads or coroutine scopes.
+     *
+     * This method never throws. All errors are caught inside and logged.
+     * In case of an error, this method returns `false`.
+     *
      * @return True if the synchronization was successful, false if it wasn't.
      */
     suspend fun synchronize(): Boolean

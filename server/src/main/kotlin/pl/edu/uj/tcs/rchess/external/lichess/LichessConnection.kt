@@ -1,15 +1,23 @@
 package pl.edu.uj.tcs.rchess.external.lichess
 
-import io.ktor.client.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.utils.io.*
-import kotlinx.coroutines.*
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.timeout
+import io.ktor.client.request.header
+import io.ktor.client.request.parameter
+import io.ktor.client.request.prepareGet
+import io.ktor.client.statement.bodyAsChannel
+import io.ktor.utils.io.exhausted
+import io.ktor.utils.io.readUTF8Line
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.chunked
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
@@ -17,20 +25,25 @@ import pl.edu.uj.tcs.rchess.UnsavedServiceGame
 import pl.edu.uj.tcs.rchess.api.entity.Service
 import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
 import pl.edu.uj.tcs.rchess.external.ExternalConnection
-import pl.edu.uj.tcs.rchess.model.*
+import pl.edu.uj.tcs.rchess.model.ClockSettings
+import pl.edu.uj.tcs.rchess.model.Draw
+import pl.edu.uj.tcs.rchess.model.GameDrawReason
+import pl.edu.uj.tcs.rchess.model.GameResult
+import pl.edu.uj.tcs.rchess.model.GameWinReason
+import pl.edu.uj.tcs.rchess.model.Pgn
+import pl.edu.uj.tcs.rchess.model.PlayerColor
+import pl.edu.uj.tcs.rchess.model.Win
 import pl.edu.uj.tcs.rchess.server.Database
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
-const val batchSize = 60
-
 internal class LichessConnection(
     override val database: Database,
     override val serviceAccount: ServiceAccount
 ) : ExternalConnection {
-    val httpClient = HttpClient(CIO)
-    var lastRequest: Instant? = null
+    private val httpClient = HttpClient(CIO)
+    private var lastRequest: Instant? = null
 
     override fun available(): Boolean {
         val currentLastRequest = lastRequest
@@ -43,7 +56,7 @@ internal class LichessConnection(
         //TODO: better error handling
         //TODO; fix this breaking on invalid token
 
-        if(!available())
+        if (!available())
             return@coroutineScope true
         lastRequest = Clock.System.now()
 
@@ -51,12 +64,15 @@ internal class LichessConnection(
             .getLatestGameForServiceAccount(serviceAccount)
             ?.creationDate?.toInstant()?.toEpochMilli()
 
-        val request = httpClient.prepareGet(lichessApiUrl + "/games/user/${serviceAccount.userIdInService}") {
+        val request = httpClient.prepareGet(
+            lichessApiUrl + "/games/user/${serviceAccount.userIdInService}",
+        ) {
             header("Accept", "application/x-ndjson")
 
             val token = database.getTokenForServiceAccount(serviceAccount)
-            if(token != null)
+            if (token != null) {
                 header("Authorization", "Bearer $token")
+            }
 
             parameter("perfType", "ultraBullet,bullet,blitz,rapid,classical,correspondence")
             parameter("pgnInJson", "true")
@@ -86,15 +102,13 @@ internal class LichessConnection(
         }
 
         while (!tasks.isClosedForSend) {
-            tasks.receiveAsFlow().chunked(batchSize).collect {
+            tasks.receiveAsFlow().chunked(BATCH_SIZE).collect {
                 val games = it.map { jsonResponse ->
                     async {
                         val response = Json.decodeFromString<LichessGamesResponse>(jsonResponse)
                         val pgn = Pgn.fromPgnDatabase(response.pgn).first()
 
-                        if(response.status == "created" || response.status == "started" ||
-                            response.status == "aborted" || response.status == "variantEnd"
-                        ) {
+                        if (listOf("created", "started", "aborted", "variantEnd").contains(response.status)) {
                             return@async null
                         }
 
@@ -105,14 +119,14 @@ internal class LichessConnection(
                             ServiceAccount.fromLichessPlayer(player)
                         }
 
-                        if(whitePlayer == null || blackPlayer == null)
+                        if (whitePlayer == null || blackPlayer == null)
                             return@async null
 
                         UnsavedServiceGame(
                             moves = pgn.moves,
                             startingPosition = pgn.startingPosition,
                             creationDate = response.createdAt,
-                            result = if(
+                            result = if (
                                 (pgn.result as? Win)?.winReason == GameWinReason.UNKNOWN ||
                                 (pgn.result as? Draw)?.drawReason == GameDrawReason.UNKNOWN
                             ) GameResult.fromLichessStatus(
@@ -139,23 +153,28 @@ internal class LichessConnection(
 
         return@coroutineScope true
     }
+
+    companion object {
+        private const val BATCH_SIZE = 60
+    }
 }
 
 fun GameResult.Companion.fromLichessStatus(lichessStatus: String, winner: String?): GameResult {
     val winColor = winner?.let {
-        when(it) {
+        when (it) {
             "black" -> PlayerColor.BLACK
             "white" -> PlayerColor.WHITE
             else -> null
         }
     }
 
-    return when(lichessStatus) {
+    return when (lichessStatus) {
         "mate" -> Win(GameWinReason.CHECKMATE, winColor!!)
         "draw" -> Draw(GameDrawReason.UNKNOWN)
         "stalemate" -> Draw(GameDrawReason.STALEMATE)
         "outoftime", "timeout" -> winColor?.let { Win(GameWinReason.TIMEOUT, it) }
             ?: Draw(GameDrawReason.TIMEOUT_VS_INSUFFICIENT_MATERIAL)
+
         "resign" -> Win(GameWinReason.RESIGNATION, winColor!!)
         else -> winColor?.let { Win(GameWinReason.UNKNOWN, it) }
             ?: Draw(GameDrawReason.UNKNOWN)
@@ -163,7 +182,7 @@ fun GameResult.Companion.fromLichessStatus(lichessStatus: String, winner: String
 }
 
 fun ServiceAccount.Companion.fromLichessPlayer(lichessPlayer: LichessPlayer): ServiceAccount? {
-    return when(lichessPlayer) {
+    return when (lichessPlayer) {
         is EmptyLichessPlayer -> null
         is LichessAccount -> ServiceAccount(
             service = Service.LICHESS,
@@ -172,9 +191,10 @@ fun ServiceAccount.Companion.fromLichessPlayer(lichessPlayer: LichessPlayer): Se
             isBot = lichessPlayer.user.title == "BOT",
             isCurrentUser = false,
         )
+
         is LichessBot -> ServiceAccount(
             service = Service.LICHESS,
-            //TODO: this probably also shouldn't be hardcoded
+            // TODO: this probably also shouldn't be hardcoded
             userIdInService = lichessPlayer.aiLevel.toString(),
             displayName = "Lichess bot (Level ${lichessPlayer.aiLevel})",
             isBot = true,

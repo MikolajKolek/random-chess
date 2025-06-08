@@ -199,10 +199,10 @@ internal class Server() : ClientApi, Database {
             controls = controls,
             clockSettings = clockSettings,
             whitePlayer =
-                if(finalPlayerColor == PlayerColor.WHITE) getSystemAccount()
+                if (finalPlayerColor == PlayerColor.WHITE) getSystemAccount()
                 else serviceAccountById(botOpponent.serviceAccountId, Service.RANDOM_CHESS),
             blackPlayer =
-                if(finalPlayerColor == PlayerColor.BLACK) getSystemAccount()
+                if (finalPlayerColor == PlayerColor.BLACK) getSystemAccount()
                 else serviceAccountById(botOpponent.serviceAccountId, Service.RANDOM_CHESS)
         )
     }
@@ -266,8 +266,9 @@ internal class Server() : ClientApi, Database {
 
     override suspend fun requestResync() {
         requestResyncMutex.tryWithLock {
-            if(resyncMutex.isLocked || !externalConnections.any { it.available() })
+            if (resyncMutex.isLocked || !externalConnections.any { it.available() }) {
                 return@requestResync
+            }
 
             databaseState.getAndUpdate { it.copy(synchronizationState = Synchronizing()) }
 
@@ -276,11 +277,16 @@ internal class Server() : ClientApi, Database {
                 resyncMutex.withLock {
                     transferChannel.send(Unit)
 
-                    val errors = externalConnections.associate {
-                        it.serviceAccount.service to databaseScope.async {
-                            it.synchronize()
+                    val errors = externalConnections
+                        .associate {
+                            val job = databaseScope.async {
+                                it.synchronize()
+                            }
+                            it.serviceAccount.service to job
                         }
-                    }.mapValues { it.value.await() }.filterValues { it }.keys.toList()
+                        .mapValues { it.value.await() }
+                        .filterValues { it }
+                        .keys.toList()
 
                     databaseState.getAndUpdate { it.copy(synchronizationState = Synchronized(errors)) }
                 }
@@ -294,7 +300,7 @@ internal class Server() : ClientApi, Database {
     }
 
     override suspend fun addExternalAccount(service: Service): AddExternalAccountResponse {
-        return when(service) {
+        return when (service) {
             Service.LICHESS -> LichessAuthentication(this, config.defaultUser).authenticate()
             else -> throw IllegalArgumentException(
                 "Adding external account on service $service is not supported"
@@ -335,7 +341,7 @@ internal class Server() : ClientApi, Database {
     }
 
     override suspend fun saveServiceGames(games: List<UnsavedServiceGame>) {
-        if(games.isEmpty())
+        if (games.isEmpty())
             return
 
         dsl.transactionCoroutine { transaction ->
@@ -381,7 +387,7 @@ internal class Server() : ClientApi, Database {
                 SERVICE_GAMES.IS_RANKED
             )
 
-            for(game in games) {
+            for (game in games) {
                 gameInsertStep = gameInsertStep.values(
                     game.moves.map { it.toLongAlgebraicNotation() }.toTypedArray(),
                     game.startingPosition.toFenString(),
@@ -439,8 +445,9 @@ internal class Server() : ClientApi, Database {
             )
         }
 
-        if(!settings.includePgnGames)
+        if (!settings.includePgnGames) {
             conditions = conditions.and(GAMES.KIND.notEqual("pgn"))
+        }
 
         settings.includedServices?.let { includedServices ->
             var serviceCondition = noCondition()
@@ -512,7 +519,7 @@ internal class Server() : ClientApi, Database {
             .orderBy(GAMES.CREATION_DATE.desc(), GAMES.ID.desc(), GAMES.KIND.desc())
 
         val query =
-            if(settings.length == null) queryWithoutLimit
+            if (settings.length == null) queryWithoutLimit
             else queryWithoutLimit.limit(settings.length)
 
         val result = Flux.from(query).asFlow().map { (game, white, black, gameOpening, opening, rankingUpdates) ->
@@ -526,8 +533,9 @@ internal class Server() : ClientApi, Database {
         }.toList()
 
         // This should only happen when we know the function is not going to throw
-        if(settings.clearUpdatesAvailable)
+        if (settings.clearUpdatesAvailable) {
             databaseState.getAndUpdate { it.copy(updatesAvailable = false) }
+        }
 
         return result
     }
