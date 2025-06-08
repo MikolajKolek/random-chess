@@ -1,26 +1,19 @@
 package pl.edu.uj.tcs.rchess.server
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Test
-import pl.edu.uj.tcs.rchess.api.entity.Opening
-import pl.edu.uj.tcs.rchess.api.entity.Service
+import pl.edu.uj.tcs.rchess.UnsavedServiceGame
 import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryServiceGame
-import pl.edu.uj.tcs.rchess.model.ClockSettings
-import pl.edu.uj.tcs.rchess.model.Draw
+import pl.edu.uj.tcs.rchess.model.*
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.fromFen
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
-import pl.edu.uj.tcs.rchess.model.GameDrawReason
-import pl.edu.uj.tcs.rchess.model.GameResult
-import pl.edu.uj.tcs.rchess.model.GameWinReason
-import pl.edu.uj.tcs.rchess.model.Move
-import pl.edu.uj.tcs.rchess.model.PlayerColor
-import pl.edu.uj.tcs.rchess.model.Win
 import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import pl.edu.uj.tcs.rchess.model.state.GameState
-import java.time.LocalDateTime
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -31,43 +24,18 @@ val infiniteClock = ClockSettings(
     extraTimeForFirstMove = 0.seconds
 )
 
-class MockDatabase : Database {
+internal class MockDatabase : Database {
+    override val databaseScope = CoroutineScope(Dispatchers.IO)
     override suspend fun saveGame(
         game: GameState,
-        blackPlayerId: String,
-        whitePlayerId: String,
-        isRanked: Boolean,
-        clockSettings: ClockSettings,
-    ): HistoryServiceGame {
-        return HistoryServiceGame(
-            id = 0,
-            moves = game.moves,
-            finalPosition = BoardState.initial,
-            opening = Opening("A00", "Test", BoardState.initial),
-            startingPosition = game.initialState,
-            creationDate = LocalDateTime.now(),
-            result = (game.progress as GameProgress.FinishedWithClockInfo).result,
-            metadata = mapOf(),
-            gameIdInService = null,
-            service = Service.RANDOM_CHESS,
-            blackPlayer = ServiceAccount(
-                service = Service.RANDOM_CHESS,
-                userIdInService = blackPlayerId,
-                displayName = blackPlayerId,
-                isBot = false,
-                isCurrentUser = false
-            ),
-            whitePlayer = ServiceAccount(
-                service = Service.RANDOM_CHESS,
-                userIdInService = whitePlayerId,
-                displayName = whitePlayerId,
-                isBot = false,
-                isCurrentUser = false
-            ),
-            clockSettings = clockSettings,
-        )
-    }
+        liveGameController: LiveGameController,
+    ) {}
 
+    override suspend fun saveServiceGames(games: List<UnsavedServiceGame>) {}
+
+    override suspend fun getLatestGameForServiceAccount(serviceAccount: ServiceAccount): HistoryServiceGame? = null
+
+    override suspend fun getTokenForServiceAccount(serviceAccount: ServiceAccount): String? = null
 }
 
 class LiveGameTest {

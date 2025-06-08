@@ -11,4 +11,7 @@ sudo -H -u postgres bash -c "\
   psql \"postgresql://random_chess:random_chess@localhost:5432/random_chess\" < $mydir/create.sql
   psql \"postgresql://random_chess:random_chess@localhost:5432/random_chess\" < $mydir/openings.sql
   psql \"postgresql://random_chess:random_chess@localhost:5432/random_chess\" < $mydir/example.sql
+  if test -f $mydir/secret.sql; then
+    psql \"postgresql://random_chess:random_chess@localhost:5432/random_chess\" < $mydir/secret.sql
+  fi
 "

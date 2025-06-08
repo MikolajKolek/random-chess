@@ -7,4 +7,6 @@ data class ClockSettings(
     val startingTime: Duration,
     val moveIncrease: Duration,
     val extraTimeForFirstMove: Duration = 30.seconds,
-)
+) {
+    companion object
+}

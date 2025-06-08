@@ -2,6 +2,7 @@ package pl.edu.uj.tcs.rchess.external
 
 import pl.edu.uj.tcs.rchess.api.entity.Service
 import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
+import pl.edu.uj.tcs.rchess.external.lichess.LichessConnection
 import pl.edu.uj.tcs.rchess.server.Database
 
 /**
@@ -32,6 +33,6 @@ internal interface ExternalConnection {
 }
 
 internal fun ServiceAccount.toExternalConnection(database: Database): ExternalConnection? = when(service) {
-    Service.CHESS_COM -> ChessComConnection(database, this)
+    Service.LICHESS -> LichessConnection(database, this)
     else -> null
 }

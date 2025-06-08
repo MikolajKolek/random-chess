@@ -1,15 +1,5 @@
-INSERT INTO service_accounts("user_id", "service_id", "user_id_in_service", "is_bot", "display_name") VALUES
-    (NULL, 2, 'test_ccom_id', FALSE, 'test_chesscom'),
-    (NULL, 2, 'test2_ccom_id', FALSE, 'test2_chesscom'),
-    (NULL, 3, 'test2_lc_id', FALSE, 'test2_lichess'),
-    (NULL, 2, 'makaron_ccom_id', FALSE, 'makaron_w_domu'),
-    (NULL, 3, 'makaron_lc_id', FALSE, 'Djammnick'),
-    (NULL, 2, 'chess_com_user', FALSE, 'chess_com_user_not_in_service'),
-    (NULL, 3, 'lichess_user', FALSE, 'lichess_user_not_in_service'),
-    (NULL, 2, 'chess_com_bot', TRUE, 'chess_com_bot'),
-    (NULL, 1, 'internal_bot', TRUE, 'bot_1');
-
 INSERT INTO users(email, password_hash) VALUES
+    ('admin@randomchess.com', 'adminPassword'),
     ('test1@randomchess.com', 'password1'),
     ('test2@randomchess.com', 'password2'),
     ('test3@randomchess.com', 'password3'),
@@ -110,6 +100,20 @@ INSERT INTO users(email, password_hash) VALUES
     ('test98@randomchess.com', 'password98'),
     ('test99@randomchess.com', 'password99'),
     ('test100@randomchess.com', 'password100');
+
+UPDATE service_accounts SET display_name = 'Admin' WHERE user_id = 1;
+
+INSERT INTO service_accounts("user_id", "service_id", "user_id_in_service", "is_bot", "display_name", "token") VALUES
+    (1, 3, 'djammnick', FALSE, 'Djammnick', ''),
+    (NULL, 2, 'test_ccom_id', FALSE, 'test_chesscom', NULL),
+    (NULL, 2, 'test2_ccom_id', FALSE, 'test2_chesscom', NULL),
+    (NULL, 3, 'test2_lc_id', FALSE, 'test2_lichess', NULL),
+    (NULL, 2, 'makaron_ccom_id', FALSE, 'makaron_w_domu', NULL),
+    (NULL, 3, 'makaron_lc_id', FALSE, 'Djammnick', NULL),
+    (NULL, 2, 'chess_com_user', FALSE, 'chess_com_user_not_in_service', NULL),
+    (NULL, 3, 'lichess_user', FALSE, 'lichess_user_not_in_service', NULL),
+    (NULL, 2, 'chess_com_bot', TRUE, 'chess_com_bot', NULL),
+    (NULL, 1, 'internal_bot', TRUE, 'bot_1', NULL);
 
 -- Przykładowe lokalne partie
 INSERT INTO service_games(moves, starting_position, creation_date, result, metadata, clock, is_ranked, game_id_in_service, service_id, white_player, black_player) VALUES

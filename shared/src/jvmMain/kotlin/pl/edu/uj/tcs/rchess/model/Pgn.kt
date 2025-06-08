@@ -29,7 +29,12 @@ class Pgn private constructor(pgnGameRegexMatch: MatchResult) {
             require(res == "1-0" || res == "0-1" || res == "1/2-1/2") { "Invalid pgn result string" }
 
             if(res == "1/2-1/2")
-                result = Draw(GameDrawReason.UNKNOWN)
+                result = Draw(
+                    when(tags["Termination"]?.lowercase()) {
+                        "time forfeit" -> GameDrawReason.TIMEOUT_VS_INSUFFICIENT_MATERIAL
+                        else -> GameDrawReason.UNKNOWN
+                    }
+                )
             else {
                 var reason: GameWinReason = when(tags["Termination"]?.lowercase()) {
                     "abandoned" -> GameWinReason.ABANDONMENT

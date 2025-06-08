@@ -14,8 +14,8 @@ import kotlinx.coroutines.sync.withLock
  * @see withLock
  */
 inline fun <T> Mutex.tryWithLock(owner: Any? = null, action: () -> T): T? {
-    val wasLocked = tryLock(owner)
-    if(wasLocked)
+    val wasUnlocked = tryLock(owner)
+    if(!wasUnlocked)
         return null
 
     return try {

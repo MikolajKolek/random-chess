@@ -16,6 +16,7 @@ import org.jooq.SQLDialect
 import org.jooq.impl.DSL.*
 import org.jooq.impl.SQLDataType.INTEGER
 import org.jooq.kotlin.coroutines.transactionCoroutine
+import pl.edu.uj.tcs.rchess.UnsavedServiceGame
 import pl.edu.uj.tcs.rchess.api.ClientApi
 import pl.edu.uj.tcs.rchess.api.DatabaseState
 import pl.edu.uj.tcs.rchess.api.Synchronized
@@ -61,7 +62,7 @@ internal class Server() : ClientApi, Database {
     private val dsl = using(connection, SQLDialect.POSTGRES)
     private val botOpponents: Map<BotOpponent, BotType>
     private val botGameFactory = GameWithBotFactory(this)
-    private val databaseScope = CoroutineScope(Dispatchers.IO)
+    override val databaseScope = CoroutineScope(Dispatchers.IO)
 
     private val externalConnections: List<ExternalConnection>
     private val requestResyncMutex = Mutex()
@@ -315,6 +316,76 @@ internal class Server() : ClientApi, Database {
         }
     }
 
+    override suspend fun saveServiceGames(games: List<UnsavedServiceGame>) {
+        if(games.isEmpty())
+            return
+
+        dsl.transactionCoroutine { transaction ->
+            var accountInsertStep = transaction.dsl().insertInto(
+                SERVICE_ACCOUNTS,
+                SERVICE_ACCOUNTS.SERVICE_ID,
+                SERVICE_ACCOUNTS.USER_ID_IN_SERVICE,
+                SERVICE_ACCOUNTS.DISPLAY_NAME,
+                SERVICE_ACCOUNTS.IS_BOT
+            )
+
+            for (game in games) {
+                accountInsertStep = accountInsertStep.values(
+                    game.service.toDbId(),
+                    game.whitePlayer.userIdInService,
+                    game.whitePlayer.displayName,
+                    game.whitePlayer.isBot
+                ).values(
+                    game.service.toDbId(),
+                    game.blackPlayer.userIdInService,
+                    game.blackPlayer.displayName,
+                    game.blackPlayer.isBot
+                )
+            }
+
+            Flux.from(accountInsertStep.onDuplicateKeyIgnore()).asFlow().collect()
+        }
+
+        dsl.transactionCoroutine { transaction ->
+            var gameInsertStep = transaction.dsl().insertInto(
+                SERVICE_GAMES,
+                SERVICE_GAMES.MOVES,
+                SERVICE_GAMES.STARTING_POSITION,
+                SERVICE_GAMES.CREATION_DATE,
+                SERVICE_GAMES.RESULT,
+                SERVICE_GAMES.METADATA,
+                SERVICE_GAMES.CLOCK,
+                SERVICE_GAMES.GAME_ID_IN_SERVICE,
+                SERVICE_GAMES.SERVICE_ID,
+                SERVICE_GAMES.WHITE_PLAYER,
+                SERVICE_GAMES.BLACK_PLAYER,
+                SERVICE_GAMES.IS_RANKED
+            )
+
+            for(game in games) {
+                gameInsertStep = gameInsertStep.values(
+                    game.moves.map { it.toLongAlgebraicNotation() }.toTypedArray(),
+                    game.startingPosition.toFenString(),
+                    game.creationDate,
+                    game.result.toDbResult(),
+                    JSONB.jsonb(Json.encodeToString(game.metadata)),
+                    game.clockSettings.toDbType(),
+                    game.gameIdInService,
+                    game.service.toDbId(),
+                    game.whitePlayer.userIdInService,
+                    game.blackPlayer.userIdInService,
+                    false
+                )
+            }
+
+            Flux.from(gameInsertStep.onDuplicateKeyIgnore()).asFlow().collect()
+        }
+
+        databaseState.getAndUpdate {
+            it.copy(updatesAvailable = true)
+        }
+    }
+
     override suspend fun getLatestGameForServiceAccount(serviceAccount: ServiceAccount): HistoryServiceGame? =
         modifiableUserGamesRequest(
             settings = GamesRequestArgs(
@@ -324,22 +395,6 @@ internal class Server() : ClientApi, Database {
             ),
             extraConditions = GAMES.BLACK_SERVICE_ACCOUNT.eq(serviceAccount.userIdInService)
                 .or(GAMES.WHITE_SERVICE_ACCOUNT.eq(serviceAccount.userIdInService)),
-            userId = null
-        ).singleOrNull() as? HistoryServiceGame
-
-    override suspend fun getGamesAtSecondForServiceAccount(
-        serviceAccount: ServiceAccount,
-        epochSecond: Int
-    ): HistoryServiceGame? =
-        modifiableUserGamesRequest(
-            settings = GamesRequestArgs(
-                includePgnGames = false,
-                includedServices = setOf(serviceAccount.service),
-                length = null,
-            ),
-            extraConditions = (GAMES.BLACK_SERVICE_ACCOUNT.eq(serviceAccount.userIdInService)
-                    .or(GAMES.WHITE_SERVICE_ACCOUNT.eq(serviceAccount.userIdInService))
-                    ).and(epoch(GAMES.CREATION_DATE).eq(epochSecond)),
             userId = null
         ).singleOrNull() as? HistoryServiceGame
 
@@ -456,6 +511,16 @@ internal class Server() : ClientApi, Database {
             databaseState.getAndUpdate { it.copy(updatesAvailable = false) }
 
         return result
+    }
+
+    override suspend fun getTokenForServiceAccount(serviceAccount: ServiceAccount): String? {
+        return dsl.selectFrom(SERVICE_ACCOUNTS)
+            .where(
+                SERVICE_ACCOUNTS.SERVICE_ID.eq(serviceAccount.service.toDbId())
+                    .and(SERVICE_ACCOUNTS.USER_ID_IN_SERVICE.eq(serviceAccount.userIdInService))
+            )
+            .limit(1)
+            .awaitFirst().token
     }
 
     private suspend fun serviceAccountById(userId: String, service: Service): ServiceAccount {

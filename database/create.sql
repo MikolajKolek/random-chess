@@ -1281,13 +1281,19 @@ INSERT INTO game_services(name) VALUES
     ('chess.com'),
     ('lichess.org');
 
-UPDATE service_accounts SET display_name = 'Admin' WHERE user_id = 1;
-
 INSERT INTO service_accounts("user_id", "service_id", "user_id_in_service", "is_bot", "display_name") VALUES
     (NULL, 1, 'stockfish-easy', TRUE, 'Stockfish (Easy)'),
     (NULL, 1, 'stockfish-medium', TRUE, 'Stockfish (Medium)'),
     (NULL, 1, 'stockfish-hard', TRUE, 'Stockfish (Hard)'),
-    (NULL, 1, 'stockfish-impossible', TRUE, 'Stockfish (Impossible)');
+    (NULL, 1, 'stockfish-impossible', TRUE, 'Stockfish (Impossible)'),
+    (NULL, 3, '1', TRUE, 'Lichess bot (level 1)'),
+    (NULL, 3, '2', TRUE, 'Lichess bot (level 2)'),
+    (NULL, 3, '3', TRUE, 'Lichess bot (level 3)'),
+    (NULL, 3, '4', TRUE, 'Lichess bot (level 4)'),
+    (NULL, 3, '5', TRUE, 'Lichess bot (level 5)'),
+    (NULL, 3, '6', TRUE, 'Lichess bot (level 6)'),
+    (NULL, 3, '7', TRUE, 'Lichess bot (level 7)'),
+    (NULL, 3, '8', TRUE, 'Lichess bot (level 8)');
 
 
 INSERT INTO rankings("name", "playtime_min", "playtime_max", "extra_move_multiplier", "starting_elo", "include_bots", "k_factor") VALUES

@@ -5,7 +5,7 @@ sealed interface GameResult {
 
     val winner: PlayerColor?
 
-    companion object {}
+    companion object
 }
 
 data class Win(val winReason: GameWinReason, override val winner: PlayerColor) : GameResult {

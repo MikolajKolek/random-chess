@@ -15,4 +15,6 @@ data class ServiceAccount(
     override val displayName: String,
     val isBot: Boolean,
     val isCurrentUser: Boolean
-): PlayerDetails
+): PlayerDetails {
+    companion object
+}
