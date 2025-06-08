@@ -1,43 +1,38 @@
 # Tematyka i cele projektu
 
-Zakres planowanej funkcjonalności zmienił się delikatnie od początkowej deklaracji, przesyłamy więc tutaj aktualny plan. Nasza baza jest zaprojektowana tak, aby wspierać w pełni wszystkie funkcjonalności podstawowe oraz rozszerzone.
-
-
-# Funkcjonalność podstawowa
+Projekt ***Random Chess*** został stworzony w celu ogranizacji treningu szachowego poprzez agregowanie partii z różnych źródeł oraz rozgrywania lokalnych partii z botami offline. Zaimpelementowane funkcjonalności obejmują:
 
 - Rozgrywanie partii w aplikacji z botem
-  - Weryfikacja legalności ruchów graczy
-  - Integracja z istniejącymi silnikami szachowymi (np. [Stockfish](https://stockfishchess.org/))
-
+    - Weryfikacja legalności ruchów graczy
+    - Integracja z istniejącymi silnikami szachowymi - obecnie [Stockfish](https://stockfishchess.org/) na 4 różnych poziomach trudności
 - Historia rozegranych partii, włączając:
-  - Partie zaimportowane w formacie [PGN – Portable Game Notation](https://pl.wikipedia.org/wiki/Portable_Game_Notation)
-  - Partie automatycznie pobierane z połączonych kont w innych serwisach szachowych udostępniających API takich jak [chess.com](https://www.chess.com/news/view/published-data-api) lub [lichess.org](https://lichess.org/api)
-  - Partie rozegrane w naszym serwisie
+    - Partie zaimportowane w formacie [PGN – Portable Game Notation](https://pl.wikipedia.org/wiki/Portable_Game_Notation)
+    - Partie automatycznie pobierane z połączonych kont na portalu [lichess.org](https://lichess.org/api)
+    - Partie rozegrane w naszym serwisie
 - Możliwość eksportowania partii z historii w formacie PGN
 - Analiza partii
-  - Rozpoznawanie debiutów
-  - Wyświetlanie ruchów w [notacji algebraicznej](https://pl.wikipedia.org/wiki/Szachowa_notacja_algebraiczna)
-
-
-# Funkcjonalność rozszerzona
-
-- System kont
-  - Logowanie hasłem
-  - Łączenie kont w innych portalach szachowych
-
-- Architektura klient-serwer
-
-- Możliwość przeprowadzenia rozgrywek na żywo z innymi graczami
-
-- Dodatkowa funkcjonalność analizowania partii
-  - Szacowanie rankingu Elo (wyłącznie z partii rozegranych w naszym serwisie)
-  - Sugestie lepszych ruchów przez bota
+    - Rozpoznawanie debiutów
+    - Wyświetlanie ruchów w [notacji algebraicznej](https://pl.wikipedia.org/wiki/Szachowa_notacja_algebraiczna)
+- Utrzymanie struktury klient-serwer w celu potencjalnego rozszerzenia projektu
+- Szacowanie rankingu ELO wśród partii rozegranych lokalnie - osobno dla różnych rodzajów temp rozgrywki
+- Przeprowadzanie turniejów w systemie szwajcarskim (tylko w bazie, w aplikacji moduł do parowania graczy)
 
 # Schemat bazy
+
+## Typy i domeny
+
+### game_result
+
+Domena `game_result` na typie `game_result_type` przechowuje informacje o rozstrzygnięciu partii oraz o powodzie zakończenia gry, np. `(1-0,TIMEOUT)` lub '(1/2-1/2,FIFTY_MOVE_RULE)'
+
+### clock_settings
+
+Domena `clock_settings` na typie `clock_settings_type` przetrzymuje informacje o tempie partii - czasie przydzielanym początkowo oraz czasie przyznawanym po każdym ruchu.
 
 ## Tabele
 
 ### openings
+
 
 | Pole          | Typ          | Dodatkowe informacje |
 | ------------- | ------------ | -------------------- |
@@ -46,44 +41,48 @@ Zakres planowanej funkcjonalności zmienił się delikatnie od początkowej dekl
 | `name`        | VARCHAR(256) | NOT NULL             |
 | `partial_fen` | VARCHAR      | UNIQUE NOT NULL      |
 
-Tabela openings przechowuje debiuty, które będą rozpoznawane dla partii poprzez `games_openings`. Planujemy oprzeć ją na <https://github.com/lichess-org/chess-openings> lub podobnym zasobie zbierającym debiuty. Kolumna eco to kod debiutu w [Encyklopedii otwarć szachowych](https://pl.wikipedia.org/wiki/Encyklopedia_otwar%C4%87_szachowych), a [FEN](https://pl.wikipedia.org/wiki/Notacja_Forsytha-Edwardsa) to format zapisu pozycji na szachownicy. Klasyczny FEN skracamy do 4 pierwszych wartości - zapisujemy informacje o pozycji na szachownicy, możliwości roszady obu stron, kolorze przy ruchu oraz możliwości wykonania *en passant*.
-
+Tabela ta przechowuje dane o wszystkich debiutach szachowych poprzez ich nazwę, kod z [Encyclopedia of Chess Opening](https://en.wikipedia.org/wiki/Encyclopaedia_of_Chess_Openings), nazwę i pozycję reprezentującą ten debiut.
+Debiut charakteryzowany jest przez układ szachownicy, gracza przy ruchu oraz możliwość wykonania roszady/en passant przez obu graczy.
+Dane do tej tabeli importujemy z [bazy danych lichess.org](https://github.com/lichess-org/chess-openings) - w tym celu przygotowaliśmy instrukcję oraz skrypt.
 
 ### users
 
-| Pole            | Typ     | Dodatkowe informacje  |
-| --------------- | ------- | --------------------- |
-| **`id`**        | SERIAL  | **PRIMARY KEY**       |
-| `email`         | VARCHAR | UNIQUE NOT NULL       |
-| `password_hash` | VARCHAR | NOT NULL              |
-| `elo`           | NUMERIC | NOT NULL DEFAULT 1500 |
 
-Tabela users przechowuje informacje o użytkownikach w systemie kont naszego projektu. Jeżeli nie udałoby nam się zaimplementować systemu kont (jest to funkcjonalność rozszerzona) to działalibyśmy cały czas na jednym użytkowniku domyślnym.
+| Pole            | Typ     | Dodatkowe informacje |
+|-----------------|---------|----------------------|
+| **`id`**        | SERIAL  | **PRIMARY KEY**      |
+| `email`         | VARCHAR | UNIQUE NOT NULL      |
+| `password_hash` | VARCHAR | NOT NULL             |
 
-Wstępnie w kolumnie `password_hash` planujemy przechowywać hash w formacie [PHC](https://github.com/P-H-C/phc-string-format/blob/master/phc-sf-spec.md), używając algorytmu hashowania [argon2](https://en.wikipedia.org/wiki/Argon2). Tabela ta ma też oczywiście ograniczenie na poprawność adresu e-mail (pochodzące ze strony [emailregex.com](http://emailregex.com)).
-
-Najciekawszym elementem tej tabeli jest kolumna `elo`. Jest to redundancja, ponieważ elo może być całkowicie wyliczone z rozgrywek gracza przechowywanych w tabeli `service_games`. Obliczanie elo jest jednak bardzo czasochłonne i zdecydowaliśmy, że przeliczanie go za każdym razem, gdy chcemy je odczytać, byłoby zbyt kosztowne, a liczenie go za pomocą np. materialized view w SQLu byłoby bardzo skomplikowane do zaimplementowania. Planujemy więc po każdej rozgrywce w naszej aplikacji przeliczać elo i zapisywać wynik w bazie.
-
+W tej tabeli przechowywane są dane o lokalnych użytkownikach. Tabela ta jest stosunkowo niewielka ze względu na to, że większość danych przechowywana jest w bardziej uniwersalnej `service_accounts`.
+Kolumna `elo`, która znajdowała się tutaj poprzednio została zastąpiona kompletnym i funkcjonalnym systemem rankingowym [ELO](https://en.wikipedia.org/wiki/Elo_rating_system) na podstawie lokalnie rozgrywanych partii.
+Poprawność adresu mailowego jest obłożona checkiem na podstawie wyrażenia regularnego.
 
 ### game\_services
+
 
 | Pole     | Typ          | Dodatkowe informacje |
 | -------- | ------------ | -------------------- |
 | **`id`** | SERIAL       | **PRIMARY KEY**      |
 | `name`   | VARCHAR(256) | UNIQUE NOT NULL      |
 
-Tabela `game_services` przechowuje identyfikator dla każdego serwisu szachowego, z którym planujemy integrację. Dodatkowo, w tabeli, pod id `1` znajduje się serwis o nazwie `Random Chess`. Jest to serwis odpowiadający partiom rozegranym w naszym serwisie. Traktujemy je tak samo, jak partie rozegrane w zewnętrznych serwisach, a więc będziemy je przechowywać w tej samej tabeli `service_games`.
-
+Jest to dość niewielka tabela przechowująca różne źródła gier niezaimportowanych przez PGN.
+Przechowujemy tutaj informację o serwisach, z którymi aplikacja wspiera integrację.
+W szczególności, pod indeksem `1` znajduje się wpis `Random Chess`, opisujący lokalne partie.
+To oznacza, że lokalne partie traktujemy na podstawowym poziomie tak samo, jak te zaimportowane z innych serwisów, co pozwala nam przechowywać je w jednej tabeli `service_games`.
 
 ### service\_accounts
 
-| Pole                     | Typ          | Dodatkowe informacje                    |
-| ------------------------ | ------------ | --------------------------------------- |
-| `user_id`                | INT          | REFERENCES users(id) ON DELETE SET NULL |
-| **`service_id`**         | INT          | NOT NULL REFERENCES game\_services(id)  |
-| **`user_id_in_service`** | VARCHAR      | NOT NULL                                |
-| `display_name`           | VARCHAR(256) | NOT NULL                                |
-| `is_bot`                 | BOOL         | NOT NULL                                |
+| Pole                     | Typ           | Dodatkowe informacje                    |
+|--------------------------|---------------|-----------------------------------------|
+| `user_id`                | INT           | REFERENCES users(id) ON DELETE SET NULL |
+| **`service_id`**         | INT           | NOT NULL REFERENCES game\_services(id)  |
+| **`user_id_in_service`** | VARCHAR       | NOT NULL                                |
+| `token`                  | VARCHAR       | NULL                                    |
+| `display_name`           | VARCHAR(256)  | NOT NULL                                |
+| `is_bot`                 | BOOL          | NOT NULL                                |
+
+`token` to wartość trzymana dla połączonych kont z zewnętrznych aplikacji, służąca do synchronizacji partii z nimi. Jest ona niepusta dla zewnętrznych kont nieusuniętych użytkowników.
 
 Para **`(service_id, user_id_in_service)`** tworzy klucz podstawowy. Każdemu użytkownikowi serwisu szachowego może odpowiadać co najwyżej jeden użytkownik w naszym systemie kont.
 
@@ -105,7 +104,6 @@ Dodatkowo, ograniczenie `valid_system_account` w `service_accounts` upewnia się
 - dla użytkowników, póki ich konto istnieje, to `user_id_in_service = user_id`,
 - dla botów `user_id IS NULL`.
 
-
 ### Tabele service\_games i pgn\_games
 
 Te tabele przechowują partie szachowe, które będą analizowane w naszej aplikacji. Tabela `service_games` przechowuje zsynchronizowane partie z zewnętrznych serwisów oraz partie rozegrane w naszym serwisie. Tabela `pgn_games` przechowuje partie, które zostały zaimportowane ręcznie przez użytkownika.
@@ -117,25 +115,44 @@ Klucze podstawowe **`id`** w `service_games` i `pgn_games` mogą się powtarzać
 
 #### Wspólne pola w tabelach service\_games i pgn\_games
 
-| Pole       | Typ       | Dodatkowe informacje |
-| ---------- | --------- | -------------------- |
-| `moves`    | VARCHAR   | NOT NULL             |
-| `date`     | TIMESTAMP |                      |
-| `metadata` | JSONB     |                      |
+| Pole                | Typ            | Dodatkowe informacje                                                      |
+|---------------------|----------------|---------------------------------------------------------------------------|
+| `moves`             | VARCHAR(5)[]   | NOT NULL                                                                  |
+| `starting_position` | VARCHAR(100)   | NOT NULL                                                                  |
+| `partial_fens`      | VARCHAR[]      | GENERATED ALWAYS AS (generate_fen_array(starting_position, moves)) STORED |
+| `creation_date`     | TIMESTAMPTZ    | NOT NULL                                                                  |
+| `result`            | GAME_RESULT    | NOT NULL                                                                  |
+| `metadata`          | JSOB           | NULL                                                                      |
+| `clock`             | CLOCK_SETTINGS | NULL                                                                      |
+
+Jako że wszystkie partie posiadają duże przecięcie, niezależnie od źródła, wiele pól występuje zarówno w tabeli `service_games` jak i w `pgn_games`.
 
 Kolumna `moves` przechowuje ruchy graczy w partii w postaci [PGN](https://pl.wikipedia.org/wiki/Portable_Game_Notation), bez metadanych.
 
+Kolumna `starting_position` przetrzymuje pierwsze 4 pola formatu [FEN](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation).
+
+Kolumna `partial_fens` przechowuje kolejne stany w postaci jak powyżej wszystkich ruchów od początku do końca partii.
+Jest to kolumna wygenerowana funkcją na podstawie listy ruchów i startowej pozycji.
+Zdecydowaliśmy się przetrzymywać to pole na stałe, gdyż zapytania do tej tabeli są bardzo częste, a obliczenie tego pola relatywnie czasochłonne.
+
+Kolumna `creation_date` opisuje datę rozegrania albo importu, w zależności od rodzaju partii.
+
+Kolumna `result` typu `game_result` przetrzymuje sposób zakończenia rozgrywki, jak opisano w sekcji `Typy i domeny`.
+
 Kolumna `metadata` zawiera wszystkie niestandardowe pola metadanych pochodzących z opisu partii w postaci PGN. Dane przechowujemy w formacie JSON, choć nie spełnia to reguły atomowości, bo dokładny ich format może się różnić w zależności od serwisu, a dane te służą jedynie do wyświetlenia użytkownikowi i ponownego eksportu rozgrywki do formatu PGN, nigdy nie będziemy wykonywać zapytań dotyczących metadanych w tym polu.
+
+Kolumna `clock` w typie `clock_settings` przetrzymuje dane o tempie, w którym partia została rozegrana. Wartość ta poza ponownym eksportem do formatu PGN służy także przy obliczaniu rankingów.
 
 #### Pola występujące tylko w service\_games
 
 | Pole                 | Typ     | Dodatkowe informacje                   |
-| -------------------- | ------- |----------------------------------------|
+|----------------------| ------- |----------------------------------------|
 | **`id`**             | SERIAL  | **PRIMARY KEY**                        |
 | `game_id_in_service` | VARCHAR | NULL                                   |
 | `service_id`         | INT     | NOT NULL REFERENCES game\_services(id) |
 | `white_player`       | VARCHAR | NOT NULL                               |
 | `black_player`       | VARCHAR | NOT NULL                               |
+| `is_ranked`          | VARCHAR | NOT NULL                               |
 
 `game_id_in_service` to ID pochodzące z zewnętrznego API. Na pary `(game_id_in_service, service_id)` jest założone ograniczenie UNIQUE.
 
@@ -143,6 +160,7 @@ Dla partii pochodzących z naszego serwisu, `game_id_in_service` jest NULL, poni
 
 Dla zewnętrznych serwisów `white_player` i `black_player` oznaczają id użytkownika w API tego serwisu. Pary `(white_player, service_id)` i `(black_player, service_id)` są kluczami obcymi wskazującymi na pary `(service_id, user_id_in_service)`, czyli klucz podstawowy, w tabeli `service_accounts`.
 
+Pole `is_ranked` (fałszywe dla gier spoza naszego serwisu) opisuje, czy dana rozgrywka powinna być liczona do rankingów.
 
 #### Pola występujące tylko w pgn\_games
 
@@ -155,83 +173,292 @@ Dla zewnętrznych serwisów `white_player` i `black_player` oznaczają id użytk
 
 `owner_id` to ID użytkownika, który zaimportował daną partię. Ponieważ w przypadku `pgn_games` partie widzi tylko właściciel, pole to ma ustawione `ON DELETE CASCADE`, aby po jego usunięciu partia także została usunięta.
 
+### rankings
+
+CREATE TABLE rankings(
+"id"                    SERIAL      PRIMARY KEY,
+"name"                  VARCHAR     NOT NULL,
+-- Inclusive:
+"playtime_min"          INTERVAL    NOT NULL    CHECK ("playtime_min" >= '0 seconds'::INTERVAL),
+-- Exclusive:
+"playtime_max"          INTERVAL    NULL        CHECK ("playtime_max" > '0 seconds'::INTERVAL),
+"extra_move_multiplier" INT         NOT NULL    CHECK ("extra_move_multiplier" >= 0),
+"starting_elo"          NUMERIC     NOT NULL    CHECK ("starting_elo" > 0),
+"include_bots"          BOOLEAN     NOT NULL,
+"k_factor"              NUMERIC     NOT NULL,
+
+    CONSTRAINT "playtime_valid" CHECK ("playtime_max" IS NULL OR "playtime_min" <= "playtime_max")
+);
+
+### elo_history
+
+CREATE TABLE elo_history(
+"id"                    SERIAL      PRIMARY KEY,
+"service_id"            INT         NOT NULL    REFERENCES "game_services" ("id")
+CHECK ("service_id" = 1),
+"user_id_in_service"    VARCHAR     NOT NULL,
+"ranking_id"            INT         NOT NULL    REFERENCES "rankings" ("id"),
+"game_id"               INT         NOT NULL    REFERENCES "service_games" ("id"),
+"elo"                   NUMERIC     NOT NULL,
+"previous_entry"        INT         NULL,
+
+    -- Make sure that a single elo history entry is not the previous entry more than once
+    UNIQUE NULLS NOT DISTINCT ("service_id", "user_id_in_service", "ranking_id", "previous_entry"),
+
+    -- A single game can only influence a player's elo once
+    UNIQUE("service_id", "user_id_in_service", "ranking_id", "game_id"),
+
+    UNIQUE("service_id", "user_id_in_service", "ranking_id", "id"),
+    FOREIGN KEY("service_id", "user_id_in_service", "ranking_id", "previous_entry")
+        REFERENCES "elo_history"("service_id", "user_id_in_service", "ranking_id", "id"),
+
+    FOREIGN KEY ("service_id", "user_id_in_service")
+        REFERENCES "service_accounts" ("service_id", "user_id_in_service")
+);
+
+### swiss\_tournaments
+
+CREATE TABLE "swiss_tournaments"
+(
+"tournament_id"     SERIAL              PRIMARY KEY,
+"round_count"       INTEGER             NOT NULL        CHECK ( round_count > 0 ), -- Swiss tournaments have a fixed round count
+"starting_position" VARCHAR             NOT NULL DEFAULT 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+"is_ranked"         BOOLEAN             NOT NULL DEFAULT TRUE,
+"ranking_id"        INTEGER             NULL        REFERENCES rankings(id),
+"time_control"      "clock_settings"    NOT NULL,
+CHECK((is_ranked IS FALSE AND ranking_id IS NULL) OR (is_ranked IS TRUE AND ranking_id IS NOT NULL))
+);
+
+### tournaments\_games
+
+CREATE TABLE "tournaments_games"
+(
+"tournament_id"     INTEGER     NOT NULL    REFERENCES swiss_tournaments(tournament_id) ON DELETE CASCADE,
+"game_id"           INTEGER     NOT NULL    REFERENCES service_games(id),
+"round"             INTEGER     NOT NULL    CHECK ( round > 0 )
+);
+
+### tournaments\_players
+
+CREATE TABLE "tournaments_players"
+(
+"service_id"        INTEGER     NOT NULL DEFAULT 1  REFERENCES game_services(id)
+CHECK (service_id = 1),
+"tournament_id"     INTEGER     NOT NULL    REFERENCES swiss_tournaments(tournament_id) ON DELETE CASCADE,
+"user_id_in_service" VARCHAR    NOT NULL,
+FOREIGN KEY ("service_id", "user_id_in_service")
+REFERENCES "service_accounts" ("service_id", "user_id_in_service"),
+UNIQUE ("tournament_id", "user_id_in_service")
+);
+
+### byes
+
+CREATE TABLE "byes"
+(
+"tournament_id"         INTEGER     NOT NULL            REFERENCES swiss_tournaments(tournament_id) ON DELETE CASCADE,
+"round"                 INTEGER     NOT NULL            CHECK ( round > 0 ),
+"user_id_in_service"    VARCHAR     NOT NULL,
+FOREIGN KEY ("tournament_id", "user_id_in_service")
+REFERENCES "tournaments_players" ("tournament_id", "user_id_in_service"),
+UNIQUE ("tournament_id", "round", "user_id_in_service")
+);
+
+### tournaments_ranking_reqs
+
+-- Ranking value requirement placed on a tournament
+CREATE TABLE "tournaments_ranking_reqs"
+(
+"tournament_id"     INTEGER     NOT NULL    REFERENCES swiss_tournaments(tournament_id) ON DELETE CASCADE,
+"ranking_type"      INTEGER     NOT NULL    REFERENCES rankings(id) ON DELETE CASCADE,
+"required_value"    INTEGER     NOT NULL    CHECK ( required_value > 0 )
+);
+
+### tournaments_ranked_games_reqs
+
+-- Number of rated games in certain ranking placed on a tournament
+CREATE TABLE "tournaments_ranked_games_reqs"
+(
+"tournament_id"     INTEGER     NOT NULL    REFERENCES swiss_tournaments(tournament_id) ON DELETE CASCADE,
+"ranking_type"      INTEGER     NOT NULL    REFERENCES rankings(id) DEFAULT 0, -- 0 is the global ranking
+"game_count"        INTEGER     NOT NULL    CHECK ( game_count > 0 ),
+UNIQUE(tournament_id, ranking_type)
+);
+
 ## Widoki
 
 ### games
 
-| Pole     | Typ       | Dodatkowe informacje           |
-| -------- |-----------| ------------------------------ |
-| `id`       | INT       | NOT NULL                       |
-| `kind`     | VARCHAR   | Jeden z (`'service'`, `'pgn'`) |
-| `moves`    | VARCHAR   | NOT NULL                       |
-| `date`     | TIMESTAMP |                                |
-| `metadata` | JSONB     |                                |
+| Pole                    | Typ            | Dodatkowe informacje                                                      |
+|-------------------------|----------------|---------------------------------------------------------------------------|
+| `id`                    | INT            | NOT NULL                                                                  |
+| `kind`                  | VARCHAR        | Jeden z (`'service'`, `'pgn'`)                                            |
+| `starting_position`     | VARCHAR(100)   | NOT NULL                                                                  |
+| `moves`                 | VARCHAR(5)[]   | NOT NULL                                                                  |
+| `partial_fens`          | VARCHAR[]      | GENERATED ALWAYS AS (generate_fen_array(starting_position, moves)) STORED |
+| `creation_date`         | TIMESTAMPTZ    | NOT NULL                                                                  |
+| `result`                | GAME_RESULT    | NOT NULL                                                                  |
+| `metadata`              | JSOB           | NULL                                                                      |
+| `clock`                 | CLOCK_SETTINGS | NULL                                                                      |
+| `result`                | GAME_RESULT    | NOT NULL                                                                  |
+| `service_id`            | INT            | NULL (puste dla kind `'pgn'`)                                             |
+| `white_service_account` | VARCHAR        | NULL (puste dla king `'pgn'`)                                             |
+| `black_service_account` | VARCHAR        | NULL (puste dla kind `'pgn'`)                                             |
+| `is_ranked`             | BOOLEAN        | NULL (puste dla kind `'pgn'`)                                             |
+| `pgn_owner_id`          | INT            | NULL (puste dla kind `'service'`)                                         |
+| `pgn_white_player_name` | VARCHAR        | NULL (puste dla kind `'service'`)                                         |
+| `pgn_black_player_name` | VARCHAR        | NULL (puste dla kind `'service'`)                                         |
 
 Widok `games` jest UNION `service_games` i `pgn_games`. `kind` jest równy `'service'` dla partii pochodzących z `service_games` i `'pgn'` dla partii pochodzących z `'pgn_games'`. `id` nie jest unikatowe dla wszystkich jego elementów, ale para `(id, kind)` już jest.
 
+W szczególności, wartości unikalne dla jednego z tych rodzajów są puste dla wartości pochodzących z drugiego.
+
 ### users\_games
 
-| Pole       | Type      | Dodatkowe informacje           |
-| ---------- | --------- | ------------------------------ |
-| `user_id`  | INT       | NOT NULL                       |
-| `game_id`  | INT       | NOT NULL                       |
-| `kind`     | VARCHAR   | Jeden z (`'service'`, `'pgn'`) |
-| `moves`    | VARCHAR   | NOT NULL                       |
-| `date`     | TIMESTAMP |                                |
-| `metadata` | JSONB     |                                |
-
-Widok `users_games` łączy wszystkie partie z użytkownikami, którzy mają do nich dostęp:
-- Partie z `service_games` z użytkownikami, których jakieś podłączone konto z `service_accounts` jest jedną ze stron tej partii.\
-  Te wiersze mają pole `kind` ustawione na `service`.
-- Partie z `pgn_games` z ich właścicielami według pola `owner_id`.\
-  Te wiersze mają pole `kind` ustawione na `pgn`.
-
-Pola `moves`, `date` i `metadata` są w tym samym formacie co w widoku `games`.
+CREATE VIEW "users_games" AS (
+SELECT sa."user_id" as "user_id", sg."id" as "game_id", 'service' AS "kind", "moves", "creation_date", "result", "metadata"
+FROM service_accounts sa
+JOIN service_games sg ON (sa.user_id_in_service = sg.white_player) OR (sa.user_id_in_service = sg.black_player)
+UNION
+SELECT pg."owner_id" AS "user_id", pg."id" AS "game_id", 'pgn' as "kind", "moves", "creation_date", "result", "metadata"
+FROM pgn_games pg
+);
 
 ### games\_openings
 
+
 | Pole         | Typ     | Dodatkowe informacje           |
-| ------------ | ------- | ------------------------------ |
-| `game_id`    | INT     | NOT NULL                       |
-| `game_kind`  | VARCHAR | Jeden z (`'service'`, `'pgn'`) |
-| `opening_id` | INT     |                                |
+|--------------|---------|--------------------------------|
+| **`id`**     | INT     | NOT NULL                       |
+| `kind`       | VARCHAR | Jeden z (`'service'`, `'pgn'`) |
+| `opening_id` | VARCHAR | NULL                           |
+| `move_no`    | VARCHAR | NULL                           |
 
-Widok `games_openings` jest planowanym widokiem łączącym partie w widoku `games` z ich debiutami. Mamy zamiar zaimplementować go, pisząc funkcję, która pierwsze w oparciu na `moves` w tabeli `games` liczy partial_fen wszystkich pozycji, które wystąpiły w danej grze w kolejności. Następnie, trzeba tylko porównać kolejne elementy tej tabeli z kolumną `partial_fen` tabeli `openings`, znajdując ostatnią pozycję, której może zostać przypisany debiut i zapisując go w `opening_id`. Implementacja tego widoku była zbyt skomplikowana na pierwszy etap projektu, dlatego planujemy to zrobić w etapie drugim.
+Widok ten łączy wszystkie gry z ich debiutami przy pomocy funkcji. Tam, gdzie wykrycie debiutu jest możliwe (istnieje jakikolwiek wpis w bazie, który można dopasować), tam wartość `opening_id` wskazuje na odpowiedni wpis.
+Dodatkowo, kolumna `move_no` trzyma informację o tym, w którym ruchu dany debiut został wykryty.
 
-# Napotkane problemy
+### games\_rankings
 
-## Modelowanie partii szachowych
+-- Table mapping games from service_games to the rankings in which the game is rated
+CREATE VIEW games_rankings AS
+SELECT
+"service_games"."id" AS "game_id",
+"rankings"."id" AS "ranking_id"
+FROM "service_games"
+INNER JOIN "service_accounts" white_accounts ON (
+white_accounts."service_id" = "service_games"."service_id" AND
+white_accounts."user_id_in_service" = "service_games"."white_player"
+)
+INNER JOIN "service_accounts" black_accounts ON (
+black_accounts."service_id" = "service_games"."service_id" AND
+black_accounts."user_id_in_service" = "service_games"."black_player"
+)
+CROSS JOIN "rankings"
+WHERE
+"service_games"."is_ranked" AND
+verify_time_control(
+"service_games"."clock",
+"rankings"."playtime_min",
+"rankings"."playtime_max",
+"rankings"."extra_move_multiplier"
+) AND
+(
+"rankings"."include_bots" OR
+(white_accounts."is_bot" = FALSE AND black_accounts."is_bot" = FALSE)
+)
+;
 
-W trakcie projektowania bazy natrafiliśmy na problem tego, jak modelować partie szachowe. Nasz program przechowuje jednocześnie partie zaimportowane ręcznie przez graczy, które mają jednego właściciela i są widoczne tylko dla niego, jak i partie z serwisów szachowych, które powinny być widoczne dla obu stron. Mamy więc dwa różne typy partii, które mają jednocześnie ze sobą dużo wspólnego, i chcemy móc operować na nich razem, ale mają też różne pola w zależności od typu. Rozważyliśmy wiele różnych sposobów modelowania tych danych w bazie i poniżej wymieniamy część z nich w skrócie, włącznie z wadami każdego podejścia:
+### current\_ranking
 
-1. Jedna tabela `games` z kolumnami obu typów i checkami weryfikującymi, że kolumny jednego typu są ustawione na wartości inne niż `NULL`, a kolumny drugiego typu wypełnione są `NULL`ami.\
-  **Wady**: Każdy wiersz ma dużą liczbę `NULL`i. Duża redundancja: `NOT NULL` w jednej sekcji znaczy, że cała druga sekcja jest `NULL`.
+CREATE VIEW current_ranking AS(
+SELECT *
+FROM ranking_at_timestamp(CURRENT_TIMESTAMP)
+);
 
-2. Tabela `games` ze wspólnymi kolumnami oraz osobne tabele `service_games` i `pgn_games`. Tabela `games` posiada pola z kluczami obcymi do `service_games.id` i `pgn_games.id` oraz check sprawdzający, czy dokładnie jeden z tych kluczy obcych jest `NOT NULL`.\
-**Wady**: możliwość powstania sieroty w `service_games` lub `pgn_games` (a więc np. `pgn_game` która ma właściciela, a nie ma faktycznej rozgrywki). Istnienia takiej sieroty nie da się wykryć triggerami blokującymi jej powstanie, ponieważ trigger taki zupełnie uniemożliwiałby stworzenie wiersza w `pgn_games` i `service_games` (ponieważ potrzebowałyby ono istnienia wiersza w `games`, który potrzebuje istnienia wiersza w `pgn_games` albo `service_games`). W takiej sytuacji można zawsze odnosząc się do `pgn_games` albo `service_games` pierwsze robić INNER JOINa z `games` aby upewnić się, że gra istnieje, ale nie jest to najładniejsze rozwiązanie.
+### tournaments\_reqs
 
-3. Tabela `games` ze wspólnymi kolumnami oraz tabele `service_games` i `pgn_games`. Tabele `service_games` i `pgn_games` posiadają pola `game_id` będące kluczami obcymi do `games.id`.\
-**Wady**: możliwość posiadania partii w `games`, która jest podłączona do 0 partii w `pgn_games` i `service_games`, lub jednocześnie do `pgn_games` i `service_games`. Podobnie jak w pomyśle 2., problemu z możliwością posiadania 0 partii w `pgn_games` i `service_games` nie da się naprawić triggerem (choć możliwość posiadania dwóch już tak).
+CREATE VIEW "tournaments_reqs" AS
+(
+SELECT tournament_id, ranking_type, game_count, null AS required_value
+FROM tournaments_ranked_games_reqs
+UNION ALL
+SELECT tournament_id, ranking_type, null AS game_count, required_value
+FROM tournaments_ranking_reqs
+);
 
-4. Tabela `games` ze wspólnymi kolumnami oraz tabele `service_games` i `pgn_games` dziedziczące od games. Tabela `games` z zablokowaną możliwością tworzenia wierszy bezpośrednio, pozwalając na wstawianie wierszy tylko do `service_games` i `pgn_games`.\
-**Wady**: Niestety dziedziczenie w Postgresie nie dziedziczy żadnych checków, włącznie z kluczami obcymi i głównymi. Oznacza to, że w tabelach `service_games` i `pgn_games` mógłby być wiersz posiadający to samo `id` (choć to dałoby się jeszcze naprawić triggerami). Większym problemem jest jednak, że do takich tabel wcale nie da się odnosić kluczami obcymi, ponieważ klucz obcy zwracający się do `games` nie sprawdza wcale tabel dziedziczących. Daje to wielkie ograniczenia na potencjalne przyszłe rozszerzanie bazy, dlatego nie zdecydowaliśmy się na to rozwiązanie.\
-Aby współpracować z systemem dziedziczenia w Postgresie, tabela `games` musi istnieć, choć nie przechowuje żadnych wierszy.
+### swiss\_tournaments\_players\_points
 
-5. Tabela `games` ze wspólnymi kolumnami oraz tabele `service_games` i `pgn_games`. Tabela `games` posiada pola z kluczami obcymi do `service_games.id` i `pgn_games.id` (z checkami podobnymi do 2.). `Service_games.id` i `pgn_games.id` są symetrycznymi obowiązkowymi kluczami obcymi wskazującymi na z powrotem na klucze obce w `games`.\
-**Wady**: rozwiązanie to duplikuje klucze obce, wskazując w obie strony na raz - jest to redundancja.
-Wymagany jest wyzwalacz do weryfikowania czy te klucze są spójne, czyli że jeśli wiersz *A* z tabeli `pgn_games`/`service_games` wskazuje na wiersz *B* z `games`, to *B* wskazuje z powrotem na *A*.
+CREATE VIEW "swiss_tournaments_players_points" AS
+(
+WITH point_values AS (
+SELECT st.tournament_id, tp.user_id_in_service, tg.round,
+ROUND((
+SELECT COUNT(*)
+FROM tournaments_games tg2
+JOIN service_games sg ON(tg2.game_id = sg.id)
+WHERE sg.service_id = 1
+AND ((sg.white_player = tp.user_id_in_service AND (sg.result).game_end_type = '1-0')
+OR (sg.black_player = tp.user_id_in_service AND (sg.result).game_end_type = '0-1'))
+AND tg2.round <= tg.round
+AND tg2.tournament_id=st.tournament_id
+)+(
+SELECT COUNT(*)
+FROM tournaments_games tg2
+JOIN service_games sg ON(tg2.game_id = sg.id)
+WHERE sg.service_id = 1
+AND (sg.white_player = tp.user_id_in_service OR sg.black_player = tp.user_id_in_service)
+AND (sg.result).game_end_type = '1/2-1/2'
+AND tg2.round <= tg.round
+AND tg2.tournament_id=st.tournament_id
+)::numeric/2+(
+SELECT COUNT(*)
+FROM byes b
+WHERE b.tournament_id=st.tournament_id AND b.user_id_in_service=tp.user_id_in_service AND b.round <= tg.round
+),1) AS points
+FROM swiss_tournaments st
+JOIN tournaments_players tp USING(tournament_id)
+JOIN tournaments_games tg USING(tournament_id)
+GROUP BY st.tournament_id, tp.user_id_in_service, tg.round
+)
+SELECT st.tournament_id, tp.user_id_in_service, tg.round, pv.points,
+calculate_performance_rating(
+(WITH linked_games AS (
+SELECT white_player, black_player
+FROM tournaments_games tg2
+JOIN service_games sg ON (sg.id = tg2.game_id AND (sg.white_player = tp.user_id_in_service OR sg.black_player = tp.user_id_in_service))
+WHERE tg2.tournament_id=st.tournament_id AND tg2.round <= tg.round
+), opponents AS (
+SELECT lg.white_player AS opp
+FROM linked_games lg
+WHERE lg.white_player != tp.user_id_in_service
+UNION
+SELECT lg.black_player AS opp
+FROM linked_games lg
+WHERE lg.black_player != tp.user_id_in_service
+)
+SELECT ARRAY_AGG(rat.elo)
+FROM opponents o
+JOIN current_ranking rat ON o.opp=rat.user_id_in_service AND rat.ranking_id=st.ranking_id
+), -- opponents' ratings
+pv.points - (
+SELECT COUNT(*)
+FROM byes b
+WHERE b.tournament_id=st.tournament_id AND b.user_id_in_service=tp.user_id_in_service AND b.round <= tg.round
+)
+) AS performance_rating
+FROM swiss_tournaments st
+JOIN tournaments_players tp USING(tournament_id)
+JOIN tournaments_games tg USING(tournament_id)
+JOIN point_values pv ON(pv.tournament_id=st.tournament_id AND tp.user_id_in_service=pv.user_id_in_service AND tg.round=pv.round)
+GROUP BY st.tournament_id, tp.user_id_in_service, tg.round, pv.points
+);
 
-6. Tabela `games` ze wspólnymi kolumnami oraz tabele `service_games` i `pgn_games`. Dodatkowe pole `game_type` we wszystkich trzech tabelach - `GENERATED ALWAYS AS(‘pgn’)` w `pgn_games`, analogicznie w `service_games`, w games będące równe `'pgn'` albo `'service'`. Para `(id, type)` będąca foreign key z `service_games` i `pgn_games` w `games`.\
-**Wady**: konieczność stworzenia dodatkowych kolumn `GENERATED` w `service_games` i `pgn_games` (które muszą być `STORED`, ponieważ Postgres nie implementuje w tej chwili kolumn `VIRTUAL`), możliwość stworzenia sierot w `games` (choć sieroty te są mniej problematyczne niż w `pgn_games` oraz `service_games`, bo raczej przy przeglądaniu bazy nie odwołujemy się do `games` bezpośrednio, tylko przez `pgn_games` albo `service_games`).
+### swiss\_tournaments\_round\_standings
 
-7. Finalne rozwiązanie: tabele `pgn_games` i `service_games`, bez tabeli `games`. Kolumny, które w innych rozwiązaniach znajdowały się w `games`, w tym rozwiązaniu są przeniesione do `pgn_games` i `service_games`. W razie potrzeby możliwość robienia UNION na tabelach.\
-**Wady**: część kolumn w `pgn_games` i `service_games` jest identyczna, co wymaga czujności przy modyfikowaniu struktury tabel. Zapytania o wszystkie partie wymagają odwołania się do dwóch tabel zamiast jednej (albo do widoku `games`, który robi to samo), tak jest np. w `games_openings`. `id` nie stanowi samo jednoznacznego identyfikatora wszystkich partii (ale `(id, kind)`, gdzie `kind` oznacza na rodzaj partii `service`/`pgn`, już tak). Nie da się zrobić jednego klucza obcego do obu typów partii.
-## Upewnienie się, że dla każdego użytkownika istnieje systemowy `service_account`
-
-Z powodu decyzji o traktowaniu partii rozegranych w naszym systemie w taki sam sposób jak tych rozegranych w innych systemach, musimy upewnić się, że każdy użytkownik posiada dokładnie jedno systemowe `service_account` o `service_id = 1` i z jego `user_id`. Tutaj też rozważyliśmy kilka możliwości:
-
-1. Przechowywanie w `users` bezpośredniego foreign key do odpowiadającego konta systemowego.\
-**Wady**: niepotrzebna duplikacja danych.
-2. Dziedziczenie `users` od `service_accounts`.\
-**Wady**: mimo tego, że wygląda to, jak dobre rozwiązanie, niestety spotykamy te same problemy, co w podejściu 4 z modelowania partii szachowych. Fakt, że inne tabele nie mogłyby zwracać się do kont systemowych poprzez foreign key, zupełnie psułby np. foreign key z `service_games` do `service_accounts`.
-3. Finalne rozwiązanie: stworzenie triggerów `add_default_service_to_user`, `prevent_default_service_modification`, `prevent_default_service_deletion` oraz checka `valid_system_account`, które weryfikują poprawność i istnienie kont systemowych.
+CREATE VIEW "swiss_tournaments_round_standings" AS
+(
+SELECT ROW_NUMBER() OVER (PARTITION BY st.tournament_id, stpp.round ORDER BY stpp.points DESC, stpp.performance_rating DESC) place,
+stpp.points, stpp.performance_rating, stpp.user_id_in_service, st.tournament_id, stpp.round
+FROM swiss_tournaments st
+JOIN swiss_tournaments_players_points stpp on st.tournament_id = stpp.tournament_id
+ORDER BY place
+);
