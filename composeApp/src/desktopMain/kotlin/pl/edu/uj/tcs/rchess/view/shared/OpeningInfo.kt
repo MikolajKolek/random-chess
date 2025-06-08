@@ -22,16 +22,15 @@ fun OpeningInfo(
     opening: Opening,
     orientation: PlayerColor = PlayerColor.WHITE,
     squareBoard: Boolean = false,
+    onClick: (() -> Unit)? = null
 ) {
-    val openingUrl = "https://www.365chess.com/eco/${opening.eco}"
-
     Column(
         modifier = modifier,
     ) {
         Text(
             modifier = Modifier.padding(bottom = 8.dp),
             text = buildAnnotatedString {
-                withLink(LinkAnnotation.Url(url = openingUrl)) {
+                withLink(LinkAnnotation.Url(url = opening.url)) {
                     append(opening.eco)
                 }
                 append(": ")
@@ -47,6 +46,7 @@ fun OpeningInfo(
                 state = opening.position,
                 orientation = orientation,
                 squareBorder = squareBoard,
+                onClick = onClick,
             )
         }
     }

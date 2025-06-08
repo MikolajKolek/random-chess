@@ -185,6 +185,7 @@ fun GameScreen(
                         orientation = orientation,
                         fenPinned = fenPinned,
                         onFenPinnedChange = { fenPinned = it },
+                        onSelectMove = boardStateBrowser::select,
                     )
                 }
             },

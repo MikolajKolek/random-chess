@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -69,6 +70,7 @@ fun BoardView(
     orientation: PlayerColor,
     moveEnabledForColor: PlayerColor? = null,
     onMove: (move: Move) -> Unit = {},
+    onClick: (() -> Unit)? = null,
     squareBorder: Boolean = false,
 ) {
     var moveInProgress: MoveInProgress? by remember { mutableStateOf(null) }
@@ -112,9 +114,19 @@ fun BoardView(
     }
 
     val moveInProgressCopy = moveInProgress
-    OutlinedCard(
-        shape = if (squareBorder) RectangleShape else CardDefaults.outlinedShape,
-    ) {
+
+    @Composable
+    fun MaybeClickableCard(content: @Composable ColumnScope.() -> Unit) {
+        val shape = if (squareBorder) RectangleShape else CardDefaults.outlinedShape
+        // OutlinedCard does not have a nullable `onClick` field.
+        // It uses for this overloaded functions instead.
+        when (onClick) {
+            null -> OutlinedCard(shape = shape, content = content)
+            else -> OutlinedCard(shape = shape, content = content, onClick = onClick)
+        }
+    }
+
+    MaybeClickableCard {
         Column(
             modifier = Modifier
                 .width(8 * pieceSize)

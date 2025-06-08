@@ -15,4 +15,9 @@ data class Opening(
     val name: String,
     val position: BoardState,
     val moveNumber: Int,
-)
+) {
+    /**
+     * The URL in a ECO database where the user can see more details for this opening
+     */
+    val url = "https://www.365chess.com/eco/${eco}"
+}

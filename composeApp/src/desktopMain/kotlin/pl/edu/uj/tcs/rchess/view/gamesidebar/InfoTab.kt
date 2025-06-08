@@ -24,6 +24,7 @@ fun InfoTab(
     orientation: PlayerColor,
     fenPinned: Boolean,
     onFenPinnedChange: (Boolean) -> Unit,
+    onSelectMove: (number: Int) -> Unit,
 ) {
     ScrollableColumn(
         modifier = Modifier.fillMaxWidth().then(modifier),
@@ -41,6 +42,7 @@ fun InfoTab(
                         modifier = Modifier.fillMaxWidth(),
                         opening = it,
                         orientation = orientation,
+                        onClick = { onSelectMove(it.moveNumber) },
                     )
                 }
             }
