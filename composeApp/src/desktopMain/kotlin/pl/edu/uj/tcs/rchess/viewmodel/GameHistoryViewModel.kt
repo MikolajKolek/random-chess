@@ -9,9 +9,11 @@ import pl.edu.uj.tcs.rchess.api.Synchronized
 import pl.edu.uj.tcs.rchess.api.Synchronizing
 import pl.edu.uj.tcs.rchess.api.args.GamesRequestArgs
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryGame
+import pl.edu.uj.tcs.rchess.util.logger
 import pl.edu.uj.tcs.rchess.viewmodel.paging.PageFetchResult
 import pl.edu.uj.tcs.rchess.viewmodel.paging.Paging
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.measureTime
 
 class GameHistoryViewModel(
     private val clientApi: ClientApi,
@@ -34,9 +36,18 @@ class GameHistoryViewModel(
             // we can let them see partial changes quicker.
             is Synchronizing -> 1.seconds
         }
-        clientApi.requestResync()
-        withTimeoutOrNull(timeout) {
+        val requestResyncTime = measureTime {
+            clientApi.requestResync()
+        }
+        if (requestResyncTime > 1.seconds) {
+            logger.warn { "Requesting a resync took $requestResyncTime" }
+        }
+
+        val timedOut = withTimeoutOrNull(timeout) {
             clientApi.databaseState.first { it.synchronizationState !is Synchronizing }
+        } == null
+        if (timedOut) {
+            logger.info { "Waiting for sync to end exceeded timeout of $timeout, continuing" }
         }
     }
 

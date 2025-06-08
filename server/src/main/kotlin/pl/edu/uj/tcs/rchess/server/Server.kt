@@ -47,6 +47,7 @@ import pl.edu.uj.tcs.rchess.server.Serialization.toDbResult
 import pl.edu.uj.tcs.rchess.server.Serialization.toDbType
 import pl.edu.uj.tcs.rchess.server.Serialization.toModel
 import pl.edu.uj.tcs.rchess.server.Serialization.toModelWith
+import pl.edu.uj.tcs.rchess.util.logger
 import pl.edu.uj.tcs.rchess.util.tryWithLock
 import reactor.core.publisher.Flux
 import java.time.OffsetDateTime
@@ -265,6 +266,7 @@ internal class Server() : ClientApi, Database {
     }
 
     override suspend fun requestResync() {
+        logger.debug { "requestResync() started" }
         requestResyncMutex.tryWithLock {
             if (resyncMutex.isLocked || !externalConnections.any { it.available() }) {
                 return@requestResync
@@ -273,9 +275,14 @@ internal class Server() : ClientApi, Database {
             databaseState.getAndUpdate { it.copy(synchronizationState = Synchronizing()) }
 
             val transferChannel = Channel<Unit>(capacity = 1)
+
+            logger.debug { "requestResync() launching job in databaseScope" }
             databaseScope.launch {
+                logger.debug { "requestResync() job started" }
                 resyncMutex.withLock {
+                    logger.debug { "requestResync() lock acquired" }
                     transferChannel.send(Unit)
+                    logger.debug { "requestResync() confirmation sent to transferChannel" }
 
                     val errors = externalConnections
                         .associate {
@@ -292,11 +299,14 @@ internal class Server() : ClientApi, Database {
                 }
             }
 
+            logger.debug { "requestResync() waiting on transferChannel" }
             // This makes sure that from the time requestResyncMutex is unlocked,
             // the resyncMutex is locked, so any new requestResyncImpl() call
             // will fail at the resyncMutex.isLocked check.
             transferChannel.receive()
+            logger.debug { "requestResync() wait complete" }
         }
+        logger.debug { "requestResync() exited" }
     }
 
     override suspend fun addExternalAccount(service: Service): AddExternalAccountResponse {
