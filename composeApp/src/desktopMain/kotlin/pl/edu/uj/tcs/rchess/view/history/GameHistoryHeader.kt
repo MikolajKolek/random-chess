@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.typography
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -41,11 +43,17 @@ fun GameHistoryHeader(
             }
 
             databaseState.updatesAvailable && !initialLoading -> {
-                Text(
-                    "Refresh to see latest changes",
-                    style = typography.bodySmall,
+                Surface(
                     modifier = Modifier.padding(end = 8.dp),
-                )
+                    color = MaterialTheme.colorScheme.tertiaryContainer,
+                    shape = MaterialTheme.shapes.small,
+                ) {
+                    Text(
+                        "Refresh to see latest changes",
+                        style = typography.bodySmall,
+                        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
+                    )
+                }
             }
         }
 
