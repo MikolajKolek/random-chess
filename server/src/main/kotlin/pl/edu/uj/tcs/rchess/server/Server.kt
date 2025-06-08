@@ -43,6 +43,7 @@ import pl.edu.uj.tcs.rchess.server.Serialization.toDbId
 import pl.edu.uj.tcs.rchess.server.Serialization.toDbResult
 import pl.edu.uj.tcs.rchess.server.Serialization.toDbType
 import pl.edu.uj.tcs.rchess.server.Serialization.toModel
+import pl.edu.uj.tcs.rchess.server.Serialization.toModelWith
 import pl.edu.uj.tcs.rchess.util.tryWithLock
 import reactor.core.publisher.Flux
 import java.time.OffsetDateTime
@@ -440,12 +441,12 @@ internal class Server() : ClientApi, Database {
             if(settings.length == null) queryWithoutLimit
             else queryWithoutLimit.limit(settings.length)
 
-        val result = Flux.from(query).asFlow().map { (game, white, black, _, opening, rankingUpdates) ->
+        val result = Flux.from(query).asFlow().map { (game, white, black, gameOpening, opening, rankingUpdates) ->
             game.toModel(
                 white = white,
                 black = black,
                 currentUserId = userId,
-                opening = opening.toModel(),
+                opening = opening.toModelWith(gameOpening),
                 rankingUpdates = rankingUpdates
             )
         }.toList()

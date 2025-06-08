@@ -3,7 +3,9 @@ package pl.edu.uj.tcs.rchess.server
 import kotlinx.serialization.json.Json
 import org.jooq.Record4
 import org.jooq.types.YearToSecond
-import pl.edu.uj.tcs.rchess.api.entity.*
+import pl.edu.uj.tcs.rchess.api.entity.Opening
+import pl.edu.uj.tcs.rchess.api.entity.PlayerDetails
+import pl.edu.uj.tcs.rchess.api.entity.Service
 import pl.edu.uj.tcs.rchess.api.entity.Service.UNKNOWN
 import pl.edu.uj.tcs.rchess.api.entity.Service.entries
 import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
@@ -14,11 +16,23 @@ import pl.edu.uj.tcs.rchess.api.entity.ranking.EloUpdate
 import pl.edu.uj.tcs.rchess.api.entity.ranking.Ranking
 import pl.edu.uj.tcs.rchess.api.entity.ranking.RankingSpot
 import pl.edu.uj.tcs.rchess.api.entity.ranking.RankingUpdate
-import pl.edu.uj.tcs.rchess.generated.db.tables.records.*
+import pl.edu.uj.tcs.rchess.generated.db.tables.records.GamesOpeningsRecord
+import pl.edu.uj.tcs.rchess.generated.db.tables.records.GamesRecord
+import pl.edu.uj.tcs.rchess.generated.db.tables.records.OpeningsRecord
+import pl.edu.uj.tcs.rchess.generated.db.tables.records.RankingWithPlacementAtTimestampRecord
+import pl.edu.uj.tcs.rchess.generated.db.tables.records.RankingsRecord
+import pl.edu.uj.tcs.rchess.generated.db.tables.records.ServiceAccountsRecord
 import pl.edu.uj.tcs.rchess.generated.db.udt.records.ClockSettingsTypeRecord
 import pl.edu.uj.tcs.rchess.generated.db.udt.records.GameResultTypeRecord
-import pl.edu.uj.tcs.rchess.model.*
+import pl.edu.uj.tcs.rchess.model.ClockSettings
+import pl.edu.uj.tcs.rchess.model.Draw
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.fromFen
+import pl.edu.uj.tcs.rchess.model.GameDrawReason
+import pl.edu.uj.tcs.rchess.model.GameResult
+import pl.edu.uj.tcs.rchess.model.GameWinReason
+import pl.edu.uj.tcs.rchess.model.Move
+import pl.edu.uj.tcs.rchess.model.PlayerColor
+import pl.edu.uj.tcs.rchess.model.Win
 import pl.edu.uj.tcs.rchess.model.state.BoardState
 import kotlin.time.Duration
 import kotlin.time.toJavaDuration
@@ -136,11 +150,12 @@ internal object Serialization {
         else -> throw IllegalArgumentException("Invalid game kind: $kind")
     }
 
-    fun OpeningsRecord.toModel() = id?.let {
+    fun OpeningsRecord.toModelWith(gameOpening: GamesOpeningsRecord) = id?.let {
         Opening(
             eco = eco,
             name = name,
-            position = BoardState.fromFen(partialFen, true)
+            position = BoardState.fromFen(partialFen, true),
+            moveNumber = gameOpening.moveNo!!,
         )
     }
 
