@@ -1,5 +1,10 @@
 import pl.edu.uj.tcs.rchess.api.entity.Service
-import pl.edu.uj.tcs.rchess.model.*
+import pl.edu.uj.tcs.rchess.model.Draw
+import pl.edu.uj.tcs.rchess.model.GameDrawReason
+import pl.edu.uj.tcs.rchess.model.GameResult
+import pl.edu.uj.tcs.rchess.model.GameWinReason
+import pl.edu.uj.tcs.rchess.model.PlayerColor
+import pl.edu.uj.tcs.rchess.model.Win
 import kotlin.time.Duration
 
 fun PlayerColor.formatLowercase(): String = when (this) {
@@ -85,3 +90,9 @@ fun Duration.formatHumanSetting(): String {
         }
     }.joinToString(", ")
 }
+
+fun Int.formatWithSign() =
+    when {
+        this < 0 -> this.toString()
+        else -> "+$this"
+    }

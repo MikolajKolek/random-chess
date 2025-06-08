@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import pl.edu.uj.tcs.rchess.api.entity.game.ApiGame
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryGame
+import pl.edu.uj.tcs.rchess.api.entity.game.HistoryServiceGame
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.state.BoardState
@@ -36,6 +37,12 @@ fun InfoTab(
                 .padding(all = 16.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
+            (game as? HistoryServiceGame)?.rankingUpdates?.takeIf { it.isNotEmpty() }?.let {
+                Field("Ranking changes") {
+                    RankingChanges(it)
+                }
+            }
+
             (game as? HistoryGame)?.opening?.let {
                 Field("Opening") {
                     OpeningInfo(
