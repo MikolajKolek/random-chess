@@ -575,6 +575,7 @@ internal class Server() : ClientApi, Database {
             .onDuplicateKeyUpdate()
             .set(SERVICE_ACCOUNTS.TOKEN, token)
             .set(SERVICE_ACCOUNTS.DISPLAY_NAME, serviceAccount.displayName)
+            .set(SERVICE_ACCOUNTS.USER_ID, userId)
             .awaitFirst()
 
         refreshServiceAccounts()
