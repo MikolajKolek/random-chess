@@ -33,7 +33,6 @@ Domena `clock_settings` na typie `clock_settings_type` przetrzymuje informacje o
 
 ### openings
 
-
 | Pole          | Typ          | Dodatkowe informacje |
 | ------------- | ------------ | -------------------- |
 | **`id`**      | SERIAL       | **PRIMARY KEY**      |
@@ -175,22 +174,30 @@ Pole `is_ranked` (fałszywe dla gier spoza naszego serwisu) opisuje, czy dana ro
 
 ### rankings
 
-CREATE TABLE rankings(
-"id"                    SERIAL      PRIMARY KEY,
-"name"                  VARCHAR     NOT NULL,
--- Inclusive:
-"playtime_min"          INTERVAL    NOT NULL    CHECK ("playtime_min" >= '0 seconds'::INTERVAL),
--- Exclusive:
-"playtime_max"          INTERVAL    NULL        CHECK ("playtime_max" > '0 seconds'::INTERVAL),
-"extra_move_multiplier" INT         NOT NULL    CHECK ("extra_move_multiplier" >= 0),
-"starting_elo"          NUMERIC     NOT NULL    CHECK ("starting_elo" > 0),
-"include_bots"          BOOLEAN     NOT NULL,
-"k_factor"              NUMERIC     NOT NULL,
+| Pole                    | Typ      | Dodatkowe informacje |
+|-------------------------|----------|----------------------|
+| **`id`**                | SERIAL   | **PRIMARY KEY**      |
+| `name`                  | VARCHAR  | NOT NULL             |
+| `playtime_min`          | INTERVAL | NOT NULL             |
+| `playtime_max`          | INTERVAL | NULL                 |
+| `extra_move_multiplier` | INT      | NOT NULL             |
+| `starting_elo`          | NUMERIC  | NOT NULL             |
+| `include_bots`          | BOOLEAN  | NOT NULL             |
+| `k_factor`              | NUMERIC  | NOT NULL             |
 
-    CONSTRAINT "playtime_valid" CHECK ("playtime_max" IS NULL OR "playtime_min" <= "playtime_max")
-);
+Tabela opisująca rankingi.
+
+Wartości `playtime_min`, `playtime_max`, `extra_move_multiplier` determinują, czy dana gra może zaliczać się w dany ranking (określają "widełki").
+
+`include_bots` opisuje, czy boty mogą posiadać wartości w tym rankingu.
+
+`starting_elo` to wartość początkowa przyporządkowywana zawodnikom w danym rankingu.
+
+`k_factor` to wewnętrzna stała określająca zmiany w danym rankingu.
 
 ### elo_history
+
+
 
 CREATE TABLE elo_history(
 "id"                    SERIAL      PRIMARY KEY,
