@@ -17,6 +17,32 @@ Projekt ***Random Chess*** został stworzony w celu ogranizacji treningu szachow
 - Szacowanie rankingu ELO wśród partii rozegranych lokalnie - osobno dla różnych rodzajów temp rozgrywki
 - Przeprowadzanie turniejów w systemie szwajcarskim (tylko w bazie, w aplikacji moduł do parowania graczy)
 
+# Przygotowanie bazy danych
+Aplikacja domyślnie oczekuje, aby w systemie baz danych:
+- istniał użytkownik `random_chess` z hasłem `random_chess`
+- istniała baza danych `random_chess` z użytkownikiem `random_chess` jako właścicielem.
+
+Skrypt `extra/create.sh` tworzy użytkownika i bazę danych, tworzy schemat bazy danych i wczytuje przykładowe dane.
+Plik `create.sql` zawiera te same polecenia SQL, z wyjątkiem tworzenia użytkownika i bazy danych.
+
+# Budowanie aplikacji
+Przed zbudowaniem aplikacji wymagane jest uruchomienie bazy danych,
+bo podczas kompilacji generowane są klasy na podstawie schematu bazy danych.
+
+Instrukcje budowania aplikacji znajdują się w pliku `README.md` w folderze z kodem źródłowym.
+
+# Pliki wymagane do działania aplikacji
+Należy skopiować plik z przykładową konfiguracją [extra/config.example.yml](extra/config.example.yml) do folderu:
+- na Linux: `~/.local/share/rchess/config.yml`
+- na Windows: `%APPDATA%/rchess/config.yml`
+- na macOS: `~/Library/Application Support/rchess/config.yml`
+
+Wymagane jest też pobranie programu Stockfish, aby w aplikacji działały rozgrywki z botami.
+Należy pobrać [plik wykonywalny Stockfish](https://stockfishchess.org/download/) odpowiedni do platformy,
+na której będzie uruchamiany oraz pliku
+[nn-1c0000000000.nnue](https://tests.stockfishchess.org/api/nn/nn-1c0000000000.nnue).
+Te pliki należy umieścić w tym samym folderze co `config.yml`.
+
 # Schemat bazy
 
 ## Typy i domeny
