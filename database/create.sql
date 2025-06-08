@@ -1010,6 +1010,29 @@ CREATE TABLE "tournaments_players"
     UNIQUE ("tournament_id", "user_id_in_service")
 );
 
+CREATE OR REPLACE FUNCTION prevent_tournament_player_deletion() RETURNS TRIGGER AS
+$$
+BEGIN
+    IF NOT EXISTS(
+        SELECT *
+        FROM swiss_tournaments st
+        WHERE st.tournament_id = OLD.tournament_id
+    ) THEN RETURN NULL; END IF;
+    IF EXISTS (
+        SELECT *
+        FROM tournaments_games tg
+        JOIN service_games sg ON(sg.id = tg.game_id)
+        WHERE tg.tournament_id = OLD.tournament_id
+        AND (sg.white_player = OLD.user_id_in_service OR sg.black_player = OLD.user_id_in_service)
+    ) THEN RAISE EXCEPTION 'Cannot delete player from tournament - there are still games registered.'; END IF;
+    RETURN NULL;
+END;
+$$
+LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER prevent_tournament_player_deletion BEFORE DELETE ON tournaments_players
+FOR EACH ROW EXECUTE PROCEDURE prevent_tournament_player_deletion();
+
 CREATE TABLE "byes"
 (
     "tournament_id"         INTEGER     NOT NULL            REFERENCES swiss_tournaments(tournament_id) ON DELETE CASCADE,

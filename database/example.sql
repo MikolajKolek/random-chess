@@ -521,6 +521,10 @@ SELECT * FROM swiss_tournaments_players_points WHERE tournament_id = 1 AND round
 SELECT * FROM swiss_tournaments_players_points WHERE tournament_id = 2 AND round = 5;
 SELECT * FROM swiss_tournaments_round_standings WHERE tournament_id = 2 AND round = 5;
 
+DELETE FROM tournaments_players WHERE tournament_id = 2 AND user_id_in_service = '7';
+
+SELECT * FROM swiss_tournaments_round_standings WHERE tournament_id = 2 AND round = 5;
+
 /*insert into "public"."service_games" ("moves", "starting_position", "creation_date", "result", "is_ranked", "service_id", "black_player", "white_player", "clock")
 values (cast('{"e2e4","e7e5"}' as varchar(5)[]),
         'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
