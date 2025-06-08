@@ -58,6 +58,18 @@ compose.desktop {
             packageName = "Random Chess"
             description = "A chess app with functionality for saving, analyzing and playing games"
             packageVersion = "1.0.0"
+
+            linux {
+                iconFile.set(project.file("launcher_icon/icon.png"))
+            }
+            windows {
+                iconFile.set(project.file("launcher_icon/icon.ico"))
+            }
+            macOS {
+                iconFile.set(project.file("launcher_icon/icon.icns"))
+            }
+
+            modules("java.instrument", "java.naming", "jdk.unsupported", "java.sql")
         }
     }
 }
