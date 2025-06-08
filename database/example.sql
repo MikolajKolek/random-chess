@@ -517,14 +517,19 @@ INSERT INTO tournaments_games(tournament_id, game_id, round) VALUES
     (2, 22, 4),
     (2, 23, 5);
 
-SELECT * FROM swiss_tournaments_players_points WHERE tournament_id = 1 AND round = 1;
-SELECT * FROM swiss_tournaments_players_points WHERE tournament_id = 2 AND round = 5;
-SELECT * FROM swiss_tournaments_round_standings WHERE tournament_id = 2 AND round = 5;
+-- Print example tournament data
+-- SELECT * FROM swiss_tournaments_players_points WHERE tournament_id = 1 AND round = 1;
+-- SELECT * FROM swiss_tournaments_players_points WHERE tournament_id = 2 AND round = 4;
+-- SELECT * FROM swiss_tournaments_round_standings WHERE tournament_id = 2 AND round = 5;
 
-DELETE FROM tournaments_players WHERE tournament_id = 2 AND user_id_in_service = '7';
+-- Test invalid tournament player deletion - should throw exception
+-- DELETE FROM tournaments_players WHERE tournament_id = 2 AND user_id_in_service = '7';
+-- SELECT * FROM swiss_tournaments_round_standings WHERE tournament_id = 2 AND round = 5;
 
-SELECT * FROM swiss_tournaments_round_standings WHERE tournament_id = 2 AND round = 5;
+-- Test tournament deletion
+-- DELETE FROM swiss_tournaments WHERE tournament_id = 2;
 
+-- Old test games
 /*insert into "public"."service_games" ("moves", "starting_position", "creation_date", "result", "is_ranked", "service_id", "black_player", "white_player", "clock")
 values (cast('{"e2e4","e7e5"}' as varchar(5)[]),
         'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
@@ -542,9 +547,6 @@ values (cast('{"e2e4","e7e5"}' as varchar(5)[]),
         true, 1, 'stockfish-impossible',
         '1',
         cast(row('0 years 0 mons 0 days 0 hours 0 mins 2.0 secs', '0 years 0 mons 0 days 0 hours 0 mins 0.0 secs') as "public"."clock_settings_type")) returning "public"."service_games"."id";
-*/
-
-/* New example game to be added
 INSERT INTO service_games("moves", "starting_position", "creation_date", "result", "metadata", "service_id", "game_id_in_service", white_player, black_player) VALUES
     (
         ARRAY['e2e4', 'e5e7'],
