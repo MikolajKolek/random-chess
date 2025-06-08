@@ -7,6 +7,7 @@ import pl.edu.uj.tcs.rchess.model.GameResult
 import pl.edu.uj.tcs.rchess.model.GameWinReason
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.Win
+import kotlin.text.Typography.nbsp
 import kotlin.time.Duration
 
 fun PlayerColor.formatLowercase(): String = when (this) {
@@ -49,7 +50,7 @@ fun GameResult.formatReason() = when (this) {
 
 fun Service?.format() = when (this) {
     null -> "Imported"
-    Service.RANDOM_CHESS -> "Random Chess"
+    Service.RANDOM_CHESS -> "Random${nbsp}Chess"
     Service.CHESS_COM -> "Chess.com"
     Service.LICHESS -> "Lichess"
     Service.UNKNOWN -> "Unknown"
@@ -83,7 +84,7 @@ fun Duration.formatHumanSetting(): String {
             fun addPart(number: Long, single: String, plural: String, evenIfZero: Boolean = false) {
                 if (number == 0L && !evenIfZero) return
                 val text = if (number == 1L) single else plural
-                add("$number $text")
+                add("$number${nbsp}$text")
             }
 
             addPart(hours, "hour", "hours")

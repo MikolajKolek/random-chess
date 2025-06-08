@@ -18,7 +18,9 @@ import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.painterResource
 import rchess.composeapp.generated.resources.Res
 import rchess.composeapp.generated.resources.icon_pin_enabled_small
@@ -41,6 +43,8 @@ fun Field(
                 text = label,
                 style = MaterialTheme.typography.labelLarge,
                 modifier = Modifier.weight(1f),
+                fontWeight = FontWeight.SemiBold,
+                letterSpacing = 0.5.sp,
             )
 
             if (pinned != null) {

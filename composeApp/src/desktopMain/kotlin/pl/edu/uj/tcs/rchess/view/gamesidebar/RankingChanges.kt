@@ -76,7 +76,7 @@ fun RankingChanges(
             Column {
                 Text(
                     text = it.ranking.name,
-                    textAlign = TextAlign.Center,
+                    textAlign = TextAlign.Start,
                     style = MaterialTheme.typography.labelLarge,
                     modifier = Modifier
                         .padding(bottom = 4.dp)

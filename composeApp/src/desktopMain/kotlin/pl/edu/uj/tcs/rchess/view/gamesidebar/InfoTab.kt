@@ -36,8 +36,14 @@ fun InfoTab(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(all = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp),
+            verticalArrangement = Arrangement.spacedBy(36.dp),
         ) {
+            game.clockSettings?.let {
+                Field("Clock settings") {
+                    ClockSettingsField(it)
+                }
+            }
+
             (game as? HistoryServiceGame)?.rankingUpdates?.takeIf { it.isNotEmpty() }?.let {
                 Field("Ranking changes") {
                     RankingChanges(it, onSelectRanking)
