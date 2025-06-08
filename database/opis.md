@@ -508,7 +508,7 @@ Wykrywanie debiutu i przechowywanie danych o nich nie jest więc tak trywialne, 
 1. Zapisywanie debiutu dla partii na stałe po umieszczeniu w tabeli na podstawie zapisanych ruchów\
     **Wady**: Wartości częściowych FEN-ów, które używamy do obliczania debiutów są i tak stale używane w aplikacji, więc nawet stracilibyśmy raczej na nieprzechowywaniu tych informacji w żaden sposób. Dodatkowo, choć relatywnie rzadko, baza debiutów też może być aktualizowana, co spowoduje przedawnienie się danych.
 2. Finalne rozwiązanie: Widok wykorzystujący funkcję liczącą debiut dla danej partii.\
-    **Wady**: To rozwiązanie i tak wymagało kaskady dodatkowych funkcji i parsowanie FEN-ów w bazie jest dość nieporęczne. Dodatkowo polegamy w tym miejscu na poprawności danych wejściowych, czego nie można zagwarantować, gdy użytkownik po prostu ręcznie wrzuci tam byle co. Zyskujemy jednak na oddzieleniu kosztownych obliczeń debiutów od często badanej tabeli gier.
+    **Wady**: To rozwiązanie i tak wymagało kaskady dodatkowych funkcji i nadal jest czasochłonne. Dodatkowo polegamy w tym miejscu na poprawności danych wejściowych, czego nie można zagwarantować, gdy użytkownik po prostu ręcznie wrzuci tam byle co. Zyskujemy jednak na oddzieleniu kosztownych obliczeń debiutów od często badanej tabeli gier.
 
 ## Usuwanie zawodników i partii turniejowych
 
