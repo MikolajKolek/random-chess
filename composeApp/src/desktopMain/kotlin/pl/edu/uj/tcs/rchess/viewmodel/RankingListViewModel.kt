@@ -1,9 +1,6 @@
 package pl.edu.uj.tcs.rchess.viewmodel
 
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import pl.edu.uj.tcs.rchess.api.ClientApi
@@ -18,14 +15,6 @@ class RankingListViewModel(
     val clientApi: ClientApi,
 ): ViewModel() {
     val rankingList = DataStateViewModel { clientApi.getRankingsList() }
-
-    private var _selectedRankingId by mutableStateOf<Int?>(null)
-    val selectedRankingId: Int?
-        get() = _selectedRankingId
-
-    fun selectRanking(rankingId: Int) {
-        _selectedRankingId = rankingId
-    }
 
     private val rankingToPaging = mutableStateMapOf<Int, Paging<RankingSpot>>()
 
@@ -51,11 +40,9 @@ class RankingListViewModel(
         }
     }
 
-    val selectedRankingPaging: Paging<RankingSpot>?
-        get() = _selectedRankingId?.let {
-            rankingToPaging.getOrPut(it) {
-                createPaging(it)
-            }
+    fun getRankingPaging(rankingId: Int): Paging<RankingSpot> =
+        rankingToPaging.getOrPut(rankingId) {
+            createPaging(rankingId)
         }
 
     private data class RankingKey(

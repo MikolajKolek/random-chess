@@ -28,10 +28,10 @@ fun RouteScreen(
         when (route) {
             is Route.GameHistory -> GameHistoryScreen(context)
             is Route.Rankings -> RankingsScreen(context)
+            is Route.Ranking -> RankingsScreen(context, route.rankingId)
             is Route.TournamentList -> PlaceholderScreen(text = "Tournament list")
-            is Route.Account -> PlaceholderScreen(text = "Account")
-            is Route.Ranking -> PlaceholderScreen(text = "Ranking ${route.rankingId}")
             is Route.Tournament -> PlaceholderScreen(text = "Tournament ${route.tournamentId}")
+            is Route.Account -> PlaceholderScreen(text = "Account")
         }
     }
 }

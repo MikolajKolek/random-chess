@@ -22,16 +22,17 @@ import pl.edu.uj.tcs.rchess.view.adapters.PagingAdapter
 import pl.edu.uj.tcs.rchess.view.shared.PlaceholderScreen
 import pl.edu.uj.tcs.rchess.view.shared.ScrollableColumn
 import pl.edu.uj.tcs.rchess.viewmodel.AppContext
+import pl.edu.uj.tcs.rchess.viewmodel.navigation.Route
 
 @Composable
-fun RankingsScreen(context: AppContext) {
+fun RankingsScreen(context: AppContext, rankingId: Int? = null) {
     val viewModel = context.rankingListViewModel
 
     DataStateAdapter(
         viewModel.rankingList,
         "Loading ranking list",
         "An error occurred while loading ranking list",
-    ) { rankings, refresh ->
+    ) { rankings, _ ->
         Row(
             modifier = Modifier.padding(horizontal = 16.dp).fillMaxSize()
         ) {
@@ -48,21 +49,21 @@ fun RankingsScreen(context: AppContext) {
                     RankingListItem(
                         modifier = Modifier.fillMaxWidth(),
                         ranking,
-                        ranking.id == viewModel.selectedRankingId,
+                        ranking.id == rankingId,
                         onClick = {
-                            viewModel.selectRanking(ranking.id)
+                            context.navigation.navigateTo(Route.Ranking(ranking.id))
                         },
                     )
                 }
             }
 
-            val paging = viewModel.selectedRankingPaging
-            if (paging == null) {
+            if (rankingId == null) {
                 PlaceholderScreen(
                    text = "Select ranking"
                 )
                 return@DataStateAdapter
             }
+            val paging = viewModel.getRankingPaging(rankingId)
 
             Card(
                 modifier = Modifier.padding(vertical = 16.dp),
