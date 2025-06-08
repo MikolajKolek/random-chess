@@ -1403,3 +1403,26 @@ INSERT INTO rankings("name", "playtime_min", "playtime_max", "extra_move_multipl
     );
 
 
+CREATE INDEX CONCURRENTLY idx_sg_service_id_black
+    ON service_games (service_id, black_player);
+
+CREATE INDEX CONCURRENTLY idx_sg_service_id_white
+    ON service_games (service_id, white_player);
+
+CREATE INDEX CONCURRENTLY idx_sg_service_id_date_id
+    ON service_games (service_id, creation_date DESC, id DESC);
+
+CREATE INDEX CONCURRENTLY idx_pgn_owner_date_id
+    ON pgn_games (owner_id, creation_date DESC, id DESC);
+
+CREATE INDEX CONCURRENTLY idx_pgn_by_owner
+    ON pgn_games (owner_id);
+
+CREATE INDEX CONCURRENTLY idx_eh_game_id_service_id
+    ON elo_history (game_id, service_id);
+
+CREATE INDEX CONCURRENTLY idx_sa_user_service
+    ON service_accounts (user_id, service_id);
+
+CREATE INDEX CONCURRENTLY idx_sa_user_service_id
+    ON service_accounts (user_id, service_id, user_id_in_service);
