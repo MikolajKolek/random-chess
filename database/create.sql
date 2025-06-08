@@ -1055,7 +1055,7 @@ CREATE TABLE "tournaments_ranking_reqs"
 CREATE TABLE "tournaments_ranked_games_reqs"
 (
     "tournament_id"     INTEGER     NOT NULL    REFERENCES swiss_tournaments(tournament_id) ON DELETE CASCADE,
-    "ranking_type"      INTEGER     NOT NULL    REFERENCES rankings(id) DEFAULT 0, -- 0 is the global ranking
+    "ranking_type"      INTEGER     NOT NULL    REFERENCES rankings(id) DEFAULT 1, -- 1 is the global ranking
     "game_count"        INTEGER     NOT NULL    CHECK ( game_count > 0 ),
     UNIQUE(tournament_id, ranking_type)
 );

@@ -218,71 +218,85 @@ CHECK ("service_id" = 1),
 
 ### swiss\_tournaments
 
-CREATE TABLE "swiss_tournaments"
-(
-"tournament_id"     SERIAL              PRIMARY KEY,
-"round_count"       INTEGER             NOT NULL        CHECK ( round_count > 0 ), -- Swiss tournaments have a fixed round count
-"starting_position" VARCHAR             NOT NULL DEFAULT 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
-"is_ranked"         BOOLEAN             NOT NULL DEFAULT TRUE,
-"ranking_id"        INTEGER             NULL        REFERENCES rankings(id),
-"time_control"      "clock_settings"    NOT NULL,
-CHECK((is_ranked IS FALSE AND ranking_id IS NULL) OR (is_ranked IS TRUE AND ranking_id IS NOT NULL))
-);
+| Pole                | Typ             | Dodatkowe informacje         |
+|---------------------|-----------------|------------------------------|
+| **`tournament_id`** | SERIAL          | **PRIMARY KEY**              |
+| `round_count`       | INT             | NOT NULL                     |
+| `starting_position` | VARCHAR         | NOT NULL                     |
+| `is_ranked`         | BOOLEAN         | NOT NULL                     |
+| `ranking_id`        | INTEGER         | NULL REFERENCES rankings(id) |
+| `time_control`      | CLOCK_SETTINGS  | NOT NULL                     |
+
+`round_count` to informacja o maksymalnej liczbie rund, w jakiej rozgrywany jest dany turniej-wartość charakterystyczna dla turniejów w systemie szwajcarskim.
+
+`starting_position` to wartość startowej pozycji obowiązująca wszystkie rozgrywki zaliczane do danego turnieju, podobnie jak `time_control` zadaje wymaganie o konkretnym tempie rozgrywki.
+
+`ranking_id` wskazuje na jeden z typów rankingu, który będzie używany do obliczania performance rating dla tego turnieju (o tym więcej w widoku `swiss_tournaments_players_points`). Ta wartość musi być niepusta nawet dla turniejów nierankingowych. Wymagamy także, aby `time_control` było zgodne z podanym typem rankingu.
+
+`is_ranked` opisuje, czy dany turniej jest rankingowy. Rankingowe turnieje wymagają, by wszystkie ich gry były rankingowe, i odwrotnie.
 
 ### tournaments\_games
 
-CREATE TABLE "tournaments_games"
-(
-"tournament_id"     INTEGER     NOT NULL    REFERENCES swiss_tournaments(tournament_id) ON DELETE CASCADE,
-"game_id"           INTEGER     NOT NULL    REFERENCES service_games(id),
-"round"             INTEGER     NOT NULL    CHECK ( round > 0 )
-);
+| Pole            | Typ | Dodatkowe informacje                                 |
+|-----------------|-----|------------------------------------------------------|
+| `tournament_id` | INT | NOT NULL REFERENCES swiss_tournaments(tournament_id) |
+| `game_id`       | INT | NOT NULL RERERENCES service_games(id)                |
+| `round`         | INT | NOT NULL                                             |
+
+Tabela ta łączy turnieje z zarejestrowanymi dla niego partiami. Zaimpelementowane triggery i checki zapewniają, że rozgrywka zgodna jest z wymaganiami zapewnionymi przez turnieju oraz że gracze są w turnieju zarejestrowani.
+
+Nałożona na kolumnę `tournament_id` klauzula `ON DELETE CASCADE` zapewnia, że gra zostanie usunięta z tego rejestru, gdy zostanie usunięty jej turniej.
 
 ### tournaments\_players
 
-CREATE TABLE "tournaments_players"
-(
-"service_id"        INTEGER     NOT NULL DEFAULT 1  REFERENCES game_services(id)
-CHECK (service_id = 1),
-"tournament_id"     INTEGER     NOT NULL    REFERENCES swiss_tournaments(tournament_id) ON DELETE CASCADE,
-"user_id_in_service" VARCHAR    NOT NULL,
-FOREIGN KEY ("service_id", "user_id_in_service")
-REFERENCES "service_accounts" ("service_id", "user_id_in_service"),
-UNIQUE ("tournament_id", "user_id_in_service")
-);
+
+| Pole                 | Typ      | Dodatkowe informacje                                 |
+|----------------------|----------|------------------------------------------------------|
+| `service_id`         | INT      | NOT NULL DEFAULT 1 REFERENCES game_services(id)      |
+| `tournament_id`      | INT      | NOT NULL RERERENCES swiss_tournaments(tournament_id) |
+| `user_id_in_service` | VARCHAR  | NOT NULL                                             |
+
+Tabela ta łączy turnieje z zarejestrowanymi graczami. Przy dołączeniu sprawdzana jest zgodność z wymaganiami nałożonymi na dany turniej.
+
+Pole `service_id` stale ustawione na `1` jest w celu ustawienia klucza obcego złożonego z pól `service_id, user_id_in_service` na tabelę `service_accounts`.
+To dość hakerskie rozwiązanie i ta wartość jest właściwie zbędna (stosujemy je też w innym miejscu), ale język nie pozwala nam wstawić stałej wartości do klucza.
+
+Dodatkowy trigger zapobiega usuwaniu z tej tabeli zawodników tak długo, jak ich partie są zarejestrowane do danego turnieju.
 
 ### byes
 
-CREATE TABLE "byes"
-(
-"tournament_id"         INTEGER     NOT NULL            REFERENCES swiss_tournaments(tournament_id) ON DELETE CASCADE,
-"round"                 INTEGER     NOT NULL            CHECK ( round > 0 ),
-"user_id_in_service"    VARCHAR     NOT NULL,
-FOREIGN KEY ("tournament_id", "user_id_in_service")
-REFERENCES "tournaments_players" ("tournament_id", "user_id_in_service"),
-UNIQUE ("tournament_id", "round", "user_id_in_service")
-);
+| Pole                 | Typ      | Dodatkowe informacje                                 |
+|----------------------|----------|------------------------------------------------------|
+| `tournament_id`      | INT      | NOT NULL RERERENCES swiss_tournaments(tournament_id) |
+| `round`              | INT      | NOT NULL DEFAULT 1 REFERENCES game_services(id)      |
+| `user_id_in_service` | VARCHAR  | NOT NULL                                             |
+
+Istnienie tej tabeli jest koniecznością ze względu na sposób działania parowania systemu szwajcarskiego. Wymagania nałożone na ten system oraz choćby nawet nieparzysta liczba graczy sprawia, że może nie udać się sparować wszystkich graczy w danej rundzie.
+Gracz niesparowany otrzymuje w ten sposób darmowy punkt.
 
 ### tournaments_ranking_reqs
 
--- Ranking value requirement placed on a tournament
-CREATE TABLE "tournaments_ranking_reqs"
-(
-"tournament_id"     INTEGER     NOT NULL    REFERENCES swiss_tournaments(tournament_id) ON DELETE CASCADE,
-"ranking_type"      INTEGER     NOT NULL    REFERENCES rankings(id) ON DELETE CASCADE,
-"required_value"    INTEGER     NOT NULL    CHECK ( required_value > 0 )
-);
+| Pole             | Typ     | Dodatkowe informacje                                 |
+|------------------|---------|------------------------------------------------------|
+| `tournament_id`  | INT     | NOT NULL REFERENCES swiss_tournaments(tournament_id) |
+| `ranking_type`   | INT     | NOT NULL REFERENCES rankings(id) DEFAULT 1           |
+| `required_value` | NUMERIC | NOT NULL                                             |
+
+Tabela ta opisuje nałożone na dany turniej wymaganie minimum punktów ELO osiągniętych w danym rankingu.
+
+Wpisy z tej tabeli są usuwane po usunięciu odpowiadającego im turnieju.
 
 ### tournaments_ranked_games_reqs
 
--- Number of rated games in certain ranking placed on a tournament
-CREATE TABLE "tournaments_ranked_games_reqs"
-(
-"tournament_id"     INTEGER     NOT NULL    REFERENCES swiss_tournaments(tournament_id) ON DELETE CASCADE,
-"ranking_type"      INTEGER     NOT NULL    REFERENCES rankings(id) DEFAULT 0, -- 0 is the global ranking
-"game_count"        INTEGER     NOT NULL    CHECK ( game_count > 0 ),
-UNIQUE(tournament_id, ranking_type)
-);
+| Pole             | Typ | Dodatkowe informacje                                 |
+|------------------|-----|------------------------------------------------------|
+| `tournament_id`  | INT | NOT NULL REFERENCES swiss_tournaments(tournament_id) |
+| `ranking_type`   | INT | NOT NULL REFERENCES rankings(id) DEFAULT 1           |
+| `game_count`     | INT | NOT NULL                                             |
+
+Tabela ta opisuje nałożone na dany turniej wymaganie rozegrania pewnej liczby rankingowych gier zaliczonych do danego typu rankingu.
+
+Podobnie jak inne wpisy łączące się z danym turniejem, wpisy z tej tabeli także są usuwane po usunięciu turnieju.
 
 ## Widoki
 
@@ -314,14 +328,18 @@ W szczególności, wartości unikalne dla jednego z tych rodzajów są puste dla
 
 ### users\_games
 
-CREATE VIEW "users_games" AS (
-SELECT sa."user_id" as "user_id", sg."id" as "game_id", 'service' AS "kind", "moves", "creation_date", "result", "metadata"
-FROM service_accounts sa
-JOIN service_games sg ON (sa.user_id_in_service = sg.white_player) OR (sa.user_id_in_service = sg.black_player)
-UNION
-SELECT pg."owner_id" AS "user_id", pg."id" AS "game_id", 'pgn' as "kind", "moves", "creation_date", "result", "metadata"
-FROM pgn_games pg
-);
+| Pole                   | Typ          | Dodatkowe informacje                               |
+|------------------------|--------------|----------------------------------------------------|
+| `user_id`              | INT          | NOT NULL, dotyczy `service_accounts`               |
+| `game_id`              | INT          | NOT NULL, dotyczy `service_games` albo `pgn_games` |
+| `kind`                 | INT          | Jeden z (`'service'`, `'pgn'`)                     |
+| `moves`                | VARCHAR(5)[] | NOT NULL                                           |
+| `creation_date`        | TIMESTAMPTZ  | NOT NULL                                           |
+| `result`               | GAME_RESULT  | NOT NULL                                           |
+| `metadata`             | JSOB         | NULL                                               |
+
+Widok ten łączy użytkowników z rozegranymi przez nich grami-tutaj także znajduje się pole `kind` oznaczające źródło pochodzenia partii.
+Podobnie jak wcześniej, para (`game_id`,`kind`) jest unikalna, mimo że żadna z tych wartości pojedynczo niekoniecznie musi taka być.
 
 ### games\_openings
 
@@ -376,89 +394,43 @@ FROM ranking_at_timestamp(CURRENT_TIMESTAMP)
 
 ### tournaments\_reqs
 
-CREATE VIEW "tournaments_reqs" AS
-(
-SELECT tournament_id, ranking_type, game_count, null AS required_value
-FROM tournaments_ranked_games_reqs
-UNION ALL
-SELECT tournament_id, ranking_type, null AS game_count, required_value
-FROM tournaments_ranking_reqs
-);
+| Pole             | Typ     | Dodatkowe informacje                                             |
+|------------------|---------|------------------------------------------------------------------|
+| `tournament_id`  | INT     | NOT NULL                                                         |
+| `ranking_type`   | INT     | NOT NULL                                                         |
+| `game_count`     | INT     | NULL (puste tylko dla wymagań z `tournaments_ranking_reqs`)      |
+| `required_value` | NUMERIC | NULL (puste tylko dla wymagań z `tournaments_ranked_games_reqs`) |
+
+Widok ten łączy dane z `tournaments_ranking_reqs` oraz `tournaments_ranked_games_reqs` i trzyma wszystkie wymagania do dołączenia do turniejów.
 
 ### swiss\_tournaments\_players\_points
 
-CREATE VIEW "swiss_tournaments_players_points" AS
-(
-WITH point_values AS (
-SELECT st.tournament_id, tp.user_id_in_service, tg.round,
-ROUND((
-SELECT COUNT(*)
-FROM tournaments_games tg2
-JOIN service_games sg ON(tg2.game_id = sg.id)
-WHERE sg.service_id = 1
-AND ((sg.white_player = tp.user_id_in_service AND (sg.result).game_end_type = '1-0')
-OR (sg.black_player = tp.user_id_in_service AND (sg.result).game_end_type = '0-1'))
-AND tg2.round <= tg.round
-AND tg2.tournament_id=st.tournament_id
-)+(
-SELECT COUNT(*)
-FROM tournaments_games tg2
-JOIN service_games sg ON(tg2.game_id = sg.id)
-WHERE sg.service_id = 1
-AND (sg.white_player = tp.user_id_in_service OR sg.black_player = tp.user_id_in_service)
-AND (sg.result).game_end_type = '1/2-1/2'
-AND tg2.round <= tg.round
-AND tg2.tournament_id=st.tournament_id
-)::numeric/2+(
-SELECT COUNT(*)
-FROM byes b
-WHERE b.tournament_id=st.tournament_id AND b.user_id_in_service=tp.user_id_in_service AND b.round <= tg.round
-),1) AS points
-FROM swiss_tournaments st
-JOIN tournaments_players tp USING(tournament_id)
-JOIN tournaments_games tg USING(tournament_id)
-GROUP BY st.tournament_id, tp.user_id_in_service, tg.round
-)
-SELECT st.tournament_id, tp.user_id_in_service, tg.round, pv.points,
-calculate_performance_rating(
-(WITH linked_games AS (
-SELECT white_player, black_player
-FROM tournaments_games tg2
-JOIN service_games sg ON (sg.id = tg2.game_id AND (sg.white_player = tp.user_id_in_service OR sg.black_player = tp.user_id_in_service))
-WHERE tg2.tournament_id=st.tournament_id AND tg2.round <= tg.round
-), opponents AS (
-SELECT lg.white_player AS opp
-FROM linked_games lg
-WHERE lg.white_player != tp.user_id_in_service
-UNION
-SELECT lg.black_player AS opp
-FROM linked_games lg
-WHERE lg.black_player != tp.user_id_in_service
-)
-SELECT ARRAY_AGG(rat.elo)
-FROM opponents o
-JOIN current_ranking rat ON o.opp=rat.user_id_in_service AND rat.ranking_id=st.ranking_id
-), -- opponents' ratings
-pv.points - (
-SELECT COUNT(*)
-FROM byes b
-WHERE b.tournament_id=st.tournament_id AND b.user_id_in_service=tp.user_id_in_service AND b.round <= tg.round
-)
-) AS performance_rating
-FROM swiss_tournaments st
-JOIN tournaments_players tp USING(tournament_id)
-JOIN tournaments_games tg USING(tournament_id)
-JOIN point_values pv ON(pv.tournament_id=st.tournament_id AND tp.user_id_in_service=pv.user_id_in_service AND tg.round=pv.round)
-GROUP BY st.tournament_id, tp.user_id_in_service, tg.round, pv.points
-);
+| Pole                 | Typ     | Dodatkowe informacje |
+|----------------------|---------|----------------------|
+| `tournament_id`      | INT     | NOT NULL             |
+| `user_id_in_service` | VARCHAR | NOT NULL             |
+| `round`              | INT     | NOT NULL             |
+| `points`             | NUMERIC | NOT NULL             |
+| `performance_rating` | NUMERIC | NOT NULL             |
+
+Kolumna `tournament_id` wskazuje na turniej, a kolumna `user_id_in_service` na id gracza w `service_accounts`, który był zarejestrowany w `tournaments_players` w tym turnieju.
+
+Widok ten zawiera informację o punktacji i `performance_rating` dla każdego turnieju i zarejestrowanej rundy.
+Zapytanie o krotki z danego turnieju i rundy ujawnia liczby punktów oraz rankingi turniejowe użytkowników w nim zarejestrowanych.
+
+`points` to liczba punktów będąca wielokrotnością `0.5`, zliczająca punkty uzyskane przez gracza nie później niż dana runda.
+
+[Performance rating](https://en.wikipedia.org/wiki/Performance_rating_(chess)) to wartość używana do rozstrzygania remisów - opisuje ona estymowany ranking w trakcie turnieju na podstawie rankingów przeciwników.
 
 ### swiss\_tournaments\_round\_standings
 
-CREATE VIEW "swiss_tournaments_round_standings" AS
-(
-SELECT ROW_NUMBER() OVER (PARTITION BY st.tournament_id, stpp.round ORDER BY stpp.points DESC, stpp.performance_rating DESC) place,
-stpp.points, stpp.performance_rating, stpp.user_id_in_service, st.tournament_id, stpp.round
-FROM swiss_tournaments st
-JOIN swiss_tournaments_players_points stpp on st.tournament_id = stpp.tournament_id
-ORDER BY place
-);
+| Pole                 | Typ     | Dodatkowe informacje |
+|----------------------|---------|----------------------|
+| 'place`              | INT     | NOT NULL             |
+| `points`             | NUMERIC | NOT NULL             |
+| `performance_rating` | NUMERIC | NOT NULL             |
+| `user_id_in_service` | VARCHAR | NOT NULL             |
+| `tournament_id`      | NUMERIC | NOT NULL             |
+| `round`              | INT     | NOT NULL             |
+
+Widok ten łączy informacje z poprzedniego widoku `swiss_tournaments_players_points` i dodaje pole `place`, które dla danego zawodnika, rundy i turnieju zapamiętuje jego miejsce.
