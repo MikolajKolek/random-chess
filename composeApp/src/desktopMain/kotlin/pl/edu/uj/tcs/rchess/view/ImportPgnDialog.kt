@@ -1,6 +1,11 @@
 package pl.edu.uj.tcs.rchess.view
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -15,6 +20,7 @@ import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.rememberDialogState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
+import pl.edu.uj.tcs.rchess.view.adapters.DismissibleErrorsAdapter
 import pl.edu.uj.tcs.rchess.view.shared.Loading
 import pl.edu.uj.tcs.rchess.viewmodel.AppContext
 import pl.edu.uj.tcs.rchess.viewmodel.ImportPgnViewModel
@@ -51,27 +57,29 @@ fun ImportPgnDialog(
             return@DialogWindow
         }
 
-        Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            TextField(
-                value = viewModel.pgnInput.value,
-                onValueChange = { viewModel.pgnInput.value = it },
-                label = { Text("PGN") },
-                modifier = Modifier.fillMaxWidth().weight(1f),
-                singleLine = false,
-                minLines = 3,
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
+        DismissibleErrorsAdapter(viewModel.errors) {
+            Column(
+                modifier = Modifier.fillMaxSize().padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                Button(
-                    onClick = ::submit,
+                TextField(
+                    value = viewModel.pgnInput.value,
+                    onValueChange = { viewModel.pgnInput.value = it },
+                    label = { Text("PGN") },
+                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    singleLine = false,
+                    minLines = 3,
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
                 ) {
-                    Text("Import")
+                    Button(
+                        onClick = ::submit,
+                    ) {
+                        Text("Import")
+                    }
                 }
             }
         }

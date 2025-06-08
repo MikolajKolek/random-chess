@@ -31,8 +31,9 @@ fun <T> DataStateAdapter(
                 modifier = Modifier.fillMaxWidth().align(Alignment.Center),
                 headerText = errorHeader,
                 error = stateCopy.error,
-                onRetry = viewModel::refresh,
+                onDismiss = viewModel::refresh,
                 prominent = true,
+                dismissText = "Retry",
             )
         }
         is DataState.Success -> content(stateCopy.data, viewModel::refresh)

@@ -40,6 +40,8 @@ class NewGameViewModel(private val context: AppContext): ViewModel() {
     val isLoading: Boolean
         get() = _isLoading.value
 
+    val errors = DismissibleErrorsState()
+
     suspend fun submitAnd(
         onSuccess: () -> Unit,
     ) {
@@ -58,6 +60,8 @@ class NewGameViewModel(private val context: AppContext): ViewModel() {
                 context.navigation.openGameWindow(game)
             }
             onSuccess()
+        } catch (error: Exception) {
+            errors.submitError("Failed to start new game", error)
         } finally {
             _isLoading.value = false
         }

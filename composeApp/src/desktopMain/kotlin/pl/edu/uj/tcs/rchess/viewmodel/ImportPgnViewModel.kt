@@ -12,6 +12,8 @@ class ImportPgnViewModel(private val context: AppContext): ViewModel() {
     val isLoading: Boolean
         get() = _isLoading.value
 
+    val errors = DismissibleErrorsState()
+
     suspend fun submitAnd(
         onSuccess: () -> Unit,
     ) {
@@ -22,6 +24,9 @@ class ImportPgnViewModel(private val context: AppContext): ViewModel() {
                 context.clientApi.addPgnGames(pgnInput.value)
             }
             onSuccess()
+            pgnInput.value = ""
+        } catch (error: Exception) {
+            errors.submitError("Failed to import games", error)
         } finally {
             _isLoading.value = false
         }
