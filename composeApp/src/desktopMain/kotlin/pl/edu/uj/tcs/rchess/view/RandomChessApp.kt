@@ -25,7 +25,7 @@ class RandomChessApp(private val clientApi: ClientApi) {
             state = state,
             title = "Random Chess",
         ) {
-            window.minimumSize = Dimension(700, 600)
+            window.minimumSize = Dimension(900, 600)
             MainWindowContent(context)
         }
 
