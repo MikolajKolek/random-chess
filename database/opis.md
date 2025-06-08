@@ -471,18 +471,18 @@ Z powodu decyzji o traktowaniu partii rozegranych w naszym systemie w taki sam s
 
 ## Wykrywanie debiutów dla partii
 
-1. Zapisywanie debiutu dla partii od początku, oraz razu po umieszczeniu w tabeli.
+1. Zapisywanie debiutu dla partii na stałe po umieszczeniu w tabeli na podstawie zapisanych ruchów\
     **Wady**: Wartości częściowych FEN-ów używane do obliczania debiutów są i tak używane w aplikacji, więc nie zyskujemy wiele. Dodatkowo, choć relatywnie rzadko, baza debiutów też może być aktualizowana, co spowoduje przedawnienie się danych.
-2. Funkcja licząca debiut dla danej partii.
+2. Funkcja licząca debiut dla danej partii.\
     **Wady**: Wykonujemy wiele zapytań związanych z debiutami, a wyliczenie ich jest dość kosztowne. To rozwiązanie znacznie spowolniłoby aplikację.
-3. Finalne rozwiązanie: Generated column przez funkcję liczącą debiut dla danej partii.
+3. Finalne rozwiązanie: Generated column przez funkcję liczącą debiut dla danej partii.\
     **Wady**: To rozwiązanie i tak wymagało kaskady dodatkowych funkcji i parsowanie FEN-ów w bazie jest dość nieporęczne. Dodatkowo polegamy w tym miejscu na poprawności danych wejściowych, czego nie można zagwarantować, gdy użytkownik po prostu ręcznie wrzuci tam byle co.
 
 ## Usuwanie zawodników i partii turniejowych
 
-1. Usuwanie gier i zawodników dowolne.
+1. Usuwanie gier i zawodników dowolne.\
    **Wady**: Po usunięciu użytkownika pozostają w tabeli nieusunięte partie, powiązane z turniejem, ale nie z żadnym graczem.
-2. Zakazanie usuwania zawodników, tylko gier.
+2. Zakazanie usuwania zawodników, tylko gier.\
    **Wady**: Oczywiście nie uwzględniamy możliwości wycofania się z turnieju, nawet nie rozegrawszy żadnej partii.
-3. Finalne rozwiązanie: Możliwość usuwania gier dowolna, zawodników tylko tych bez gier.
+3. Finalne rozwiązanie: Możliwość usuwania gier dowolna, zawodników tylko tych bez gier.\
    **Wady**: Brak dowolności usuwania zawodników, nawet jeśli biorą udział w turnieju w np. tylko jednej partii
