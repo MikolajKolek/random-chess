@@ -1,5 +1,6 @@
 package pl.edu.uj.tcs.rchess.view
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -10,6 +11,7 @@ import androidx.compose.ui.window.rememberWindowState
 import pl.edu.uj.tcs.rchess.api.ClientApi
 import pl.edu.uj.tcs.rchess.view.game.GameWindow
 import pl.edu.uj.tcs.rchess.viewmodel.AppContext
+import pl.edu.uj.tcs.rchess.viewmodel.navigation.Route
 import java.awt.Dimension
 
 class RandomChessApp(private val clientApi: ClientApi) {
@@ -26,6 +28,10 @@ class RandomChessApp(private val clientApi: ClientApi) {
             title = "Random Chess",
         ) {
             window.minimumSize = Dimension(900, 600)
+            LaunchedEffect(window) {
+                context.navigation.storeMainWindowReference(window)
+            }
+
             MainWindowContent(context)
         }
 
@@ -40,6 +46,9 @@ class RandomChessApp(private val clientApi: ClientApi) {
                     context.gameHistoryViewModel.paging.refresh()
                     context.rankingListViewModel.refreshAll()
                 },
+                onSelectRanking = {
+                    context.navigation.navigateTo(Route.Ranking(it))
+                }
             )
         }
     }

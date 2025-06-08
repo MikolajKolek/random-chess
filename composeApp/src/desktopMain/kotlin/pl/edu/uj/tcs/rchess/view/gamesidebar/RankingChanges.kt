@@ -1,6 +1,7 @@
 package pl.edu.uj.tcs.rchess.view.gamesidebar
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -64,7 +65,10 @@ private fun PlayerEloUpdate(modifier: Modifier, eloUpdate: EloUpdate?, color: Pl
 
 
 @Composable
-fun RankingChanges(changes: List<RankingUpdate>) {
+fun RankingChanges(
+    changes: List<RankingUpdate>,
+    onSelectRanking: (rankingId: Int) -> Unit,
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
@@ -74,7 +78,10 @@ fun RankingChanges(changes: List<RankingUpdate>) {
                     text = it.ranking.name,
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.labelLarge,
-                    modifier = Modifier.padding(bottom = 4.dp).fillMaxWidth(),
+                    modifier = Modifier
+                        .padding(bottom = 4.dp)
+                        .fillMaxWidth()
+                        .clickable { onSelectRanking(it.ranking.id) },
                 )
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(16.dp),

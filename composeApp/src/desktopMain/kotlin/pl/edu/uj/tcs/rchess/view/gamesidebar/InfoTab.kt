@@ -26,6 +26,7 @@ fun InfoTab(
     fenPinned: Boolean,
     onFenPinnedChange: (Boolean) -> Unit,
     onSelectMove: (number: Int) -> Unit,
+    onSelectRanking: (rankingId: Int) -> Unit,
 ) {
     ScrollableColumn(
         modifier = Modifier.fillMaxWidth().then(modifier),
@@ -39,7 +40,7 @@ fun InfoTab(
         ) {
             (game as? HistoryServiceGame)?.rankingUpdates?.takeIf { it.isNotEmpty() }?.let {
                 Field("Ranking changes") {
-                    RankingChanges(it)
+                    RankingChanges(it, onSelectRanking)
                 }
             }
 

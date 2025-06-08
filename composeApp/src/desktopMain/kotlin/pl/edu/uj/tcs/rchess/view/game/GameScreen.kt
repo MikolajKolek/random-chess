@@ -49,6 +49,7 @@ import rchess.composeapp.generated.resources.icon_swap_vert
 @Composable
 fun GameScreen(
     windowState: GameWindowState,
+    onSelectRanking: (rankingId: Int) -> Unit,
 ) = windowState.run {
     Row {
         Row(
@@ -186,6 +187,7 @@ fun GameScreen(
                         fenPinned = fenPinned,
                         onFenPinnedChange = { fenPinned = it },
                         onSelectMove = boardStateBrowser::select,
+                        onSelectRanking = onSelectRanking,
                     )
                 }
             },

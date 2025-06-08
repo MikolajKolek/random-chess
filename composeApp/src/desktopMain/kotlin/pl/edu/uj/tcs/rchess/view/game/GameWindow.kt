@@ -2,7 +2,11 @@ package pl.edu.uj.tcs.rchess.view.game
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.input.key.*
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
@@ -20,6 +24,7 @@ fun GameWindow(
     game: ApiGame,
     onCloseRequest: () -> Unit,
     onFinish: (historyGame: HistoryGame) -> Unit,
+    onSelectRanking: (rankingId: Int) -> Unit,
 ) {
     LaunchedEffect(game) {
         if (game !is LiveGame) return@LaunchedEffect
@@ -79,7 +84,7 @@ fun GameWindow(
         window.minimumSize = Dimension(900, 600)
 
         RandomChessTheme {
-            GameScreen(windowState)
+            GameScreen(windowState, onSelectRanking)
         }
     }
 }
