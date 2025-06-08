@@ -3,7 +3,9 @@ package pl.edu.uj.tcs.rchess.api
 import kotlinx.coroutines.flow.StateFlow
 import pl.edu.uj.tcs.rchess.api.args.GamesRequestArgs
 import pl.edu.uj.tcs.rchess.api.args.RankingRequestArgs
+import pl.edu.uj.tcs.rchess.api.entity.AddExternalAccountResponse
 import pl.edu.uj.tcs.rchess.api.entity.BotOpponent
+import pl.edu.uj.tcs.rchess.api.entity.Service
 import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryGame
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryServiceGame
@@ -16,9 +18,14 @@ import pl.edu.uj.tcs.rchess.model.PlayerColor
 
 interface ClientApi {
     /**
-     * A [kotlinx.coroutines.flow.StateFlow] indicating the current state of database synchronization.
+     * A [StateFlow] indicating the current state of database synchronization.
      */
     val databaseState: StateFlow<DatabaseState>
+
+    /**
+     * A [StateFlow] listing all service accounts linked to the current user.
+     */
+    val serviceAccounts: StateFlow<Set<ServiceAccount>>
 
     /**
      * @return A list of all [HistoryGame]s the user has access to
@@ -90,4 +97,11 @@ interface ClientApi {
      * by setting [DatabaseState.updatesAvailable] to `true`.
      */
     suspend fun requestResync()
+
+    /**
+     * Starts an authentication flow with an external service
+     *
+     * WARNING: This API call does not work with [Service.UNKNOWN] or [Service.RANDOM_CHESS].
+     */
+    suspend fun addExternalAccount(service: Service): AddExternalAccountResponse
 }

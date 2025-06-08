@@ -34,6 +34,9 @@ dependencies {
     implementation(libs.jdbc.postgresql)
     implementation(libs.r2dbc.postgresql)
 
+    implementation(libs.ktor.server.core)
+    implementation(libs.ktor.server.netty)
+    implementation(libs.ktor.server.html.builder)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.cio)
 

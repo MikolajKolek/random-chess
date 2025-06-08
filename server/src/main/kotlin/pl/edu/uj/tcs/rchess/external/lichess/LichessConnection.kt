@@ -23,7 +23,6 @@ import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
-const val apiUrl = "https://lichess.org/api/"
 const val batchSize = 60
 
 internal class LichessConnection(
@@ -42,6 +41,7 @@ internal class LichessConnection(
     override suspend fun synchronize(): Boolean = coroutineScope {
         //TODO: also refresh the display name if it has changed
         //TODO: better error handling
+        //TODO; fix this breaking on invalid token
 
         if(!available())
             return@coroutineScope true
@@ -51,7 +51,7 @@ internal class LichessConnection(
             .getLatestGameForServiceAccount(serviceAccount)
             ?.creationDate?.toInstant()?.toEpochMilli()
 
-        val request = httpClient.prepareGet(apiUrl + "games/user/${serviceAccount.userIdInService}") {
+        val request = httpClient.prepareGet(lichessApiUrl + "/games/user/${serviceAccount.userIdInService}") {
             header("Accept", "application/x-ndjson")
 
             val token = database.getTokenForServiceAccount(serviceAccount)

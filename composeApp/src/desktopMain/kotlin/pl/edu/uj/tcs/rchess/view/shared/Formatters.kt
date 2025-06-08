@@ -51,7 +51,6 @@ fun GameResult.formatReason() = when (this) {
 fun Service?.format() = when (this) {
     null -> "Imported"
     Service.RANDOM_CHESS -> "Random${nbsp}Chess"
-    Service.CHESS_COM -> "Chess.com"
     Service.LICHESS -> "Lichess"
     Service.UNKNOWN -> "Unknown"
 }

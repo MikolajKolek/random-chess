@@ -36,6 +36,12 @@ internal class MockDatabase : Database {
     override suspend fun getLatestGameForServiceAccount(serviceAccount: ServiceAccount): HistoryServiceGame? = null
 
     override suspend fun getTokenForServiceAccount(serviceAccount: ServiceAccount): String? = null
+
+    override suspend fun insertServiceAccount(
+        serviceAccount: ServiceAccount,
+        token: String,
+        userId: Int
+    ) {}
 }
 
 class LiveGameTest {

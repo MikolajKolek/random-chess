@@ -179,7 +179,6 @@ internal object Serialization {
     fun Service.toDbId() = when(this) {
         UNKNOWN -> throw IllegalArgumentException("Cannot convert UNKNOWN to db id")
         Service.RANDOM_CHESS -> 1
-        Service.CHESS_COM -> 2
         Service.LICHESS -> 3
     }
 

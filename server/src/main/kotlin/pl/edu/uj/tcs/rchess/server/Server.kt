@@ -23,6 +23,7 @@ import pl.edu.uj.tcs.rchess.api.Synchronized
 import pl.edu.uj.tcs.rchess.api.Synchronizing
 import pl.edu.uj.tcs.rchess.api.args.GamesRequestArgs
 import pl.edu.uj.tcs.rchess.api.args.RankingRequestArgs
+import pl.edu.uj.tcs.rchess.api.entity.AddExternalAccountResponse
 import pl.edu.uj.tcs.rchess.api.entity.BotOpponent
 import pl.edu.uj.tcs.rchess.api.entity.Service
 import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
@@ -32,6 +33,7 @@ import pl.edu.uj.tcs.rchess.api.entity.ranking.RankingSpot
 import pl.edu.uj.tcs.rchess.config.BotType
 import pl.edu.uj.tcs.rchess.config.ConfigLoader
 import pl.edu.uj.tcs.rchess.external.ExternalConnection
+import pl.edu.uj.tcs.rchess.external.lichess.LichessAuthentication
 import pl.edu.uj.tcs.rchess.external.toExternalConnection
 import pl.edu.uj.tcs.rchess.generated.db.tables.references.*
 import pl.edu.uj.tcs.rchess.model.ClockSettings
@@ -74,6 +76,9 @@ internal class Server() : ClientApi, Database {
         )
     )
 
+    override val serviceAccounts: MutableStateFlow<Set<ServiceAccount>> =
+        MutableStateFlow(emptySet())
+
     init {
         val botServiceAccounts = runBlocking {
             Flux.from(dsl.selectFrom(SERVICE_ACCOUNTS)
@@ -104,6 +109,10 @@ internal class Server() : ClientApi, Database {
             ).asFlow().map {
                 it.toModel(it.userId == config.defaultUser).toExternalConnection(this@Server)
             }.filterNotNull().toList()
+        }
+
+        runBlocking {
+            refreshServiceAccounts()
         }
     }
 
@@ -284,6 +293,15 @@ internal class Server() : ClientApi, Database {
         }
     }
 
+    override suspend fun addExternalAccount(service: Service): AddExternalAccountResponse {
+        return when(service) {
+            Service.LICHESS -> LichessAuthentication(this, config.defaultUser).authenticate()
+            else -> throw IllegalArgumentException(
+                "Adding external account on service $service is not supported"
+            )
+        }
+    }
+
     override suspend fun saveGame(
         game: GameState,
         liveGameController: LiveGameController
@@ -343,6 +361,7 @@ internal class Server() : ClientApi, Database {
                 )
             }
 
+            //TODO: do onDuplicateKeyUpdate
             Flux.from(accountInsertStep.onDuplicateKeyIgnore()).asFlow().collect()
         }
 
@@ -523,6 +542,26 @@ internal class Server() : ClientApi, Database {
             .awaitFirst().token
     }
 
+    override suspend fun insertServiceAccount(
+        serviceAccount: ServiceAccount,
+        token: String,
+        userId: Int
+    ) {
+        dsl.insertInto(SERVICE_ACCOUNTS)
+            .set(SERVICE_ACCOUNTS.USER_ID, userId)
+            .set(SERVICE_ACCOUNTS.SERVICE_ID, serviceAccount.service.toDbId())
+            .set(SERVICE_ACCOUNTS.USER_ID_IN_SERVICE, serviceAccount.userIdInService)
+            .set(SERVICE_ACCOUNTS.TOKEN, token)
+            .set(SERVICE_ACCOUNTS.DISPLAY_NAME, serviceAccount.displayName)
+            .set(SERVICE_ACCOUNTS.IS_BOT, serviceAccount.isBot)
+            .onDuplicateKeyUpdate()
+            .set(SERVICE_ACCOUNTS.TOKEN, token)
+            .set(SERVICE_ACCOUNTS.DISPLAY_NAME, serviceAccount.displayName)
+            .awaitFirst()
+
+        refreshServiceAccounts()
+    }
+
     private suspend fun serviceAccountById(userId: String, service: Service): ServiceAccount {
         return dsl.selectFrom(SERVICE_ACCOUNTS)
             .where(SERVICE_ACCOUNTS.USER_ID_IN_SERVICE.eq(userId))
@@ -536,5 +575,13 @@ internal class Server() : ClientApi, Database {
                     (userId == config.defaultUser.toString()) && (service == Service.RANDOM_CHESS)
                 )
             } ?: throw IllegalStateException("The requested service account does not exist")
+    }
+
+    private suspend fun refreshServiceAccounts() {
+        serviceAccounts.emit(
+            Flux.from(dsl.selectFrom(SERVICE_ACCOUNTS)
+                .where(SERVICE_ACCOUNTS.USER_ID.eq(config.defaultUser))
+            ).asFlow().map { it.toModel(true) }.toSet()
+        )
     }
 }

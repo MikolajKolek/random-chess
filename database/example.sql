@@ -104,7 +104,6 @@ INSERT INTO users(email, password_hash) VALUES
 UPDATE service_accounts SET display_name = 'Admin' WHERE user_id = 1;
 
 INSERT INTO service_accounts("user_id", "service_id", "user_id_in_service", "is_bot", "display_name", "token") VALUES
-    (1, 3, 'djammnick', FALSE, 'Djammnick', ''),
     (NULL, 2, 'test_ccom_id', FALSE, 'test_chesscom', NULL),
     (NULL, 2, 'test2_ccom_id', FALSE, 'test2_chesscom', NULL),
     (NULL, 3, 'test2_lc_id', FALSE, 'test2_lichess', NULL),

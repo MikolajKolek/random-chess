@@ -36,4 +36,9 @@ internal interface Database {
      * Gets an access token linked to a service account.
      */
     suspend fun getTokenForServiceAccount(serviceAccount: ServiceAccount): String?
+
+    /**
+     * Inserts a service account to the database.
+     */
+    suspend fun insertServiceAccount(serviceAccount: ServiceAccount, token: String, userId: Int)
 }

@@ -8,6 +8,7 @@ import pl.edu.uj.tcs.rchess.api.ClientApi
 import pl.edu.uj.tcs.rchess.api.args.GamesRequestArgs
 import pl.edu.uj.tcs.rchess.api.args.RankingRequestArgs
 import pl.edu.uj.tcs.rchess.api.entity.BotOpponent
+import pl.edu.uj.tcs.rchess.api.entity.Service
 import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import kotlin.random.Random
@@ -37,6 +38,9 @@ class DemoRemoteProxy(
 
     override val databaseState
         get() = server.databaseState
+
+    override val serviceAccounts
+        get() = server.serviceAccounts
 
     override suspend fun getUserGames(settings: GamesRequestArgs) =
         networked { server.getUserGames(settings) }
@@ -72,4 +76,7 @@ class DemoRemoteProxy(
 
     override suspend fun requestResync()
         = networked { server.requestResync() }
+
+    override suspend fun addExternalAccount(service: Service)
+        = networked { server.addExternalAccount(service) }
 }
