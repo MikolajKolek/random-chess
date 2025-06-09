@@ -34,6 +34,7 @@ import pl.edu.uj.tcs.rchess.model.Pgn
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.Win
 import pl.edu.uj.tcs.rchess.server.Database
+import pl.edu.uj.tcs.rchess.util.logger
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
@@ -50,16 +51,24 @@ internal class LichessConnection(
         return (currentLastRequest == null || Clock.System.now() - currentLastRequest >= 5.seconds)
     }
 
-    @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
-    override suspend fun synchronize(): Boolean = coroutineScope {
-        //TODO: also refresh the display name if it has changed
-        //TODO: better error handling
-        //TODO; fix this breaking on invalid token
-
+    override suspend fun synchronize(): Boolean {
         if (!available())
-            return@coroutineScope true
+            return true
         lastRequest = Clock.System.now()
 
+        try {
+            synchronizeImpl()
+        } catch (e: Throwable) {
+            logger.error { "Lichess synchronization failed: ${e.message}" }
+            return false
+        }
+
+        return true
+    }
+
+    @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
+    suspend fun synchronizeImpl() = coroutineScope {
+        val token = database.getTokenForServiceAccount(serviceAccount)
         val latestGameEpochMillisecond = database
             .getLatestGameForServiceAccount(serviceAccount)
             ?.creationDate?.toInstant()?.toEpochMilli()
@@ -68,10 +77,8 @@ internal class LichessConnection(
             lichessApiUrl + "/games/user/${serviceAccount.userIdInService}",
         ) {
             header("Accept", "application/x-ndjson")
-
-            val token = database.getTokenForServiceAccount(serviceAccount)
-            if (token != null) {
-                header("Authorization", "Bearer $token")
+            token?.let {
+                header("Authorization", "Bearer $it")
             }
 
             parameter("perfType", "ultraBullet,bullet,blitz,rapid,classical,correspondence")
@@ -101,57 +108,53 @@ internal class LichessConnection(
             }
         }
 
-        while (!tasks.isClosedForSend) {
-            tasks.receiveAsFlow().chunked(BATCH_SIZE).collect {
-                val games = it.map { jsonResponse ->
-                    async {
-                        val response = Json.decodeFromString<LichessGamesResponse>(jsonResponse)
-                        val pgn = Pgn.fromPgnDatabase(response.pgn).first()
+        tasks.receiveAsFlow().chunked(BATCH_SIZE).collect { chunk ->
+            val processedGames = chunk.map { jsonResponse ->
+                async {
+                    val response = Json.decodeFromString<LichessGamesResponse>(jsonResponse)
+                    val pgn = Pgn.fromPgnDatabase(response.pgn).first()
 
-                        if (listOf("created", "started", "aborted", "variantEnd").contains(response.status)) {
-                            return@async null
-                        }
-
-                        val whitePlayer = response.players["white"]?.let { player ->
-                            ServiceAccount.fromLichessPlayer(player)
-                        }
-                        val blackPlayer = response.players["black"]?.let { player ->
-                            ServiceAccount.fromLichessPlayer(player)
-                        }
-
-                        if (whitePlayer == null || blackPlayer == null)
-                            return@async null
-
-                        UnsavedServiceGame(
-                            moves = pgn.moves,
-                            startingPosition = pgn.startingPosition,
-                            creationDate = response.createdAt,
-                            result = if (
-                                (pgn.result as? Win)?.winReason == GameWinReason.UNKNOWN ||
-                                (pgn.result as? Draw)?.drawReason == GameDrawReason.UNKNOWN
-                            ) GameResult.fromLichessStatus(
-                                lichessStatus = response.status,
-                                winner = response.winner
-                            ) else pgn.result,
-                            metadata = pgn.metadata?.jsonObject?.let { metadataJson ->
-                                Json.Default.decodeFromJsonElement<Map<String, String>>(metadataJson)
-                            } ?: emptyMap(),
-                            gameIdInService = response.id,
-                            service = Service.LICHESS,
-                            blackPlayer = blackPlayer,
-                            whitePlayer = whitePlayer,
-                            clockSettings = response.clock?.let { clock ->
-                                ClockSettings.fromLichessClock(clock)
-                            }
-                        )
+                    if (listOf("created", "started", "aborted", "variantEnd").contains(response.status)) {
+                        return@async null
                     }
+
+                    val whitePlayer = response.players["white"]?.let { player ->
+                        ServiceAccount.fromLichessPlayer(player)
+                    }
+                    val blackPlayer = response.players["black"]?.let { player ->
+                        ServiceAccount.fromLichessPlayer(player)
+                    }
+
+                    if (whitePlayer == null || blackPlayer == null)
+                        return@async null
+
+                    UnsavedServiceGame(
+                        moves = pgn.moves,
+                        startingPosition = pgn.startingPosition,
+                        creationDate = response.createdAt,
+                        result = if (
+                            (pgn.result as? Win)?.winReason == GameWinReason.UNKNOWN ||
+                            (pgn.result as? Draw)?.drawReason == GameDrawReason.UNKNOWN
+                        ) GameResult.fromLichessStatus(
+                            lichessStatus = response.status,
+                            winner = response.winner
+                        ) else pgn.result,
+                        metadata = pgn.metadata?.jsonObject?.let { metadataJson ->
+                            Json.Default.decodeFromJsonElement<Map<String, String>>(metadataJson)
+                        } ?: emptyMap(),
+                        gameIdInService = response.id,
+                        service = Service.LICHESS,
+                        blackPlayer = blackPlayer,
+                        whitePlayer = whitePlayer,
+                        clockSettings = response.clock?.let { clock ->
+                            ClockSettings.fromLichessClock(clock)
+                        }
+                    )
                 }
-
-                database.saveServiceGames(games.awaitAll().filterNotNull())
             }
-        }
 
-        return@coroutineScope true
+            database.saveServiceGames(processedGames.awaitAll().filterNotNull())
+        }
     }
 
     companion object {
