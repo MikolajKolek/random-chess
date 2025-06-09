@@ -9,20 +9,20 @@ It consists of three modules:
 While currently the server is bundled with the Compose application code,
 the project structure allows a networked architecture to be implemented very easily.
 
-All the communication with the server is done by the `ClientApi` interface defined in
+All the communication with the server is done using the `ClientApi` interface defined in
 the `shared` module.
 It is implemented by the `Server` class in the `server` module.
 The repo also includes a demo network layer implementation, which demonstrates how easy it would
-be to implement without any changes to the server implementation.
+be to implement without any changes to the `Server` implementation.
 
 # Accounts
 The app does not currently have support for multiple users. The database is, however, implemented
-with full account support. To make it work on the PO side, the app is always "logged in"
+with full account support. To make it work on the application side, the app is always "logged in"
 as a specific, special user account, defined in the configuration file.
 
 # Compose app
 The desktop app is made using [Compose Multiplatform](https://www.jetbrains.com/compose-multiplatform/).
-This framework is not yet mature, but as a declarative framework it is a very elegant (in terms of code structure)
+The framework is not yet mature, but as a declarative framework it is a very elegant (in terms of code structure)
 way of creating user interfaces. 
 
 The app code is split into two parts:
@@ -56,31 +56,37 @@ Colors used in the project are defined in the `RandomChessTheme.kt` file:
 - `primary`, `primaryContainer` are used for the most prominent elements on screen,
   used especially for constructive actions (starting a game, importing games)
 - `secondary`, `secondaryContainer` are used for selection indication and actionable elements
-- `tertiary`, `tertiaryContainer` are used to focus user attention on otherwise less prominent elements,
-  in a game it is used for indicating current turn - clock highlights, game progress, possible piece moves
+- `tertiary`, `tertiaryContainer` are used to focus user attention on otherwise less prominent elements. 
+ In a game they are used for indicating the current turn - clock highlights, game progress, possible piece moves
 - `surface`, `background` - used for the lowest layer background
-- `surfaceContainer` and variants - used for background of cards and other containers
+- `surfaceContainer` and variants - used for the backgrounds of cards and other containers
 
 # Shared
 This module contains logic shared between the client and the server.
 
 ## Api
 
+The `api` package contains objects used for communication between the `client` and `server` modules. An important interface is `ClientApi`, used for all direct communication between the client and the server. 
+
+The `entity` subpackage contains objects returned from the server to the client on api requests. `args` on the other hand contains objects used as arguments in more complicated `ClientApi` methods.
+
 ## Model
 
-All six classis chess pieces were implemented as an extension of the `Piece` class. The key methods of these pieces are `getMoveVision` and `getCaptureVision` - in a given state of the board the pieces have the capacity to output the squares they would be able to move to, if given a move.\
+All six classic chess pieces were implemented as an extension of the `Piece` class. The key methods of these pieces are `getMoveVision` and `getCaptureVision` - in a given state of the board, the pieces have the capacity to output the squares they are able to move to.\
 The key feature of the model is the `BoardState` class, which wraps a `Board` with methods that allow for extracting complex information and applying a move.
 We decided to make the `BoardState` immutable - the application of a move results in another `BoardState` describing a state of the board after the move has been applied being created.
-This class also includes complete move legality validation, game over detection and conversion to and from several data types describing chess games or moves.
+This class also includes complete move legality validation, game over detection, and conversion to and from several data types describing chess games or moves.
 
-The moves or board states in chess can be represented in many ways. The model implements conversion to and from among all from the list below:
+The moves or board states in chess can be represented in many ways. The model implements conversion to and from all the formats listed below:
 
-- Long Algebraic Notation - the simplest representation of a chess move. Describes the source square, destination square and optionally the piece to promote to. This is the format used by bots within our project.
-- Short Algebraic Notation - a human-readable format of the long algebraic notation. When not necessary, it omits the source square, instead including the moving piece, information of captures, checks, checkmate or castling.
-- Forsyth-Edwards Notation - this notation describes the entirety of a state of the board, and thus, it is directly serializable to and from `BoardState`. It holds information like the contents of the board, player to move, players' castling rights, en passant possibility and move counters.
-- Portable Game Notation - this format is most often used to describe entire games, by a series of moves accompanied by a set of metadata describing a game. The model has been extensively tested for any edge cases with thousands of chess games and supports methods that later allow for importing or exporting the PGN format of a game.
+- Long Algebraic Notation - the simplest representation of a chess move. Describes the source square, destination square, and optionally the piece to promote to. This is the format used by bots implementing the UCI protocol.
+- Short Algebraic Notation - a human-readable format of the long algebraic notation. When not necessary, it omits the source square, instead including the moving piece, information of captures, checks, checkmate, or castling.
+- Forsyth-Edwards Notation - this notation describes the entire state of the board, and thus, it is directly serializable to and from `BoardState`. It holds information like the contents of the board, the player to move, players' castling rights, en passant possibility, and move counters.
+- Portable Game Notation - this format is most often used to describe entire games, by a series of moves accompanied by a set of metadata values. The model has been extensively tested for any edge cases with thousands of chess games in the PGN format.
 
 ## Util
+
+The `util` module contains various utility classes and functions. This includes, for example, the `SingleTaskTimer` used by the `LiveGameController` to implement timeouts, the logger used in various parts of the project, and different extension functions used to add functionality to preexisting Kotlin objects.
 
 # Server
 
@@ -92,7 +98,7 @@ To make sure that the client does not use the server in any way other than using
 
 This package consists mainly of one class - `Bot`. It implements a connection with an external bot executable over the [UCI Protocol](https://backscattering.de/chess/uci/), allowing for easy use of practically any modern chess bot.
 
-The bot works very similarly to a real player, taking `GameObserver` and `GameInput` objects when it's starting playing a game, meaning that `LiveGame` can work exactly the same way with bots as it would with real players.
+The bot works very similarly to a real player, taking `GameObserver` and `GameInput` objects when it's starting playing a game, meaning that the `LiveGameController` can work exactly the same way with bots as it would with real players.
 
 ## Config
 
@@ -106,13 +112,13 @@ This package contains the `Server` class, which is responsible for all the commu
 
 Serialization and deserialization from records created by jOOQ is handled by the `Serialization` object. It makes use of one of Kotlin's unique features - extension functions - to elegantly add functionality to existing classes from the `api` package.
 
-New games are launched by the `Server` using a `GameWithBotFactory`, which is used to spawn new games with bots. In the background, it creates a `LiveGameController` which is a class used for managing a live game. It's responsible for keeping track of timers, checking game end conditions, making moves on the internal state machine, and more. It's important to note that its structure allows it to be used not only for games with bots, but also other kinds of games, with no modification required. This means that it could be reused for live games between two players if a client-server architecture was being implemented.
+New games are launched by the `Server` using a `GameWithBotFactory`, which is used to spawn new games with bots. In the background, it creates a `LiveGameController` which is a class used for managing a live game. It's responsible for keeping track of timers, checking game end conditions, making moves on the internal state machine, and much more. It's important to note that its structure allows it to be used not only for games with bots, but also other kinds of games, with no modification required. This means that it could be reused for live games between two players if a client-server architecture was being implemented.
 
 ## Tournament
 
 The final planned component of the project. Unfortunately, the complete implementation of this feature did not fit within the project's deadline.
 
-Despite that, however, the functionality has thought out and the database was prepared for linking with the project.
+Despite that, however, the functionality has been thought out and the database was prepared for linking with the application.
 
 In the planned implementation, a tournament in the Swiss system would be represented by a `Tournament` class, with its factory class `TournamentFactory` to manage correct communication with the database.
 Swiss-system tournaments are played across a set number of rounds, within each of which all current participants are grouped into pairs.
