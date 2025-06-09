@@ -1,9 +1,19 @@
-# Struktura projektu
-
-Projekt jest podzielony na moduły:
+# Overview
+The app is written in Kotlin and uses its features extensively.
+It consists of three modules:
 - `shared`
 - `server`
 - `composeApp`
+
+# Client-server architecture
+While currently the server is bundled with the Compose application code,
+the structure allows a networked architecture to be implemented very easily.
+
+All the server communication with the server is done by the `ClientApi` interface defined in
+the `shared` module.
+It is implemented by the `Server` class in the `server` module.
+The repo also includes a demo network layer implementation, which demonstrates how easy it would
+be to implement without any coupling of the server implementation.
 
 # Shared
 
