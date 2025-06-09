@@ -77,6 +77,8 @@ The bot works very similarly to a real player, taking `GameObserver` and `GameIn
 
 ## Config
 
+This package holds the different data classes used for storing config data. Additionally, it contains `ConfigLoader`, which manages loading the config and makes sure the correct path is used on all platforms.
+
 ## External
 
 ## Server
