@@ -42,7 +42,7 @@ To use it in the UI, the `DataStateAdapter` can be used. It displays the loading
 states automatically and still gives the user enough options to create custom content interfaces. 
 
 ## `Paging`
-A more interesting sibling of the `DataStateViewModel` class is the `Sibling` interface and implementation.
+A more interesting sibling of the `DataStateViewModel` class is the `Paging` interface and implementation.
 `Paging` manages loading consecutive pages of an infinite list.
 A `Paging` instance handles errors by pausing the fetching of extra pages until the error is dismissed.
 
