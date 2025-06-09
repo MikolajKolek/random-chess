@@ -7,7 +7,7 @@ import kotlinx.coroutines.Deferred
  */
 data class AddExternalAccountResponse(
     /**
-     * An URL that the user needs to visit to complete the linking process
+     * A URL that the user needs to visit to complete the linking process
      */
     val oAuthUrl: String,
 

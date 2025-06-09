@@ -310,8 +310,11 @@ class BoardState(
         if(_sa.contains("O-O-O")) {
             require(_sa == "O-O-O") { "Invalid move pattern." }
             require(if(currentTurn==PlayerColor.WHITE) {castlingRights.whiteQueenSide} else {castlingRights.blackQueenSide}) { "Castling rights invalid." }
-            if(currentTurn==PlayerColor.WHITE) {move = Move(Square.fromString("e1"),Square.fromString("c1"))}
-            else {move = Move(Square.fromString("e8"), Square.fromString("c8"))}
+            move = if(currentTurn==PlayerColor.WHITE) {
+                Move(Square.fromString("e1"),Square.fromString("c1"))
+            } else {
+                Move(Square.fromString("e8"), Square.fromString("c8"))
+            }
             verifyCheckmate(move)
             verifyCheck(move)
             require(isLegalMove(move)) { "Castling is illegal here." }
@@ -321,8 +324,11 @@ class BoardState(
         if(_sa.contains("O-O")) {
             require(_sa == "O-O") { "Invalid move pattern."}
             require(if(currentTurn==PlayerColor.WHITE) {castlingRights.whiteKingSide} else {castlingRights.blackKingSide}) { "Castling rights invalid." }
-            if(currentTurn==PlayerColor.WHITE) {move = Move(Square.fromString("e1"),Square.fromString("g1"))}
-            else {move = Move(Square.fromString("e8"), Square.fromString("g8"))}
+            move = if(currentTurn==PlayerColor.WHITE) {
+                Move(Square.fromString("e1"),Square.fromString("g1"))
+            } else {
+                Move(Square.fromString("e8"), Square.fromString("g8"))
+            }
             verifyCheckmate(move)
             verifyCheck(move)
             require(isLegalMove(move)) { "Castling is illegal here." }

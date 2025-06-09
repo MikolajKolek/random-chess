@@ -1,7 +1,7 @@
 package pl.edu.uj.tcs.rchess.tournament
 
 /**
- * Currently the matching unit uses a variation of the Monrad system.
+ * Currently, the matching unit uses a variation of the Monrad system.
  */
 class TournamentMatchingUnit(
     val playedGames: List<Pair<String, String>>, // Temporary solution
@@ -14,7 +14,7 @@ class TournamentMatchingUnit(
      */
     fun pairUpGroup(group : List<String>) : Pair<List<Pair<String, String>>, List<String>> {
         val result : MutableList<Pair<String, String>> = mutableListOf()
-        val matched : Array<Boolean> = Array(group.size, { false })
+        val matched : Array<Boolean> = Array(group.size) { false }
         val matchFailed : MutableList<String> = mutableListOf()
         var currentMatched : Int = group.size - 1
         var nextMatched : Int
@@ -39,7 +39,7 @@ class TournamentMatchingUnit(
                 nextMatched--
             }
             if(!matched[currentMatched]) matchFailed += group[currentMatched]
-            currentMatched--;
+            currentMatched--
         }
         return Pair(result, matchFailed)
     }

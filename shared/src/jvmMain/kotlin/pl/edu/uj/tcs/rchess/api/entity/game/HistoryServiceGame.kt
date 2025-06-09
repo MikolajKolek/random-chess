@@ -11,7 +11,7 @@ import pl.edu.uj.tcs.rchess.model.state.BoardState
 import java.time.OffsetDateTime
 
 /**
- * A service game commited to the database
+ * A service game committed to the database
  */
 data class HistoryServiceGame(
     override val id: Int,

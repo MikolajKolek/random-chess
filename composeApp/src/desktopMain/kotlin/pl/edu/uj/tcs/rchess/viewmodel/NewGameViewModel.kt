@@ -31,7 +31,7 @@ class NewGameViewModel(private val context: AppContext): ViewModel() {
     var isRanked by mutableStateOf(true)
 
     /**
-     * Indicates if all the form elements are set correctly and it's possible to submit
+     * Indicates if all the form elements are set correctly, and it's possible to submit
      */
     val readyToSubmit: Boolean
         get() = selectedOpponent != null

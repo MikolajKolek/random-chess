@@ -111,7 +111,7 @@ BEGIN
         c := substr(fen, i, 1);
         IF(c ~ '[0-9]') THEN
             WHILE(j < c::integer) LOOP
-                ret:=ret||'e'; -- 'e' represents empty square
+                ret:=ret||'e'; -- 'e' represents an empty square
                 j:=j+1;
             END LOOP;
             j:=0;
@@ -178,7 +178,7 @@ END;
 $$
 LANGUAGE plpgsql IMMUTABLE;
 
--- Funckcja zwraca figurę na danym polu
+-- Funkcja zwraca figurę na danym polu
 CREATE OR REPLACE FUNCTION get_piece_at(
     board VARCHAR,
     square VARCHAR(2)
@@ -207,7 +207,7 @@ END;
 $$
 LANGUAGE plpgsql IMMUTABLE;
 
--- Funkcja która usuwa daną literkę z ciągu znaków - w celu modyfikacji castling rights.
+-- Funkcja, która usuwa daną literkę z ciągu znaków - w celu modyfikacji castling rights.
 CREATE OR REPLACE FUNCTION remove_letter(
     str VARCHAR,
     letter CHAR
@@ -1047,7 +1047,7 @@ CREATE TABLE "tournaments_ranking_reqs"
     "required_value"    INTEGER     NOT NULL    CHECK ( required_value > 0 )
 );
 
--- Number of rated games in certain ranking placed on a tournament
+-- Number of rated games in a certain ranking placed on a tournament
 CREATE TABLE "tournaments_ranked_games_reqs"
 (
     "tournament_id"     INTEGER     NOT NULL    REFERENCES swiss_tournaments(tournament_id) ON DELETE CASCADE,
@@ -1178,7 +1178,7 @@ BEGIN
     INTO ranking_data
     FROM rankings r
     WHERE r.id = NEW.ranking_id;
-    -- Check if tournament's time control is within the given rating
+    -- Check if the tournament's time control is within the given rating
     IF(verify_time_control(
         NEW.time_control,
         ranking_data.playtime_min,

@@ -66,7 +66,7 @@ class Tournament(
     fun issueMatchings() {
         require(matchings.isEmpty()) { "Games from previous round are not finished." }
         val pointsList = playersPoints.map{ (key, value)->Pair(value, key)}.toList()
-        val matcher : TournamentMatchingUnit = TournamentMatchingUnit(playedGames, pointsList)
+        val matcher = TournamentMatchingUnit(playedGames, pointsList)
         val resultMatchings = matcher.issueMatching()
         // For all players from resultMatchings.second, put them into byes.
         round++

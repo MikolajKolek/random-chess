@@ -106,7 +106,7 @@ fun BoardView(
     fun MaybeClickableCard(content: @Composable ColumnScope.() -> Unit) {
         val shape = if (squareBorder) RectangleShape else CardDefaults.outlinedShape
         // OutlinedCard does not have a nullable `onClick` field.
-        // It uses for this overloaded functions instead.
+        // It uses overloaded functions for this instead.
         when (onClick) {
             null -> OutlinedCard(shape = shape, content = content)
             else -> OutlinedCard(shape = shape, content = content, onClick = onClick)

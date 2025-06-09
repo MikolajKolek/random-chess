@@ -10,7 +10,7 @@ import kotlin.time.Duration.Companion.seconds
 
 /**
  * A generic class and interface for fetching paginated data.
- * It manages loading and error states and allows pausing fetching,
+ * It manages loading and error states and allows pausing fetching
  * until at least one observer is requesting more items.
  *
  * If an error occurs during fetching, it will be exposed in the [error] property,

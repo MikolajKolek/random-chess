@@ -1,6 +1,6 @@
 # Tematyka i cele projektu
 
-Projekt ***Random Chess*** został stworzony w celu ogranizacji treningu szachowego poprzez agregowanie partii z różnych źródeł oraz rozgrywania lokalnych partii z botami offline. Zaimpelementowane funkcjonalności obejmują:
+Projekt ***Random Chess*** został stworzony w celu organizacji treningu szachowego poprzez agregowanie partii z różnych źródeł oraz rozgrywania lokalnych partii z botami offline. Zaimplementowane funkcjonalności obejmują:
 
 - Rozgrywanie partii w aplikacji z botem
     - Weryfikacja legalności ruchów graczy
@@ -85,7 +85,7 @@ Dane do tej tabeli importujemy z [bazy danych lichess.org](https://github.com/li
 | `password_hash` | VARCHAR | NOT NULL             |
 
 W tej tabeli przechowywane są dane o lokalnych użytkownikach. Tabela ta jest stosunkowo niewielka ze względu na to, że większość danych przechowywana jest w bardziej uniwersalnej `service_accounts`.
-Kolumna `elo`, która znajdowała się tutaj poprzednio została zastąpiona kompletnym i funkcjonalnym systemem rankingowym [ELO](https://en.wikipedia.org/wiki/Elo_rating_system) na podstawie lokalnie rozgrywanych partii.
+Kolumna `elo`, która znajdowała się tutaj poprzednio, została zastąpiona kompletnym i funkcjonalnym systemem rankingowym [ELO](https://en.wikipedia.org/wiki/Elo_rating_system) na podstawie lokalnie rozgrywanych partii.
 Poprawność adresu mailowego jest obłożona checkiem na podstawie wyrażenia regularnego.
 
 ### game\_services
@@ -273,7 +273,7 @@ Podczas dodawania wartości do tej tabeli upewniamy się, że każda gra może w
 | `game_id`       | INT | NOT NULL RERERENCES service_games(id)                |
 | `round`         | INT | NOT NULL                                             |
 
-Tabela ta łączy turnieje z zarejestrowanymi dla niego partiami. Zaimpelementowane triggery i checki zapewniają, że rozgrywka zgodna jest z wymaganiami zapewnionymi przez turniej oraz że gracze są w turnieju zarejestrowani.
+Tabela ta łączy turnieje z zarejestrowanymi dla niego partiami. Zaimplementowane triggery i checki zapewniają, że rozgrywka zgodna jest z wymaganiami zapewnionymi przez turniej oraz że gracze są w turnieju zarejestrowani.
 
 Nałożona na kolumnę `tournament_id` klauzula `ON DELETE CASCADE` zapewnia, że gra zostanie usunięta z tego rejestru, gdy zostanie usunięty jej turniej.
 
@@ -502,7 +502,7 @@ Z powodu decyzji o traktowaniu partii rozegranych w naszym systemie w taki sam s
 
 ## Wykrywanie debiutów dla partii
 
-Dla każdej partii debiutem jest najpóźniejsza pozycja pasująca do jakiegoś wpisu w tabeli debiutów. Aby definitywanie go wyznaczyć, konieczne jest zasymulowanie pozycji z całej partii.
+Dla każdej partii debiutem jest najpóźniejsza pozycja pasująca do jakiegoś wpisu w tabeli debiutów. Aby definitywnie go wyznaczyć, konieczne jest zasymulowanie pozycji z całej partii.
 Wykrywanie debiutu i przechowywanie danych o nich nie jest więc tak trywialne, a potrzebowaliśmy odpowiedniego rozwiązania dla naszych potrzeb.
 
 1. Zapisywanie debiutu dla partii na stałe po umieszczeniu w tabeli na podstawie zapisanych ruchów\
