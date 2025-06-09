@@ -65,6 +65,9 @@ to the `local.properties` file in `local/`. Like before, this file is accessed t
 
 The available levels are `ERROR`, `WARN`, `INFO` (default), `DEBUG` and `TRACE`.
 
+# Project structure
+The [OVERVIEW.md](OVERVIEW.md) file details the general project structure and how the different modules are linked together.
+
 # Licences
 - **Fresca** chess piece set from [Lichess.org GitHub](https://github.com/lichess-org/lila/blob/master/COPYING.md):
   [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
