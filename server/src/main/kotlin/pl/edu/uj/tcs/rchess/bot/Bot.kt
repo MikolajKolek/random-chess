@@ -13,6 +13,8 @@ import pl.edu.uj.tcs.rchess.util.logger
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
+import kotlin.concurrent.atomics.AtomicBoolean
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.random.Random
 import kotlin.random.nextInt
 import kotlin.time.Duration.Companion.milliseconds
@@ -25,6 +27,8 @@ internal class Bot(private val process: Process,
 ) {
     private val output: OutputStreamWriter = OutputStreamWriter(process.outputStream)
     private val input: BufferedReader = BufferedReader(InputStreamReader(process.inputStream))
+    @OptIn(ExperimentalAtomicApi::class)
+    private val started = AtomicBoolean(false)
 
     init {
         writeAndWaitUntil("uci\n") { it.contains("uciok") }
@@ -36,10 +40,16 @@ internal class Bot(private val process: Process,
         writeAndWaitUntil("ucinewgame\nisready\n") { it.contains("readyok") }
     }
 
-    // FIXME: Do we want to be able to use this function from multiple threads?
-    //  Multiple calls to playGame will cause chaos
-    // TODO: potential problem if multiple bots are called with the same gameInput
+    /**
+     * Play a game with the given input and observer.
+     *
+     * This function cannot be called more than once on a single [Bot] object.
+     */
+    @OptIn(ExperimentalAtomicApi::class)
     suspend fun playGame(gameObserver: GameObserver, gameInput: GameInput) {
+        if(!started.compareAndSet(expectedValue = false, newValue = true))
+            throw IllegalStateException("The bot has already started playing a game")
+
         try {
             throwingPlayGame(gameObserver, gameInput)
         } catch (e: Exception) {
@@ -104,11 +114,10 @@ internal class Bot(private val process: Process,
      * The listener is called for each line of the response.
      * The first non-null result is returned.
      */
-    fun <T> writeAndParse(commands: String, listener: (String) -> T?): T {
+    private fun <T> writeAndParse(commands: String, listener: (String) -> T?): T {
         output.write(commands)
         output.flush()
 
-        // TODO: Implement timeout mechanism?
         while(true) {
             val line = input.readLine() ?: throw EofException()
 
@@ -117,7 +126,7 @@ internal class Bot(private val process: Process,
         }
     }
 
-    fun writeAndWaitUntil(commands: String, condition: (String) -> Boolean) = writeAndParse(commands) {
+    private fun writeAndWaitUntil(commands: String, condition: (String) -> Boolean) = writeAndParse(commands) {
         if (condition(it)) Unit
         else null
     }
