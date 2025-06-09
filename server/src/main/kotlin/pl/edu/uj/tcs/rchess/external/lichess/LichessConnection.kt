@@ -148,7 +148,7 @@ internal class LichessConnection(
     }
 }
 
-fun GameResult.Companion.fromLichessStatus(lichessStatus: String, winner: String?): GameResult {
+internal fun GameResult.Companion.fromLichessStatus(lichessStatus: String, winner: String?): GameResult {
     val winColor = winner?.let {
         when (it) {
             "black" -> PlayerColor.BLACK
@@ -170,7 +170,7 @@ fun GameResult.Companion.fromLichessStatus(lichessStatus: String, winner: String
     }
 }
 
-fun ServiceAccount.Companion.fromLichessPlayer(lichessPlayer: LichessPlayer): ServiceAccount? {
+internal fun ServiceAccount.Companion.fromLichessPlayer(lichessPlayer: LichessPlayer): ServiceAccount? {
     return when (lichessPlayer) {
         is EmptyLichessPlayer -> null
         is LichessAccount -> ServiceAccount(
@@ -192,7 +192,7 @@ fun ServiceAccount.Companion.fromLichessPlayer(lichessPlayer: LichessPlayer): Se
     }
 }
 
-fun ClockSettings.Companion.fromLichessClock(clock: LichessClock) = ClockSettings(
+internal fun ClockSettings.Companion.fromLichessClock(clock: LichessClock) = ClockSettings(
     startingTime = clock.initial.seconds,
     moveIncrease = clock.increment.seconds,
     extraTimeForFirstMove = 0.seconds

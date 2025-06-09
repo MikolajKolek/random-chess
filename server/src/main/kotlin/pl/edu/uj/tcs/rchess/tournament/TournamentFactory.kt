@@ -9,7 +9,7 @@ import pl.edu.uj.tcs.rchess.config.ConfigLoader
 import pl.edu.uj.tcs.rchess.generated.db.tables.references.SWISS_TOURNAMENTS
 import pl.edu.uj.tcs.rchess.generated.db.udt.records.ClockSettingsTypeRecord
 
-class TournamentFactory() {
+internal class TournamentFactory() {
 
     private val config = ConfigLoader.loadConfig()
     private val connection = ConnectionFactories.get(

@@ -1,7 +1,7 @@
 package pl.edu.uj.tcs.rchess.external.lichess
 
-const val lichessUrl = "https://lichess.org"
-const val lichessApiUrl = "$lichessUrl/api"
-const val lichessClientId = "random-chess"
-const val lichessScope = ""
-const val authHost = "localhost"
+internal const val lichessUrl = "https://lichess.org"
+internal const val lichessApiUrl = "$lichessUrl/api"
+internal const val lichessClientId = "random-chess"
+internal const val lichessScope = ""
+internal const val authHost = "localhost"

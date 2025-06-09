@@ -7,7 +7,7 @@ import kotlinx.serialization.json.JsonIgnoreUnknownKeys
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonIgnoreUnknownKeys
-data class LichessClock(
+internal data class LichessClock(
     val initial: Int,
     val increment: Int,
     val totalTime: Int

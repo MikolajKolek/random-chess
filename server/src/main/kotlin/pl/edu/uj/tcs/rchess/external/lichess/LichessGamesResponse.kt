@@ -17,7 +17,7 @@ import kotlin.time.toJavaInstant
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonIgnoreUnknownKeys
-data class LichessGamesResponse(
+internal data class LichessGamesResponse(
     val id: String,
     @Serializable(OffsetDateTimeAsLongSerializer::class)
     val createdAt: OffsetDateTime,
@@ -30,7 +30,7 @@ data class LichessGamesResponse(
     val clock: LichessClock? = null
 )
 
-object OffsetDateTimeAsLongSerializer: KSerializer<OffsetDateTime> {
+internal object OffsetDateTimeAsLongSerializer: KSerializer<OffsetDateTime> {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("pl.edu.uj.tcs.rchess.server", PrimitiveKind.STRING)
 

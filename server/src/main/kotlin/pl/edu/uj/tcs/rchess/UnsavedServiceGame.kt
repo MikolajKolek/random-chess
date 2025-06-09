@@ -8,7 +8,7 @@ import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.state.BoardState
 import java.time.OffsetDateTime
 
-data class UnsavedServiceGame(
+internal data class UnsavedServiceGame(
     val moves: List<Move>,
     val startingPosition: BoardState,
     val creationDate: OffsetDateTime,

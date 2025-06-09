@@ -3,7 +3,7 @@ package pl.edu.uj.tcs.rchess.tournament
 /**
  * Currently, the matching unit uses a variation of the Monrad system.
  */
-class TournamentMatchingUnit(
+internal class TournamentMatchingUnit(
     val playedGames: List<Pair<String, String>>, // Temporary solution
     val playersPoints: List<Pair<Double, String>> // Temporary solution
 ) {

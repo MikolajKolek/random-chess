@@ -6,7 +6,7 @@ import org.jooq.SQLDialect
 import org.jooq.impl.DSL.using
 import pl.edu.uj.tcs.rchess.config.ConfigLoader
 
-class Tournament(
+internal class Tournament(
     val myId : Int
 ) {
     private val config = ConfigLoader.loadConfig()

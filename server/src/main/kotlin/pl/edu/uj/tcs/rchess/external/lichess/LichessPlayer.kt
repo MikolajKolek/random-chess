@@ -9,9 +9,9 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 
 @Serializable(LichessPlayerSerializer::class)
-sealed interface LichessPlayer
+internal sealed interface LichessPlayer
 
-object LichessPlayerSerializer: KSerializer<LichessPlayer> {
+internal object LichessPlayerSerializer: KSerializer<LichessPlayer> {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("pl.edu.uj.tcs.rchess.server", PrimitiveKind.STRING)
 
@@ -45,7 +45,7 @@ object LichessPlayerSerializer: KSerializer<LichessPlayer> {
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonIgnoreUnknownKeys
-data class LichessAccount(
+internal data class LichessAccount(
     val user: LichessUser,
     val rating: Int
 ) : LichessPlayer
@@ -53,7 +53,7 @@ data class LichessAccount(
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonIgnoreUnknownKeys
-data class LichessUser(
+internal data class LichessUser(
     val name: String,
     val id: String,
     val title: String? = null
@@ -62,11 +62,11 @@ data class LichessUser(
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonIgnoreUnknownKeys
-data class LichessBot(
+internal data class LichessBot(
     val aiLevel: Int
 ) : LichessPlayer
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonIgnoreUnknownKeys
-class EmptyLichessPlayer : LichessPlayer
+internal class EmptyLichessPlayer : LichessPlayer
