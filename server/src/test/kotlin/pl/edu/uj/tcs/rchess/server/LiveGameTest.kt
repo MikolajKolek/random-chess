@@ -8,6 +8,7 @@ import org.junit.Test
 import pl.edu.uj.tcs.rchess.UnsavedServiceGame
 import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryServiceGame
+import pl.edu.uj.tcs.rchess.generated.db.udt.records.ClockSettingsTypeRecord
 import pl.edu.uj.tcs.rchess.model.*
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.fromFen
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
@@ -42,6 +43,14 @@ internal class MockDatabase : Database {
         token: String,
         userId: Int
     ) {}
+
+    override suspend fun initializeTournament(
+        roundCount: Int,
+        startingPosition: String,
+        isRanked: Boolean,
+        rankingId: Int,
+        timeControl: ClockSettingsTypeRecord
+    ): Int = 0
 }
 
 class LiveGameTest {
