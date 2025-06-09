@@ -15,9 +15,41 @@ It is implemented by the `Server` class in the `server` module.
 The repo also includes a demo network layer implementation, which demonstrates how easy it would
 be to implement without any coupling of the server implementation.
 
-# Shared
+# Accounts
+The app does not currently have support for multiple users. The database is however implemented
+with full account support. To make it work on the PO side, the app is always "logged in"
+as a specific, special user account.
 
-## API
+# Compose app
+The desktop app is created using [Compose Multiplatform](https://www.jetbrains.com/compose-multiplatform/).
+This framework is not yet mature, but as a declarative framework it is a very elegant (in terms of code structure)
+way of creating user interfaces. 
+
+The app code is split into two parts:
+- `viewmodel`
+- `view`
+
+`view` stores `@Composable` components, while `viewmodel` contains classes responsible for 
+ data holding and business logic.
+
+To improve code structure and avoid duplication, there are generic data managing classes:
+
+## `DataStateViewModel`
+An instance of this class is created by passing a single functions for loading data for that model.
+It provides a simple way to reload data, show a progress indicator and handle and display errors.
+
+To use it in the UI, the `DataStateAdapter` can be used. It displays the loading and errors
+states automatically and still gives the user enough options to create custom content interfaces. 
+
+## `Paging`
+A more interesting sibling of the `DataStateViewModel` class is the `Sibling` interface and implementation.
+`Paging` manages loading consecutive pages of an infinite list.
+A `Paging` instance handles errors by pausing fetching extra pages until the error is dismissed.
+
+Together with the `PagingAdapter` it provides infinite vertical scrolling support,
+
+## `DismissibleErrorsState`
+This class is used for simpler views that can error. It comes together with a `DismissibleErrorsAdapter`.
 
 ## Model
 
