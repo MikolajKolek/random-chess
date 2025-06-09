@@ -1,5 +1,22 @@
-# random-chess
-A chess app with functionality for saving, analyzing and playing games.
+# Random Chess
+The ***Random Chess*** project intends to help organize chess training by aggregating games from various sources with the ability to play games offline with bots. 
+
+Implemented functionality includes:
+- Playing games locally with bots
+  - Move legality verification
+  - Integration with existing chess engines - currently [Stockfish](https://stockfishchess.org/) is the default option, but most modern chess engines can be used thanks to the implementation of the [UCI Protocol](https://backscattering.de/chess/uci/)
+- Game history, including:
+  - Games imported in the [Portable Game Notation](https://pl.wikipedia.org/wiki/Portable_Game_Notation) format
+  - Games automatically downloaded from connected accounts on [lichess.org](https://lichess.org/api)
+  - Games played in our service
+- The ability to export history games in PGN format
+- Game analysis:
+  - Opening detection
+  - Displaying moves in [algebraic notation](https://en.wikipedia.org/wiki/Algebraic_notation_(chess))
+- Estimating [ELO](https://en.wikipedia.org/wiki/Elo_rating_system) rankings based on locally played games, separately for different time control categories
+- Conducting tournaments in the [Swiss tournament system](https://en.wikipedia.org/wiki/Swiss-system_tournament) (only the database part is functional, although the application has a module for matchings)
+- Maintaining a level of separation between the client and server modules, with communication being limited to the `ClientApi` interface, which allows for easy extension to a full client-server application
+
 
 # Getting started
 Copy the config file from [local/config.example.yml](local/config.example.yml) to:
@@ -8,24 +25,21 @@ Copy the config file from [local/config.example.yml](local/config.example.yml) t
 - on macOS: `~/Library/Application Support/rchess/config.yml`
 
 Opening detection requires data from the openings database.
-Clone [the openings database](https://github.com/lichess-org/chess-openings).
-Run `make` there after downloading the `chess` python package and run the script [database/prepare_openings.py](database/prepare_openings.py) inside `.../chess-openings/dist`.
-Ultimately, place the resulting `openings.sql` file within [local](local).
+Clone [the Lichess openings database](https://github.com/lichess-org/chess-openings).
+Run `make` there after downloading the [chess](https://pypi.org/project/chess/) python package and then run the [database/prepare_openings.py](database/prepare_openings.py) script inside `.../chess-openings/dist`.
+Ultimately, place the resulting `openings.sql` file within [database](database) folder.
 
-You also must have Stockfish downloaded, so the bot games can work.
+You also must have Stockfish downloaded for the games with bots to work.
 Download [the Stockfish executable](https://stockfishchess.org/download/) for your platform
 and [nn-1c0000000000.nnue](https://tests.stockfishchess.org/api/nn/nn-1c0000000000.nnue).
 You can put them in the same directory as the config.
 Then, point the executable field in `config.yml` to your executable,
 and the `EvalFile` field to the nnue.
 
-Before building the app, you must have postgresql installed and running on your machine with the appropriate schema.
-To quickly set up the schema, run `database/create.sh`.
-
 # Building
 To build the app itself, run the Gradle task `composeApp:run`.
-This task uses jooq to generate sources for the database schema,
-so you must have the database running and up to date when building.
+This task uses jOOQ to generate sources for the database schema,
+so you must have the database running and up to date when building. To quickly set up the schema, run `database/create.sh`.
 
 # Testing
 If you want to run all the automated tests, run `gradle allTests`.
@@ -38,7 +52,7 @@ If you want to run the full test suite, add
 runExternalTests=true
 ```
 to the `local.properties` file in `local/` and create a `pgn_database.pgn`
-file in `local/` containing example pgn data.
+file in `local/` containing example pgn data. These files in are accessed through the `shared/local.properties` and `shared/src/jvmTest/pgn_database.pgn` symlinks, and symlinks uploaded to Git do not always work on platforms other than Linux, so you might need to change them to platform-specific links if you're having trouble with making the tests work.
 
 An example pgn database to use is approximately the first 100k lines of [this file](https://lichess.org/api/games/user/german11).
 
@@ -47,18 +61,9 @@ To change the log level, add:
 ```
 log.level=<LEVEL>
 ```
-to the `local.properties` file in `local/`.
+to the `local.properties` file in `local/`. Like before, this file is accessed through symlinks in `composeApp/`, `shared/` and `server/`, so they might need to be modified on platforms other than Linux. 
 
 The available levels are `ERROR`, `WARN`, `INFO` (default), `DEBUG` and `TRACE`.
-
-# Colors
-- `primary`, `primaryContainer` are used for the most prominent elements on screen,
-  used especially for constructive actions (starting a game, importing games)
-- `secondary`, `secondaryContainer` are used for selection indication and actionable elements
-- `tertiary`, `tertiaryContainer` are used to focus user attention on otherwise less prominent elements,
-  in a game it is used for indicating current turn - clock highlights, game progress, possible piece moves
-- `surface`, `background` - used for the lowest layer background
-- `surfaceContainer` and variants - used for background of cards and other containers
 
 # Licences
 - **Fresca** chess piece set from [Lichess.org GitHub](https://github.com/lichess-org/lila/blob/master/COPYING.md):

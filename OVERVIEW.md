@@ -51,6 +51,16 @@ Together with the `PagingAdapter` it provides infinite vertical scrolling suppor
 ## `DismissibleErrorsState`
 This class is used for simpler views that can error. It comes together with a `DismissibleErrorsAdapter`.
 
+## Colors
+Colors used in the project are defined in the `RandomChessTheme.kt` file:
+- `primary`, `primaryContainer` are used for the most prominent elements on screen,
+  used especially for constructive actions (starting a game, importing games)
+- `secondary`, `secondaryContainer` are used for selection indication and actionable elements
+- `tertiary`, `tertiaryContainer` are used to focus user attention on otherwise less prominent elements,
+  in a game it is used for indicating current turn - clock highlights, game progress, possible piece moves
+- `surface`, `background` - used for the lowest layer background
+- `surfaceContainer` and variants - used for background of cards and other containers
+
 # Shared
 This module contains logic shared between the client and the server.
 
