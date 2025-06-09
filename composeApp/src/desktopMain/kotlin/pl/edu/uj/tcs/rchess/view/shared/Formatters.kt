@@ -1,12 +1,7 @@
 package pl.edu.uj.tcs.rchess.view.shared
 
 import pl.edu.uj.tcs.rchess.api.entity.Service
-import pl.edu.uj.tcs.rchess.model.Draw
-import pl.edu.uj.tcs.rchess.model.GameDrawReason
-import pl.edu.uj.tcs.rchess.model.GameResult
-import pl.edu.uj.tcs.rchess.model.GameWinReason
-import pl.edu.uj.tcs.rchess.model.PlayerColor
-import pl.edu.uj.tcs.rchess.model.Win
+import pl.edu.uj.tcs.rchess.model.*
 import kotlin.text.Typography.nbsp
 import kotlin.time.Duration
 

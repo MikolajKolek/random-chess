@@ -1,9 +1,9 @@
 package pl.edu.uj.tcs.rchess.server
 
 import kotlinx.coroutines.CoroutineScope
+import pl.edu.uj.tcs.rchess.UnsavedServiceGame
 import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryServiceGame
-import pl.edu.uj.tcs.rchess.UnsavedServiceGame
 import pl.edu.uj.tcs.rchess.model.state.GameState
 
 /**

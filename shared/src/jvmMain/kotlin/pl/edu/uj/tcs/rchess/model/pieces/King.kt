@@ -1,9 +1,9 @@
 package pl.edu.uj.tcs.rchess.model.pieces
 
-import pl.edu.uj.tcs.rchess.model.state.BoardState
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.Square
+import pl.edu.uj.tcs.rchess.model.state.BoardState
 
 class King(owner: PlayerColor): Piece(owner = owner) {
     private val kingWithoutCastling = KingWithoutCastling(owner)

@@ -1,26 +1,8 @@
 package pl.edu.uj.tcs.rchess.view.board
 
 import pl.edu.uj.tcs.rchess.model.PlayerColor
-import pl.edu.uj.tcs.rchess.model.pieces.Bishop
-import pl.edu.uj.tcs.rchess.model.pieces.King
-import pl.edu.uj.tcs.rchess.model.pieces.Knight
-import pl.edu.uj.tcs.rchess.model.pieces.Pawn
-import pl.edu.uj.tcs.rchess.model.pieces.Piece
-import pl.edu.uj.tcs.rchess.model.pieces.Queen
-import pl.edu.uj.tcs.rchess.model.pieces.Rook
-import rchess.composeapp.generated.resources.Res
-import rchess.composeapp.generated.resources.frecsa_bK
-import rchess.composeapp.generated.resources.frecsa_bN
-import rchess.composeapp.generated.resources.frecsa_bP
-import rchess.composeapp.generated.resources.frecsa_bQ
-import rchess.composeapp.generated.resources.frecsa_wB
-import rchess.composeapp.generated.resources.frecsa_wK
-import rchess.composeapp.generated.resources.frecsa_wN
-import rchess.composeapp.generated.resources.frecsa_wP
-import rchess.composeapp.generated.resources.frecsa_wQ
-import rchess.composeapp.generated.resources.frecsa_wR
-import rchess.composeapp.generated.resources.fresca_bB
-import rchess.composeapp.generated.resources.fresca_bR
+import pl.edu.uj.tcs.rchess.model.pieces.*
+import rchess.composeapp.generated.resources.*
 
 val Piece.icon
     get() = this.let { piece ->
