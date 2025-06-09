@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import pl.edu.uj.tcs.rchess.UnsavedServiceGame
 import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryServiceGame
+import pl.edu.uj.tcs.rchess.generated.db.udt.records.ClockSettingsTypeRecord
 import pl.edu.uj.tcs.rchess.model.state.GameState
 
 /**
@@ -41,4 +42,16 @@ internal interface Database {
      * Inserts a service account to the database.
      */
     suspend fun insertServiceAccount(serviceAccount: ServiceAccount, token: String, userId: Int)
+
+    /**
+     * Initializes a tournament in the database.
+     * @return The tournament's ID.
+     */
+    suspend fun initializeTournament(
+        roundCount: Int,
+        startingPosition: String,
+        isRanked: Boolean,
+        rankingId: Int,
+        timeControl: ClockSettingsTypeRecord
+    ) : Int
 }

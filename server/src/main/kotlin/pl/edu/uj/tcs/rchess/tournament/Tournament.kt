@@ -1,25 +1,11 @@
 package pl.edu.uj.tcs.rchess.tournament
 
-import io.r2dbc.spi.ConnectionFactories
-import io.r2dbc.spi.ConnectionFactoryOptions
-import org.jooq.SQLDialect
-import org.jooq.impl.DSL.using
-import pl.edu.uj.tcs.rchess.config.ConfigLoader
+import pl.edu.uj.tcs.rchess.server.Database
 
 internal class Tournament(
-    val myId : Int
+    val myId : Int,
+    val database: Database
 ) {
-    private val config = ConfigLoader.loadConfig()
-    private val connection = ConnectionFactories.get(
-        ConnectionFactoryOptions
-            .parse("r2dbc:postgresql://${config.database.host}:${config.database.port}/${config.database.database}")
-            .mutate()
-            .option(ConnectionFactoryOptions.USER, config.database.user)
-            .option(ConnectionFactoryOptions.PASSWORD, config.database.password)
-            .build()
-    )
-    private val dsl = using(connection, SQLDialect.POSTGRES)
-
     val players : HashSet<String> = HashSet()
     var matchings : MutableList<Pair<String, String>> = mutableListOf()
     val playedGames : MutableList<Pair<String, String>> = mutableListOf()

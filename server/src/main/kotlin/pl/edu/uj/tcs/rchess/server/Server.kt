@@ -36,6 +36,7 @@ import pl.edu.uj.tcs.rchess.external.ExternalConnection
 import pl.edu.uj.tcs.rchess.external.lichess.LichessAuthentication
 import pl.edu.uj.tcs.rchess.external.toExternalConnection
 import pl.edu.uj.tcs.rchess.generated.db.tables.references.*
+import pl.edu.uj.tcs.rchess.generated.db.udt.records.ClockSettingsTypeRecord
 import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 import pl.edu.uj.tcs.rchess.model.Pgn
@@ -579,6 +580,24 @@ internal class Server() : ClientApi, Database {
             .awaitFirst()
 
         refreshServiceAccounts()
+    }
+
+    override suspend fun initializeTournament(
+        roundCount: Int,
+        startingPosition: String,
+        isRanked: Boolean,
+        rankingId: Int,
+        timeControl: ClockSettingsTypeRecord
+    ): Int {
+        return dsl.insertInto(SWISS_TOURNAMENTS)
+            .set(SWISS_TOURNAMENTS.ROUND_COUNT, roundCount)
+            .set(SWISS_TOURNAMENTS.STARTING_POSITION, startingPosition)
+            .set(SWISS_TOURNAMENTS.IS_RANKED, isRanked)
+            .set(SWISS_TOURNAMENTS.RANKING_ID, rankingId)
+            .set(SWISS_TOURNAMENTS.TIME_CONTROL, timeControl)
+            .returningResult(SWISS_TOURNAMENTS.TOURNAMENT_ID)
+            .awaitFirst()?.getValue(SWISS_TOURNAMENTS.TOURNAMENT_ID)
+            ?: throw IllegalStateException("Failed to save tournament to the database")
     }
 
     private suspend fun serviceAccountById(userId: String, service: Service): ServiceAccount {
