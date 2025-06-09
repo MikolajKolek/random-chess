@@ -292,7 +292,7 @@ internal class Server() : ClientApi, Database {
                             it.serviceAccount.service to job
                         }
                         .mapValues { it.value.await() }
-                        .filterValues { it }
+                        .filterValues { !it }
                         .keys.toList()
 
                     databaseState.getAndUpdate { it.copy(synchronizationState = Synchronized(errors)) }

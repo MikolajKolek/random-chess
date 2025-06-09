@@ -11,12 +11,14 @@ import io.ktor.utils.io.exhausted
 import io.ktor.utils.io.readUTF8Line
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.chunked
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.timeout
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
@@ -66,7 +68,7 @@ internal class LichessConnection(
         return true
     }
 
-    @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
+    @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class, FlowPreview::class)
     suspend fun synchronizeImpl() = coroutineScope {
         val token = database.getTokenForServiceAccount(serviceAccount)
         val latestGameEpochMillisecond = database
@@ -108,7 +110,7 @@ internal class LichessConnection(
             }
         }
 
-        tasks.receiveAsFlow().chunked(BATCH_SIZE).collect { chunk ->
+        tasks.receiveAsFlow().chunked(BATCH_SIZE).timeout(10.seconds).collect { chunk ->
             val processedGames = chunk.map { jsonResponse ->
                 async {
                     val response = Json.decodeFromString<LichessGamesResponse>(jsonResponse)

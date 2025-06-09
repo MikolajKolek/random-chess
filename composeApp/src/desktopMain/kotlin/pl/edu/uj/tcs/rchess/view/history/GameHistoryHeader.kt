@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
 import pl.edu.uj.tcs.rchess.api.DatabaseState
+import pl.edu.uj.tcs.rchess.api.Synchronized
 import pl.edu.uj.tcs.rchess.api.Synchronizing
 import rchess.composeapp.generated.resources.Res
 import rchess.composeapp.generated.resources.icon_refresh
@@ -39,6 +40,15 @@ fun GameHistoryHeader(
                     "Synchronizing games from external services...",
                     style = typography.bodySmall,
                     modifier = Modifier.padding(end = 8.dp),
+                )
+            }
+
+            (databaseState.synchronizationState as? Synchronized)?.errors?.isNotEmpty() == true -> {
+                Text(
+                    "Encountered an error while synchronizing games",
+                    style = typography.bodySmall,
+                    modifier = Modifier.padding(end = 8.dp),
+                    color = MaterialTheme.colorScheme.error,
                 )
             }
 
