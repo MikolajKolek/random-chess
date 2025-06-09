@@ -6,13 +6,14 @@ import kotlinx.serialization.json.*
 import org.junit.Assert
 import org.junit.Test
 import pl.edu.uj.tcs.rchess.api.entity.Opening
+import pl.edu.uj.tcs.rchess.api.entity.PlayerDetails
 import pl.edu.uj.tcs.rchess.api.entity.game.PgnGame
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 import pl.edu.uj.tcs.rchess.model.state.BoardState
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.util.*
 
 class PgnTest {
@@ -983,14 +984,14 @@ class PgnTest {
                 id = 0, // Unused data
                 moves = importGame.moves,
                 finalPosition = BoardState.initial,
-                opening = Opening("A00", "Placeholder", BoardState.initial),
+                opening = Opening("A00", "Placeholder", BoardState.initial, 0),
                 startingPosition = importGame.startingPosition,
                 //finalPosition = BoardState.initial, // Unused data
-                creationDate = LocalDateTime.now(), // Unused data
+                creationDate = OffsetDateTime.now(), // Unused data
                 result = importGame.result,
                 metadata = Json.decodeFromJsonElement<Map<String, String>>(importGame.metadata!!),
-                blackPlayerName = importGame.blackPlayerName,
-                whitePlayerName = importGame.whitePlayerName,
+                blackPlayer = PlayerDetails.Simple(importGame.blackPlayerName),
+                whitePlayer = PlayerDetails.Simple(importGame.whitePlayerName),
                 clockSettings = null,
             )
             var game: Pgn? = null
