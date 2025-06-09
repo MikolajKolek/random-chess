@@ -51,6 +51,11 @@ Together with the `PagingAdapter` it provides infinite vertical scrolling suppor
 ## `DismissibleErrorsState`
 This class is used for simpler views that can error. It comes together with a `DismissibleErrorsAdapter`.
 
+# Shared
+This module contains logic shared between the client and the server.
+
+## Api
+
 ## Model
 
 All six classis chess pieces were implemented as an extension of the `Piece` class. The key methods of these pieces are `getMoveVision` and `getCaptureVision` - in a given state of the board the pieces have the capacity to output the squares they would be able to move to, if given a move.\
@@ -69,6 +74,10 @@ The moves or board states in chess can be represented in many ways. The model im
 
 # Server
 
+The server module is responsible for all the functionality that would end up on the server in a client-server scenario.
+
+To make sure that the client does not use the server in any way other than using a `Server` instance as a `ClientApi`, everything in this module besides the `ApiProvider` is marked as `internal`, meaning that access is only allowed from the same module.
+
 ## Bot
 
 This package consists mainly of one class - `Bot`. It implements a connection with an external bot executable over the [UCI Protocol](https://backscattering.de/chess/uci/), allowing for easy use of practically any modern chess bot.
@@ -82,6 +91,12 @@ This package holds the different data classes used for storing config data. Addi
 ## External
 
 ## Server
+
+This package contains the `Server` class, which is responsible for all the communication with the database and responding to client requests. `Server` implements `ClientApi` for communication with the client, but also `Database`, which is used internally in the server for database access. This allows for simple testing of server components, as mock Database instances can easily be created.
+
+Serialization and deserialization from records created by jOOQ is handled by the `Serialization` object. It makes use of one of Kotlin's unique features - extension functions - to elegantly add functionality to existing classes from the `api` package.
+
+New games are launched by the `Server` using a `GameWithBotFactory`, which is used to spawn new games with bots. In the background, it creates a `LiveGameController` which is a class used for managing a live game. It's responsible for keeping track of timers, checking game end conditions, making moves on the internal state machine, and more. It's important to note that its structure allows it to be used not only for games with bots, but also other kinds of games, with no modification required. This means that it could be reused for live games between two players if a client-server architecture was being implemented.
 
 ## Tournament
 
