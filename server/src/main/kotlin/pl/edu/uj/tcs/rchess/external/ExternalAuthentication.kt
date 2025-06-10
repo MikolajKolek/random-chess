@@ -1,6 +1,8 @@
 package pl.edu.uj.tcs.rchess.external
 
 import pl.edu.uj.tcs.rchess.api.entity.AddExternalAccountResponse
+import pl.edu.uj.tcs.rchess.api.entity.Service
+import pl.edu.uj.tcs.rchess.external.lichess.LichessAuthentication
 import pl.edu.uj.tcs.rchess.server.Database
 
 internal interface ExternalAuthentication {
@@ -11,4 +13,14 @@ internal interface ExternalAuthentication {
      * Starts the authentication flow with an external service.
      */
     suspend fun authenticate(): AddExternalAccountResponse
+
+    companion object {
+        fun fromService(service: Service, userId: Int, database: Database): ExternalAuthentication
+        = when(service) {
+            Service.LICHESS -> LichessAuthentication(database, userId)
+            else -> throw IllegalArgumentException(
+                "Adding external account on service $service is not supported"
+            )
+        }
+    }
 }

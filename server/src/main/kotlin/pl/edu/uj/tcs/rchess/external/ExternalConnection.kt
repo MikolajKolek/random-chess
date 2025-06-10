@@ -32,9 +32,12 @@ internal interface ExternalConnection {
      * @return True if the synchronization was successful, false if it wasn't.
      */
     suspend fun synchronize(): Boolean
-}
 
-internal fun ServiceAccount.toExternalConnection(database: Database): ExternalConnection? = when(service) {
-    Service.LICHESS -> LichessConnection(database, this)
-    else -> null
+    companion object {
+        fun fromServiceAccount(account: ServiceAccount, database: Database): ExternalConnection?
+        = when(account.service) {
+            Service.LICHESS -> LichessConnection(database, account)
+            else -> null
+        }
+    }
 }

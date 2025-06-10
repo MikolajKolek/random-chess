@@ -106,6 +106,18 @@ This package holds the different data classes used for storing config data. Addi
 
 ## External
 
+This package contains utilities for communicating with external services. Currently, we only support Lichess, but thanks to a modular approach, adding more services would be straightforward.
+
+There are two important parts that every connected external service has to implement:
+- `ExternalAuthentication` is an interface that provides the ability to log into an external service using an OAuth flow. These objects are created for the time of linking an account only.
+- `ExternalConnection` is an interface used for synchronizing games from external services to our database. Objects implementing this interface keep existing as long as an associated user is logged in. This allows the object to, for example, refrain from making too many requests in a short amount of time to avoid hitting a rate limit.
+
+To add support for a new service, you need to:
+- Add a new entry to the `game_services` table in the database
+- Add a matching entry to `Service`, `Serialization.Service.toDbId` and `Service.Companion.fromDbId`
+- Create new classes implementing the two aforementioned interfaces, and then adjust `ExternalAuthentication.fromService` and `ExternalConnection.fromServiceAccount` accordingly
+- Add a logo to `ServiceExt` and formatting to `Service?.format()` in the `Formatters.kt` file
+
 ## Server
 
 This package contains the `Server` class, which is responsible for all the communication with the database and responding to client requests. `Server` implements `ClientApi` for communication with the client, but also `Database`, which is used internally in the server for database access. This allows for simple testing of server components, as mock Database instances can easily be created.

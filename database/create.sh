@@ -10,7 +10,9 @@ sudo -H -u postgres bash -c "\
   psql -c \"CREATE DATABASE random_chess OWNER random_chess;\"
   psql \"postgresql://random_chess:random_chess@localhost:5432/random_chess\" < $mydir/schema-create.sql
   psql \"postgresql://random_chess:random_chess@localhost:5432/random_chess\" < $mydir/schema-alteration.sql
-  psql \"postgresql://random_chess:random_chess@localhost:5432/random_chess\" < $mydir/openings.sql
+  if test -f $mydir/openings.sql; then
+    psql \"postgresql://random_chess:random_chess@localhost:5432/random_chess\" < $mydir/openings.sql
+  fi
   psql \"postgresql://random_chess:random_chess@localhost:5432/random_chess\" < $mydir/example.sql
   if test -f $mydir/secret.sql; then
     psql \"postgresql://random_chess:random_chess@localhost:5432/random_chess\" < $mydir/secret.sql

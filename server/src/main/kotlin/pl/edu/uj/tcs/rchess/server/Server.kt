@@ -32,9 +32,8 @@ import pl.edu.uj.tcs.rchess.api.entity.ranking.Ranking
 import pl.edu.uj.tcs.rchess.api.entity.ranking.RankingSpot
 import pl.edu.uj.tcs.rchess.config.BotType
 import pl.edu.uj.tcs.rchess.config.ConfigLoader
+import pl.edu.uj.tcs.rchess.external.ExternalAuthentication
 import pl.edu.uj.tcs.rchess.external.ExternalConnection
-import pl.edu.uj.tcs.rchess.external.lichess.LichessAuthentication
-import pl.edu.uj.tcs.rchess.external.toExternalConnection
 import pl.edu.uj.tcs.rchess.generated.db.tables.references.*
 import pl.edu.uj.tcs.rchess.generated.db.udt.records.ClockSettingsTypeRecord
 import pl.edu.uj.tcs.rchess.model.ClockSettings
@@ -109,7 +108,10 @@ internal class Server() : ClientApi, Database {
             Flux.from(dsl.selectFrom(SERVICE_ACCOUNTS)
                 .where(SERVICE_ACCOUNTS.USER_ID.eq(config.defaultUser))
             ).asFlow().map {
-                it.toModel(it.userId == config.defaultUser).toExternalConnection(this@Server)
+                ExternalConnection.fromServiceAccount(
+                    account = it.toModel(it.userId == config.defaultUser),
+                    database = this@Server
+                )
             }.filterNotNull().toList().toMutableList()
         }
 
@@ -311,12 +313,11 @@ internal class Server() : ClientApi, Database {
     }
 
     override suspend fun addExternalAccount(service: Service): AddExternalAccountResponse {
-        return when (service) {
-            Service.LICHESS -> LichessAuthentication(this, config.defaultUser).authenticate()
-            else -> throw IllegalArgumentException(
-                "Adding external account on service $service is not supported"
-            )
-        }
+        return ExternalAuthentication.fromService(
+            service = service,
+            userId = config.defaultUser,
+            database = this
+        ).authenticate()
     }
 
     override suspend fun saveGame(
@@ -625,7 +626,12 @@ internal class Server() : ClientApi, Database {
                 conn.serviceAccount.userIdInService == it.userIdInService &&
                         conn.serviceAccount.service == it.service
             }
-        }.mapNotNull { it.toExternalConnection(this) }
+        }.mapNotNull {
+            ExternalConnection.fromServiceAccount(
+                account = it,
+                database = this@Server
+            )
+        }
 
         newExternalConnections.forEach { externalConnections.add(it) }
         if(newExternalConnections.isNotEmpty())
