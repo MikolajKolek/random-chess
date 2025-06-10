@@ -112,3 +112,18 @@ WHERE is_ranked IS NULL;
 
 ALTER TABLE swiss_tournaments
     ALTER COLUMN is_ranked SET NOT NULL;
+
+ALTER TABLE tournaments_ranking_reqs
+    ADD CONSTRAINT un_tid_rtype UNIQUE(tournament_id, ranking_type),
+    ALTER COLUMN ranking_type SET DEFAULT 1;
+
+BEGIN;
+    ALTER TABLE tournaments_ranked_games_reqs
+        DROP CONSTRAINT tournaments_ranked_games_reqs_ranking_type_fkey;
+
+    ALTER TABLE tournaments_ranked_games_reqs
+        ADD CONSTRAINT tournaments_ranked_games_reqs_ranking_type_fkey
+        FOREIGN KEY (ranking_type)
+        REFERENCES rankings(id)
+        ON DELETE CASCADE;
+COMMIT;
