@@ -58,6 +58,51 @@ $$
 CREATE OR REPLACE TRIGGER check_tournament_game_validity BEFORE INSERT OR UPDATE ON tournaments_games
     FOR EACH ROW EXECUTE PROCEDURE check_tournament_game_validity();
 
+-- Poprawa działania wymagań na dołączenie do turnieju
+CREATE OR REPLACE FUNCTION check_tournament_player_validity()
+    RETURNS TRIGGER AS
+$$
+DECLARE
+    player_data RECORD;
+    ranking_restriction RECORD;
+    games_restriction RECORD;
+    req_val INTEGER;
+BEGIN
+    SELECT *
+    INTO player_data
+    FROM service_accounts sa
+    WHERE sa.user_id_in_service=NEW.user_id_in_service AND sa.service_id = 1
+    LIMIT 1;
+    IF(player_data IS NULL) THEN RAISE EXCEPTION 'Player not found in local service accounts.'; END IF;
+    IF(player_data.is_bot) THEN RETURN NEW; END IF;
+
+    -- Check all requirements for ranking minimum
+    FOR ranking_restriction IN (SELECT * FROM tournaments_ranking_reqs trq WHERE NEW.tournament_id=trq.tournament_id) LOOP
+        req_val = (
+            SELECT rat.elo
+            FROM current_ranking rat
+            WHERE NEW.user_id_in_service=rat.user_id_in_service AND ranking_restriction.ranking_type=rat.ranking_id
+        );
+        IF(req_val < ranking_restriction.required_value) THEN RAISE EXCEPTION 'Could not join the tournament - rating too low.'; END IF;
+    END LOOP;
+
+    -- Check all requirements for ranked game minimum
+    FOR games_restriction IN (SELECT * FROM tournaments_ranked_games_reqs trgr WHERE NEW.tournament_id=trgr.tournament_id) LOOP
+        req_val = (
+            SELECT COUNT(*)
+            FROM elo_history eh
+            WHERE eh.user_id_in_service=NEW.user_id_in_service AND eh.ranking_id=games_restriction.ranking_type
+        );
+        IF(req_val < games_restriction.game_count) THEN RAISE EXCEPTION 'Could not join tournament - not enough ranked games.'; END IF;
+    END LOOP;
+    RETURN NEW;
+END;
+$$
+    LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER check_tournament_player_validity BEFORE INSERT OR UPDATE ON tournaments_players
+    FOR EACH ROW EXECUTE PROCEDURE check_tournament_player_validity();
+
 ALTER TABLE swiss_tournaments
     DROP CONSTRAINT swiss_tournaments_check;
 
