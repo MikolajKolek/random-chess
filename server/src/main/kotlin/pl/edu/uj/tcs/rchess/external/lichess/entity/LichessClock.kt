@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.external.lichess
+package pl.edu.uj.tcs.rchess.external.lichess.entity
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable

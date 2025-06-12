@@ -34,6 +34,11 @@ internal interface ExternalConnection {
     suspend fun synchronize(): Boolean
 
     companion object {
+        /**
+         * @return An [ExternalConnection] instance for the given service account. If the service account
+         * does not support synchronization, for example, it's [Service.RANDOM_CHESS], this function
+         * return null.
+         */
         fun fromServiceAccount(account: ServiceAccount, database: Database): ExternalConnection?
         = when(account.service) {
             Service.LICHESS -> LichessConnection(database, account)

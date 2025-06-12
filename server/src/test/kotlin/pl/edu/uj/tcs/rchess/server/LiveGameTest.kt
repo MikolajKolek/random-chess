@@ -156,7 +156,6 @@ class LiveGameTest {
         Assert.assertEquals(Win(GameWinReason.CHECKMATE, PlayerColor.WHITE), game.getResult())
     }
 
-    //TODO: timeoutTest and timeoutVsInsufficientMaterialTest can probably be done better
     @Test
     fun timeoutTest() {
         val game = Wrapper(clockSettings =

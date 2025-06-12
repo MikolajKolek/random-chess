@@ -15,6 +15,11 @@ internal interface ExternalAuthentication {
     suspend fun authenticate(): AddExternalAccountResponse
 
     companion object {
+        /**
+         * An [ExternalAuthentication] instance for the given service.
+         * @throws IllegalArgumentException if called for a service that
+         * does not support authentication, for example [Service.RANDOM_CHESS].
+         */
         fun fromService(service: Service, userId: Int, database: Database): ExternalAuthentication
         = when(service) {
             Service.LICHESS -> LichessAuthentication(database, userId)

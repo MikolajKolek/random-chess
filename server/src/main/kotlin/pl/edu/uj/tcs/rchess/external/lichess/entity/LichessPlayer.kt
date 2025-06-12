@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.external.lichess
+package pl.edu.uj.tcs.rchess.external.lichess.entity
 
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -24,7 +24,10 @@ internal object LichessPlayerSerializer: KSerializer<LichessPlayer> {
             val aiLevel = json["aiLevel"]!!.jsonPrimitive.int
             return LichessBot(aiLevel)
         } else if("user" in json) {
-            input.json.decodeFromJsonElement(LichessAccount::class.serializer(), JsonObject(json))
+            input.json.decodeFromJsonElement(
+                deserializer = LichessAccount::class.serializer(),
+                element = JsonObject(json)
+            )
         } else {
             EmptyLichessPlayer()
         }
@@ -33,11 +36,16 @@ internal object LichessPlayerSerializer: KSerializer<LichessPlayer> {
     @OptIn(InternalSerializationApi::class)
     override fun serialize(encoder: Encoder, value: LichessPlayer) {
         val jsonEncoder = encoder as? JsonEncoder ?: error("OpponentSerializer works with JSON")
+
         val jsonElement: JsonElement = when (value) {
             is LichessBot -> buildJsonObject { put("aiLevel", value.aiLevel) }
-            is LichessAccount -> jsonEncoder.json.encodeToJsonElement(LichessAccount::class.serializer(), value)
+            is LichessAccount -> jsonEncoder.json.encodeToJsonElement(
+                serializer = LichessAccount::class.serializer(),
+                value = value
+            )
             is EmptyLichessPlayer -> buildJsonObject { }
         }
+
         jsonEncoder.encodeJsonElement(jsonElement)
     }
 }

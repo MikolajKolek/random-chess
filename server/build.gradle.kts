@@ -41,9 +41,7 @@ dependencies {
     implementation(libs.ktor.client.cio)
 
     testImplementation(libs.kotlin.test.junit)
-}
 
-dependencies {
     jooqCodegen(libs.jdbc.postgresql)
 }
 

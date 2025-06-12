@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.external.lichess
+package pl.edu.uj.tcs.rchess.external.lichess.entity
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
@@ -19,9 +19,9 @@ import kotlin.time.toJavaInstant
 @JsonIgnoreUnknownKeys
 internal data class LichessGamesResponse(
     val id: String,
-    @Serializable(OffsetDateTimeAsLongSerializer::class)
+    @Serializable(OffsetDateTimeAsEpochMillisSerializer::class)
     val createdAt: OffsetDateTime,
-    @Serializable(OffsetDateTimeAsLongSerializer::class)
+    @Serializable(OffsetDateTimeAsEpochMillisSerializer::class)
     val lastMoveAt: OffsetDateTime,
     val status: String,
     val players: Map<String, LichessPlayer>,
@@ -30,7 +30,7 @@ internal data class LichessGamesResponse(
     val clock: LichessClock? = null
 )
 
-internal object OffsetDateTimeAsLongSerializer: KSerializer<OffsetDateTime> {
+internal object OffsetDateTimeAsEpochMillisSerializer: KSerializer<OffsetDateTime> {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("pl.edu.uj.tcs.rchess.server", PrimitiveKind.STRING)
 

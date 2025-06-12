@@ -43,7 +43,7 @@ internal class Bot(private val process: Process,
     /**
      * Play a game with the given input and observer.
      *
-     * This function cannot be called more than once on a single [Bot] object.
+     * @throws IllegalStateException If this function is called more than once on a single [Bot] object.
      */
     @OptIn(ExperimentalAtomicApi::class)
     suspend fun playGame(gameObserver: GameObserver, gameInput: GameInput) {
