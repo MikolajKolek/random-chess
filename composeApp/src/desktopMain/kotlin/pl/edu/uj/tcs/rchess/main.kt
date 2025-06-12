@@ -9,7 +9,7 @@ import pl.edu.uj.tcs.rchess.view.showCriticalAppError
 fun main() {
     val clientApi: ClientApi = try {
         val server = provideApi()
-        CoroutineContextProxy(DemoRemoteProxy(server, false))
+        DemoRemoteProxy(CoroutineContextProxy(server), false)
     } catch (e: Exception) {
         e.printStackTrace()
         showCriticalAppError(e, true)
