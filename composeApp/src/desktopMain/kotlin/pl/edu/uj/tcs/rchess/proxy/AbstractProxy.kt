@@ -25,20 +25,20 @@ abstract class AbstractProxy(
     override suspend fun getUserGames(settings: GamesRequestArgs) =
         proxy { server.getUserGames(settings) }
 
-    override suspend fun getServiceGame(id: Int)
-            = proxy { server.getServiceGame(id) }
+    override suspend fun getServiceGame(id: Int) =
+        proxy { server.getServiceGame(id) }
 
-    override suspend fun getPgnGame(id: Int)
-            = proxy { server.getPgnGame(id) }
+    override suspend fun getPgnGame(id: Int) =
+        proxy { server.getPgnGame(id) }
 
-    override suspend fun addPgnGames(fullPgn: String)
-            = proxy { server.addPgnGames(fullPgn) }
+    override suspend fun addPgnGames(fullPgn: String) =
+        proxy { server.addPgnGames(fullPgn) }
 
-    override suspend fun getSystemAccount()
-            = proxy { server.getSystemAccount() }
+    override suspend fun getSystemAccount() =
+        proxy { server.getSystemAccount() }
 
-    override suspend fun getBotOpponents()
-            = proxy { server.getBotOpponents() }
+    override suspend fun getBotOpponents() =
+        proxy { server.getBotOpponents() }
 
     override suspend fun startGameWithBot(
         playerColor: PlayerColor?,
@@ -47,15 +47,15 @@ abstract class AbstractProxy(
         isRanked: Boolean,
     ) = proxy { server.startGameWithBot(playerColor, botOpponent, clockSettings, isRanked) }
 
-    override suspend fun getRankingsList()
-            = proxy { server.getRankingsList() }
+    override suspend fun getRankingsList() =
+        proxy { server.getRankingsList() }
 
-    override suspend fun getRankingPlacements(settings: RankingRequestArgs)
-            = proxy { server.getRankingPlacements(settings) }
+    override suspend fun getRankingPlacements(settings: RankingRequestArgs) =
+        proxy { server.getRankingPlacements(settings) }
 
-    override suspend fun requestResync()
-            = proxy { server.requestResync() }
+    override suspend fun requestResync() =
+        proxy { server.requestResync() }
 
-    override suspend fun addExternalAccount(service: Service)
-            = proxy { server.addExternalAccount(service) }
+    override suspend fun addExternalAccount(service: Service) =
+        proxy { server.addExternalAccount(service) }
 }
