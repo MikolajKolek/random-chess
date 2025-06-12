@@ -1,20 +1,20 @@
 package pl.edu.uj.tcs.rchess.view.account
 
-    import androidx.compose.foundation.Image
-    import androidx.compose.foundation.layout.*
-    import androidx.compose.material3.*
-    import androidx.compose.runtime.*
-    import androidx.compose.ui.Alignment
-    import androidx.compose.ui.Modifier
-    import androidx.compose.ui.platform.LocalUriHandler
-    import androidx.compose.ui.unit.dp
-    import kotlinx.coroutines.launch
-    import org.jetbrains.compose.resources.painterResource
-    import pl.edu.uj.tcs.rchess.api.entity.Service
-    import pl.edu.uj.tcs.rchess.util.logger
-    import pl.edu.uj.tcs.rchess.view.board.icon
-    import pl.edu.uj.tcs.rchess.view.shared.format
-    import pl.edu.uj.tcs.rchess.viewmodel.AppContext
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.painterResource
+import pl.edu.uj.tcs.rchess.api.entity.Service
+import pl.edu.uj.tcs.rchess.util.logger
+import pl.edu.uj.tcs.rchess.view.board.icon
+import pl.edu.uj.tcs.rchess.view.shared.format
+import pl.edu.uj.tcs.rchess.viewmodel.AppContext
 
 @Composable
 fun AccountScreen(context: AppContext) {
