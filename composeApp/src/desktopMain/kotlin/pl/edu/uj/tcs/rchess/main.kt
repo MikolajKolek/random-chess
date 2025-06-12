@@ -1,6 +1,7 @@
 package pl.edu.uj.tcs.rchess
 
 import pl.edu.uj.tcs.rchess.api.ClientApi
+import pl.edu.uj.tcs.rchess.proxy.CoroutineContextProxy
 import pl.edu.uj.tcs.rchess.proxy.DemoRemoteProxy
 import pl.edu.uj.tcs.rchess.view.RandomChessApp
 import pl.edu.uj.tcs.rchess.view.showCriticalAppError
@@ -8,7 +9,7 @@ import pl.edu.uj.tcs.rchess.view.showCriticalAppError
 fun main() {
     val clientApi: ClientApi = try {
         val server = provideApi()
-        DemoRemoteProxy(server, false)
+        CoroutineContextProxy(DemoRemoteProxy(server, false))
     } catch (e: Exception) {
         e.printStackTrace()
         showCriticalAppError(e, true)

@@ -5,7 +5,6 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
-    alias(libs.plugins.kotlinSerialization)
 }
 
 kotlin {
@@ -34,9 +33,6 @@ kotlin {
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
-        }
-        desktopMain.languageSettings {
-            optIn("kotlin.time.ExperimentalTime")
         }
 
         @Suppress("unused")
