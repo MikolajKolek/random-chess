@@ -67,15 +67,14 @@ internal object Serialization {
         includeBots = includeBots
     )
 
-    //TODO: Change isCurrentUser to currentUserId
     fun ServiceAccountsRecord.toModel(
-        isCurrentUser: Boolean,
+        currentUserId: Int?,
     ) = ServiceAccount(
-        Service.fromDbId(serviceId),
-        userIdInService,
-        displayName,
-        isBot,
-        isCurrentUser,
+        service = Service.fromDbId(serviceId),
+        userIdInService = userIdInService,
+        displayName = displayName,
+        isBot = isBot,
+        isCurrentUser = userId == currentUserId,
     )
 
     fun GamesRecord.toModel(
@@ -98,10 +97,10 @@ internal object Serialization {
             gameIdInService = gameIdInService,
             service = Service.fromDbId(serviceId!!),
             blackPlayer = black!!.toModel(
-                black.userId == currentUserId
+                currentUserId
             ),
             whitePlayer = white!!.toModel(
-                white.userId == currentUserId
+                currentUserId
             ),
             clockSettings = clock?.toModel(),
             rankingUpdates = rankingUpdates?.groupBy { (_, _, _, ranking) -> ranking.toModel() }
@@ -163,7 +162,6 @@ internal object Serialization {
         }
     }
 
-    // TODO: maybe this shouldn't be hardcoded
     fun Service.toDbId() = when(this) {
         UNKNOWN -> throw IllegalArgumentException("Cannot convert UNKNOWN to db id")
         Service.RANDOM_CHESS -> 1

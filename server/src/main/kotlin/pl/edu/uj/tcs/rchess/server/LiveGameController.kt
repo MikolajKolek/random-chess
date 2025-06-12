@@ -40,7 +40,7 @@ internal class LiveGameController(
         }
     }
 
-    suspend fun makeMove(move: Move, playerColor: PlayerColor) {
+    private suspend fun makeMove(move: Move, playerColor: PlayerColor) {
         withStateWrapper { gameState ->
             val progress = gameState.progress
             require(progress is GameProgress.Running) { "The game is not running" }
@@ -89,7 +89,7 @@ internal class LiveGameController(
         }
     }
 
-    suspend fun immediateGameEnd(playerColor: PlayerColor, winReason: GameWinReason) {
+    private suspend fun immediateGameEnd(playerColor: PlayerColor, winReason: GameWinReason) {
         withStateWrapper { gameState ->
             require(gameState.progress is GameProgress.Running) { "The game is not running" }
 
@@ -102,9 +102,6 @@ internal class LiveGameController(
             )
         }
     }
-
-    fun getGameInput(playerColor: PlayerColor): GameInput =
-        LocalGameInput(playerColor)
 
     private fun getPlayerClock(state: GameState, color: PlayerColor): ClockState =
         state.getPlayerClock(color) ?: throw IllegalStateException("Player clock is null")
@@ -140,6 +137,9 @@ internal class LiveGameController(
 
         return updatedState
     }
+
+    fun getGameInput(playerColor: PlayerColor): GameInput =
+        LocalGameInput(playerColor)
 
     private inner class LocalGameInput(
         override val playerColor: PlayerColor,

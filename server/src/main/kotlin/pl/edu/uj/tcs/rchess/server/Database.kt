@@ -9,6 +9,10 @@ import pl.edu.uj.tcs.rchess.model.state.GameState
 
 /**
  * An interface used by the server to access the database.
+ *
+ * All database access should go through either the [pl.edu.uj.tcs.rchess.api.ClientApi] or
+ * [Database] interfaces. This ensures that the database can be easily mocked
+ * for testing purposes.
  */
 internal interface Database {
     val databaseScope: CoroutineScope

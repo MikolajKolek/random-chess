@@ -108,7 +108,7 @@ internal class Server() : ClientApi, Database {
                 .where(SERVICE_ACCOUNTS.USER_ID.eq(config.defaultUser))
             ).asFlow().map {
                 ExternalConnection.fromServiceAccount(
-                    account = it.toModel(it.userId == config.defaultUser),
+                    account = it.toModel(currentUserId = config.defaultUser),
                     database = this@Server
                 )
             }.filterNotNull().toList().toMutableList()
@@ -144,7 +144,6 @@ internal class Server() : ClientApi, Database {
         ).singleOrNull() as? PgnGame
             ?: throw IllegalArgumentException("PGN game with id $id does not exist or is owned by another user")
 
-    //TODO: maybe make this launch a coroutine
     override suspend fun addPgnGames(fullPgn: String): List<Int> {
         val result = mutableListOf<Int>()
         val pgnList = Pgn.fromPgnDatabase(fullPgn)
@@ -262,13 +261,19 @@ internal class Server() : ClientApi, Database {
 
         return Flux.from(query).asFlow().map { (entry, account) ->
             entry.toModel(
-                serviceAccount = account.toModel(isCurrentUser = account.userId == config.defaultUser)
+                serviceAccount = account.toModel(currentUserId = config.defaultUser)
             )
         }.toList()
     }
 
     override suspend fun requestResync() {
+        // This will immediately return if another coroutine is currently
+        // inside this function.
         requestResyncMutex.tryWithLock {
+            // This check makes sure that no resync is currently going on.
+            // We can be sure that if a resync is ongoing, resyncMutex.isLocked is true,
+            // because the transferChannel makes sure requestResyncMutex is locked
+            // until resyncMutex is acquired.
             if (resyncMutex.isLocked || !externalConnections.any { it.available() }) {
                 return@requestResync
             }
@@ -296,9 +301,6 @@ internal class Server() : ClientApi, Database {
                 }
             }
 
-            // This makes sure that from the time requestResyncMutex is unlocked,
-            // the resyncMutex is locked, so any new requestResyncImpl() call
-            // will fail at the resyncMutex.isLocked check.
             transferChannel.receive()
         }
     }
@@ -370,7 +372,6 @@ internal class Server() : ClientApi, Database {
                 )
             }
 
-            //TODO: do onDuplicateKeyUpdate
             Flux.from(accountInsertStep.onDuplicateKeyIgnore()).asFlow().collect()
         }
 
@@ -426,7 +427,6 @@ internal class Server() : ClientApi, Database {
             userId = null
         ).singleOrNull() as? HistoryServiceGame
 
-    //TODO: this is pretty horrible and probably can be done better
     private suspend fun modifiableUserGamesRequest(
         settings: GamesRequestArgs,
         extraConditions: Condition = noCondition(),
@@ -437,7 +437,6 @@ internal class Server() : ClientApi, Database {
         val whiteAccount = SERVICE_ACCOUNTS.`as`("white_account")
         val blackAccount = SERVICE_ACCOUNTS.`as`("black_account")
 
-        //TODO: eq, or, etc. can probably be made nicer as infix operators
         var conditions = extraConditions
 
         userId?.let {
@@ -535,7 +534,8 @@ internal class Server() : ClientApi, Database {
             )
         }.toList()
 
-        // This should only happen when we know the function is not going to throw
+        // This happens here, as it should only be called when we know the function
+        // is not going to throw
         if (settings.clearUpdatesAvailable) {
             databaseState.getAndUpdate { it.copy(updatesAvailable = false) }
         }
@@ -610,7 +610,7 @@ internal class Server() : ClientApi, Database {
     private suspend fun refreshServiceAccounts() {
         val accounts = Flux.from(dsl.selectFrom(SERVICE_ACCOUNTS)
             .where(SERVICE_ACCOUNTS.USER_ID.eq(config.defaultUser))
-        ).asFlow().map { it.toModel(true) }.toSet()
+        ).asFlow().map { it.toModel(config.defaultUser) }.toSet()
 
         val newExternalConnections = accounts.filter {
             !externalConnections.any { conn ->

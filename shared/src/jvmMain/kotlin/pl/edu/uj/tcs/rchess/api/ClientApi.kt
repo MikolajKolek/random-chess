@@ -16,6 +16,9 @@ import pl.edu.uj.tcs.rchess.api.entity.ranking.RankingSpot
 import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 
+/**
+ * The API used for all communication between the client and server modules.
+ */
 interface ClientApi {
     /**
      * A [StateFlow] indicating the current state of database synchronization.
