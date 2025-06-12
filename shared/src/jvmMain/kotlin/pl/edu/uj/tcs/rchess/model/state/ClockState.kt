@@ -37,13 +37,13 @@ sealed interface ClockState {
 
     fun toRunning(): Running
 
-    // TODO: In a client-server scenario, a time synchronization mechanism should be implemented,
-    //  Instant might not be the best choice, as we cannot trust the the client's system clock to
-    //  be the same as the server's.
     /**
      * Clock is counting down for this player.
      */
     sealed class Running : ClockState {
+        // In a client-server scenario, a time synchronization mechanism should be implemented,
+        //  Instant might not be the best choice, as we cannot trust the client's system clock to
+        //  be the same as the server's.
         protected abstract val endsAt: Instant
     }
 

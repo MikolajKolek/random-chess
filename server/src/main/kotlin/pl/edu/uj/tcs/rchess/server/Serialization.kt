@@ -3,6 +3,7 @@ package pl.edu.uj.tcs.rchess.server
 import kotlinx.serialization.json.Json
 import org.jooq.Record4
 import org.jooq.types.YearToSecond
+import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.api.entity.Opening
 import pl.edu.uj.tcs.rchess.api.entity.PlayerDetails
 import pl.edu.uj.tcs.rchess.api.entity.Service
@@ -178,4 +179,30 @@ internal object Serialization {
         serviceAccount = serviceAccount,
         elo = elo!!
     )
+
+    fun GameWinReason.toDbWinReason() = when(this) {
+        GameWinReason.UNKNOWN -> "UNKNOWN"
+        GameWinReason.TIMEOUT -> "TIMEOUT"
+        GameWinReason.CHECKMATE -> "CHECKMATE"
+        GameWinReason.RESIGNATION -> "RESIGNATION"
+        GameWinReason.ABANDONMENT -> "ABANDONMENT"
+        GameWinReason.DEATH -> "DEATH"
+    }
+
+    fun GameWinReason.Companion.fromDbString(string: String?) =
+        GameWinReason.entries.find { it.toDbWinReason() == string }
+        ?: throw IllegalArgumentException("Invalid db win reason")
+
+    fun GameDrawReason.toDbWinReason() = when(this) {
+        GameDrawReason.UNKNOWN -> "UNKNOWN"
+        GameDrawReason.TIMEOUT_VS_INSUFFICIENT_MATERIAL -> "TIMEOUT_VS_INSUFFICIENT_MATERIAL"
+        GameDrawReason.INSUFFICIENT_MATERIAL -> "INSUFFICIENT_MATERIAL"
+        GameDrawReason.THREEFOLD_REPETITION -> "THREEFOLD_REPETITION"
+        GameDrawReason.FIFTY_MOVE_RULE -> "FIFTY_MOVE_RULE"
+        GameDrawReason.STALEMATE -> "STALEMATE"
+    }
+
+    fun GameDrawReason.Companion.fromDbString(string: String?) =
+        GameDrawReason.entries.find { it.toDbWinReason() == string }
+        ?: throw IllegalArgumentException("Invalid db draw reason")
 }

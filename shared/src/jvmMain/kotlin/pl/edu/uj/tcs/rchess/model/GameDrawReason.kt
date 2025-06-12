@@ -6,14 +6,9 @@ enum class GameDrawReason {
     INSUFFICIENT_MATERIAL,
     THREEFOLD_REPETITION,
     FIFTY_MOVE_RULE,
-    //TODO: if multiplayer games are ever added, this needs to be implemented here and in the database
+    // If multiplayer games are ever added, this needs to be implemented here and in the database
     //AGREEMENT,
     STALEMATE;
 
-    fun toDbWinReason() = name
-
-    companion object {
-        fun fromDbString(string: String?) = GameDrawReason.entries.find { it.name == string }
-            ?: throw IllegalArgumentException("Invalid db draw reason")
-    }
+    companion object
 }

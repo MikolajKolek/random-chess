@@ -8,7 +8,6 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.fromFen
 import pl.edu.uj.tcs.rchess.model.state.BoardState
-import java.time.LocalDateTime
 
 class Pgn private constructor(pgnGameRegexMatch: MatchResult) {
     val moves: List<Move>
@@ -112,30 +111,6 @@ class Pgn private constructor(pgnGameRegexMatch: MatchResult) {
         }
 
         return Pair(result, boardState)
-    }
-
-    private fun pgnDateToLocalDateTime(date: String): LocalDateTime {
-        val pgnDateRegex = Regex("([\\d?]{4})\\.([\\d?]{2})\\.([\\d?]{2})")
-        var (year, month, day) = (pgnDateRegex.find(date) ?:
-            throw IllegalArgumentException("Invalid date format")
-        ).destructured
-
-        if(year.contains('?'))
-            year = LocalDateTime.now().year.toString()
-        if(month.contains('?')) {
-            month = if(year == LocalDateTime.now().year.toString())
-                LocalDateTime.now().monthValue.toString()
-            else
-                "01"
-        }
-        if(day.contains('?')) {
-            day = if(year == LocalDateTime.now().year.toString() && month == LocalDateTime.now().monthValue.toString())
-                LocalDateTime.now().dayOfMonth.toString()
-            else
-                "01"
-        }
-
-        return LocalDateTime.of(year.toInt(), month.toInt(), day.toInt(), 0, 0)
     }
 
     companion object {

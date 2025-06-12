@@ -8,10 +8,5 @@ enum class GameWinReason {
     ABANDONMENT,
     DEATH;
 
-    fun toDbWinReason() = name
-
-    companion object {
-        fun fromDbString(string: String?) = entries.find { it.name == string }
-            ?: throw IllegalArgumentException("Invalid db win reason")
-    }
+    companion object
 }
