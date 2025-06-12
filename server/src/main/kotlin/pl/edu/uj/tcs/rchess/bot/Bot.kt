@@ -6,8 +6,8 @@ import kotlinx.coroutines.flow.takeWhile
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
-import pl.edu.uj.tcs.rchess.model.game.GameInput
-import pl.edu.uj.tcs.rchess.model.game.GameObserver
+import pl.edu.uj.tcs.rchess.api.game.GameInput
+import pl.edu.uj.tcs.rchess.api.game.GameObserver
 import pl.edu.uj.tcs.rchess.model.state.GameProgress
 import pl.edu.uj.tcs.rchess.util.logger
 import java.io.BufferedReader

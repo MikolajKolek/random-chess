@@ -1,4 +1,4 @@
-package pl.edu.uj.tcs.rchess.model.game
+package pl.edu.uj.tcs.rchess.api.game
 
 /**
  * A simple class storing references to a game observer and a game input for the same game.

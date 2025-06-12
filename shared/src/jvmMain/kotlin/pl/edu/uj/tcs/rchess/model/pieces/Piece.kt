@@ -49,12 +49,12 @@ sealed class Piece(val owner: PlayerColor) {
         getMoveVision(boardState, square) + getCaptureVision(boardState, square)
 
     /**
-     * Lowercase letter representing the piece
+     * Lowercase letter representing the piece.
      */
     abstract val fenLetterLowercase: Char
 
     /**
-     * Case-sensitive letter representing the piece as it appears in FEN notation
+     * Case-sensitive letter representing the piece as it appears in FEN notation.
      */
     val fenLetter: Char
         get() = when (owner) {
@@ -63,14 +63,14 @@ sealed class Piece(val owner: PlayerColor) {
         }
 
     /**
-     * Unicode symbol representing the piece in the correct color
+     * Unicode symbol representing the piece in the correct color.
      */
     abstract val unicodeSymbol: String
 
     companion object {
         /**
-         * @param fenLetter The letter representing the piece as it appears in FEN notation
-         * @return The piece corresponding to the given letter and color
+         * @param fenLetter The letter representing the piece as it appears in FEN notation.
+         * @return The piece corresponding to the given letter and color.
          */
         fun fromFenLetter(fenLetter: Char): Piece {
             val owner = if(fenLetter.isUpperCase()) { PlayerColor.WHITE } else { PlayerColor.BLACK }

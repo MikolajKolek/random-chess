@@ -6,8 +6,8 @@ import kotlinx.coroutines.runBlocking
 import pl.edu.uj.tcs.rchess.api.entity.game.HistoryServiceGame
 import pl.edu.uj.tcs.rchess.model.*
 import pl.edu.uj.tcs.rchess.model.Fen.Companion.toFenString
-import pl.edu.uj.tcs.rchess.model.game.GameInput
-import pl.edu.uj.tcs.rchess.model.game.GameObserver
+import pl.edu.uj.tcs.rchess.api.game.GameInput
+import pl.edu.uj.tcs.rchess.api.game.GameObserver
 import pl.edu.uj.tcs.rchess.model.state.*
 import pl.edu.uj.tcs.rchess.model.statemachine.StateMachine
 import pl.edu.uj.tcs.rchess.util.SingleTaskTimer

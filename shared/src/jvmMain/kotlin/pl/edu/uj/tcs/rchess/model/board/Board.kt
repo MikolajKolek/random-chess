@@ -24,7 +24,5 @@ interface Board {
     /**
      * @return An iterator with all the not null pieces on the board.
      */
-    // This method is only useful for counting pieces,
-    // perhaps it should be replaced with a more specific function for that purpose
     fun notNullPieces(): Iterator<Piece>
 }

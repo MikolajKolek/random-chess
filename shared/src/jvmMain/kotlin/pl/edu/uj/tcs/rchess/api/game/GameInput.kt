@@ -1,17 +1,21 @@
-package pl.edu.uj.tcs.rchess.model.game
+package pl.edu.uj.tcs.rchess.api.game
 
 import pl.edu.uj.tcs.rchess.model.Move
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 
+/**
+ * An input used to interact with a chess game.
+ */
 interface GameInput {
     /**
-     * The color of the player associated with the GameInput instance
+     * The color of the player associated with the GameInput instance.
      */
     val playerColor: PlayerColor
 
     /**
-     * Makes a move on the chessboard
-     * @throws IllegalArgumentException if the argument is not a valid move, or it is not the moving player's turn
+     * Makes a move on the chessboard.
+     * @throws IllegalArgumentException if the argument is
+     * not a valid move, or it is not the moving player's turn.
      */
     suspend fun makeMove(move: Move)
 

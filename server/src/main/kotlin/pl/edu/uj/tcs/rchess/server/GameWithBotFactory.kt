@@ -7,7 +7,7 @@ import kotlinx.coroutines.withContext
 import pl.edu.uj.tcs.rchess.config.BotType
 import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.PlayerColor
-import pl.edu.uj.tcs.rchess.model.game.PlayerGameControls
+import pl.edu.uj.tcs.rchess.api.game.PlayerGameControls
 
 /**
  * A class for creating a live game with a bot.
