@@ -65,6 +65,7 @@ fun Sidebar(
                 onClick = { onNavigate(Route.Rankings) }
             )
             NavigationRailItem(
+                enabled = false,
                 icon = {
                     Icon(
                         painter = painterResource(Res.drawable.icon_tournament),
