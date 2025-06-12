@@ -18,6 +18,7 @@ internal class TournamentMatchingUnit(
         val matchFailed : MutableList<String> = mutableListOf()
         var currentMatched : Int = group.size - 1
         var nextMatched : Int
+
         while(currentMatched >= 0) {
             if(matched[currentMatched]) {
                 currentMatched--
@@ -41,6 +42,7 @@ internal class TournamentMatchingUnit(
             if(!matched[currentMatched]) matchFailed += group[currentMatched]
             currentMatched--
         }
+
         return Pair(result, matchFailed)
     }
 
@@ -56,6 +58,7 @@ internal class TournamentMatchingUnit(
         val matchings : MutableList<Pair<String, String>> = mutableListOf()
         var matched : Pair<List<Pair<String, String>>, List<String>>
         var remaining : List<String> = listOf()
+
         for(playerGroup in groupedPlayers) {
             playerGroup.second += remaining
             matched = pairUpGroup(playerGroup.second)

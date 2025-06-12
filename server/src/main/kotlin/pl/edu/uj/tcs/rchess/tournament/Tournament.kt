@@ -2,8 +2,16 @@ package pl.edu.uj.tcs.rchess.tournament
 
 import pl.edu.uj.tcs.rchess.server.Database
 
+/**
+ * We didn't manage to finish this class in time. We decided to leave this preliminary,
+ * first draft of the code for you to see.
+ *
+ * Do note that much would have to change to finish this class - for example, it currently
+ * lacks any database interaction and operates on pairs instead of actual named
+ * data classes.
+ */
 internal class Tournament(
-    val myId : Int,
+    val tournamentId : Int,
     val database: Database
 ) {
     val players : HashSet<String> = HashSet()
@@ -46,7 +54,7 @@ internal class Tournament(
             }
         }
         playedGames.add(game.first)
-        // Add game entry to database
+        // Add game entry to the database
     }
 
     fun issueMatchings() {
@@ -60,7 +68,7 @@ internal class Tournament(
     }
 
     fun getStandings() {
-        // The logic for this is already complete in database.
+        // The logic for this is already complete in the database.
         TODO()
     }
 }
