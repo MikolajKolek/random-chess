@@ -4,6 +4,9 @@ import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
 import pl.edu.uj.tcs.rchess.api.entity.ranking.RankingSpot
 import java.time.OffsetDateTime
 
+/**
+ * An argument passed to [pl.edu.uj.tcs.rchess.api.ClientApi.getRankingPlacements].
+ */
 data class RankingRequestArgs(
     /**
      * The id of the ranking that is being queried.

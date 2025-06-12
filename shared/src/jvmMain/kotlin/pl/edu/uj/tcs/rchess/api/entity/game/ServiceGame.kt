@@ -4,7 +4,7 @@ import pl.edu.uj.tcs.rchess.api.entity.ServiceAccount
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 
 /**
- * Any game played online in a service (Random Chess or an external service)
+ * Any game played online in a service (Random Chess or an external service).
  */
 sealed interface ServiceGame: ApiGame {
     override val blackPlayer: ServiceAccount

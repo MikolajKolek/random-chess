@@ -10,7 +10,7 @@ import pl.edu.uj.tcs.rchess.model.state.BoardState
 import java.time.OffsetDateTime
 
 /**
- * A game imported manually by the user and commited to the database
+ * A game imported manually by the user and committed to the database
  */
 data class PgnGame(
     override val id: Int,

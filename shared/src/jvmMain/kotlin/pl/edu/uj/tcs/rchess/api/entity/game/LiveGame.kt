@@ -5,6 +5,9 @@ import pl.edu.uj.tcs.rchess.model.ClockSettings
 import pl.edu.uj.tcs.rchess.model.PlayerColor
 import pl.edu.uj.tcs.rchess.model.game.PlayerGameControls
 
+/**
+ * A game that currently being played live.
+ */
 data class LiveGame(
     override val blackPlayer: ServiceAccount,
     override val whitePlayer: ServiceAccount,
