@@ -58,7 +58,6 @@ private fun ProgressRunning(
     currentTurn: PlayerColor,
 ) {
     ProgressRow(
-        // TODO: Handle waiting for first move
         "Game in progress",
         when (currentTurn) {
             PlayerColor.WHITE -> "White turn"

@@ -90,7 +90,8 @@ fun rememberGameWindowState(game: ApiGame): GameWindowState {
 
                 override fun confirmResignation() {
                     coroutineScope.launch {
-                        // TODO: Handle errors, needed in case we introduce a client-server architecture
+                        // If we finally implement a client-server architecture,
+                        // error handling needs to be added here
                         resignInput.resign()
                     }
                     resignDialogVisible = false
@@ -135,7 +136,8 @@ fun rememberGameWindowState(game: ApiGame): GameWindowState {
             input?.takeIf { moveEnabledForColor != null }?.let {
                 makeMoveLoading.value = true
                 coroutineScope.launch {
-                    // TODO: Handle errors, needed in case we introduce a client-server architecture
+                    // If we finally implement a client-server architecture,
+                    // error handling needs to be added here
                     try {
                         it.makeMove(move)
                     } finally {

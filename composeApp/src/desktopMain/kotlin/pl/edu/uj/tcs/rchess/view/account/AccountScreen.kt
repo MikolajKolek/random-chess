@@ -30,8 +30,9 @@ fun AccountScreen(context: AppContext) {
                 uriHandler.openUri(response.oAuthUrl)
                 response.completionCallback.await()
             } catch (exception: Exception) {
+                // If a linking dialog is implemented, we should catch errors here,
+                // to show them in the dialog window.
                 logger.error(exception) { "Failed to link account" }
-                // TODO: Handle error
             }
         }
     }

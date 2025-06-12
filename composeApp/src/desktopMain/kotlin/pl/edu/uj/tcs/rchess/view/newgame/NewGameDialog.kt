@@ -183,7 +183,8 @@ fun NewGameDialog(
                             style = MaterialTheme.typography.labelLarge,
                         )
 
-                        // TODO: Style with Material 3 Expressive
+                        // TODO: Style with Material 3 Expressive,
+                        //  when the component library update is available in Compose for Desktop
                         SingleChoiceSegmentedButtonRow(
                             modifier = Modifier.fillMaxWidth(),
                         ) {

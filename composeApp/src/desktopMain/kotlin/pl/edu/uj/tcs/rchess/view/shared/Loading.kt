@@ -20,7 +20,8 @@ fun Loading(modifier: Modifier = Modifier, text: String) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
     ) {
-        // TODO: Style with Material 3 Expressive
+        // TODO: Style with Material 3 Expressive,
+        //  when the component library update is available in Compose for Desktop
         CircularProgressIndicator(
             modifier = Modifier.size(64.dp),
         )
