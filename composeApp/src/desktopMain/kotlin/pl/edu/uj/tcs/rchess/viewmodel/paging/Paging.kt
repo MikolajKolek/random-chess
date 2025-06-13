@@ -87,7 +87,13 @@ private class PagingImpl<T, K>(
     private var job = launchJob()
 
     private fun launchJob() = scope.launch {
-        onReloadActions.forEach { it() }
+        try {
+            onReloadActions.forEach {
+                withTimeout(2.seconds) { it() }
+            }
+        } catch (error: Exception) {
+            logger.error(error) { "Failed to run a reload action" }
+        }
         while (isActive && !reachedEnd) {
             waitUntil {
                 _error == null && (_list.isEmpty() || acceptingRequestStates.any { it.value })

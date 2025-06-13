@@ -42,7 +42,7 @@ fun <T> PagingAdapter(
     emptyListContent: @Composable () -> Unit,
 ) {
     val scrollState = rememberLazyListState()
-    paging.onReload { scrollState.scrollToItem(0) }
+    paging.onReload { scrollState.requestScrollToItem(0) }
     val items by paging.collectListAsState(derivedStateOf {
         val lastVisibleIndex = scrollState.firstVisibleItemIndex + scrollState.layoutInfo.visibleItemsInfo.size
         val extraFetched = scrollState.layoutInfo.totalItemsCount - lastVisibleIndex
