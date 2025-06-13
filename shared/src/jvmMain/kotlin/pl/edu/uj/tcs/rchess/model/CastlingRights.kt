@@ -36,18 +36,39 @@ data class CastlingRights(
         }
     }
 
+    /**
+     * Returns a copy of this [CastlingRights] without king side castling rights for player [color].
+     */
     fun withoutKing(color: PlayerColor): CastlingRights =
         when (color) {
             PlayerColor.WHITE -> copy(whiteKingSide = false)
             PlayerColor.BLACK -> copy(blackKingSide = false)
         }
 
+    /**
+     * Returns a copy of this [CastlingRights] without queen side castling rights for player [color].
+     */
     fun withoutQueen(color: PlayerColor): CastlingRights =
         when (color) {
             PlayerColor.WHITE -> copy(whiteQueenSide = false)
             PlayerColor.BLACK -> copy(blackQueenSide = false)
         }
 
+    /**
+     * Returns a copy of this [CastlingRights] without all castling rights for player [color].
+     */
     fun withoutBoth(color: PlayerColor) =
         withoutKing(color).withoutQueen(color)
+
+    fun kingSide(color: PlayerColor) =
+        when (color) {
+            PlayerColor.WHITE -> whiteKingSide
+            PlayerColor.BLACK -> blackKingSide
+        }
+
+    fun queenSide(color: PlayerColor) =
+        when (color) {
+            PlayerColor.WHITE -> whiteQueenSide
+            PlayerColor.BLACK -> blackQueenSide
+        }
 }
