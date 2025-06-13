@@ -60,6 +60,9 @@ compose.desktop {
             }
             windows {
                 iconFile.set(project.file("launcher_icon/launcher_icon.ico"))
+                menu = true
+                menuGroup = "random-chess"
+                upgradeUuid = "8cbeacf9-2ce7-4262-b634-6a55b1e7f082"
             }
             macOS {
                 iconFile.set(project.file("launcher_icon/launcher_icon.icns"))
