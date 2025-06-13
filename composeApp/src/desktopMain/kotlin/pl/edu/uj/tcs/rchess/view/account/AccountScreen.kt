@@ -1,6 +1,5 @@
 package pl.edu.uj.tcs.rchess.view.account
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -9,11 +8,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.painterResource
 import pl.edu.uj.tcs.rchess.api.entity.Service
 import pl.edu.uj.tcs.rchess.util.logger
-import pl.edu.uj.tcs.rchess.view.board.icon
-import pl.edu.uj.tcs.rchess.view.shared.format
 import pl.edu.uj.tcs.rchess.viewmodel.AppContext
 
 @Composable
@@ -74,35 +70,9 @@ fun AccountScreen(context: AppContext) {
             HorizontalDivider()
 
             Column {
-
                 serviceAccounts.forEach {
                     key(it.service to it.userIdInService) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 24.dp).fillMaxWidth()
-                                .height(48.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        ) {
-                            Row(
-                                modifier = Modifier.widthIn(min = 216.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                it.service.icon?.let { icon ->
-                                    Image(
-                                        modifier = Modifier.padding(end = 24.dp).size(28.dp),
-                                        painter = painterResource(icon),
-                                        contentDescription = "Service logo",
-                                    )
-                                }
-                                Text(
-                                    it.service.format(),
-                                )
-                            }
-
-                            Text(
-                                it.displayName,
-                            )
-                        }
+                        AccountListItem(it)
                     }
                 }
             }
