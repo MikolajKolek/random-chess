@@ -1422,3 +1422,9 @@ CREATE INDEX CONCURRENTLY idx_sa_user_service
 
 CREATE INDEX CONCURRENTLY idx_sa_user_service_id
     ON service_accounts (user_id, service_id, user_id_in_service);
+
+
+INSERT INTO users(email, password_hash) VALUES
+    ('admin@randomchess.com', 'adminPasswordHash');
+
+UPDATE service_accounts SET display_name = 'Admin' WHERE user_id = 1;
