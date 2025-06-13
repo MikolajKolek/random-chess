@@ -19,23 +19,26 @@ import kotlin.random.Random
 import kotlin.random.nextInt
 import kotlin.time.Duration.Companion.milliseconds
 
-internal class Bot(private val process: Process,
-          options: Map<String, String>,
-          private val maxDepth: Int?,
-          private val moveTimeMs: Int?,
-          private val slowdown: Pair<Int, Int>?
+internal class Bot(
+    private val process: Process,
+    options: Map<String, String>,
+    private val maxDepth: Int?,
+    private val moveTimeMs: Int?,
+    private val slowdown: Pair<Int, Int>?
 ) {
     private val output: OutputStreamWriter = OutputStreamWriter(process.outputStream)
     private val input: BufferedReader = BufferedReader(InputStreamReader(process.inputStream))
+
     @OptIn(ExperimentalAtomicApi::class)
     private val started = AtomicBoolean(false)
 
     init {
         writeAndWaitUntil("uci\n") { it.contains("uciok") }
 
-        writeAndWaitUntil(options
+        val commands = options
             .map { "setoption name ${it.key} value ${it.value}\n" }
-            .joinToString("") + "isready\n") { it.contains("readyok") }
+            .joinToString("") + "isready\n"
+        writeAndWaitUntil(commands) { it.contains("readyok") }
 
         writeAndWaitUntil("ucinewgame\nisready\n") { it.contains("readyok") }
     }
@@ -47,13 +50,13 @@ internal class Bot(private val process: Process,
      */
     @OptIn(ExperimentalAtomicApi::class)
     suspend fun playGame(gameObserver: GameObserver, gameInput: GameInput) {
-        if(!started.compareAndSet(expectedValue = false, newValue = true))
+        if (!started.compareAndSet(expectedValue = false, newValue = true))
             throw IllegalStateException("The bot has already started playing a game")
 
         try {
             throwingPlayGame(gameObserver, gameInput)
         } catch (e: Exception) {
-            logger.error { "The bot has crashed with the following exception: $e" }
+            logger.error(e) { "The bot has crashed" }
             gameInput.abandon()
         } finally {
             process.destroyForcibly()
@@ -82,6 +85,7 @@ internal class Bot(private val process: Process,
                             append("$command ${it.remainingTimeOnClock().inWholeMilliseconds} ")
                         }
                     }
+
                     fun addTimeIncrease(command: String, color: PlayerColor) {
                         update.state.getPlayerClock(color)?.let {
                             append("$command ${it.settings.moveIncrease.inWholeMilliseconds} ")
@@ -101,7 +105,7 @@ internal class Bot(private val process: Process,
                     }
                 }
 
-                if(slowdown != null)
+                if (slowdown != null)
                     delay(Random.nextInt(slowdown.first..slowdown.second).milliseconds)
 
                 gameInput.makeMove(bestMove)
@@ -118,7 +122,7 @@ internal class Bot(private val process: Process,
         output.write(commands)
         output.flush()
 
-        while(true) {
+        while (true) {
             val line = input.readLine() ?: throw EofException()
 
             val result = listener(line)
