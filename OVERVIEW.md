@@ -82,7 +82,7 @@ The `api` package contains objects used for communication between the `client` a
 The `entity` subpackage contains objects returned from the server to the client on api requests. `args` on the other hand contains objects used as arguments in more complicated `ClientApi` methods.
 
 ## Model
-
+### `BoardState`, `Board`, `Piece`
 All six classic chess pieces were implemented as an extension of the `Piece` class. The key methods of these pieces are `getMoveVision` and `getCaptureVision` - in a given state of the board, the pieces have the capacity to output the squares they are able to move to.\
 The key feature of the model is the `BoardState` class, which wraps a `Board` with methods that allow for extracting complex information and applying a move.
 We decided to make the `BoardState` immutable - the application of a move results in another `BoardState` describing a state of the board after the move has been applied being created.
@@ -94,6 +94,17 @@ The moves or board states in chess can be represented in many ways. The model im
 - Short Algebraic Notation - a human-readable format of the long algebraic notation. When not necessary, it omits the source square, instead including the moving piece, information of captures, checks, checkmate, or castling.
 - Forsyth-Edwards Notation - this notation describes the entire state of the board, and thus, it is directly serializable to and from `BoardState`. It holds information like the contents of the board, the player to move, players' castling rights, en passant possibility, and move counters.
 - Portable Game Notation - this format is most often used to describe entire games, by a series of moves accompanied by a set of metadata values. The model has been extensively tested for any edge cases with thousands of chess games in the PGN format.
+
+### `GameState` and `StateMachine`
+While a `BoardState` represents the state of the board at a given moment,
+`GameState` stores the history and progress/result of a game.
+It is designed to be used with `StateMachine`, a generic class used for managing immutable states
+and transitions between them. The `GameState` class is thus also immutable,
+and all the changes to it are described using the `GameStateChange` class.
+This pattern is especially useful for networking, the `GameStateChange` objects can be sent over the network
+without serializing the entire `GameState` object (which holds the entire history of the game!).
+`StateMachine` is designed to be safe in multithreaded contexts, the state can only be observed and modified
+inside the `StateMachine.withState` method.
 
 ## Util
 
