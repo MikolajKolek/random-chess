@@ -18,6 +18,19 @@ import pl.edu.uj.tcs.rchess.view.shared.ErrorCard
 import pl.edu.uj.tcs.rchess.view.shared.Loading
 import pl.edu.uj.tcs.rchess.viewmodel.paging.Paging
 
+/**
+ * A Composable that displays a list based on the [Paging] state.
+ *
+ * The item list is displayed using a [LazyColumn]. The rendering composable is provided by the [listContent] parameter.
+ * If the list is empty it displays the [emptyListContent] instead.
+ *
+ * This Composable handles the loading and errors states. The UI is different when the list is empty and when it's not.
+ *
+ * If an error occurs during data loading, an [ErrorCard] is displayed with the [errorHeader].
+ * Fetching is paused until the error is dismissed by the user.
+ *
+ * The list only fetches more pages when the user has scrolled near the end of the list.
+ */
 @Composable
 fun <T> PagingAdapter(
     paging: Paging<T>,

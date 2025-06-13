@@ -16,6 +16,8 @@ import kotlin.time.Duration.Companion.seconds
  * If an error occurs during fetching, it will be exposed in the [error] property,
  * and fetching will only continue after calling [dismissError].
  *
+ * Can be used with [pl.edu.uj.tcs.rchess.view.adapters.PagingAdapter].
+ *
  * The interface is used to hide the K generic parameter of the [PagingImpl] from [Paging] users.
  */
 interface Paging<T> {

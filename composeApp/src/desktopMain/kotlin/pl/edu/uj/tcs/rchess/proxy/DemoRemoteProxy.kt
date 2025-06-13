@@ -11,7 +11,7 @@ import kotlin.random.nextLong
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
- * A demo implementation of a network layer for [pl.edu.uj.tcs.rchess.api.ClientApi].
+ * A demo implementation of a network layer for [ClientApi].
  * This class simulates a poor network connection with extra delays and occasional errors.
  */
 class DemoRemoteProxy(

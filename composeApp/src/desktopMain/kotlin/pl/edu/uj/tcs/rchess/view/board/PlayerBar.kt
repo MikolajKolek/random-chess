@@ -16,13 +16,13 @@ import pl.edu.uj.tcs.rchess.view.shared.PlayerName
 import pl.edu.uj.tcs.rchess.view.shared.formatHuman
 import kotlin.time.Duration
 
-data class DisplayedTime(
+private data class DisplayedTime(
     val clock: Duration,
     val extra: Duration,
 )
 
 @Composable
-fun remainingTime(clockState: ClockState): DisplayedTime {
+private fun remainingTime(clockState: ClockState): DisplayedTime {
     fun getDisplayedTime() = DisplayedTime(
         clock = clockState.remainingTimeOnClock(),
         extra = clockState.remainingExtraTime(),

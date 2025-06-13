@@ -15,6 +15,15 @@ import pl.edu.uj.tcs.rchess.view.shared.Loading
 import pl.edu.uj.tcs.rchess.viewmodel.datastate.DataState
 import pl.edu.uj.tcs.rchess.viewmodel.datastate.DataStateViewModel
 
+/**
+ * A Composable that displays the screen according to the state of the [DataStateViewModel].
+ *
+ * If the state is:
+ * - [DataState.Loading], it shows the [dataLoadingMessage] and a loading indicator.
+ * - [DataState.Error], it shows an [ErrorCard] with the [errorHeader] and a retry button.
+ * - [DataState.Success], the [content] functions is called with the loaded data.
+ *   The [content] lambda also receives a `refresh` function that calls the [DataStateViewModel.refresh] method.
+ */
 @Composable
 fun <T> DataStateAdapter(
     viewModel: DataStateViewModel<T>,

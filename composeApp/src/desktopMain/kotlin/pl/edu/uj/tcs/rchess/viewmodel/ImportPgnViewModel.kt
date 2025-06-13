@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import pl.edu.uj.tcs.rchess.viewmodel.datastate.DismissibleErrorsState
 
 class ImportPgnViewModel(private val context: AppContext): ViewModel() {
     val pgnInput = mutableStateOf("")

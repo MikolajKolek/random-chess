@@ -44,7 +44,7 @@ fun filesFor(orientation: PlayerColor) = when (orientation) {
     PlayerColor.BLACK -> 7 downTo 0
 }
 
-enum class SquareHighlight {
+private enum class SquareHighlight {
     Start,
     Capture,
     Move,

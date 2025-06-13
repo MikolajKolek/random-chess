@@ -9,8 +9,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import pl.edu.uj.tcs.rchess.view.shared.ErrorCard
-import pl.edu.uj.tcs.rchess.viewmodel.DismissibleErrorsState
+import pl.edu.uj.tcs.rchess.viewmodel.datastate.DismissibleErrorsState
 
+/**
+ * A Composable that takes a [DismissibleErrorsState] and displays an [ErrorCard] if there is an error to be dismissed.
+ * If there is no error, it calls the [content] lambda.
+ */
 @Composable
 fun DismissibleErrorsAdapter(
     state: DismissibleErrorsState,
