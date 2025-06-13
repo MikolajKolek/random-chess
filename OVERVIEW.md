@@ -34,22 +34,33 @@ The app code is split into two parts:
 
 To improve code structure and avoid duplication, there are generic data-managing classes:
 
-## `DataStateViewModel`
+### `DataStateViewModel`
 An instance of this class is created by passing a single function for loading data for that model.
 It provides a simple way to reload data, show a progress indicator and handle and display errors.
 
 To use it in the UI, the `DataStateAdapter` can be used. It displays the loading and errors
 states automatically and still gives the user enough options to create custom content interfaces. 
 
-## `Paging`
+### `Paging`
 A more interesting sibling of the `DataStateViewModel` class is the `Paging` interface and implementation.
 `Paging` manages loading consecutive pages of an infinite list.
 A `Paging` instance handles errors by pausing the fetching of extra pages until the error is dismissed.
 
 Together with the `PagingAdapter` it provides infinite vertical scrolling support.
 
-## `DismissibleErrorsState`
+### `DismissibleErrorsState`
 This class is used for simpler views that can error. It comes together with a `DismissibleErrorsAdapter`.
+
+### `SyncedListBrowser`
+This class manages the state for browsing a list with the list size changing.
+If the list length increases and the last element was selected, 
+the index will update to still point to the last element.
+
+### `NavigationManager`
+All the windows are managed by the `NavigationManager` class.
+It holds the list of currently open game windows and manages the navigation in the main window.
+Navigating between routes is done by calling the `NavigationManager.navigateTo` method with a `Route` instance.
+This method also focuses and brings to the front the main window.
 
 ## Colors
 Colors used in the project are defined in the `RandomChessTheme.kt` file:
